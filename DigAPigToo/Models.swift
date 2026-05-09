@@ -154,21 +154,32 @@ struct FillBlankQuestion: Identifiable {
     }
 }
 
+// Records one answered question for the results screen
+struct AnswerRecord: Identifiable {
+    let id = UUID()
+    let structureName: String
+    let categoryName: String
+    let givenAnswer: String
+    var wasCorrect: Bool { givenAnswer == structureName }
+}
+
 struct QuizSession: Identifiable {
     let id: UUID
     let questions: [QuizQuestion]
     let timePerQuestion: TimeInterval // seconds
     var currentQuestionIndex: Int = 0
     var score: Int = 0
+    var answerHistory: [AnswerRecord] = []
+
     var isComplete: Bool {
         currentQuestionIndex >= questions.count
     }
-    
+
     var currentQuestion: QuizQuestion? {
         guard currentQuestionIndex < questions.count else { return nil }
         return questions[currentQuestionIndex]
     }
-    
+
     init(questions: [QuizQuestion], timePerQuestion: TimeInterval = 20) {
         self.id = UUID()
         self.questions = questions

@@ -26,6 +26,9 @@ struct ContentView: View {
             SearchView()
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
 
+            StatsView()
+                .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
+
             GuideView()
                 .tabItem { Label("Guide", systemImage: "book") }
 
@@ -561,7 +564,7 @@ struct FillBlankDetailView: View {
         }
         .navigationTitle("Fill-in-the-Blank")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: question.id) { _ in revealed = false }
+        .onChange(of: question.id) { revealed = false }
     }
 }
 
@@ -661,33 +664,46 @@ struct QuizView: View {
 
 struct QuizQuestionView: View {
     @Binding var quizSession: QuizSession?
+    @StateObject private var statsManager = StatsManager.shared
+    @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var shuffledChoices: [String] = []
     @State private var selectedAnswer: String?
     @State private var isAnswered = false
     @State private var timer: Timer?
     @State private var timeRemaining: TimeInterval = 0
+    @State private var questionStartDate: Date = Date()
 
     var body: some View {
-        if let session = quizSession, let question = session.currentQuestion {
+        if let session = quizSession, session.currentQuestion != nil {
             VStack(spacing: 16) {
                 HStack {
                     Text("Question \(session.currentQuestionIndex + 1)/\(session.questions.count)")
+                        .font(.subheadline).foregroundStyle(.secondary)
                     Spacer()
                     Text("Score: \(session.score)")
+                        .font(.subheadline.bold())
                 }
 
-                if timeRemaining > 0 {
-                    Text("Time: \(Int(timeRemaining))s")
-                        .font(.headline)
+                if session.timePerQuestion > 0 {
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 4).fill(.gray.opacity(0.2)).frame(height: 6)
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(timerColor)
+                            .frame(width: max(0, CGFloat(timeRemaining / session.timePerQuestion)) * (UIScreen.main.bounds.width - 32), height: 6)
+                    }
+                    Text("\(Int(ceil(timeRemaining)))s")
+                        .font(.caption).foregroundStyle(timerColor).monospacedDigit()
                 }
 
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(.gray.opacity(0.2))
-                    .frame(height: 220)
-                    .overlay(Image(systemName: "photo").font(.system(size: 44)).foregroundStyle(.secondary))
-
-                Text("What structure is this?")
-                    .font(.headline)
+                    .fill(.gray.opacity(0.15))
+                    .frame(height: 180)
+                    .overlay(
+                        VStack(spacing: 8) {
+                            Image(systemName: "photo").font(.system(size: 40)).foregroundStyle(.secondary)
+                            Text("What structure is shown?").font(.caption).foregroundStyle(.secondary)
+                        }
+                    )
 
                 VStack(spacing: 10) {
                     ForEach(shuffledChoices, id: \.self) { choice in
@@ -697,7 +713,7 @@ struct QuizQuestionView: View {
                                 .padding()
                                 .background(buttonColor(choice: choice))
                                 .foregroundStyle(.white)
-                                .cornerRadius(8)
+                                .cornerRadius(10)
                         }
                         .disabled(isAnswered)
                     }
@@ -706,9 +722,10 @@ struct QuizQuestionView: View {
                 Spacer()
             }
             .padding()
-            .onChange(of: session.currentQuestionIndex) { _ in resetForNewQuestion() }
+            .onChange(of: session.currentQuestionIndex) { resetForNewQuestion() }
             .onAppear {
                 if shuffledChoices.isEmpty { resetForNewQuestion() }
+                else { restartTimerFromDate() }
             }
             .onDisappear { stopTimer() }
         } else {
@@ -716,22 +733,46 @@ struct QuizQuestionView: View {
         }
     }
 
+    private var timerColor: Color {
+        guard let session = quizSession, session.timePerQuestion > 0 else { return .blue }
+        let ratio = timeRemaining / session.timePerQuestion
+        if ratio > 0.5 { return .green }
+        if ratio > 0.25 { return .orange }
+        return .red
+    }
+
     private func resetForNewQuestion() {
         stopTimer()
-        if let session = quizSession, let q = session.currentQuestion {
-            shuffledChoices = q.allChoices
-            timeRemaining = session.timePerQuestion
-            isAnswered = false
-            selectedAnswer = nil
-            if timeRemaining > 0 { startTimer() }
-        }
+        guard let session = quizSession, let q = session.currentQuestion else { return }
+        shuffledChoices = q.allChoices
+        timeRemaining = session.timePerQuestion
+        isAnswered = false
+        selectedAnswer = nil
+        questionStartDate = Date()
+        if timeRemaining > 0 { startTimer() }
+    }
+
+    private func restartTimerFromDate() {
+        guard let session = quizSession, session.timePerQuestion > 0, !isAnswered else { return }
+        let elapsed = Date().timeIntervalSince(questionStartDate)
+        timeRemaining = max(0, session.timePerQuestion - elapsed)
+        if timeRemaining <= 0 { advance(); return }
+        startTimer()
     }
 
     private func startTimer() {
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            timeRemaining -= 1
-            if timeRemaining <= 0 { timer?.invalidate(); advance() }
+        timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { _ in
+            guard let session = quizSession, session.timePerQuestion > 0 else { return }
+            let elapsed = Date().timeIntervalSince(questionStartDate)
+            let remaining = session.timePerQuestion - elapsed
+            if remaining <= 0 {
+                timeRemaining = 0
+                timer?.invalidate()
+                advance()
+            } else {
+                timeRemaining = remaining
+            }
         }
     }
 
@@ -739,11 +780,26 @@ struct QuizQuestionView: View {
 
     private func answer(_ choice: String) {
         guard var session = quizSession, let q = session.currentQuestion else { return }
+        stopTimer()
         isAnswered = true
         selectedAnswer = choice
-        if choice == q.structure.name { session.score += 1 }
+        let correct = choice == q.structure.name
+
+        // Find category name for this structure
+        let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
+
+        if correct { session.score += 1 }
+        session.answerHistory.append(AnswerRecord(
+            structureName: q.structure.name,
+            categoryName: catName,
+            givenAnswer: choice
+        ))
         quizSession = session
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { advance() }
+
+        // Record to long-term stats
+        statsManager.record(structureName: q.structure.name, correct: correct)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { advance() }
     }
 
     private func advance() {
@@ -759,7 +815,7 @@ struct QuizQuestionView: View {
         if !isAnswered { return .blue }
         if choice == q.structure.name { return .green }
         if choice == selectedAnswer { return .red }
-        return .blue.opacity(0.4)
+        return .blue.opacity(0.35)
     }
 }
 
@@ -767,17 +823,111 @@ struct QuizResultsView: View {
     let quizSession: QuizSession
     let dismiss: DismissAction
 
-    var percentageScore: Int { Int(Double(quizSession.score) / Double(quizSession.questions.count) * 100) }
+    var pct: Int { Int(Double(quizSession.score) / Double(quizSession.questions.count) * 100) }
+    var grade: String {
+        switch pct {
+        case 90...100: return "Excellent! 🎉"
+        case 75..<90:  return "Good work!"
+        case 60..<75:  return "Getting there"
+        default:       return "Keep studying"
+        }
+    }
+
+    // Missed questions
+    var missed: [AnswerRecord] { quizSession.answerHistory.filter { !$0.wasCorrect } }
+
+    // Category breakdown from this quiz
+    var categoryBreakdown: [(category: String, correct: Int, total: Int)] {
+        let grouped = Dictionary(grouping: quizSession.answerHistory, by: { $0.categoryName })
+        return grouped.map { cat, records in
+            (category: cat,
+             correct: records.filter { $0.wasCorrect }.count,
+             total: records.count)
+        }.sorted { $0.category < $1.category }
+    }
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Quiz Complete!").font(.largeTitle).fontWeight(.bold)
-            Text("\(quizSession.score)/\(quizSession.questions.count)").font(.largeTitle).foregroundStyle(.blue)
-            Text("\(percentageScore)%").foregroundStyle(.secondary)
-            Spacer()
-            Button("Back") { dismiss() }.buttonStyle(.borderedProminent)
+        ScrollView {
+            VStack(spacing: 20) {
+
+                // Score card
+                VStack(spacing: 6) {
+                    Text(grade).font(.title2).fontWeight(.semibold)
+                    Text("\(quizSession.score) / \(quizSession.questions.count)")
+                        .font(.system(size: 52, weight: .bold, design: .rounded))
+                        .foregroundStyle(pct >= 75 ? .green : pct >= 60 ? .orange : .red)
+                    Text("\(pct)%").font(.title3).foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(.gray.opacity(0.08))
+                .cornerRadius(16)
+
+                // Category breakdown
+                if !categoryBreakdown.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("By Category", systemImage: "chart.bar.fill")
+                            .font(.headline).foregroundStyle(.blue)
+                        ForEach(categoryBreakdown, id: \.category) { row in
+                            HStack {
+                                Text(row.category).font(.subheadline)
+                                Spacer()
+                                Text("\(row.correct)/\(row.total)")
+                                    .font(.subheadline.monospacedDigit())
+                                    .foregroundStyle(row.correct == row.total ? .green : row.correct == 0 ? .red : .orange)
+                            }
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    RoundedRectangle(cornerRadius: 4).fill(.gray.opacity(0.15)).frame(height: 6)
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(row.correct == row.total ? Color.green : row.correct == 0 ? Color.red : Color.orange)
+                                        .frame(width: geo.size.width * CGFloat(row.correct) / CGFloat(row.total), height: 6)
+                                }
+                            }
+                            .frame(height: 6)
+                        }
+                    }
+                    .padding()
+                    .background(.blue.opacity(0.06))
+                    .cornerRadius(12)
+                }
+
+                // Missed questions
+                if !missed.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Missed (\(missed.count))", systemImage: "xmark.circle.fill")
+                            .font(.headline).foregroundStyle(.red)
+                        ForEach(missed) { record in
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "xmark.circle.fill").foregroundStyle(.red).font(.caption)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(record.structureName).font(.subheadline).fontWeight(.semibold)
+                                    Text("You answered: \(record.givenAnswer)").font(.caption).foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(.red.opacity(0.06))
+                    .cornerRadius(12)
+                }
+
+                // Long-term stats nudge
+                VStack(spacing: 4) {
+                    Image(systemName: "chart.line.uptrend.xyaxis").font(.title2).foregroundStyle(.purple)
+                    Text("Long-term stats saved").font(.caption).foregroundStyle(.secondary)
+                    Text("Check the Stats tab to see your weak spots").font(.caption2).foregroundStyle(.secondary)
+                }
+                .padding(.top, 4)
+
+                Button("Done") { dismiss() }
+                    .buttonStyle(.borderedProminent)
+                    .padding(.top, 4)
+            }
+            .padding()
         }
-        .padding()
+        .navigationTitle("Results")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -1120,6 +1270,125 @@ struct SelectStructureView: View {
         }
         .searchable(text: $searchText)
         .navigationTitle("Choose Structure")
+    }
+}
+
+// MARK: - Stats
+
+struct StatsView: View {
+    @StateObject private var stats = StatsManager.shared
+    @StateObject private var dataManager = AnatomyDataManager.shared
+    @State private var showResetConfirm = false
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if stats.totalAnswered == 0 {
+                    VStack(spacing: 16) {
+                        Image(systemName: "chart.bar.xaxis").font(.system(size: 52)).foregroundStyle(.secondary)
+                        Text("No quiz data yet").font(.headline)
+                        Text("Take a quiz to start tracking your performance").font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                    }
+                    .padding()
+                } else {
+                    List {
+                        // Overall
+                        Section("Overall") {
+                            HStack {
+                                Label("Questions Answered", systemImage: "number.circle.fill")
+                                Spacer()
+                                Text("\(stats.totalAnswered)").fontWeight(.semibold)
+                            }
+                            HStack {
+                                Label("Overall Accuracy", systemImage: "percent")
+                                Spacer()
+                                Text("\(Int(stats.overallAccuracy * 100))%")
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(stats.overallAccuracy >= 0.75 ? .green : stats.overallAccuracy >= 0.6 ? .orange : .red)
+                            }
+                        }
+
+                        // Category breakdown
+                        let catBreakdown = stats.categoryAccuracy(structures: dataManager.structures, categories: dataManager.categories)
+                        if !catBreakdown.isEmpty {
+                            Section("By Category (weakest first)") {
+                                ForEach(catBreakdown, id: \.category) { row in
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        HStack {
+                                            Text(row.category).font(.subheadline)
+                                            Spacer()
+                                            Text("\(Int(row.accuracy * 100))%")
+                                                .font(.subheadline.monospacedDigit())
+                                                .foregroundStyle(row.accuracy >= 0.75 ? .green : row.accuracy >= 0.6 ? .orange : .red)
+                                        }
+                                        GeometryReader { geo in
+                                            ZStack(alignment: .leading) {
+                                                RoundedRectangle(cornerRadius: 3).fill(.gray.opacity(0.15)).frame(height: 5)
+                                                RoundedRectangle(cornerRadius: 3)
+                                                    .fill(row.accuracy >= 0.75 ? Color.green : row.accuracy >= 0.6 ? Color.orange : Color.red)
+                                                    .frame(width: geo.size.width * row.accuracy, height: 5)
+                                            }
+                                        }
+                                        .frame(height: 5)
+                                        Text("\(row.attempts) attempts").font(.caption2).foregroundStyle(.secondary)
+                                    }
+                                    .padding(.vertical, 2)
+                                }
+                            }
+                        }
+
+                        // Weakest structures
+                        let weak = stats.weakest.prefix(15)
+                        if !weak.isEmpty {
+                            Section("Weak Spots — Study These") {
+                                ForEach(Array(weak), id: \.name) { item in
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(item.name).font(.subheadline)
+                                            Text("\(item.stat.correctCount) correct, \(item.stat.incorrectCount) wrong")
+                                                .font(.caption).foregroundStyle(.secondary)
+                                        }
+                                        Spacer()
+                                        Text("\(item.stat.accuracyPercent)%")
+                                            .font(.subheadline.monospacedDigit())
+                                            .foregroundStyle(.red)
+                                    }
+                                }
+                            }
+                        }
+
+                        // Strongest structures
+                        let strong = stats.strongest.prefix(10)
+                        if !strong.isEmpty {
+                            Section("Strongest") {
+                                ForEach(Array(strong), id: \.name) { item in
+                                    HStack {
+                                        Text(item.name).font(.subheadline)
+                                        Spacer()
+                                        Text("\(item.stat.accuracyPercent)%")
+                                            .font(.subheadline.monospacedDigit())
+                                            .foregroundStyle(.green)
+                                    }
+                                }
+                            }
+                        }
+
+                        Section {
+                            Button("Reset All Stats", role: .destructive) {
+                                showResetConfirm = true
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("My Stats")
+            .confirmationDialog("Reset all quiz history?", isPresented: $showResetConfirm, titleVisibility: .visible) {
+                Button("Reset", role: .destructive) { stats.reset() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This cannot be undone.")
+            }
+        }
     }
 }
 
