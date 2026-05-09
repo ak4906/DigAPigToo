@@ -202,7 +202,7 @@ struct StructureDetailView: View {
                 if !structure.images.isEmpty {
                     TabView {
                         ForEach(structure.images) { img in
-                            AnatomyImageView(image: img)
+                            AnatomyImageView(image: img, fillsFrame: false)
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                         }
                     }
@@ -300,8 +300,11 @@ struct StructureDetailView: View {
 }
 
 // Renders a single AnatomyImage — local asset or remote URL, with zoom label
+// Tap anywhere on the image to open a fullscreen pinch-to-zoom viewer.
 struct AnatomyImageView: View {
     let image: AnatomyImage
+    var fillsFrame: Bool = true   // false → scaledToFit (show full image, no cropping)
+    @State private var showFullscreen = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -309,7 +312,11 @@ struct AnatomyImageView: View {
                 AsyncImage(url: URL(string: image.source)) { phase in
                     switch phase {
                     case .success(let img):
-                        img.resizable().scaledToFill()
+                        if fillsFrame {
+                            img.resizable().scaledToFill()
+                        } else {
+                            img.resizable().scaledToFit()
+                        }
                     case .failure:
                         Color.gray.opacity(0.2).overlay(Image(systemName: "photo").foregroundStyle(.secondary))
                     default:
@@ -317,13 +324,25 @@ struct AnatomyImageView: View {
                     }
                 }
             } else if let uiImg = UIImage(named: image.source) {
-                Image(uiImage: uiImg).resizable().scaledToFill()
+                if fillsFrame {
+                    Image(uiImage: uiImg).resizable().scaledToFill()
+                } else {
+                    Image(uiImage: uiImg).resizable().scaledToFit()
+                }
             } else {
                 Color.gray.opacity(0.15)
                     .overlay(Image(systemName: "photo").foregroundStyle(.secondary))
             }
 
             VStack(alignment: .trailing, spacing: 2) {
+                // Tap-to-zoom hint
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.caption2)
+                    .padding(5)
+                    .background(.black.opacity(0.5))
+                    .foregroundStyle(.white)
+                    .cornerRadius(5)
+
                 if let mag = image.magnification {
                     Text("\(mag)x").font(.caption.bold()).padding(6)
                         .background(.black.opacity(0.55)).foregroundStyle(.white)
@@ -338,6 +357,127 @@ struct AnatomyImageView: View {
             .padding(8)
         }
         .background(Color.gray.opacity(0.1))
+        .onTapGesture { showFullscreen = true }
+        .fullScreenCover(isPresented: $showFullscreen) {
+            FullscreenImageSheet(image: image)
+        }
+    }
+}
+
+// MARK: - Fullscreen Zoomable Image Sheet
+
+struct FullscreenImageSheet: View {
+    let image: AnatomyImage
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                if image.isRemote, let url = URL(string: image.source) {
+                    AsyncZoomableImage(url: url)
+                } else if let uiImg = UIImage(named: image.source) {
+                    ZoomableUIImage(uiImage: uiImg)
+                }
+            }
+            .navigationTitle(image.caption.isEmpty ? "Photo" : image.caption)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if let mag = image.magnification {
+                        Text("\(mag)x")
+                            .font(.caption.bold())
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(.white.opacity(0.2))
+                            .foregroundStyle(.white)
+                            .cornerRadius(6)
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                        .foregroundStyle(.white)
+                }
+            }
+        }
+    }
+}
+
+// Loads a remote image then hands it to ZoomableUIImage
+struct AsyncZoomableImage: View {
+    let url: URL
+    @State private var loadedImage: UIImage?
+
+    var body: some View {
+        Group {
+            if let img = loadedImage {
+                ZoomableUIImage(uiImage: img)
+            } else {
+                ProgressView().tint(.white)
+            }
+        }
+        .task {
+            guard loadedImage == nil else { return }
+            if let data = try? await URLSession.shared.data(from: url).0,
+               let img = UIImage(data: data) {
+                loadedImage = img
+            }
+        }
+    }
+}
+
+// UIScrollView wrapper — real pinch-to-zoom + pan, up to 6×
+struct ZoomableUIImage: UIViewRepresentable {
+    let uiImage: UIImage
+
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.minimumZoomScale = 1.0
+        scrollView.maximumZoomScale = 6.0
+        scrollView.backgroundColor = .black
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.delegate = context.coordinator
+
+        let imageView = UIImageView(image: uiImage)
+        imageView.contentMode = .scaleAspectFit
+        imageView.frame = scrollView.bounds
+        imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        scrollView.addSubview(imageView)
+        context.coordinator.imageView = imageView
+
+        // Double-tap to zoom in/out
+        let doubleTap = UITapGestureRecognizer(target: context.coordinator,
+                                               action: #selector(Coordinator.handleDoubleTap(_:)))
+        doubleTap.numberOfTapsRequired = 2
+        scrollView.addGestureRecognizer(doubleTap)
+
+        return scrollView
+    }
+
+    func updateUIView(_ uiView: UIScrollView, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator() }
+
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        weak var imageView: UIImageView?
+        weak var scrollView: UIScrollView?
+
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+            self.scrollView = scrollView
+            return imageView
+        }
+
+        @objc func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
+            guard let scrollView else { return }
+            if scrollView.zoomScale > scrollView.minimumZoomScale {
+                scrollView.setZoomScale(scrollView.minimumZoomScale, animated: true)
+            } else {
+                let point = recognizer.location(in: imageView)
+                let zoomRect = CGRect(x: point.x - 50, y: point.y - 50, width: 100, height: 100)
+                scrollView.zoom(to: zoomRect, animated: true)
+            }
+        }
     }
 }
 
@@ -1471,7 +1611,7 @@ struct DiagramDetailView: View {
             // Full-screen swipeable image gallery
             TabView(selection: $currentIndex) {
                 ForEach(Array(group.images.enumerated()), id: \.element.id) { idx, img in
-                    AnatomyImageView(image: img)
+                    AnatomyImageView(image: img, fillsFrame: false)
                         .tag(idx)
                 }
             }

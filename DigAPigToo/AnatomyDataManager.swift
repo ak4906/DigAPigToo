@@ -40,9 +40,7 @@ class AnatomyDataManager: ObservableObject {
                 description: "Frontal, sagittal, and transverse planes through the fetal pig",
                 systemImage: "square.split.2x2",
                 images: [
-                    ImageCDN.image("frontal-plane_gross_1.png",   caption: "Frontal (Coronal) Plane"),
-                    ImageCDN.image("sagittal-plane_gross_1.png",  caption: "Sagittal Plane"),
-                    ImageCDN.image("transverse-plane_gross_1.png", caption: "Transverse Plane"),
+                    ImageCDN.image("ref_planes_1.png", caption: "Anatomical Planes — Frontal, Sagittal & Transverse"),
                 ]
             ),
             DiagramGroup(
@@ -51,6 +49,15 @@ class AnatomyDataManager: ObservableObject {
                 systemImage: "heart.fill",
                 images: [
                     ImageCDN.image("ref_arterial-system_1.jpeg", caption: "Arterial System Overview"),
+                ]
+            ),
+            DiagramGroup(
+                title: "Venous System",
+                description: "Major veins draining to the cranial and caudal vena cava",
+                systemImage: "drop.fill",
+                images: [
+                    ImageCDN.image("ref_venous-system_1.jpeg", caption: "Venous System Overview"),
+                    ImageCDN.image("ref_caudal-vena-cava_1.jpeg", caption: "Caudal Vena Cava & Tributaries"),
                 ]
             ),
             // ── Add more groups below as you gather photos ──────────────────
@@ -143,7 +150,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Belly/back"],
                     function: "Describes position relative to ventral (belly) or dorsal (back) surface",
                     commonConfusions: [],
-                    examTips: ["Ventral = toward belly; Dorsal = toward back"]
+                    examTips: ["Ventral = toward belly; Dorsal = toward back"],
+                    images: [ImageCDN.image("dorsal-ventral_gross_1.png", caption: "Dorsal vs. Ventral")]
                 ),
                 AnatomyStructure(
                     categoryId: directionalCat.id,
@@ -151,7 +159,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Head/tail direction"],
                     function: "Describes position toward head or tail",
                     commonConfusions: [],
-                    examTips: ["Cranial = toward head; Caudal = toward tail"]
+                    examTips: ["Cranial = toward head; Caudal = toward tail"],
+                    images: [ImageCDN.image("cranial-caudal_gross_1.png", caption: "Cranial vs. Caudal")]
                 ),
                 AnatomyStructure(
                     categoryId: directionalCat.id,
@@ -183,7 +192,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Far/near"],
                     function: "Far from and near to a reference point",
                     commonConfusions: [],
-                    examTips: ["Useful for limbs and vessels"]
+                    examTips: ["Useful for limbs and vessels"],
+                    images: [ImageCDN.image("proximal-distal_gross_1.png", caption: "Proximal vs. Distal")]
                 ),
                 AnatomyStructure(
                     categoryId: directionalCat.id,
@@ -2177,6 +2187,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Arterial vessel"],
                     function: "Carries blood away from heart",
                     examTips: ["Thicker walls than veins"],
+                    images: [ImageCDN.slide("artery-vein-nerve_histo_artery_1.jpeg", magnification: 10, caption: "Artery")],
                     histology: "Thick muscular wall; small lumen"
                 ),
                 AnatomyStructure(
@@ -2186,6 +2197,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Returns deoxygenated blood to the heart at low pressure",
                     commonConfusions: ["Vein vs artery on slides: vein has thinner wall relative to lumen, often irregular/collapsed lumen; artery has thicker wall, rounder lumen", "Vein wall is thinner because blood pressure in veins is much lower than arteries"],
                     examTips: ["Key ID vs artery: vein has proportionally LARGER lumen and THINNER wall (less smooth muscle in tunica media)", "Veins often appear collapsed or irregular in shape on slides (not perfectly round like arteries)", "Still has three tunica layers but media is much thinner"],
+                    images: [ImageCDN.slide("artery-vein-nerve_histo_vein_1.jpeg", magnification: 10, caption: "Vein")],
                     histology: "Tunica intima (simple squamous endothelium), thin tunica media (sparse smooth muscle), tunica adventitia (thickest layer, dense connective tissue)",
                     connections: "Systemic veins return to right heart; pulmonary veins return to left heart; venules → small veins → larger veins → vena cava",
                     highYield: true
@@ -2197,6 +2209,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Transmits electrical signals (action potentials) between body regions; peripheral nerves carry motor commands to muscles and sensory information from receptors to the CNS",
                     commonConfusions: ["On the artery/vein/nerve slide: nerve has NO hollow lumen (unlike vessels); it consists of bundled fascicles of axons — look for the 'telephone cable' cross-section appearance", "Nerve vs blood vessel: vessels have clear hollow lumens; nerve is solid bundled tissue with no lumen"],
                     examTips: ["KEY ID on the artery/vein/nerve slide — three structures side by side: artery (thick round wall, round lumen), vein (thin wall, irregular lumen), nerve (NO lumen, bundled fascicles)", "Nerve cross-section looks like a 'bundle of cables': multiple fascicles each containing many small round axons, surrounded by connective tissue sheaths", "Epineurium = outermost connective tissue around whole nerve; perineurium = around each fascicle; endoneurium = around each axon"],
+                    images: [ImageCDN.slide("artery-vein-nerve_histo_nerve_1.jpeg", magnification: 10, caption: "Nerve")],
                     histology: "Nervous tissue: axons (nerve fibers) bundled into fascicles; each axon may be myelinated (myelin sheath = white fatty insulation) or unmyelinated; connective tissue sheaths: epineurium, perineurium, endoneurium",
                     connections: "Peripheral nerves branch from spinal cord/brain; travel with blood vessels in neurovascular bundles; artery/vein/nerve triad is a common anatomical arrangement in limbs and viscera",
                     highYield: true
@@ -2444,6 +2457,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Hepatic lobule"],
                     function: "Functional unit of liver",
                     examTips: ["Portal triads at corners"],
+                    images: [ImageCDN.slide("liver_histo_1.jpeg", magnification: 10, caption: "Liver Lobule — 10×")],
                     histology: "Hexagonal arrangement of hepatocytes"
                 ),
                 AnatomyStructure(
@@ -2453,6 +2467,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "The portal triad is the vascular + ductal unit at the PERIPHERY of each liver lobule; it supplies blood into the lobule and drains bile out; contains three structures: branch of portal vein (nutrient-rich), branch of hepatic artery (oxygenated), and a bile duct (carries bile away from hepatocytes)",
                     commonConfusions: ["Portal triad = PERIPHERY of lobule; central vein = CENTER of lobule — this directionality is the most important liver histology concept", "Three structures in the portal triad: portal vein branch, hepatic artery branch, bile duct — students often forget the bile duct or confuse flow direction (blood flows FROM triad TOWARD central vein; bile flows OPPOSITE, from hepatocytes TOWARD triad)"],
                     examTips: ["CRITICAL DISTINCTION: Portal triad (periphery) → blood flows inward through sinusoids → central vein (center)", "On the liver slide: look for clusters of 3 structures at lobule corners = portal triad; the single large thin-walled vessel in the middle = central vein", "Bile flow is OPPOSITE to blood flow: bile canaliculi → bile ductules → portal triad bile duct → hepatic duct → common bile duct → duodenum"],
+                    images: [ImageCDN.slide("liver_histo_1.jpeg", magnification: 10, caption: "Portal Triad — 10×")],
                     histology: "Portal vein branch: large, thin-walled, irregular; hepatic artery branch: smaller, thick-walled, round; bile duct: lined by simple cuboidal/columnar epithelium; all embedded in connective tissue stroma",
                     connections: "Portal vein branch receives nutrient-rich blood from GI tract; hepatic artery branch receives oxygenated blood from celiac artery; bile duct drains toward hepatic ducts; located at periphery of liver lobule",
                     highYield: true
@@ -2464,6 +2479,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Collects blood after it has passed through the liver sinusoids and been processed by hepatocytes; drains into sublobular veins → hepatic veins → caudal vena cava; the central vein is the endpoint of blood flow within one liver lobule",
                     commonConfusions: ["VERY IMPORTANT: portal triad = periphery of lobule; central vein = CENTER of lobule — these are opposite ends of the blood flow direction through the lobule", "Central vein is NOT the portal vein — the portal vein enters at the triad (periphery); the central vein drains blood out at the center after hepatocyte processing"],
                     examTips: ["MOST IMPORTANT liver histology landmark: find the large thin-walled open vessel in the CENTER of the lobule = central vein; find the cluster of 3 vessels/duct at the PERIPHERY = portal triad", "Blood flow direction: portal triad (in) → sinusoids → hepatocytes → central vein (out) → hepatic vein → caudal vena cava", "On the slide: central vein appears as a single large, thin-walled, round/oval vessel with an open lumen at the center of the lobule"],
+                    images: [ImageCDN.slide("liver_histo_1.jpeg", magnification: 10, caption: "Central Vein — 10×")],
                     histology: "Simple squamous endothelium lining (like all veins); very thin wall with minimal smooth muscle (low pressure); the lumen is often wide and irregular; surrounded by hepatocyte plates converging toward it",
                     connections: "Receives: blood from liver sinusoids (after hepatocyte processing); drains into: sublobular veins → hepatic veins → caudal vena cava; located at the CENTER of each liver lobule",
                     highYield: true
@@ -2474,6 +2490,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Liver cell"],
                     function: "Performs liver functions",
                     examTips: ["Primary liver cell type"],
+                    images: [ImageCDN.slide("liver_histo_1.jpeg", magnification: 10, caption: "Hepatocytes — 10×")],
                     histology: "Large cuboidal cells with multiple nuclei"
                 ),
             ])
