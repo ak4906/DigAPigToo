@@ -13,6 +13,7 @@ class AnatomyDataManager: ObservableObject {
     @Published var structures: [AnatomyStructure] = []
     @Published var traces: [TraceQuestion] = []
     @Published var fillBlanks: [FillBlankQuestion] = []
+    @Published var diagramGroups: [DiagramGroup] = []
 
     static let shared = AnatomyDataManager()
 
@@ -25,6 +26,35 @@ class AnatomyDataManager: ObservableObject {
         structures = createStructures()
         traces = createTraces()
         fillBlanks = createFillBlanks()
+        diagramGroups = createDiagramGroups()
+    }
+
+    // MARK: - Diagram Groups
+    // Add new reference photo groups here as you upload images to R2.
+    // Naming convention: ref_[system]_[number].png
+    // e.g. ref_arterial-system_1.png, ref_anatomical-planes_1.png
+    private func createDiagramGroups() -> [DiagramGroup] {
+        return [
+            DiagramGroup(
+                title: "Anatomical Planes",
+                description: "Frontal, sagittal, and transverse planes through the fetal pig",
+                systemImage: "square.split.2x2",
+                images: [
+                    ImageCDN.image("frontal-plane_gross_1.png",   caption: "Frontal (Coronal) Plane"),
+                    ImageCDN.image("sagittal-plane_gross_1.png",  caption: "Sagittal Plane"),
+                    ImageCDN.image("transverse-plane_gross_1.png", caption: "Transverse Plane"),
+                ]
+            ),
+            DiagramGroup(
+                title: "Arterial System",
+                description: "All major arteries branching from the aorta and heart",
+                systemImage: "heart.fill",
+                images: [
+                    ImageCDN.image("ref_arterial-system_1.jpeg", caption: "Arterial System Overview"),
+                ]
+            ),
+            // ── Add more groups below as you gather photos ──────────────────
+        ]
     }
     
     // MARK: - Category Methods
@@ -50,7 +80,8 @@ class AnatomyDataManager: ObservableObject {
             AnatomyCategory(name: "Vessel Histology", description: "Blood vessel tissue organization"),
             AnatomyCategory(name: "Respiratory Histology", description: "Respiratory tissue structure"),
             AnatomyCategory(name: "Gastrointestinal Histology", description: "Digestive tract tissue"),
-            AnatomyCategory(name: "Liver/Pancreas Histology", description: "Hepatic and pancreatic tissue"),
+            AnatomyCategory(name: "Liver Histology", description: "Hepatic tissue structure and organization"),
+            AnatomyCategory(name: "Pancreas Histology", description: "Exocrine and endocrine pancreatic tissue"),
             AnatomyCategory(name: "Kidney Histology", description: "Renal tissue structure"),
             AnatomyCategory(name: "Reproductive Histology", description: "Gonadal and reproductive tissue"),
             AnatomyCategory(name: "Microscope", description: "Microscope components and parts"),
@@ -73,7 +104,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Coronal plane"],
                     function: "Divides body into dorsal and ventral portions",
                     commonConfusions: [],
-                    examTips: ["Separates back from belly"]
+                    examTips: ["Separates back from belly"],
+                    images: [
+                        ImageCDN.image("frontal-plane_gross_1.png"),
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: planesCat.id,
@@ -81,7 +115,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Median plane"],
                     function: "Divides body into left and right portions",
                     commonConfusions: [],
-                    examTips: ["Important for head/neck dissections"]
+                    examTips: ["Important for head/neck dissections"],
+                    images: [
+                        ImageCDN.image("sagittal-plane_gross_1.png"),
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: planesCat.id,
@@ -89,7 +126,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Horizontal plane"],
                     function: "Divides body into cranial and caudal parts",
                     commonConfusions: [],
-                    examTips: ["Creates cross-sections through body regions"]
+                    examTips: ["Creates cross-sections through body regions"],
+                    images: [
+                        ImageCDN.image("transverse-plane_gross_1.png"),
+                    ]
                 ),
             ])
         }
@@ -2395,11 +2435,11 @@ class AnatomyDataManager: ObservableObject {
             ])
         }
         
-        // MARK: Liver/Pancreas Histology
-        if let hepaticCat = categories.first(where: { $0.name == "Liver/Pancreas Histology" }) {
+        // MARK: Liver Histology
+        if let liverHistoCat = categories.first(where: { $0.name == "Liver Histology" }) {
             structures.append(contentsOf: [
                 AnatomyStructure(
-                    categoryId: hepaticCat.id,
+                    categoryId: liverHistoCat.id,
                     name: "Liver Lobule",
                     aliases: ["Hepatic lobule"],
                     function: "Functional unit of liver",
@@ -2407,7 +2447,7 @@ class AnatomyDataManager: ObservableObject {
                     histology: "Hexagonal arrangement of hepatocytes"
                 ),
                 AnatomyStructure(
-                    categoryId: hepaticCat.id,
+                    categoryId: liverHistoCat.id,
                     name: "Portal Triad",
                     aliases: ["Portal tract", "Portal area"],
                     function: "The portal triad is the vascular + ductal unit at the PERIPHERY of each liver lobule; it supplies blood into the lobule and drains bile out; contains three structures: branch of portal vein (nutrient-rich), branch of hepatic artery (oxygenated), and a bile duct (carries bile away from hepatocytes)",
@@ -2418,7 +2458,7 @@ class AnatomyDataManager: ObservableObject {
                     highYield: true
                 ),
                 AnatomyStructure(
-                    categoryId: hepaticCat.id,
+                    categoryId: liverHistoCat.id,
                     name: "Central Vein",
                     aliases: ["Central vein of liver lobule", "Terminal hepatic venule"],
                     function: "Collects blood after it has passed through the liver sinusoids and been processed by hepatocytes; drains into sublobular veins → hepatic veins → caudal vena cava; the central vein is the endpoint of blood flow within one liver lobule",
@@ -2429,31 +2469,37 @@ class AnatomyDataManager: ObservableObject {
                     highYield: true
                 ),
                 AnatomyStructure(
-                    categoryId: hepaticCat.id,
+                    categoryId: liverHistoCat.id,
                     name: "Hepatocyte",
                     aliases: ["Liver cell"],
                     function: "Performs liver functions",
                     examTips: ["Primary liver cell type"],
                     histology: "Large cuboidal cells with multiple nuclei"
                 ),
+            ])
+        }
+
+        // MARK: Pancreas Histology
+        if let pancreasHistoCat = categories.first(where: { $0.name == "Pancreas Histology" }) {
+            structures.append(contentsOf: [
                 AnatomyStructure(
-                    categoryId: hepaticCat.id,
+                    categoryId: pancreasHistoCat.id,
                     name: "Acinus",
                     aliases: ["Pancreatic acinus"],
                     function: "Secretes digestive enzymes",
-                    examTips: ["Functional unit of pancreas"],
-                    histology: "Cluster of secretory cells"
+                    examTips: ["Functional unit of exocrine pancreas"],
+                    histology: "Cluster of secretory acinar cells surrounding a small lumen"
                 ),
                 AnatomyStructure(
-                    categoryId: hepaticCat.id,
+                    categoryId: pancreasHistoCat.id,
                     name: "Acinar Cells",
                     aliases: ["Pancreatic acinar cells"],
                     function: "Produces digestive secretions",
-                    examTips: ["Zymogen granules for storage"],
-                    histology: "Cuboidal cells with basophilic cytoplasm"
+                    examTips: ["Zymogen granules for enzyme storage"],
+                    histology: "Cuboidal cells with basophilic cytoplasm and apical zymogen granules"
                 ),
                 AnatomyStructure(
-                    categoryId: hepaticCat.id,
+                    categoryId: pancreasHistoCat.id,
                     name: "Islet of Langerhans",
                     aliases: ["Pancreatic islet", "Islets of Langerhans"],
                     function: "Endocrine component of the pancreas — produces insulin (beta cells, lowers blood glucose), glucagon (alpha cells, raises blood glucose), and somatostatin (delta cells, regulates both); releases hormones directly into bloodstream with no duct",
@@ -2464,7 +2510,7 @@ class AnatomyDataManager: ObservableObject {
                     highYield: true
                 ),
                 AnatomyStructure(
-                    categoryId: hepaticCat.id,
+                    categoryId: pancreasHistoCat.id,
                     name: "Interlobular / Intralobular Duct",
                     aliases: ["Pancreatic duct", "Intralobular duct", "Interlobular duct", "Pancreatic ductal system"],
                     function: "Carry digestive enzyme-rich secretions from pancreatic acini toward the main pancreatic duct and ultimately into the duodenum; intralobular ducts (small, within lobules) drain into interlobular ducts (larger, between lobules) → main pancreatic duct → duodenum",

@@ -7,6 +7,16 @@
 
 import Foundation
 
+// MARK: - Diagram / Reference Models
+
+struct DiagramGroup: Identifiable {
+    let id = UUID()
+    let title: String           // e.g. "Arterial System"
+    let description: String     // brief context shown under the title
+    let systemImage: String     // SF Symbol for the row icon
+    let images: [AnatomyImage]
+}
+
 // MARK: - Core Anatomy Models
 
 struct AnatomyCategory: Identifiable, Hashable {

@@ -26,6 +26,9 @@ struct ContentView: View {
             SearchView()
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
 
+            DiagramsView()
+                .tabItem { Label("Diagrams", systemImage: "photo.stack.fill") }
+
             StatsView()
                 .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
 
@@ -46,14 +49,131 @@ struct ContentView: View {
 struct AtlasView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
 
+    // Ordered super-category groupings
+    private var groups: [(title: String, systemImage: String, categories: [AnatomyCategory])] {
+        let cats = dataManager.categories
+        func find(_ name: String) -> AnatomyCategory? { cats.first { $0.name == name } }
+
+        return [
+            (
+                title: "Terminology",
+                systemImage: "character.book.closed.fill",
+                categories: ["Anatomical Planes", "Directional Terminology"].compactMap { find($0) }
+            ),
+            (
+                title: "Gross Anatomy",
+                systemImage: "scissors",
+                categories: [
+                    "External", "Buccal Cavity", "Upper Thoracic", "Peritoneal Cavity",
+                    "Digestive System", "Respiratory System", "Circulatory System",
+                    "Urinary System", "Male Reproductive", "Female Reproductive",
+                    "Fetal Structures", "Adult Maternal Pig", "Cow Eye"
+                ].compactMap { find($0) }
+            ),
+            (
+                title: "Histology",
+                systemImage: "magnifyingglass.circle.fill",
+                categories: [
+                    "Blood Histology", "Vessel Histology", "Respiratory Histology",
+                    "Gastrointestinal Histology", "Liver Histology", "Pancreas Histology",
+                    "Kidney Histology", "Reproductive Histology"
+                ].compactMap { find($0) }
+            ),
+            (
+                title: "Epithelial Types",
+                systemImage: "square.grid.2x2.fill",
+                categories: ["Epithelial Types"].compactMap { find($0) }
+            ),
+            (
+                title: "Microscopy",
+                systemImage: "magnifyingglass.circle.fill",
+                categories: ["Microscope"].compactMap { find($0) }
+            ),
+        ].filter { !$0.categories.isEmpty }
+    }
+
     var body: some View {
         NavigationStack {
-            List(dataManager.categories) { category in
-                NavigationLink(category.name) {
-                    StructureListView(category: category)
+            List {
+                ForEach(groups, id: \.title) { group in
+                    Section {
+                        ForEach(group.categories) { category in
+                            NavigationLink {
+                                StructureListView(category: category)
+                            } label: {
+                                Label {
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(category.name)
+                                            .font(.body)
+                                        if !category.description.isEmpty {
+                                            Text(category.description)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                } icon: {
+                                    let info = categoryIcon(category.name)
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 7)
+                                            .fill(info.color)
+                                            .frame(width: 32, height: 32)
+                                        Image(systemName: info.symbol)
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundStyle(.white)
+                                    }
+                                }
+                            }
+                        }
+                    } header: {
+                        Label(group.title, systemImage: group.systemImage)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .textCase(nil)
+                            .padding(.top, 4)
+                    }
                 }
             }
             .navigationTitle("Dig a Pig Too")
+        }
+    }
+
+    struct IconInfo {
+        let symbol: String
+        let color: Color
+    }
+
+    private func categoryIcon(_ name: String) -> IconInfo {
+        switch name {
+        // Terminology
+        case "Anatomical Planes":           return IconInfo(symbol: "square.split.2x2",                  color: .blue)
+        case "Directional Terminology":     return IconInfo(symbol: "arrow.up.left.and.arrow.down.right", color: .blue)
+        // Gross anatomy
+        case "External":                    return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.6, green: 0.35, blue: 0.1))
+        case "Buccal Cavity":               return IconInfo(symbol: "mouth.fill",                         color: .pink)
+        case "Upper Thoracic":              return IconInfo(symbol: "figure.arms.open",                   color: .indigo)
+        case "Peritoneal Cavity":           return IconInfo(symbol: "circle.inset.filled",                color: .orange)
+        case "Digestive System":            return IconInfo(symbol: "fork.knife",                         color: .orange)
+        case "Respiratory System":          return IconInfo(symbol: "lungs.fill",                         color: .cyan)
+        case "Circulatory System":          return IconInfo(symbol: "heart.fill",                         color: .red)
+        case "Urinary System":              return IconInfo(symbol: "drop.fill",                          color: Color(red: 0.9, green: 0.7, blue: 0.1))
+        case "Male Reproductive":           return IconInfo(symbol: "figure.stand",                       color: .blue)
+        case "Female Reproductive":         return IconInfo(symbol: "figure.stand.dress",                 color: .purple)
+        case "Fetal Structures":            return IconInfo(symbol: "figure.2.and.child.holdinghands",    color: .teal)
+        case "Adult Maternal Pig":          return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.5, green: 0.25, blue: 0.05))
+        case "Cow Eye":                     return IconInfo(symbol: "eye.fill",                           color: .green)
+        // Histology — all use a consistent deep purple
+        case "Blood Histology":             return IconInfo(symbol: "drop.fill",                          color: .purple)
+        case "Vessel Histology":            return IconInfo(symbol: "waveform.path.ecg",                  color: .purple)
+        case "Respiratory Histology":       return IconInfo(symbol: "lungs.fill",                         color: .purple)
+        case "Gastrointestinal Histology":  return IconInfo(symbol: "fork.knife",                         color: .purple)
+        case "Liver Histology":             return IconInfo(symbol: "leaf.fill",                          color: .purple)
+        case "Pancreas Histology":          return IconInfo(symbol: "cross.case.fill",                    color: .purple)
+        case "Kidney Histology":            return IconInfo(symbol: "drop.circle.fill",                   color: .purple)
+        case "Reproductive Histology":      return IconInfo(symbol: "figure.2",                           color: .purple)
+        // Other
+        case "Epithelial Types":            return IconInfo(symbol: "square.grid.2x2.fill",               color: .indigo)
+        case "Microscope":                  return IconInfo(symbol: "magnifyingglass.circle.fill",         color: .gray)
+        default:                            return IconInfo(symbol: "circle.fill",                        color: .gray)
         }
     }
 }
@@ -685,12 +805,15 @@ struct QuizQuestionView: View {
                 }
 
                 if session.timePerQuestion > 0 {
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4).fill(.gray.opacity(0.2)).frame(height: 6)
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(timerColor)
-                            .frame(width: max(0, CGFloat(timeRemaining / session.timePerQuestion)) * (UIScreen.main.bounds.width - 32), height: 6)
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 4).fill(.gray.opacity(0.2)).frame(height: 6)
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(timerColor)
+                                .frame(width: max(0, CGFloat(timeRemaining / session.timePerQuestion)) * geo.size.width, height: 6)
+                        }
                     }
+                    .frame(height: 6)
                     Text("\(Int(ceil(timeRemaining)))s")
                         .font(.caption).foregroundStyle(timerColor).monospacedDigit()
                 }
@@ -998,6 +1121,7 @@ struct UploadPhotoView: View {
     @StateObject private var contributor = ContributionManager()
     @StateObject private var dataManager = AnatomyDataManager.shared
     @Environment(\.dismiss) var dismiss
+    @FocusState private var notesFocused: Bool
 
     var activeImage: UIImage? { selectedImage ?? cameraImage }
     var canSubmit: Bool { selectedStructure != nil && activeImage != nil }
@@ -1053,6 +1177,7 @@ struct UploadPhotoView: View {
             Section("Notes (optional)") {
                 TextEditor(text: $notes)
                     .frame(height: 80)
+                    .focused($notesFocused)
                     .overlay(
                         Group {
                             if notes.isEmpty {
@@ -1065,10 +1190,17 @@ struct UploadPhotoView: View {
                         },
                         alignment: .topLeading
                     )
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") { notesFocused = false }
+                        }
+                    }
             }
 
             Section {
                 SubmitButton(state: contributor.state, enabled: canSubmit) {
+                    notesFocused = false
                     contributor.submit(
                         structureName: selectedStructure?.name ?? "",
                         image: activeImage!,
@@ -1078,6 +1210,7 @@ struct UploadPhotoView: View {
             }
         }
         .navigationTitle("Contribute Photo")
+        .scrollDismissesKeyboard(.interactively)
         .sheet(isPresented: $showCamera) {
             CameraView(image: $cameraImage).ignoresSafeArea()
         }
@@ -1106,6 +1239,7 @@ struct UploadPhotoForStructureView: View {
     @State private var cameraImage: UIImage?
     @StateObject private var contributor = ContributionManager()
     @Environment(\.dismiss) var dismiss
+    @FocusState private var notesFocused: Bool
 
     var activeImage: UIImage? { selectedImage ?? cameraImage }
 
@@ -1150,6 +1284,7 @@ struct UploadPhotoForStructureView: View {
             Section("Notes (optional)") {
                 TextEditor(text: $notes)
                     .frame(height: 80)
+                    .focused($notesFocused)
                     .overlay(
                         Group {
                             if notes.isEmpty {
@@ -1162,10 +1297,17 @@ struct UploadPhotoForStructureView: View {
                         },
                         alignment: .topLeading
                     )
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") { notesFocused = false }
+                        }
+                    }
             }
 
             Section {
                 SubmitButton(state: contributor.state, enabled: activeImage != nil) {
+                    notesFocused = false
                     contributor.submit(
                         structureName: structure.name,
                         image: activeImage!,
@@ -1175,6 +1317,7 @@ struct UploadPhotoForStructureView: View {
             }
         }
         .navigationTitle("Photo for \(structure.name)")
+        .scrollDismissesKeyboard(.interactively)
         .sheet(isPresented: $showCamera) {
             CameraView(image: $cameraImage).ignoresSafeArea()
         }
@@ -1270,6 +1413,92 @@ struct SelectStructureView: View {
         }
         .searchable(text: $searchText)
         .navigationTitle("Choose Structure")
+    }
+}
+
+// MARK: - Diagrams
+
+struct DiagramsView: View {
+    @StateObject private var dataManager = AnatomyDataManager.shared
+
+    var body: some View {
+        NavigationStack {
+            Group {
+                if dataManager.diagramGroups.isEmpty {
+                    VStack(spacing: 16) {
+                        Image(systemName: "photo.stack").font(.system(size: 52)).foregroundStyle(.secondary)
+                        Text("No diagrams yet").font(.headline)
+                        Text("Reference diagrams and labeled overviews will appear here.").font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                    }
+                    .padding()
+                } else {
+                    List(dataManager.diagramGroups) { group in
+                        NavigationLink {
+                            DiagramDetailView(group: group)
+                        } label: {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(group.title).font(.body)
+                                    Text(group.description).font(.caption).foregroundStyle(.secondary)
+                                    Text("\(group.images.count) image\(group.images.count == 1 ? "" : "s")")
+                                        .font(.caption2).foregroundStyle(.tertiary)
+                                }
+                            } icon: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 7)
+                                        .fill(Color.blue)
+                                        .frame(width: 32, height: 32)
+                                    Image(systemName: group.systemImage)
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundStyle(.white)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Diagrams")
+        }
+    }
+}
+
+struct DiagramDetailView: View {
+    let group: DiagramGroup
+    @State private var currentIndex = 0
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Full-screen swipeable image gallery
+            TabView(selection: $currentIndex) {
+                ForEach(Array(group.images.enumerated()), id: \.element.id) { idx, img in
+                    AnatomyImageView(image: img)
+                        .tag(idx)
+                }
+            }
+            .tabViewStyle(.page)
+            .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Caption bar
+            if !group.images.isEmpty {
+                let img = group.images[min(currentIndex, group.images.count - 1)]
+                VStack(spacing: 4) {
+                    if !img.caption.isEmpty {
+                        Text(img.caption)
+                            .font(.headline)
+                    }
+                    Text("\(currentIndex + 1) of \(group.images.count)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(.regularMaterial)
+            }
+        }
+        .navigationTitle(group.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .ignoresSafeArea(edges: .bottom)
     }
 }
 
@@ -1447,54 +1676,84 @@ struct AboutView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Dig a Pig Too").font(.largeTitle).fontWeight(.bold)
-                        Text("Version 1.0 • 2026").foregroundStyle(.secondary)
+                VStack(spacing: 0) {
+
+                    // App icon + title header
+                    VStack(spacing: 12) {
+                        Image("AppIconDisplay")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 22))
+                            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+                        Text("Dig a Pig Too")
+                            .font(.title).fontWeight(.bold)
+                        Text("Version 1.0  •  2026")
+                            .font(.subheadline).foregroundStyle(.secondary)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 28)
 
                     Divider()
 
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("About This App").font(.headline)
-                        Text("Dig a Pig Too is a comprehensive fetal pig anatomy study app built for biology and anatomy students preparing for lab practicals. It covers identification, histology, circulatory traces, and fill-in-the-blank practice across all major organ systems.")
-                    }
+                    VStack(alignment: .leading, spacing: 20) {
 
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("The Original Dig a Pig").font(.headline)
-                        Text("This app pays homage to the original **Dig a Pig** app, first released in **2015** and updated in **2017**. That app pioneered the digital fetal pig anatomy study experience and helped thousands of students prepare for dissection labs.")
-                        Text("Dig a Pig Too builds on that legacy with a fully rebuilt 2026 structure — new trace practice, fill-in-the-blank questions, detailed histology descriptions, and expanded content covering the Cow Eye dissection, Adult Maternal Pig station, and Epithelial Types.")
-                    }
-
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Content Coverage").font(.headline)
-                        Group {
-                            Label("24 anatomy categories", systemImage: "folder")
-                            Label("Circulatory system with all named vessels and fetal shunts", systemImage: "heart")
-                            Label("Cow Eye dissection structures", systemImage: "eye")
-                            Label("Male and Female Reproductive systems", systemImage: "figure.2")
-                            Label("Adult Maternal Pig station", systemImage: "leaf")
-                            Label("Epithelial Types with mnemonics", systemImage: "square.grid.2x2")
-                            Label("Trace practice questions (≈22% of exam)", systemImage: "arrow.right.circle")
-                            Label("Fill-in-the-blank questions", systemImage: "text.badge.plus")
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("About This App").font(.headline)
+                            Text("Dig a Pig Too is the unofficial sequel to the original Dig a Pig app — rebuilt from the ground up for Columbia University's Contemporary Biology Lab (BIOL 2501). It covers identification, histology, circulatory traces, and fill-in-the-blank practice across all major organ systems.")
                         }
-                        .font(.subheadline)
+
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("The Original Dig a Pig").font(.headline)
+                            Text("This app pays homage to the original Dig a Pig, first released in 2015 and updated in 2017. That app helped thousands of students prepare for dissection lab practicals and already covered gross anatomy, the cow eye, the adult maternal pig uterus station, and the fetal heart.")
+                            Text("Dig a Pig Too is the 2026 rebuild — designed for modern iOS and the updated BIOL 2501 curriculum.")
+                        }
+
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("What's New in This Version").font(.headline)
+                            Group {
+                                Label("Full histology coverage — blood, vessel, respiratory, GI, liver, pancreas, kidney, and reproductive slides", systemImage: "magnifyingglass.circle.fill")
+                                Label("Microscope component IDs", systemImage: "scope")
+                                Label("Trace practice questions covering ≈22% of the exam", systemImage: "arrow.right.circle.fill")
+                                Label("Fill-in-the-blank questions", systemImage: "text.badge.plus")
+                                Label("Long-term quiz stats and weak spot tracking", systemImage: "chart.bar.fill")
+                                Label("300+ structures across 24 categories", systemImage: "folder.fill")
+                                Label("Rebuilt for iOS 26", systemImage: "iphone")
+                            }
+                            .font(.subheadline)
+                        }
+
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Contribute").font(.headline)
+                            Text("Help improve the app by contributing dissection and histology photos. Tap the Contribute tab to upload photos for specific structures — submissions are reviewed before being added.")
+                        }
+
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Contact & Links").font(.headline)
+                            Link(destination: URL(string: "https://instagram.com/cometzfly")!) {
+                                Label("@cometzfly on Instagram", systemImage: "camera.fill")
+                                    .font(.subheadline)
+                            }
+                            Link(destination: URL(string: "mailto:ak4906@columbia.edu")!) {
+                                Label("ak4906@columbia.edu", systemImage: "envelope.fill")
+                                    .font(.subheadline)
+                            }
+                            Link(destination: URL(string: "https://github.com/ak4906/DigAPigToo")!) {
+                                Label("github.com/ak4906/DigAPigToo", systemImage: "chevron.left.forwardslash.chevron.right")
+                                    .font(.subheadline)
+                            }
+                        }
                     }
-
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Contribute").font(.headline)
-                        Text("Help improve the app by contributing high-quality dissection photos. Tap the Contribute tab to upload photos for specific structures.")
-                    }
-
-                    Spacer()
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle("About")
         }
