@@ -1122,15 +1122,24 @@ struct QuizQuestionView: View {
                         .font(.caption).foregroundStyle(timerColor).monospacedDigit()
                 }
 
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.gray.opacity(0.15))
-                    .frame(height: 180)
-                    .overlay(
-                        VStack(spacing: 8) {
-                            Image(systemName: "photo").font(.system(size: 40)).foregroundStyle(.secondary)
-                            Text("What structure is shown?").font(.caption).foregroundStyle(.secondary)
-                        }
-                    )
+                Group {
+                    if let q = session.currentQuestion,
+                       !q.structure.images.isEmpty {
+                        let img = q.structure.images[min(q.imageIndex, q.structure.images.count - 1)]
+                        AnatomyImageView(image: img, fillsFrame: true, title: q.structure.name)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.gray.opacity(0.15))
+                            .overlay(
+                                VStack(spacing: 8) {
+                                    Image(systemName: "photo").font(.system(size: 40)).foregroundStyle(.secondary)
+                                    Text("What structure is shown?").font(.caption).foregroundStyle(.secondary)
+                                }
+                            )
+                    }
+                }
+                .frame(height: 200)
 
                 VStack(spacing: 10) {
                     ForEach(shuffledChoices, id: \.self) { choice in
@@ -1791,20 +1800,18 @@ struct DiagramDetailView: View {
     @State private var currentIndex = 0
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Full-screen swipeable image gallery
-            TabView(selection: $currentIndex) {
-                ForEach(Array(group.images.enumerated()), id: \.element.id) { idx, img in
-                    AnatomyImageView(image: img, fillsFrame: false, title: group.title,
-                                     fullscreenMode: .diagram(allGroups.isEmpty ? [group] : allGroups))
-                        .tag(idx)
-                }
+        TabView(selection: $currentIndex) {
+            ForEach(Array(group.images.enumerated()), id: \.element.id) { idx, img in
+                AnatomyImageView(image: img, fillsFrame: false, title: group.title,
+                                 fullscreenMode: .diagram(allGroups.isEmpty ? [group] : allGroups))
+                    .tag(idx)
             }
-            .tabViewStyle(.page)
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            // Caption bar
+        }
+        .tabViewStyle(.page)
+        .indexViewStyle(.page(backgroundDisplayMode: .always))
+        .navigationTitle(group.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) {
             if !group.images.isEmpty {
                 let img = group.images[min(currentIndex, group.images.count - 1)]
                 VStack(spacing: 4) {
@@ -1821,9 +1828,6 @@ struct DiagramDetailView: View {
                 .background(.regularMaterial)
             }
         }
-        .navigationTitle(group.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .ignoresSafeArea(edges: .bottom)
     }
 }
 
