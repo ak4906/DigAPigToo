@@ -348,8 +348,9 @@ struct StructurePagerView: View {
 // Tap anywhere on the image to open a fullscreen pinch-to-zoom viewer.
 struct AnatomyImageView: View {
     let image: AnatomyImage
-    var fillsFrame: Bool = true   // false → scaledToFit (show full image, no cropping)
-    var title: String = ""        // shown in fullscreen nav bar (falls back to caption then "Photo")
+    var fillsFrame: Bool = true        // false → scaledToFit (show full image, no cropping)
+    var title: String = ""             // shown in fullscreen nav bar
+    var fullscreenMode: FullscreenMode = .structure
     @State private var showFullscreen = false
 
     var body: some View {
@@ -410,87 +411,107 @@ struct AnatomyImageView: View {
         .background(Color.gray.opacity(0.1))
         .onTapGesture { showFullscreen = true }
         .fullScreenCover(isPresented: $showFullscreen) {
-            FullscreenImageSheet(image: image, title: title)
+            FullscreenImageSheet(image: image, title: title, mode: fullscreenMode)
         }
     }
 }
 
 // MARK: - Fullscreen Zoomable Image Sheet
 
-/// A flat entry pairing an image with its structure name, used for cross-structure swiping.
+enum FullscreenMode {
+    case structure                    // swipe through all structures (one page each)
+    case diagram([DiagramGroup])      // swipe through all diagram images only
+}
+
+/// One slot in the fullscreen pager.
 private struct FullscreenEntry: Identifiable {
-    let image: AnatomyImage
-    let structureName: String
-    var id: UUID { image.id }
+    let id: UUID               // stable: structure.id or image.id
+    let title: String
+    let image: AnatomyImage?   // nil = no photo for this structure
 }
 
 struct FullscreenImageSheet: View {
-    let image: AnatomyImage   // the image that was tapped — used to find initial position
-    var title: String = ""    // structure name passed from the caller
+    let image: AnatomyImage        // tapped image — used to find initial position
+    var title: String = ""
+    var mode: FullscreenMode = .structure
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var dataManager = AnatomyDataManager.shared
-    @State private var currentIndex: Int = 0
+    @State private var currentIndex = 0
 
-    /// All images from all structures that have at least one photo, in atlas order.
-    private var allEntries: [FullscreenEntry] {
-        dataManager.orderedStructures
-            .filter { !$0.images.isEmpty }
-            .flatMap { structure in
-                structure.images.map { img in
-                    FullscreenEntry(image: img, structureName: structure.name)
-                }
+    // MARK: Entry lists
+
+    private func structureEntries() -> [FullscreenEntry] {
+        // Find which structure owns the tapped image so we can show it specifically
+        let tappedStructureId = dataManager.structures.first(where: { s in
+            s.images.contains(where: { $0.id == image.id })
+        })?.id
+
+        return dataManager.orderedStructures.map { structure in
+            let displayImage: AnatomyImage?
+            if structure.id == tappedStructureId {
+                // Show the exact image the user tapped
+                displayImage = structure.images.first(where: { $0.id == image.id })
+                              ?? structure.images.first
+            } else {
+                displayImage = structure.images.first   // nil if no photos
             }
+            return FullscreenEntry(id: structure.id, title: structure.name, image: displayImage)
+        }
     }
 
-    /// Whether the tapped image exists in the cross-structure list.
-    private var isInStructureList: Bool {
-        allEntries.contains(where: { $0.image.id == image.id })
+    private func diagramEntries(groups: [DiagramGroup]) -> [FullscreenEntry] {
+        groups.flatMap { group in
+            group.images.map { img in
+                FullscreenEntry(id: img.id, title: group.title, image: img)
+            }
+        }
+    }
+
+    private var entries: [FullscreenEntry] {
+        switch mode {
+        case .structure:             return structureEntries()
+        case .diagram(let groups):  return diagramEntries(groups: groups)
+        }
+    }
+
+    private var initialIndex: Int {
+        switch mode {
+        case .structure:
+            // Find the structure that contains the tapped image
+            let tappedStructureId = dataManager.structures.first(where: { s in
+                s.images.contains(where: { $0.id == image.id })
+            })?.id
+            return entries.firstIndex(where: { $0.id == tappedStructureId }) ?? 0
+        case .diagram:
+            return entries.firstIndex(where: { $0.image?.id == image.id }) ?? 0
+        }
     }
 
     private var currentEntry: FullscreenEntry? {
-        guard currentIndex < allEntries.count else { return nil }
-        return allEntries[currentIndex]
-    }
-
-    private var navigationTitle: String {
-        currentEntry?.structureName ?? (title.isEmpty ? (image.caption.isEmpty ? "Photo" : image.caption) : title)
-    }
-
-    private var currentMag: Int? {
-        currentEntry?.image.magnification ?? image.magnification
+        guard currentIndex < entries.count else { return nil }
+        return entries[currentIndex]
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
-
-                if isInStructureList {
-                    // Cross-structure swipeable pager
-                    TabView(selection: $currentIndex) {
-                        ForEach(Array(allEntries.enumerated()), id: \.element.id) { idx, entry in
-                            FullscreenZoomablePage(image: entry.image)
-                                .tag(idx)
-                        }
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    .ignoresSafeArea()
-                } else {
-                    // Fallback: single image (e.g. diagram images)
-                    if image.isRemote, let url = URL(string: image.source) {
-                        AsyncZoomableImage(url: url)
-                    } else if let uiImg = UIImage(named: image.source) {
-                        ZoomableUIImage(uiImage: uiImg)
+                TabView(selection: $currentIndex) {
+                    ForEach(Array(entries.enumerated()), id: \.element.id) { idx, entry in
+                        FullscreenPageView(image: entry.image, structureName: entry.title)
+                            .tag(idx)
                     }
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .ignoresSafeArea()
             }
-            .navigationTitle(navigationTitle)
+            .navigationTitle(currentEntry?.title ?? title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if let mag = currentMag {
+                    if let mag = currentEntry?.image?.magnification {
                         Text("\(mag)×")
                             .font(.caption.bold())
                             .padding(.horizontal, 8).padding(.vertical, 4)
@@ -505,26 +526,44 @@ struct FullscreenImageSheet: View {
                 }
             }
         }
-        .onAppear {
-            if let idx = allEntries.firstIndex(where: { $0.image.id == image.id }) {
-                currentIndex = idx
-            }
-        }
+        .onAppear { currentIndex = initialIndex }
     }
 }
 
-/// One page inside the fullscreen pager — handles remote/local images.
-private struct FullscreenZoomablePage: View {
-    let image: AnatomyImage
+/// One page in the fullscreen pager — zoomable image or "no photo" placeholder.
+private struct FullscreenPageView: View {
+    let image: AnatomyImage?
+    let structureName: String
 
     var body: some View {
-        if image.isRemote, let url = URL(string: image.source) {
-            AsyncZoomableImage(url: url)
-        } else if let uiImg = UIImage(named: image.source) {
-            ZoomableUIImage(uiImage: uiImg)
+        if let img = image {
+            if img.isRemote, let url = URL(string: img.source) {
+                AsyncZoomableImage(url: url)
+            } else if let uiImg = UIImage(named: img.source) {
+                ZoomableUIImage(uiImage: uiImg)
+            } else {
+                noPhotoPlaceholder
+            }
         } else {
-            Color.black
+            noPhotoPlaceholder
         }
+    }
+
+    private var noPhotoPlaceholder: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "photo.slash")
+                .font(.system(size: 52))
+                .foregroundStyle(.white.opacity(0.4))
+            Text("No photo yet for")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.5))
+            Text(structureName)
+                .font(.headline)
+                .foregroundStyle(.white.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -1718,7 +1757,7 @@ struct DiagramsView: View {
                 } else {
                     List(dataManager.diagramGroups) { group in
                         NavigationLink {
-                            DiagramDetailView(group: group)
+                            DiagramDetailView(group: group, allGroups: dataManager.diagramGroups)
                         } label: {
                             Label {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -1748,6 +1787,7 @@ struct DiagramsView: View {
 
 struct DiagramDetailView: View {
     let group: DiagramGroup
+    var allGroups: [DiagramGroup] = []
     @State private var currentIndex = 0
 
     var body: some View {
@@ -1755,7 +1795,8 @@ struct DiagramDetailView: View {
             // Full-screen swipeable image gallery
             TabView(selection: $currentIndex) {
                 ForEach(Array(group.images.enumerated()), id: \.element.id) { idx, img in
-                    AnatomyImageView(image: img, fillsFrame: false, title: group.title)
+                    AnatomyImageView(image: img, fillsFrame: false, title: group.title,
+                                     fullscreenMode: .diagram(allGroups.isEmpty ? [group] : allGroups))
                         .tag(idx)
                 }
             }
