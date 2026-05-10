@@ -283,6 +283,10 @@ class AnatomyDataManager: ObservableObject {
                     function: "Major flexion-extension joint for locomotion",
                     commonConfusions: ["Do not confuse with ankle; pigs are ungulates with elongated distal limbs"],
                     examTips: ["Joint between femur and lower hindlimb"],
+                    images: [
+                        ImageCDN.image("knee_gross_1.jpg", caption: "Knee"),
+                        ImageCDN.image("knee_gross_2.png", caption: "Knee"),
+                    ],
                     histology: "Joint structure",
                     connections: "Proximal to ankle",
                     highYield: false
