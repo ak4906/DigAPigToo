@@ -1889,7 +1889,7 @@ struct ExamItemRow: View {
                             Text(item.structure.name)
                                 .font(.subheadline)
                                 .fontWeight(item.wasCorrect ? .regular : .semibold)
-                                .foregroundStyle(item.wasCorrect ? .primary : .red)
+                                .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
                             if !item.wasCorrect && item.givenAnswer != "(blank)" {
                                 Text("You wrote: \(item.givenAnswer)")
                                     .font(.caption2).foregroundStyle(.secondary)
