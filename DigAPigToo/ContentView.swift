@@ -194,6 +194,11 @@ struct StructureListView: View {
 
 struct StructureDetailView: View {
     let structure: AnatomyStructure
+    @StateObject private var dataManager = AnatomyDataManager.shared
+
+    private var categoryName: String {
+        dataManager.categories.first { $0.id == structure.categoryId }?.name ?? ""
+    }
 
     var body: some View {
         ScrollView {
@@ -232,6 +237,15 @@ struct StructureDetailView: View {
                                 .background(.yellow.opacity(0.15))
                                 .cornerRadius(8)
                         }
+                    }
+
+                    if !categoryName.isEmpty {
+                        Label(categoryName, systemImage: "folder.fill")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(.secondary.opacity(0.1))
+                            .cornerRadius(7)
                     }
 
                     if !structure.aliases.isEmpty {
@@ -314,8 +328,10 @@ struct AnatomyImageView: View {
                     case .success(let img):
                         if fillsFrame {
                             img.resizable().scaledToFill()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         } else {
                             img.resizable().scaledToFit()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
                     case .failure:
                         Color.gray.opacity(0.2).overlay(Image(systemName: "photo").foregroundStyle(.secondary))
@@ -323,11 +339,14 @@ struct AnatomyImageView: View {
                         Color.gray.opacity(0.1).overlay(ProgressView())
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let uiImg = UIImage(named: image.source) {
                 if fillsFrame {
                     Image(uiImage: uiImg).resizable().scaledToFill()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     Image(uiImage: uiImg).resizable().scaledToFit()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             } else {
                 Color.gray.opacity(0.15)
@@ -1204,6 +1223,10 @@ struct SearchView: View {
         searchText.isEmpty ? [] : dataManager.searchStructures(query: searchText)
     }
 
+    private func categoryName(for structure: AnatomyStructure) -> String {
+        dataManager.categories.first { $0.id == structure.categoryId }?.name ?? ""
+    }
+
     var body: some View {
         NavigationStack {
             Group {
@@ -1214,7 +1237,18 @@ struct SearchView: View {
                     }
                 } else {
                     List(results) { s in
-                        NavigationLink(s.name) { StructureDetailView(structure: s) }
+                        NavigationLink(destination: StructureDetailView(structure: s)) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(s.name)
+                                    .font(.body)
+                                let cat = categoryName(for: s)
+                                if !cat.isEmpty {
+                                    Label(cat, systemImage: "folder")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
                     }
                 }
             }

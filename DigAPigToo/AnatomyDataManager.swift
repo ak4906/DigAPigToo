@@ -235,6 +235,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "External respiratory openings; allow airflow into nasal cavity; olfaction; warming/humidification/filtering of air",
                     commonConfusions: [],
                     examTips: ["Two openings at tip of snout inside rostral plate"],
+                    images: [ImageCDN.image("external-nostril_gross_1.jpeg", caption: "External Nostril")],
                     histology: "Continuous with external skin",
                     connections: "External nostril → nasal cavity → conchae → nasal pharynx → larynx/trachea",
                     highYield: true
@@ -469,64 +470,133 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: digestiveCat.id,
                     name: "Pyloric Sphincter",
                     aliases: ["Pylorus", "Pyloric valve"],
-                    function: "Controls passage of food from stomach to small intestine",
-                    examTips: ["Located at junction of stomach and duodenum"]
+                    function: "Thickened ring of circular smooth muscle at the stomach–duodenum junction; controls the rate of gastric emptying by opening and closing to meter chyme into the duodenum",
+                    commonConfusions: ["Pyloric sphincter vs pyloric antrum: the antrum is the stomach region just before the sphincter; the sphincter is the muscular valve itself", "Pyloric sphincter vs cardiac sphincter (cardia): cardiac sphincter is at the esophagus–stomach junction; pyloric is at stomach–duodenum"],
+                    examTips: ["Practical ID: narrow thickened muscular ring at the exit of the stomach where it meets the duodenum", "Smooth muscle — involuntary control", "KEY FUNCTION: controlled valve preventing uncontrolled chyme passage"],
+                    histology: "Greatly thickened circular smooth muscle layer; mucosa continues as simple columnar epithelium; pyloric glands on gastric side",
+                    connections: "Stomach (pyloric antrum) → pyloric sphincter → duodenum",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
                     name: "Duodenum",
-                    aliases: ["First part of small intestine"],
-                    function: "First portion of small intestine; receives pancreatic and bile secretions",
-                    examTips: ["Approximately 10 inches long"]
+                    aliases: ["First part of small intestine", "C-loop", "Duodenal loop"],
+                    function: "First segment of small intestine; receives acidic chyme from stomach plus bile (via common bile duct) and pancreatic enzymes (via pancreatic duct and accessory pancreatic duct); site of major chemical digestion and beginning of absorption",
+                    commonConfusions: ["Duodenum receives bile AND pancreatic enzymes — the accessory pancreatic duct empties directly into the duodenum (students commonly forget this)", "Duodenum vs jejunum on histology: Brunner's glands in the SUBMUCOSA = duodenum — the single most reliable identifier"],
+                    examTips: ["Practical ID: C-shaped loop of intestine immediately after the pyloric sphincter", "Villi + Brunner's glands = duodenum", "KEY: accessory pancreatic duct empties here in addition to common bile duct"],
+                    histology: "Simple columnar epithelium with villi; BRUNNER'S GLANDS in submucosa (alkaline mucus, acid neutralization) — distinguishing feature from rest of small intestine",
+                    connections: "Pyloric sphincter → duodenum → jejunum; receives common bile duct + accessory pancreatic duct at hepatopancreatic ampulla",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
                     name: "Jejuno-ileum",
-                    aliases: ["Jejunum", "Ileum"],
-                    function: "Middle and last portions of small intestine; primary absorption site",
-                    examTips: ["Coiled loops in abdominal cavity"]
+                    aliases: ["Jejunum", "Ileum", "Small intestine (pig)", "Jejunoileum"],
+                    function: "Long coiled small intestine; primary site of nutrient absorption (amino acids, fatty acids, sugars, vitamins, minerals); ileum specifically absorbs vitamin B12, bile salts, and hosts Peyer's patches for immune surveillance",
+                    commonConfusions: ["In pigs, the jejunum and ileum are not clearly demarcated and are called 'jejuno-ileum' as a unit", "Jejuno-ileum vs large intestine: small intestine has VILLI; large intestine does NOT — this is the #1 histological distinguishing feature", "Ileum vs jejunum histology: ileum has Peyer's patches in submucosa; jejunum does not"],
+                    examTips: ["Practical ID: long coiled loops of intestine; narrower diameter than large intestine", "Villi present — this is small intestine", "Ileum portion: Peyer's patches = lymphoid aggregates visible in submucosa"],
+                    histology: "Simple columnar epithelium with enterocytes (microvilli brush border), goblet cells, and villi; ileum portion has Peyer's patches (lymphoid aggregates in submucosa/mucosa)",
+                    connections: "Duodenum → jejuno-ileum → caecum (at ileocaecal junction); suspended by intestinal mesentery",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
                     name: "Caecum",
-                    aliases: ["Cecum", "Blind pouch"],
-                    function: "Pouch at junction of small and large intestine",
-                    examTips: ["Where small intestine meets large intestine"]
+                    aliases: ["Cecum", "Blind pouch", "Ileocaecal junction"],
+                    function: "Blind-ended pouch at the junction of small and large intestine; in pigs, site of microbial fermentation, water absorption, and transitional digestive processing",
+                    commonConfusions: ["Caecum is LARGE INTESTINE — no villi, increasing goblet cells", "Human appendix is a vestigial outgrowth of the caecum; pigs do not have a distinct appendix"],
+                    examTips: ["Practical ID: blind pouch where jejuno-ileum meets the large intestine", "Larger diameter than small intestine; no villi"],
+                    histology: "Simple columnar epithelium, reduced villi (transitional) → absent, increasing goblet cells; crypts of Lieberkühn; large intestine pattern",
+                    connections: "Jejuno-ileum → ileocaecal junction → caecum → spiral colon",
+                    highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
                     name: "Spiral Colon",
-                    aliases: ["Large intestine", "Colon"],
-                    function: "Water absorption and fecal storage",
-                    examTips: ["Has distinctive spiral arrangement"]
+                    aliases: ["Pig colon", "Coiled large intestine"],
+                    function: "Pig-specific coiled large intestine segment; major site of water absorption and fecal consolidation; the characteristic spiral arrangement is unique to pigs and some other mammals",
+                    commonConfusions: ["Spiral colon is pig-specific — humans do not have this structure", "Spiral colon vs small intestine: NO villi + many goblet cells = large intestine/spiral colon"],
+                    examTips: ["Practical ID: tightly coiled large intestinal structure, characteristic of pigs", "No villi + abundant goblet cells on histology", "KEY PIG ANATOMY: the spiral colon is a defining pig-specific structure"],
+                    histology: "Simple columnar epithelium, NO villi, abundant goblet cells, crypts of Lieberkühn; large intestine pattern",
+                    connections: "Caecum → spiral colon → transverse colon",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
                     name: "Rectum",
-                    aliases: ["Terminal large intestine"],
-                    function: "Stores feces before elimination",
-                    examTips: ["Final portion of intestinal tract"]
+                    aliases: ["Terminal large intestine", "Pelvic colon"],
+                    function: "Terminal portion of the large intestine within the pelvic cavity; stores feces and forms the defecation pathway; transitions from simple columnar to stratified squamous epithelium approaching the anus",
+                    commonConfusions: ["Rectum is INSIDE the pelvis — it is the pelvic portion of the large intestine", "The rectum transitions to stratified squamous near the anal canal — this epithelial shift is testable"],
+                    examTips: ["Practical ID: terminal segment of large intestine running into the pelvis", "Proximally: simple columnar + goblet cells; distally: transitions to stratified squamous near anus", "The transition from columnar to squamous protects against abrasion"],
+                    histology: "Proximal: simple columnar epithelium with goblet cells, crypts; distal: gradual transition to stratified squamous epithelium approaching anal canal",
+                    connections: "Descending colon → rectum (enters pelvis) → anal canal → anus",
+                    highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
                     name: "Pancreas",
-                    aliases: ["Pancreatic gland"],
-                    function: "Produces digestive enzymes and hormones",
-                    examTips: ["Located near stomach and duodenum"]
+                    aliases: ["Pancreatic gland", "Exocrine/endocrine pancreas"],
+                    function: "Dual-function gland: EXOCRINE — secretes digestive enzymes (trypsinogen, chymotrypsinogen, lipase, amylase) via pancreatic duct into duodenum; ENDOCRINE — secretes insulin (from β cells) and glucagon (from α cells) into blood via islets of Langerhans",
+                    commonConfusions: ["CRITICAL TRACE: the ACCESSORY pancreatic duct empties DIRECTLY into the duodenum — students commonly forget this and only trace via the common bile duct", "Exocrine (acinar cells → ducts → duodenum) vs endocrine (islets of Langerhans → bloodstream) — two completely separate secretion routes"],
+                    examTips: ["Practical ID: diffuse, lobulated glandular tissue adherent to the duodenal loop and near the stomach", "EXAM-CRITICAL: accessory pancreatic duct → duodenum directly (in addition to main pancreatic duct via common bile duct area)", "Acinar cells = exocrine enzyme producers; islets of Langerhans = endocrine hormone producers"],
+                    histology: "Acinar cells (enzyme-secreting, zymogen granules) arranged around central ducts; islets of Langerhans scattered throughout (lighter staining endocrine clusters with α and β cells)",
+                    connections: "Exocrine: acini → pancreatic ducts → duodenum; endocrine: islets → blood; sits adjacent to duodenum and caudal to stomach",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
                     name: "Gallbladder",
-                    aliases: ["Bile storage"],
-                    function: "Stores and concentrates bile",
-                    examTips: ["Associated with liver"]
+                    aliases: ["Bile storage sac", "Vesica biliaris"],
+                    function: "Stores and concentrates bile produced by the liver; releases bile into the duodenum via the cystic duct → common bile duct in response to CCK (cholecystokinin) when dietary fat enters the small intestine",
+                    commonConfusions: ["Gallbladder stores bile; liver PRODUCES bile — these are two different steps", "Bile flow path: liver → hepatic duct → (can go to gallbladder via cystic duct for storage) → cystic duct → common bile duct → duodenum"],
+                    examTips: ["Practical ID: greenish sac on the underside/visceral surface of the liver", "Simple columnar epithelium inside — optimized for absorption/secretion during concentration"],
+                    histology: "Simple columnar epithelium (tall, for absorptive concentration of bile); folded mucosa; smooth muscle wall for bile expulsion; no submucosa",
+                    connections: "Liver (hepatic duct) → cystic duct → gallbladder; gallbladder → cystic duct → common bile duct → duodenum",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
-                    name: "Liver Lobes",
-                    aliases: ["Hepatic lobes"],
-                    function: "Functional units of liver",
-                    examTips: ["Right/left medial and lateral lobes"]
+                    name: "Right Medial Lobe of Liver",
+                    aliases: ["Right medial hepatic lobe", "Medial right lobe"],
+                    function: "One of the four major liver lobes (right medial, left medial, right lateral, left lateral); performs all liver functions — metabolism, detoxification, bile production, glycogen storage, plasma protein synthesis, urea production",
+                    commonConfusions: ["Pig liver has FIVE lobes: right medial, left medial, right lateral, left lateral, and caudate — not two like in simplified diagrams", "Right medial lobe is one of the central lobes visible ventrally on the liver"],
+                    examTips: ["Practical ID: central liver lobe visible from the ventral surface, on the right side of midline", "The two medial lobes are the most prominently visible from the ventral aspect"],
+                    histology: "Hepatocytes in lobules, liver sinusoids, portal triads at lobule periphery, central veins at lobule centers — same as all liver",
+                    connections: "Part of liver mass; shares portal blood supply and hepatic venous drainage with other lobes; bile flows to hepatic ducts → common bile duct → duodenum",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: digestiveCat.id,
+                    name: "Left Medial Lobe of Liver",
+                    aliases: ["Left medial hepatic lobe", "Medial left lobe"],
+                    function: "One of the four major liver lobes; performs all standard liver functions in the same manner as the right medial lobe",
+                    commonConfusions: ["Left medial vs left lateral: medial lobes are the more central/midline lobes; lateral lobes are the more peripheral/body-wall lobes", "Both medial lobes are visible ventrally and are histologically identical"],
+                    examTips: ["Practical ID: central liver lobe visible from the ventral surface, on the left side of midline", "Mirror image of right medial lobe anatomically; identical histologically"],
+                    histology: "Same as all liver: hepatocytes, sinusoids, portal triads, central veins",
+                    connections: "Part of liver mass; drains to hepatic ducts and ultimately common bile duct",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: digestiveCat.id,
+                    name: "Right Lateral Lobe of Liver",
+                    aliases: ["Right lateral hepatic lobe", "Lateral right lobe"],
+                    function: "More lateral lobe of the right liver; participates in all liver metabolic and secretory functions",
+                    commonConfusions: ["Right lateral lobe is positioned more toward the right body wall compared to the right medial lobe", "May be partially obscured by right medial lobe when viewing from ventral surface"],
+                    examTips: ["Practical ID: outer right liver lobe, positioned laterally toward the right body wall", "Histologically identical to all other liver lobes"],
+                    histology: "Hepatocytes in lobules, liver sinusoids, portal triads, central veins — same as all liver",
+                    connections: "Part of liver mass; portal blood supply shared with other lobes; bile drains to hepatic duct system",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: digestiveCat.id,
+                    name: "Left Lateral Lobe of Liver",
+                    aliases: ["Left lateral hepatic lobe", "Lateral left lobe"],
+                    function: "More lateral lobe of the left liver; participates in all liver metabolic and secretory functions",
+                    commonConfusions: ["Left lateral lobe extends more toward the left body wall; the left lateral lobe is often the largest lobe of the pig liver", "Students sometimes confuse the left lateral lobe with the spleen — spleen is darker and more elongated, positioned caudal to the liver"],
+                    examTips: ["Practical ID: outermost left liver lobe, positioned laterally; often the largest single liver lobe in pigs", "Histologically identical to all other liver lobes"],
+                    histology: "Hepatocytes in lobules, liver sinusoids, portal triads, central veins — same as all liver",
+                    connections: "Part of liver mass; portal blood supply; bile drains to hepatic duct system",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
@@ -557,6 +627,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Double fold of peritoneum suspending the intestines from the dorsal body wall; carries blood vessels, lymphatics, and nerves to the gut",
                     commonConfusions: ["Not to be confused with the broad ligament (which suspends reproductive organs); the mesentery specifically suspends the small intestine"],
                     examTips: ["Practical ID: fan-like sheet of tissue connecting intestines to the dorsal wall, visible when intestines are reflected", "Contains the mesenteric arteries and veins running toward the intestinal wall"],
+                    images: [ImageCDN.image("mesentery_gross_1.jpeg", caption: "Mesentery")],
                     histology: "Simple squamous mesothelium (peritoneum) covering loose connective tissue with blood vessels",
                     connections: "Attaches to dorsal body wall; contains cranial/caudal mesenteric arteries and veins; surrounds jejuno-ileum and much of colon",
                     highYield: false
@@ -627,10 +698,83 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: respiratoryCat.id,
-                    name: "Lung Lobes",
-                    aliases: ["Pulmonary lobes"],
-                    function: "Structural divisions of lungs",
-                    examTips: ["Right lung has more lobes than left"]
+                    name: "Cranial Lobe of Right Lung",
+                    aliases: ["Right cranial lobe", "Right apical lobe"],
+                    function: "Most cranial/anterior lobe of the right lung; first lobe visible when thoracic cavity is opened",
+                    commonConfusions: ["Right lung has 4 lobes (cranial, middle, caudal, accessory); left lung has only 2 (cranial, caudal) — asymmetry is testable", "Cranial lobe of right vs left: right cranial lobe is larger and more prominent"],
+                    examTips: ["Right lung = 4 lobes: cranial, middle, caudal, accessory", "Cranial lobe = most anterior, toward the head end of the lung"],
+                    connections: "Part of right lung; supplied by right cranial lobar bronchus and branch of right pulmonary artery",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Cranial Lobe of Left Lung",
+                    aliases: ["Left cranial lobe", "Left apical lobe"],
+                    function: "Most cranial lobe of the left lung; the left lung is smaller than right due to cardiac notch accommodating the heart",
+                    commonConfusions: ["Left lung has only 2 lobes (cranial + caudal) — NO middle lobe, NO accessory lobe", "The cardiac notch is on the left lung — the heart sits in this space"],
+                    examTips: ["Left lung = 2 lobes only: cranial and caudal", "KEY: left lung smaller than right because heart displaces it leftward"],
+                    connections: "Part of left lung; left cranial lobar bronchus; left pulmonary artery branch",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Middle Lobe of Right Lung",
+                    aliases: ["Right middle lobe", "Medial lobe of right lung", "Right medial lobe"],
+                    function: "Middle lobe of the right lung, situated between the cranial and caudal lobes; present only on the right side",
+                    commonConfusions: ["Middle lobe exists ONLY on the right — the left lung has no middle lobe", "Students often forget the middle lobe exists or assign it to the left lung"],
+                    examTips: ["RIGHT only: cranial + middle + caudal + accessory = 4 lobes", "Middle lobe is smaller than cranial and caudal lobes"],
+                    connections: "Part of right lung between cranial and caudal lobes; right middle lobar bronchus",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Accessory Lobe of Right Lung",
+                    aliases: ["Right accessory lobe", "Azygos lobe", "Infracardiac lobe"],
+                    function: "Small additional lobe of the right lung; lies medially near the heart and caudal vena cava; present only in pigs and some other mammals",
+                    commonConfusions: ["Accessory lobe = RIGHT lung only — not present on left", "May be confused with the thymus or a lymph node if not traced to the right bronchial tree"],
+                    examTips: ["KEY ID: small lobe medial to the caudal vena cava on the right side = accessory lobe", "Only on right lung — if you see it, you know you're on the right side"],
+                    connections: "Part of right lung; medial position near caudal vena cava; right accessory lobar bronchus",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Caudal Lobe of Right Lung",
+                    aliases: ["Right caudal lobe", "Right diaphragmatic lobe"],
+                    function: "Largest lobe of the right lung; lies against the diaphragm caudally",
+                    commonConfusions: ["Both lungs have a caudal lobe — but the right caudal lobe is larger than the left caudal lobe"],
+                    examTips: ["Largest lobe of the right lung", "Lies caudally against the diaphragm"],
+                    connections: "Part of right lung; right caudal lobar bronchus; sits on diaphragm",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Caudal Lobe of Left Lung",
+                    aliases: ["Left caudal lobe", "Left diaphragmatic lobe"],
+                    function: "The caudal (most posterior) lobe of the left lung; lies against the diaphragm; one of only two lobes of the left lung",
+                    commonConfusions: ["Left lung has only 2 lobes: cranial and caudal — no middle, no accessory", "Right caudal lobe is larger than left caudal lobe"],
+                    examTips: ["Left lung = cranial lobe + caudal lobe only", "Caudal lobe = most posterior, rests on diaphragm", "If you can see only 2 lobes on one side, you are looking at the LEFT lung"],
+                    connections: "Part of left lung; left caudal lobar bronchus; rests on diaphragm",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Right Bronchus",
+                    aliases: ["Right primary bronchus", "Right main bronchus", "Principal bronchus (right)"],
+                    function: "The right main-stem bronchus; branches off the trachea at the carina and enters the root of the right lung, supplying air to all four right lung lobes",
+                    commonConfusions: ["The right bronchus is wider and more vertical than the left — foreign bodies tend to lodge on the right", "Do not confuse with the left bronchus; look for which side of the tracheal bifurcation each branch goes to"],
+                    examTips: ["Gross ID: follow the trachea to its Y-shaped bifurcation (carina); right branch → right bronchus", "Right bronchus = shorter, wider, more vertical than left", "Part of the Root of Lung structures at the hilum"],
+                    connections: "Trachea → right bronchus → right lung lobar bronchi (cranial, middle, caudal, accessory)",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Left Bronchus",
+                    aliases: ["Left primary bronchus", "Left main bronchus", "Principal bronchus (left)"],
+                    function: "The left main-stem bronchus; branches off the trachea at the carina and enters the root of the left lung, supplying air to the two left lung lobes",
+                    commonConfusions: ["Left bronchus is narrower and more oblique than the right", "Both bronchi arise at the carina — identify left vs right by which lung they enter"],
+                    examTips: ["Gross ID: follow trachea to bifurcation; left branch → left bronchus → left lung", "Left bronchus = longer, narrower, more angled than right", "Part of the Root of Lung structures"],
+                    connections: "Trachea → left bronchus → left lung lobar bronchi (cranial, caudal)",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: respiratoryCat.id,
@@ -654,9 +798,42 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Located inside the larynx, flanking the glottis; attached to thyroid cartilage anteriorly and arytenoid cartilages posteriorly",
                     highYield: false
                 ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Pleura",
+                    aliases: ["Pleural membrane", "Serous membrane (thoracic)"],
+                    function: "Serous membrane associated with the lungs and thoracic cavity; thoracic equivalent of the peritoneum in the abdomen; reduces friction during breathing, allows smooth lung expansion/contraction, and compartmentalizes the pleural cavities",
+                    commonConfusions: ["Pleura (thorax/lungs) vs peritoneum (abdomen) vs pericardium (heart) — all three are serous membranes lined by simple squamous mesothelium; location distinguishes them", "Pleural cavity vs peritoneal cavity: pleural = around lungs in thorax; peritoneal = around digestive organs in abdomen"],
+                    examTips: ["MASTER CONCEPT: pleura = peritoneum = pericardium = all simple squamous mesothelium — this is the unifying concept of serous membranes", "Parietal pleura lines the thoracic wall; visceral pleura covers the lungs — same mesothelium, different location", "Pleural fluid between the layers reduces friction during breathing"],
+                    histology: "Simple squamous mesothelium (mesothelial cells); thin underlying connective tissue; pleural fluid fills the potential pleural cavity space",
+                    connections: "Parietal pleura lines thoracic wall; visceral pleura adheres to lung surface; pleural cavity (potential space) between the two layers contains serous fluid",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Parietal Pleura",
+                    aliases: ["Pleura parietalis", "Thoracic wall lining"],
+                    function: "The layer of pleura lining the inner thoracic body wall (and diaphragm); forms the outer boundary of the pleural cavity; moves with the chest wall during breathing",
+                    commonConfusions: ["Parietal (wall) vs visceral (lung surface) — parietal pleura is attached to the thoracic wall, not to the lung", "Parietal pleura also covers the diaphragm (diaphragmatic pleura) and mediastinum (mediastinal pleura)"],
+                    examTips: ["Practical ID: thin shiny membrane lining the inside of the thoracic wall — peels away from the wall when lungs/pleura are reflected", "Parietal pleura → visceral pleura transition occurs at the lung hilum (root of lung)"],
+                    histology: "Simple squamous mesothelium with underlying connective tissue; continuous with visceral pleura at the hilum",
+                    connections: "Lines thoracic body wall, diaphragm (superior surface), and mediastinum; continuous with visceral pleura at lung root/hilum",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respiratoryCat.id,
+                    name: "Visceral Pleura",
+                    aliases: ["Pleura visceralis", "Pulmonary pleura"],
+                    function: "The layer of pleura directly adhering to and covering the lung surface; provides a smooth serous interface between the lung and thoracic wall during respiratory movements",
+                    commonConfusions: ["Visceral pleura vs visceral peritoneum: same concept — both are the organ-covering layer of their respective serous membrane systems, both are simple squamous mesothelium", "The visceral pleura cannot be easily separated from the lung surface (it is adherent)"],
+                    examTips: ["Practical ID: thin glistening membrane tightly coating the outer lung surface — visible as a thin layer between lung lobes in fissures", "COMPARISON: visceral pleura (lungs) = visceral peritoneum (abdominal organs) = visceral pericardium (heart) — all simple squamous mesothelium"],
+                    histology: "Simple squamous mesothelium adhering to the outer surface of the lung; continuous with the parietal pleura at the hilum",
+                    connections: "Adheres tightly to lung surface; continuous with parietal pleura at lung root; visceral pleura dips into interlobar fissures",
+                    highYield: true
+                ),
             ])
         }
-        
+
         // MARK: Circulatory System (expanded)
         if let circulatoryCat = categories.first(where: { $0.name == "Circulatory System" }) {
             structures.append(contentsOf: [
@@ -860,8 +1037,8 @@ class AnatomyDataManager: ObservableObject {
                     name: "Descending Aorta",
                     aliases: ["Thoracic aorta", "Abdominal aorta"],
                     function: "Continuation of aorta running caudally; supplies thoracic, abdominal, pelvic, and hindlimb regions",
-                    commonConfusions: [],
-                    examTips: ["Flow: ascending aorta → arch → descending aorta → systemic branches (celiac, mesenteric, renal, iliac)"],
+                    commonConfusions: ["At cross-section ID stations: the aorta is always just to the LEFT of the spine — use this to orient yourself and distinguish it from the vena cava (which is to the right)"],
+                    examTips: ["Flow: ascending aorta → arch → descending aorta → systemic branches (celiac, mesenteric, renal, iliac)", "ORIENTATION TIP: aorta = just LEFT of spine in cross-section; vena cava = just RIGHT of spine — use this to identify both vessels and orient the specimen"],
                     histology: "Elastic/muscular artery depending on segment; simple squamous endothelium",
                     connections: "Arch of aorta → descending aorta → celiac trunk, cranial mesenteric artery, renal arteries, iliac arteries",
                     highYield: true
@@ -1986,6 +2163,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Maintains eyeball shape; supports retina; transmits light",
                     commonConfusions: [],
                     examTips: ["Practical ID: clear jelly-like substance filling posterior eye cavity"],
+                    images: [ImageCDN.image("vitreous-body_gross_1.jpg", caption: "Vitreous Body")],
                     histology: "Gel-like extracellular material with very few cells and high water content",
                     connections: "Fills posterior chamber behind lens",
                     highYield: false
@@ -2101,6 +2279,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Red blood cell", "RBC"],
                     function: "Transports oxygen",
                     examTips: ["Most numerous blood cell"],
+                    images: [ImageCDN.slide("erythrocyte_histo_1.jpeg", magnification: 10, caption: "Blood Smear — Erythrocytes 10×")],
                     histology: "Biconcave disc; lacks nucleus in mammals"
                 ),
                 AnatomyStructure(
@@ -2109,6 +2288,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Thrombocyte"],
                     function: "Initiates blood clotting",
                     examTips: ["Involved in hemostasis"],
+                    images: [ImageCDN.slide("erythrocyte_histo_1.jpeg", magnification: 10, caption: "Blood Smear — Platelets visible among erythrocytes 10×")],
                     histology: "Small cell fragment"
                 ),
                 AnatomyStructure(
@@ -2125,6 +2305,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Agranulocyte"],
                     function: "Precursor to macrophages",
                     examTips: ["Becomes macrophage in tissues"],
+                    images: [ImageCDN.slide("monocyte_histo_1.jpg", magnification: 40, caption: "Monocyte — 40×")],
                     histology: "Largest white blood cell; kidney-shaped nucleus"
                 ),
                 AnatomyStructure(
@@ -2133,6 +2314,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["PMN", "Segmented neutrophil"],
                     function: "Phagocytoses bacteria",
                     examTips: ["Most abundant white blood cell"],
+                    images: [ImageCDN.slide("neutrophil_histo_1.jpg", magnification: 40, caption: "Neutrophil — 40×")],
                     histology: "Multilobed nucleus; granular"
                 ),
                 AnatomyStructure(
@@ -2200,6 +2382,28 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("artery-vein-nerve_histo_vein_1.jpeg", magnification: 10, caption: "Vein")],
                     histology: "Tunica intima (simple squamous endothelium), thin tunica media (sparse smooth muscle), tunica adventitia (thickest layer, dense connective tissue)",
                     connections: "Systemic veins return to right heart; pulmonary veins return to left heart; venules → small veins → larger veins → vena cava",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: vesselHistologyCat.id,
+                    name: "Aorta",
+                    aliases: ["Human aorta", "Elastic artery"],
+                    function: "Largest artery in the body; carries oxygenated blood from the left ventricle to the systemic circulation; its elastic walls stretch during systole and recoil during diastole to maintain continuous flow",
+                    commonConfusions: ["Aorta is an elastic artery — its tunica media is dominated by elastic laminae (not just smooth muscle like muscular arteries)", "On the slide: the aorta wall appears thick with wavy pink elastic lamellae in the media — very different from the muscular artery on the artery/vein/nerve slide"],
+                    examTips: ["KEY ID: thick wall with abundant wavy elastic lamellae in tunica media = elastic artery (aorta)", "The aorta wall is so thick it has its own blood vessels (vasa vasorum) within the adventitia to nourish the outer wall layers", "Compare: aorta (elastic) vs. smaller artery (muscular) — aorta has more elastic tissue, muscular artery has more smooth muscle in media"],
+                    histology: "Tunica intima: endothelium + subendothelial connective tissue + internal elastic lamina; tunica media: many layers of elastic lamellae alternating with smooth muscle (elastic artery type); tunica adventitia: dense irregular connective tissue with vasa vasorum",
+                    connections: "Ascends from left ventricle → aortic arch (gives off brachiocephalic, left common carotid, left subclavian) → descending thoracic aorta → abdominal aorta → bifurcates into common iliac arteries",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: vesselHistologyCat.id,
+                    name: "Vena Cava",
+                    aliases: ["Human vena cava", "Large vein"],
+                    function: "Largest veins; return deoxygenated blood to the right atrium; cranial (superior) vena cava drains head/neck/arms; caudal (inferior) vena cava drains abdomen/legs",
+                    commonConfusions: ["Vena cava vs aorta on slides: both are large vessels, but vena cava has thinner wall relative to its lumen and less elastic tissue in the media", "The vena cava adventitia is proportionally the thickest layer (unlike arteries where media dominates)"],
+                    examTips: ["KEY ID: very large lumen, thin wall relative to lumen size, adventitia is the thickest layer = vena cava", "On the slide: the wall looks collapsed or irregular because the low-pressure venous blood doesn't keep it fully distended", "The vena cava has some smooth muscle bundles longitudinally in the adventitia — unusual for veins"],
+                    histology: "Tunica intima: simple squamous endothelium; tunica media: thin, sparse smooth muscle and elastic fibers; tunica adventitia: very thick, dense connective tissue with longitudinal smooth muscle bundles; overall wall much thinner relative to lumen than aorta",
+                    connections: "Cranial vena cava: drains SVC territory → right atrium; caudal vena cava: drains IVC territory (kidneys, liver, lower limbs) → right atrium",
                     highYield: true
                 ),
                 AnatomyStructure(
@@ -2309,43 +2513,140 @@ class AnatomyDataManager: ObservableObject {
             structures.append(contentsOf: [
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
+                    name: "Esophagus",
+                    aliases: ["Oesophagus"],
+                    function: "Muscular tube propelling food via peristalsis; lined with stratified squamous epithelium for protection against abrasion from swallowed food boluses — one of the MOST important IDs in the entire GI tract",
+                    commonConfusions: ["Esophagus is the ONLY GI organ lined by stratified squamous epithelium — all others (stomach, intestines) are simple columnar; this is the single most important diagnostic feature", "Trachea vs Esophagus on Slide #02: TRACHEA = cartilage rings + pseudostratified ciliated columnar epithelium; ESOPHAGUS = NO cartilage + stratified squamous epithelium — VERY important distinction", "Esophagus has submucosal mucous glands (like Brunner's in duodenum) — but context is always stratified squamous, never simple columnar"],
+                    examTips: ["KEY ID: thick stratified squamous lining + NO villi + NO gastric pits + often collapsed/muscular tube appearance = ESOPHAGUS", "On the trachea/esophagus slide: find the cartilage → that side is trachea; the other tube with layered thick epithelium and no cartilage = esophagus", "Layers: mucosa (stratified squamous) → muscularis mucosae → submucosa (with mucous glands) → muscularis externa → adventitia (NOT serosa)"],
+                    histology: "Mucosa: non-keratinized stratified squamous epithelium (multiple cell layers, protective); muscularis mucosae (longitudinal only); submucosa: loose CT with esophageal mucous glands; muscularis: upper = skeletal, middle = mixed, lower = smooth muscle; adventitia (fixed organ, no serosa)",
+                    connections: "Pharynx → upper esophageal sphincter → esophagus → lower esophageal sphincter → stomach cardia",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Ileum",
+                    aliases: ["Distal small intestine", "Terminal ileum"],
+                    function: "Final segment of small intestine; absorbs vitamin B12, bile salts, and remaining nutrients; contains Peyer's patches for immune surveillance of intestinal contents",
+                    commonConfusions: ["Ileum vs jejunum: ileum has Peyer's patches (large lymphoid aggregates visible in submucosa/mucosa); jejunum does NOT — Peyer's patches are the definitive marker of ileum", "Ileum vs duodenum: duodenum has Brunner's glands in submucosa; ileum does NOT", "Ileum has shorter villi and more goblet cells than jejunum — but Peyer's patches are the reliable exam ID feature"],
+                    examTips: ["KEY ID: villi present + Peyer's patches (large purple lymphoid nodules) in submucosa/mucosa = ileum", "Peyer's patches appear as large dome-shaped masses of lymphoid tissue — they may distort the overlying mucosa and push into the lumen", "The FAE (follicle-associated epithelium) over Peyer's patches has fewer goblet cells and specialized M cells for antigen sampling"],
+                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Ileum — Peyer's patch visible 10×")],
+                    histology: "Mucosa: simple columnar epithelium with villi (shorter than jejunum) and goblet cells; crypts of Lieberkühn; muscularis mucosae; submucosa: contains Peyer's patches (aggregated lymphoid nodules); muscularis: inner circular + outer longitudinal; serosa",
+                    connections: "Receives chyme from jejunum; terminates at ileocecal valve → large intestine; Peyer's patches sample luminal antigens via M cells; supplied by ileal branches of cranial mesenteric artery",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Jejunum",
+                    aliases: ["Middle small intestine"],
+                    function: "Primary site of nutrient absorption following digestion; absorbs amino acids, fatty acids, sugars, vitamins, and minerals; has the tallest villi and most active absorptive surface of the small intestine",
+                    commonConfusions: ["Jejunum vs duodenum: duodenum has Brunner's glands in submucosa; jejunum does NOT — absence of Brunner's glands + presence of villi = jejunum or ileum", "Jejunum vs ileum: ileum has Peyer's patches (lymphoid aggregates in submucosa/mucosa); jejunum does NOT — absence of Peyer's patches distinguishes jejunum from ileum", "Jejunum has the tallest villi of the small intestine — longer villi than ileum on average"],
+                    examTips: ["KEY ID LOGIC: villi present + NO Brunner's glands + NO Peyer's patches = jejunum", "Duodenum = Brunner's glands; Ileum = Peyer's patches; Jejunum = neither — use exclusion to ID it", "Goblet cells increase from duodenum → jejunum → ileum; jejunum has an intermediate number"],
+                    images: [ImageCDN.slide("jejunum_histo_1.jpeg", magnification: 10, caption: "Jejunum — tall villi, no Brunner's, no Peyer's patches 10×")],
+                    histology: "Mucosa: simple columnar epithelium with tall villi and goblet cells; crypts of Lieberkühn; muscularis mucosae; submucosa: loose CT, NO Brunner's glands, NO Peyer's patches; muscularis: inner circular + outer longitudinal smooth muscle; serosa",
+                    connections: "Receives chyme from duodenum; transitions into ileum; suspended by mesentery; supplied by jejunal branches of cranial mesenteric artery",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Gall Bladder",
+                    aliases: ["Gallbladder", "Cholecyst"],
+                    function: "Stores and concentrates bile produced by the liver; releases bile into the duodenum via the common bile duct in response to cholecystokinin (CCK) when fat enters the small intestine",
+                    commonConfusions: ["Gall bladder has NO muscularis mucosae — this is the key distinguishing histological feature (all other GI organs have it)", "Gall bladder has NO submucosa — another unique feature; the mucosa sits directly on the muscularis", "The highly folded mucosa resembles villi but these are mucosal FOLDS (rugae), not true villi — they flatten when the gallbladder is distended"],
+                    examTips: ["KEY ID: highly folded simple columnar mucosa + NO muscularis mucosae + NO submucosa = gall bladder", "The epithelium is simple columnar with apical modifications for water absorption (concentrates bile 10×)", "Rokitansky-Aschoff sinuses: invaginations of epithelium into the muscularis — may be visible on slides and are a normal variant"],
+                    histology: "Mucosa: simple columnar epithelium (tall, with apical microvilli) on lamina propria; NO muscularis mucosae; NO submucosa; muscularis: interlacing smooth muscle bundles (not distinct layers); perimuscular connective tissue; serosa (on free surface) or adventitia (hepatic surface)",
+                    connections: "Receives bile from liver via cystic duct ← hepatic duct; releases bile via cystic duct → common bile duct → sphincter of Oddi → duodenum; sits in gallbladder fossa on visceral liver surface",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Cardiac Stomach",
+                    aliases: ["Cardia", "Cardiac region of stomach"],
+                    function: "Transitional zone at the esophagus-stomach junction; primarily mucus secretion to protect the cardia from acid reflux; the point where stratified squamous epithelium transitions to simple columnar",
+                    commonConfusions: ["Cardiac stomach vs esophagus: esophagus = stratified squamous; cardiac stomach = simple columnar — the transition between them is abrupt and visible on slides", "Cardiac stomach vs fundic stomach: cardiac has more mucus glands, fewer acid-secreting structures, less intensely glandular appearance", "Cardiac glands are mucus-only — no parietal cells, no chief cells (those are in fundic glands)"],
+                    examTips: ["KEY ID: simple columnar epithelium + gastric pits + cardiac glands (mucus-producing) + NO villi = cardiac stomach", "Compared with esophagus: epithelium switches from stratified squamous → simple columnar at the cardia", "Compared with fundic stomach: less densely glandular, more mucous appearance, shallower glands"],
+                    histology: "Mucosa: simple columnar epithelium; gastric pits opening into cardiac glands (coiled, mucus-secreting tubular glands); lamina propria; muscularis mucosae; submucosa; muscularis; serosa",
+                    connections: "Junction of esophagus and stomach; cardiac sphincter (lower esophageal sphincter) just above; transitions into fundic region",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
                     name: "Gastric Pits",
-                    aliases: ["Foveolae"],
-                    function: "Invaginations housing gastric glands",
-                    examTips: ["Multiple types of cells"],
-                    histology: "Simple columnar epithelium"
+                    aliases: ["Foveolae gastricae"],
+                    function: "Invaginations of the gastric surface epithelium into the mucosa; each pit leads into one or more gastric glands; present in all regions of the stomach",
+                    commonConfusions: ["Gastric pits are different from glands — the pit is the opening/channel; the gland is the secretory unit at the bottom", "Pyloric pits are deeper than fundic pits — pits:gland ratio differs by region"],
+                    examTips: ["KEY ID for ANY stomach region: gastric pits (invaginations) + simple columnar epithelium + NO villi = stomach", "Depth of pits varies: cardiac/fundic = shallow pits; pyloric = deeper pits", "Gastric pits line the entire stomach surface — seeing them confirms you are in stomach, not intestine"],
+                    histology: "Simple columnar epithelium lining; surface mucous cells (tall columnar with apical mucin granules) line the pit walls; gland openings at the pit base",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
                     name: "Cardiac Glands",
                     aliases: ["Cardia glands"],
-                    function: "Produces mucus",
-                    examTips: ["Located near gastric cardia"],
-                    histology: "Mucus-secreting cells"
+                    function: "Mucus-secreting glands of the cardiac stomach; protect the cardia from acid and mechanical damage",
+                    examTips: ["Mucus-only glands — distinguish from fundic glands which have parietal + chief cells", "Located near the esophagogastric junction"],
+                    histology: "Coiled, branched tubular mucous glands; pale-staining cells with basal nuclei and apical mucin"
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Fundic Stomach",
+                    aliases: ["Fundus of stomach", "Body of stomach", "Fundic region"],
+                    function: "Major site of gastric digestion; produces HCl (parietal cells), pepsinogen (chief cells), and intrinsic factor (parietal cells); the most extensively glandular region of the stomach",
+                    commonConfusions: ["Fundic stomach vs cardiac stomach: fundic is MUCH more glandular, deeper glands, visible parietal cells (large pink cells) and chief cells (basophilic)", "Fundic stomach vs pyloric stomach: fundic has deeper glands extending almost full mucosal thickness; pyloric glands are more coiled/tortuous and more mucus-heavy", "Parietal cells are ONLY in fundic (and some cardiac) glands — NOT in pyloric glands"],
+                    examTips: ["KEY ID: thick, dense glandular mucosa + gastric pits + fundic glands + parietal cells (large eosinophilic/pink) + chief cells (basophilic) = fundic stomach", "Compared with cardiac: much more intensely glandular, deeper glands", "Compared with pyloric: fundic glands are straighter; pyloric glands are coiled and more mucus-heavy with deeper pits"],
+                    histology: "Mucosa: simple columnar surface epithelium; gastric pits (shallow); fundic glands occupying most of mucosal thickness — contain: mucous neck cells (top), parietal cells (middle, large pink oxyphilic), chief cells (bottom, basophilic, zymogen granules); muscularis mucosae; submucosa; muscularis (3 layers in stomach); serosa",
+                    connections: "Main body of stomach; receives food from cardiac region; transitions to pyloric antrum; glands drain via gastric pits to lumen",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
                     name: "Fundic Glands",
-                    aliases: ["Fundus glands"],
-                    function: "Produces HCl, pepsinogen, intrinsic factor",
-                    examTips: ["Main gastric gland type"],
-                    histology: "Contains parietal and chief cells"
+                    aliases: ["Gastric glands", "Fundus glands"],
+                    function: "Main secretory glands of the stomach; produce HCl (parietal cells), pepsinogen (chief cells), intrinsic factor (parietal cells), and mucus (mucous neck cells)",
+                    commonConfusions: ["Parietal cells (HCl + intrinsic factor) vs chief cells (pepsinogen) — both are in fundic glands but at different depths: parietal = mid-gland, chief = base of gland", "Fundic glands vs cardiac/pyloric glands: fundic glands are the only ones with parietal AND chief cells"],
+                    examTips: ["PARIETAL CELLS: large, triangular/pyramidal, intensely eosinophilic (bright pink) — the most recognizable cell in stomach histology", "CHIEF CELLS: smaller, basophilic (purple-blue), at base of gland — pepsinogen-secreting", "Gland zones from pit to base: isthmus (stem cells) → neck (mucous neck cells) → base (chief cells); parietal cells throughout mid-gland"],
+                    histology: "Parietal cells: large, eosinophilic, with intracellular canaliculi; chief cells: basophilic, pyramidal, zymogen granules; mucous neck cells: pale, mucin-filled",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Pyloric Stomach",
+                    aliases: ["Pyloric antrum", "Pyloric region", "Pylorus"],
+                    function: "Regulates gastric emptying into duodenum; secretes mucus and gastrin; the pyloric sphincter controls chyme release; more mucus-dominated than fundic region",
+                    commonConfusions: ["Pyloric stomach vs fundic stomach: pyloric has deeper pits (pit:gland ratio higher), more coiled/tortuous glands, more mucus-heavy, fewer acid-secreting cells", "Pyloric stomach vs intestine: pyloric still has NO villi — this is critical; only intestine has villi", "G cells in pyloric glands produce gastrin — these are enteroendocrine cells, not the same as surface mucous cells"],
+                    examTips: ["KEY ID: simple columnar + deep gastric pits + coiled mucus-heavy pyloric glands + G cells + NO villi = pyloric stomach", "Compared with fundic: pits are deeper relative to gland length; glands appear more coiled/tortuous and paler (more mucus)", "Compared with intestine: no villi in pyloric stomach — the surface is still folded rugae, not finger-like villi"],
+                    images: [ImageCDN.slide("pyloric-stomach_histo_1.jpeg", magnification: 10, caption: "Pyloric Stomach — deep pits, coiled glands 10×")],
+                    histology: "Mucosa: simple columnar epithelium; deep gastric pits (occupy ~half the mucosal thickness); pyloric glands (coiled, branched tubular glands, primarily mucus-secreting with G cells interspersed); muscularis mucosae; submucosa; muscularis (including thick pyloric sphincter); serosa",
+                    connections: "Distal stomach; receives partially digested chyme from fundic region; pyloric sphincter → duodenum; gastrin from G cells enters bloodstream → stimulates parietal cells",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
                     name: "Pyloric Glands",
                     aliases: ["Antral glands"],
-                    function: "Produces gastrin and mucus",
-                    examTips: ["Gastrin stimulates acid production"],
-                    histology: "G cells and mucus cells"
+                    function: "Mucus-secreting glands of the pyloric stomach; also contain G cells which produce gastrin to stimulate acid secretion",
+                    examTips: ["Pyloric glands are coiled and mucus-heavy — more tortuous than fundic glands", "Deep gastric pits with relatively shorter glands compared to fundic region"],
+                    images: [ImageCDN.slide("pyloric-stomach_histo_1.jpeg", magnification: 10, caption: "Pyloric Glands — 10×")],
+                    histology: "Branched, coiled tubular glands; pale mucous cells with basally located nuclei; G cells scattered among mucous cells (enteroendocrine, not visible without special stains)"
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
                     name: "G Cells",
-                    aliases: ["Gastrin-producing cells"],
-                    function: "Secretes gastrin hormone",
-                    examTips: ["Regulatory hormone secretion"],
-                    histology: "Neuroendocrine cells"
+                    aliases: ["Gastrin-producing cells", "Enteroendocrine G cells"],
+                    function: "Produce and secrete gastrin in response to food, stomach distension, and vagal stimulation; gastrin travels via bloodstream to stimulate parietal cells to produce HCl",
+                    commonConfusions: ["G cells are in the PYLORIC region — not fundic or cardiac", "G cells are enteroendocrine cells scattered among mucous cells — not visible as a distinct population without special staining"],
+                    examTips: ["G cells are in pyloric glands — their presence defines the pyloric region functionally", "Gastrin → stimulates parietal cells → HCl production — classic feedback loop"],
+                    histology: "Enteroendocrine cells; triangular with basally located secretory granules; located among pyloric gland cells; not easily distinguished on H&E without immunohistochemistry"
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Duodenum",
+                    aliases: ["First part of small intestine", "C-loop"],
+                    function: "First and shortest segment of the small intestine; primary site of chemical digestion (receives pancreatic enzymes and bile); neutralizes acidic chyme; begins nutrient absorption",
+                    commonConfusions: ["Duodenum vs jejunum: BRUNNER'S GLANDS in submucosa = duodenum — this is the single best way to identify it; jejunum has NO Brunner's glands", "Duodenum vs stomach: duodenum has VILLI (stomach does not) — once you see villi, you are in small intestine", "Duodenum vs ileum: ileum has Peyer's patches; duodenum has Brunner's glands — never both"],
+                    examTips: ["KEY ID: villi + simple columnar epithelium + BRUNNER'S GLANDS in submucosa = duodenum (VERY important slide)", "Brunner's glands are SUBMUCOSAL — they sit below the muscularis mucosae; crypts of Lieberkühn are mucosal", "Look for the pale-staining glandular tissue BELOW the muscularis mucosae band — that's Brunner's glands"],
+                    histology: "Mucosa: simple columnar epithelium with villi (shorter than jejunum), goblet cells, crypts of Lieberkühn; muscularis mucosae; submucosa: Brunner's glands (key ID feature); muscularis: inner circular + outer longitudinal; adventitia (partially retroperitoneal)",
+                    connections: "Pyloric sphincter → duodenum → jejunum; receives common bile duct and pancreatic duct at ampulla of Vater/hepatopancreatic ampulla; C-shaped loop around head of pancreas",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
@@ -2353,6 +2654,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Intestinal projections"],
                     function: "Increase absorption surface area",
                     examTips: ["Cover intestinal lumen"],
+                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Villi — Ileum 10×")],
                     histology: "Simple columnar epithelium with microvilli"
                 ),
                 AnatomyStructure(
@@ -2361,6 +2663,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Mucus-secreting cells"],
                     function: "Produces protective mucus layer",
                     examTips: ["Increases up colon"],
+                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Goblet Cells — Ileum 10×")],
                     histology: "Goblet-shaped; PAS-positive"
                 ),
                 AnatomyStructure(
@@ -2369,6 +2672,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Intestinal crypts"],
                     function: "Produces replacement epithelial cells",
                     examTips: ["Continuous cell renewal"],
+                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Crypts of Lieberkühn — Ileum 10×")],
                     histology: "Simple columnar epithelium"
                 ),
                 AnatomyStructure(
@@ -2377,6 +2681,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Gut-associated lymphoid tissue"],
                     function: "Immune surveillance",
                     examTips: ["Found in small intestine"],
+                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Peyer's Patches — Ileum 10×")],
                     histology: "Lymphoid tissue in lamina propria"
                 ),
                 AnatomyStructure(
@@ -2441,13 +2746,48 @@ class AnatomyDataManager: ObservableObject {
                     function: "Absorbs water and electrolytes from indigestible food residue; consolidates waste into feces; no enzymatic digestion or nutrient absorption of note (contrast with small intestine)",
                     commonConfusions: ["Large intestine has NO villi — this is the key diagnostic feature distinguishing it from small intestine on a histology slide", "Large intestine has many more goblet cells than small intestine — the increased goblet cells produce mucus to lubricate fecal passage", "Large intestine vs small intestine on slides: small intestine = villi + fewer goblet cells; large intestine = no villi + many goblet cells"],
                     examTips: ["KEY HISTOLOGICAL DIAGNOSIS: NO villi + abundant goblet cells = large intestine", "The mucosa is flat (no villi) but still has crypts of Lieberkühn (intestinal glands) opening at the flat surface", "Practical study: memorize the absence of villi as THE definitive marker — if you see villi, it's small intestine; if the surface is flat with many goblet cells, it's large intestine"],
+                    images: [ImageCDN.slide("large-intestine_histo_1.jpeg", magnification: 10, caption: "Large Intestine — no villi, abundant goblet cells 10×")],
                     histology: "Mucosa: simple columnar epithelium with abundant goblet cells, flat surface (NO villi), crypts of Lieberkühn; muscularis mucosae; submucosa; muscularis (inner circular + outer longitudinal); serosa (if intraperitoneal) or adventitia",
                     connections: "Receives unabsorbed material from ileum via ileocecal valve; segments: cecum → ascending → transverse → descending → sigmoid colon → rectum → anus",
                     highYield: true
                 ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Caecum",
+                    aliases: ["Cecum", "Cecal pouch"],
+                    function: "Blind-ended pouch at the start of the large intestine; site of microbial fermentation (especially in herbivores); absorbs water and electrolytes; transitional morphology between ileum and colon",
+                    commonConfusions: ["Caecum vs ileum: caecum has reduced or absent villi + more goblet cells; ileum has villi + Peyer's patches", "Caecum vs colon: both lack villi and have abundant goblet cells; caecum is a blind pouch grossly — histologically transitional appearance", "In pigs the caecum is large and important for fermentation — more prominent than in humans"],
+                    examTips: ["KEY ID: more goblet cells + fewer/reduced villi + transitional morphology toward large intestine = caecum", "May appear similar to proximal colon histologically — context (gross anatomy) helps differentiate", "The ileocecal valve is at the junction of ileum and caecum — villi disappear at this boundary"],
+                    histology: "Mucosa: simple columnar epithelium with increasing goblet cells; villi reduced or absent; crypts of Lieberkühn present; muscularis mucosae; submucosa; muscularis; serosa",
+                    connections: "Ileocecal valve → caecum → ascending colon; appendix (vermiform appendix) opens at caecum base",
+                    highYield: false
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Spiral Colon",
+                    aliases: ["Spiral loop of colon", "Ansa spiralis"],
+                    function: "Segment of colon unique to pigs arranged in a spiral/coiled pattern; absorbs water and electrolytes from digestive waste; consolidates feces; highly mucus-lubricated for fecal transit",
+                    commonConfusions: ["Spiral colon vs small intestine: NO villi + abundant goblet cells = large intestine/spiral colon; small intestine has villi", "Spiral colon vs stomach: crypts (not gastric pits) + columnar epithelium + many goblet cells = colon; stomach has gastric pits and no goblet cells"],
+                    examTips: ["KEY ID: abundant goblet cells + NO villi + flat mucosal surface + crypts of Lieberkühn = large intestine / spiral colon", "The spiral arrangement is a gross anatomical feature — histologically it looks like other large intestine segments", "Smooth luminal surface (no villi) + very many goblet cells = colon histology"],
+                    images: [ImageCDN.slide("large-intestine_histo_1.jpeg", magnification: 10, caption: "Spiral Colon — no villi, abundant goblet cells 10×")],
+                    histology: "Mucosa: simple columnar epithelium with extremely abundant goblet cells; NO villi; crypts of Lieberkühn (deep, straight); flat mucosal surface; muscularis mucosae; submucosa; muscularis: inner circular + outer longitudinal (taenia coli in humans; fused in pigs); serosa",
+                    connections: "Continuation of ascending/transverse colon in pigs; coiled spiral arrangement; transitions to descending colon then rectum",
+                    highYield: false
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Rectum",
+                    aliases: ["Rectal ampulla", "Terminal large intestine"],
+                    function: "Stores feces prior to defecation; highly lubricated by goblet cell mucus; the distal transition toward stratified squamous epithelium at the anal canal is a unique histological feature",
+                    commonConfusions: ["Proximal rectum vs colon: histologically similar — both have goblet cells, no villi, crypts; rectum is more mucus-heavy and approaches stratified squamous distally", "Distal rectum vs esophagus: both transition to stratified squamous — but context is completely different (rectum is distal GI, esophagus is proximal)", "Rectum has adventitia (retroperitoneal below peritoneal reflection) rather than serosa — similar to esophagus and duodenum"],
+                    examTips: ["KEY ID of distal rectum: approaching stratified squamous transition + goblet-cell-rich mucosa + large intestine architecture", "Proximal rectum is histologically indistinguishable from colon without gross context", "Rectum has adventitia (not serosa) — the peritoneum does not cover the lower rectum"],
+                    histology: "Proximal: simple columnar epithelium with abundant goblet cells, no villi, crypts; approaching anus: abrupt transition to non-keratinized stratified squamous (anorectal junction); muscularis: inner circular (forms internal anal sphincter distally) + outer longitudinal; adventitia in lower rectum",
+                    connections: "Sigmoid colon → rectum → anal canal → anus; internal anal sphincter (smooth muscle) + external anal sphincter (skeletal muscle) control defecation",
+                    highYield: false
+                ),
             ])
         }
-        
+
         // MARK: Liver Histology
         if let liverHistoCat = categories.first(where: { $0.name == "Liver Histology" }) {
             structures.append(contentsOf: [
@@ -2574,6 +2914,17 @@ class AnatomyDataManager: ObservableObject {
                     function: "Fine-tunes reabsorption and secretion",
                     examTips: ["Regulated by hormones"],
                     histology: "Simple cuboidal epithelium; shorter than PCT"
+                ),
+                AnatomyStructure(
+                    categoryId: kidneyHistologyCat.id,
+                    name: "Renal Cortex",
+                    aliases: ["Outer kidney", "Cortex renalis"],
+                    function: "Outer region of the kidney containing all glomeruli, Bowman's capsules, proximal convoluted tubules, and distal convoluted tubules; site of filtration and most tubular reabsorption",
+                    commonConfusions: ["Renal cortex vs medulla on slides: cortex has glomeruli (round dark clusters) and lots of tubule cross-sections; medulla has NO glomeruli — only parallel tubules and collecting ducts", "The cortex appears more cellular/dense on low-power because it contains the packed nephron components (glomeruli + tubules)"],
+                    examTips: ["KEY ID: if you see glomeruli = you are in the cortex; if no glomeruli = medulla", "On low power: cortex is the outer, darker-staining zone with visible round glomerular tufts; medulla is the inner zone with striped parallel tubules", "Renal columns (columns of Bertin) = cortical tissue that dips between medullary pyramids — still cortex histologically even though it's deeper"],
+                    histology: "Glomeruli (capillary tufts) within Bowman's capsules; proximal convoluted tubules (simple cuboidal with prominent brush border microvilli); distal convoluted tubules (simple cuboidal, no brush border, smaller lumen); peritubular capillaries; interstitial connective tissue",
+                    connections: "Outer region of kidney; receives blood from afferent arterioles → glomeruli → efferent arterioles → peritubular capillaries; filtrate flows: glomerulus → Bowman's capsule → PCT → loop of Henle (into medulla) → DCT → collecting duct",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: kidneyHistologyCat.id,
@@ -2764,7 +3115,8 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: microscopeCat.id,
                     name: "Condenser",
                     aliases: ["Illumination system"],
-                    function: "Focuses light onto specimen"
+                    function: "Focuses light onto specimen",
+                    images: [ImageCDN.image("condenser_gross_1.jpeg", caption: "Condenser")]
                 ),
             ])
         }
@@ -2777,23 +3129,23 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: peritonealCat.id,
                     name: "Peritoneal Cavity",
                     aliases: ["Abdominal cavity", "Peritoneal space"],
-                    function: "Allows organ movement, lubrication, reduced friction between organs",
-                    commonConfusions: [],
-                    examTips: ["Open abdominal space surrounding viscera"],
-                    histology: "VERY IMPORTANT SEROUS MEMBRANE CONCEPT: simple squamous epithelium (mesothelium); serous fluid reduces friction",
-                    connections: "Surrounds: stomach, liver, intestines, spleen, others",
+                    function: "The body cavity containing the major digestive organs (stomach, liver, intestines, spleen, pancreas, gallbladder); allows organ movement with minimal friction; lined by peritoneum which secretes serous fluid for lubrication",
+                    commonConfusions: ["Peritoneal cavity vs thoracic cavity: diaphragm separates them — the peritoneal cavity is caudal/inferior to the diaphragm", "Intraperitoneal vs retroperitoneal: most digestive organs are intraperitoneal (within the peritoneal cavity); kidneys are retroperitoneal (behind the peritoneum)"],
+                    examTips: ["Practical ID: the large abdominal space opened when the ventral abdominal wall is reflected", "HISTOLOGY KEY: peritoneal lining = mesothelium = simple squamous epithelium — optimized for low-friction lubrication, NOT abrasion protection", "Serous fluid in the cavity reduces friction between moving organs"],
+                    histology: "Lined by mesothelium (simple squamous epithelium); serous fluid produced for lubrication and friction reduction between organs",
+                    connections: "Surrounded by: diaphragm (cranial), pelvic inlet (caudal), abdominal wall (ventral/lateral), dorsal body wall (dorsal); contains stomach, liver, spleen, intestines, pancreas, gallbladder",
                     highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: peritonealCat.id,
                     name: "Umbilical Vein",
-                    aliases: ["Umbilical venous trunk (abdominal portion)"],
-                    function: "In fetal life, carries oxygenated blood from placenta toward liver",
-                    commonConfusions: [],
-                    examTips: ["Large vessel extending from umbilical cord toward liver; visible on ventral abdominal surface"],
-                    histology: "Blood vessel with simple squamous endothelium",
-                    connections: "Umbilical cord → liver → continues as ductus venosus",
-                    highYield: false
+                    aliases: ["Umbilical venous trunk (abdominal portion)", "Fetal umbilical vein"],
+                    function: "Fetal vessel carrying oxygenated blood and nutrients FROM the placenta TO the fetus; runs from umbilical cord along the ventral abdominal wall to the liver, where it joins the ductus venosus",
+                    commonConfusions: ["Umbilical vein = oxygenated (unusual — veins normally carry deoxygenated blood); umbilical arteries = deoxygenated (unusual — arteries normally carry oxygenated blood)", "Single umbilical vein vs two umbilical arteries — the single larger vessel is the vein"],
+                    examTips: ["Practical ID: large single vessel running along the ventral abdominal wall from the umbilical cord toward the liver", "FETAL TRACE: Placenta → umbilical vein → ductus venosus → caudal vena cava — VERY important fetal circulation route"],
+                    histology: "Thin-walled vessel lined by simple squamous endothelium; no thick muscular wall (vein structure)",
+                    connections: "Placenta → umbilical vein → ductus venosus → caudal vena cava → right atrium",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: peritonealCat.id,
@@ -2809,13 +3161,13 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: peritonealCat.id,
                     name: "Stomach",
-                    aliases: ["Gastric sac", "Gastric pouch"],
-                    function: "Initial digestion and mixing of food; produces gastric juices",
-                    commonConfusions: ["J-shaped; identify cardia, fundus, pylorus"],
-                    examTips: ["Usually on left side of abdomen"],
-                    histology: "Gastric epithelium organized in layers",
-                    connections: "Esophagus → stomach → small intestine",
-                    highYield: false
+                    aliases: ["Gastric sac", "Gaster", "Cardia", "Fundus", "Body/corpus", "Pyloric antrum"],
+                    function: "Food storage, mechanical churning, acid secretion (HCl from parietal cells), enzyme secretion (pepsinogen from chief cells), and preliminary protein digestion. Divided into 4 regions: Cardiac (receives food from esophagus), Fundus/Body (major secretory site), Pyloric Antrum (regulates gastric emptying, secretes gastrin)",
+                    commonConfusions: ["No villi — key distinction from small intestine on histology", "Stomach epithelium = simple columnar throughout (not stratified squamous like esophagus)", "Pyloric antrum vs pyloric sphincter: antrum is the stomach region; sphincter is the valve at the exit"],
+                    examTips: ["Practical ID: J-shaped/sac-shaped organ cranial-left in the peritoneal cavity, between the esophagus and duodenum", "HISTOLOGY: gastric pits + glands, no villi, simple columnar epithelium", "Four regions are all testable: cardia, fundus, body/corpus, pyloric antrum"],
+                    histology: "Simple columnar epithelium throughout; gastric pits leading to glands: cardiac glands (mucus), fundic glands (parietal cells = HCl; chief cells = pepsinogen), pyloric glands (mucus + G cells = gastrin); no villi",
+                    connections: "Esophagus (via cardiac sphincter) → stomach → duodenum (via pyloric sphincter); lesser omentum attaches to liver",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: peritonealCat.id,
@@ -2842,17 +3194,76 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: peritonealCat.id,
                     name: "Spleen",
-                    aliases: ["Splenic organ"],
-                    function: "Filters blood, immune function",
-                    commonConfusions: [],
-                    examTips: ["Elongated organ; often dark red/purple color"],
-                    histology: "Lymphoid tissue",
-                    connections: "Involved in systemic circulation",
+                    aliases: ["Splenic organ", "Lien"],
+                    function: "Largest lymphoid organ; filters blood by removing old, damaged, or abnormal red blood cells; performs immune surveillance; stores blood and platelets; produces lymphocytes for immune defense",
+                    commonConfusions: ["Spleen vs liver: spleen is smaller, elongated/flattened, dark red-purple, on the LEFT; liver is large, multi-lobed, fills much of the cranial abdomen", "The spleen is ALWAYS on the animal's LEFT side — this is a navigation landmark for laterality during the practical"],
+                    examTips: ["Practical ID: dark elongated flattened organ on the left side of the peritoneal cavity, near the stomach", "ORIENTATION TIP: spleen = always animal's LEFT side — if you find the spleen, you know which side you're on", "Histology: sinusoidal capillaries allow extensive blood-cell interaction and filtration"],
+                    images: [
+                        ImageCDN.image("spleen_gross_1.jpeg", caption: "Spleen"),
+                        ImageCDN.image("spleen_gross_2.jpeg", caption: "Spleen"),
+                    ],
+                    histology: "Contains sinusoidal capillaries (discontinuous, for blood filtration); white pulp (lymphoid tissue = immune function); red pulp (blood filtration, RBC removal); trabecular capsule",
+                    connections: "Receives blood from splenic artery (branch of celiac artery); drains via splenic vein → portal vein → liver; lies on animal's left, adjacent to stomach",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: peritonealCat.id,
+                    name: "Peritoneum",
+                    aliases: ["Serous membrane (abdominal)", "Peritoneal lining"],
+                    function: "Serous membrane lining the abdominal cavity and covering many abdominal organs; reduces friction between organs, allows organ mobility, forms folds (mesenteries, omenta) that carry vessels/nerves/lymphatics, and compartmentalizes the abdomen",
+                    commonConfusions: ["Peritoneum vs pleura: peritoneum = abdomen; pleura = lungs/thorax — both are serous membranes lined by simple squamous mesothelium", "Parietal peritoneum (body wall) vs visceral peritoneum (organ surface) — same tissue but different layers with different locations"],
+                    examTips: ["MASTER CONCEPT: all serous membranes (peritoneum, pleura, pericardium) are lined by simple squamous mesothelium — this is VERY HIGH YIELD", "Thin shiny membrane visible on abdominal wall surfaces and organ surfaces", "Peritoneum forms folds: mesentery (suspends intestines), greater omentum (stomach apron), lesser omentum (liver-stomach)"],
+                    histology: "Simple squamous mesothelium (mesothelial cells); underlying connective tissue; serous fluid secreted into peritoneal cavity for lubrication",
+                    connections: "Parietal layer lines body wall; visceral layer covers organs (stomach, intestines, liver, spleen); forms mesentery, greater omentum, lesser omentum",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: peritonealCat.id,
+                    name: "Parietal Peritoneum",
+                    aliases: ["Peritoneum parietale", "Abdominal wall lining"],
+                    function: "The layer of peritoneum lining the inner surface of the abdominal body wall; forms the outer boundary of the peritoneal cavity; separates the peritoneal cavity from the retroperitoneal space",
+                    commonConfusions: ["Parietal (wall lining) vs visceral (organ covering) — parietal is attached to the body wall, not to any organ", "Retroperitoneal organs (kidneys, most of duodenum) lie BEHIND the parietal peritoneum — they are not inside the peritoneal cavity"],
+                    examTips: ["Practical ID: thin shiny membrane lining the inner abdominal wall, not directly on an organ", "KEY: kidneys are retroperitoneal = located behind the parietal peritoneum — this is a very testable relationship", "Parietal peritoneum → visceral peritoneum transition occurs at organ attachment points"],
+                    histology: "Simple squamous mesothelium with underlying connective tissue; continuous with visceral peritoneum at organ attachment points",
+                    connections: "Lines abdominal body wall; continuous with visceral peritoneum; forms peritoneal cavity between itself and visceral peritoneum",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: peritonealCat.id,
+                    name: "Visceral Peritoneum",
+                    aliases: ["Peritoneum viscerale", "Serosa (abdominal organs)"],
+                    function: "The layer of peritoneum directly covering abdominal organs; provides a smooth low-friction serous surface; equivalent to the serosa layer seen on the outer surface of GI histology slides",
+                    commonConfusions: ["Visceral peritoneum = SEROSA — on GI histology slides, the outermost layer labeled 'serosa' IS the visceral peritoneum", "Not all organs have visceral peritoneum: retroperitoneal organs (kidneys, most of duodenum, esophagus) have ADVENTITIA instead of serosa/visceral peritoneum"],
+                    examTips: ["EXAM TIP: visceral peritoneum = serosa of intraperitoneal organs — this connection is extremely testable in GI histology", "Organs WITH visceral peritoneum/serosa: stomach, most small intestine, most colon, liver, spleen", "Organs WITHOUT (have adventitia instead): esophagus, duodenum, kidneys, rectum"],
+                    histology: "Simple squamous mesothelium; this is the outermost 'serosa' layer seen on GI tract histology slides for intraperitoneal organs",
+                    connections: "Covers intraperitoneal organs; continuous with parietal peritoneum via mesenteric attachments; forms outer serosa layer of GI tract",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: peritonealCat.id,
+                    name: "Greater Omentum",
+                    aliases: ["Omentum majus", "Gastrocolic omentum", "Fatty apron"],
+                    function: "Large apron-like fold of peritoneum extending from the greater curvature of the stomach and draping over the intestines; carries blood vessels, lymphatics, and nerves; stores adipose tissue; can migrate toward inflamed/infected areas to wall off infection ('policeman of the abdomen')",
+                    commonConfusions: ["Greater omentum vs mesentery: mesentery suspends the intestines from the dorsal body wall; greater omentum is the fat-filled apron hanging from the stomach over the intestines", "Greater vs lesser omentum: greater = from stomach to drape over intestines; lesser = from liver to stomach/duodenum"],
+                    examTips: ["Practical ID: fatty/lacy membrane hanging like an apron from the stomach over the intestines — may need to be reflected to see intestines beneath", "Simple squamous mesothelium surface (it is derived from peritoneum)", "Contains fat — can look yellow/cream colored in fetal pig"],
+                    histology: "Double layer of peritoneum (simple squamous mesothelium) surrounding loose connective tissue with adipose, blood vessels, and lymphatics",
+                    connections: "Attaches to greater curvature of stomach and drapes over intestines; connects to transverse colon (gastrocolic ligament portion); contains branches of gastroepiploic vessels",
+                    highYield: false
+                ),
+                AnatomyStructure(
+                    categoryId: peritonealCat.id,
+                    name: "Lesser Omentum",
+                    aliases: ["Omentum minus", "Hepatogastric ligament", "Hepatoduodenal ligament"],
+                    function: "Smaller peritoneal fold connecting the liver to the lesser curvature of the stomach (hepatogastric portion) and to the duodenum (hepatoduodenal portion); carries the portal triad structures (portal vein, hepatic artery, common bile duct) in its free edge",
+                    commonConfusions: ["Lesser omentum carries the portal triad in its free (hepatoduodenal) edge — the hepatic portal vein, hepatic artery, and common bile duct all run through this", "Lesser vs greater omentum: lesser connects liver to stomach/duodenum; greater hangs from stomach over intestines"],
+                    examTips: ["Practical ID: thin membrane between the liver and stomach/duodenum", "KEY: the free edge of the lesser omentum contains the portal vein + hepatic artery + common bile duct — a testable relationship"],
+                    histology: "Double layer of peritoneum (simple squamous mesothelium) with connective tissue; contains the hepatoduodenal ligament carrying major vessels",
+                    connections: "Liver → lesser omentum (hepatogastric) → lesser curvature of stomach; liver → lesser omentum (hepatoduodenal) → duodenum; free edge contains portal vein, hepatic artery, common bile duct",
                     highYield: false
                 ),
             ])
         }
-        
+
         // MARK: Buccal Cavity
         if let buccalCat = categories.first(where: { $0.name == "Buccal Cavity" }) {
             structures.append(contentsOf: [
@@ -2954,6 +3365,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Rigid surface for tongue compression during chewing; separates oral from nasal cavity; rugae increase friction/grip for food",
                     commonConfusions: [],
                     examTips: ["Ridged rigid roof of mouth"],
+                    images: [ImageCDN.image("hard-palate_gross_1.jpeg", caption: "Hard Palate with Rugae")],
                     histology: "Stratified squamous epithelium on surface; underlying bone for rigid support",
                     connections: "Dorsal to oral cavity; ventral to nasal cavity",
                     highYield: true
@@ -2965,6 +3377,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "During swallowing, elevates to block nasal passageways preventing food from entering nasal regions; directs airflow during breathing",
                     commonConfusions: ["Muscular/flexible, not bone-supported like hard palate"],
                     examTips: ["Smooth posterior flexible palate located caudal to hard palate/rugae"],
+                    images: [ImageCDN.image("soft-palate_gross_1.jpeg", caption: "Soft Palate")],
                     histology: "Transition region; oral side: stratified squamous; nasal side: respiratory organization",
                     connections: "Hard palate → soft palate → pharyngeal regions",
                     highYield: true
@@ -3253,14 +3666,14 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: upperThoracicCat.id,
-                    name: "Mediastinal Septum",
-                    aliases: ["Mediastinum", "Mediastinal partition"],
-                    function: "The central partition of the thoracic cavity between the right and left pleural cavities; contains the heart (in pericardial cavity), trachea, esophagus, major vessels, thymus, nerves, and lymphatics",
-                    commonConfusions: ["Mediastinum = the region between pleural cavities (not a simple membrane — it's a thick region of structures and tissue)", "The mediastinal septum separates the lungs but contains the heart and major thoracic structures within it"],
-                    examTips: ["Practical ID: when you open the thorax and spread the lungs to either side, the mediastinal septum is the central tissue between them containing the heart and trachea", "All major thoracic organs (heart, great vessels, trachea, esophagus, thymus) are in the mediastinum"],
-                    histology: "Not a single tissue type — contains cardiac muscle, connective tissue, cartilage (trachea), and epithelium of various organs",
-                    connections: "Between right and left pleural cavities; bounded by sternum (anterior), vertebral column (posterior), thoracic inlet (cranial), diaphragm (caudal)",
-                    highYield: false
+                    name: "Mediastinum",
+                    aliases: ["Mediastinal septum", "Mediastinal partition", "Central thoracic compartment"],
+                    function: "The central compartment of the thoracic cavity situated between the right and left pleural cavities; essentially the space between the lungs; contains and supports the heart, pericardial cavity, thymus, trachea, esophagus, major blood vessels, vagus and phrenic nerves, and lymphatic structures; acts as conduit for vessels, nerves, and lymphatics passing between thorax and neck/abdomen",
+                    commonConfusions: ["Mediastinum ≠ a single membrane — it is a thick three-dimensional region of tissue and organs between the lungs, not just a partition", "Mediastinum vs pleural cavities: pleural cavities contain the lungs; the mediastinum contains everything between them (heart, trachea, esophagus, thymus, great vessels)", "The handout refers to the 'mediastinal septum' — this is the same as the mediastinum in the context of fetal pig dissection"],
+                    examTips: ["Practical ID: when the thorax is opened and the lungs are spread to each side, the mediastinum is the central mass of tissue between them — you will see the pericardial sac (heart), trachea, and thymus here", "IN FETAL PIG: the thymus is disproportionately LARGE in the mediastinum — a prominent identifying feature", "Mediastinum contains: heart + pericardial cavity, thymus, trachea, esophagus, aortic arch, cranial/caudal vena cava, pulmonary trunk"],
+                    histology: "Not a single tissue type — a composite region containing cardiac muscle (heart), hyaline cartilage (trachea rings), connective tissue (stroma), serous mesothelium (pericardial and pleural surfaces), smooth muscle (esophagus, vessels), and lymphoid tissue (thymus); pericardial and pleural surfaces = simple squamous mesothelium",
+                    connections: "Bounded by: sternum (ventral), vertebral column (dorsal), thoracic inlet (cranial), diaphragm (caudal), right and left parietal pleura (lateral); contains: heart in pericardial sac, trachea bifurcating to bronchi, esophagus, aortic arch and great vessels, thymus",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: upperThoracicCat.id,
@@ -3273,9 +3686,31 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Surrounds heart and proximal great vessels; fused with central tendon of diaphragm; fibrous layer fuses with adventitia of ascending aorta and pulmonary trunk",
                     highYield: true
                 ),
+                AnatomyStructure(
+                    categoryId: upperThoracicCat.id,
+                    name: "Parietal Pericardium",
+                    aliases: ["Fibroserous pericardium", "Outer pericardial layer"],
+                    function: "The outer layer of the pericardium; forms the inner lining of the pericardial sac; consists of an outer tough fibrous layer (fibrous pericardium) and an inner serous layer; together they create the pericardial cavity",
+                    commonConfusions: ["Parietal pericardium is the sac wall; visceral pericardium (epicardium) is on the heart surface — same pattern as parietal/visceral peritoneum and pleura", "The inner surface of the pericardial sac = parietal serous pericardium (simple squamous mesothelium)"],
+                    examTips: ["COMPARISON: Parietal pericardium (heart sac) = parietal pleura (thoracic wall) = parietal peritoneum (abdominal wall) — all line the body cavity wall around their respective organ", "All lined by simple squamous mesothelium"],
+                    histology: "Inner surface: simple squamous mesothelium (serous pericardium); outer layer: dense irregular connective tissue (fibrous pericardium)",
+                    connections: "Forms pericardial sac; inner surface faces pericardial cavity; continuous with visceral pericardium (epicardium) at great vessel reflections",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: upperThoracicCat.id,
+                    name: "Visceral Pericardium",
+                    aliases: ["Epicardium", "Visceral pericardial layer", "Outer heart layer"],
+                    function: "The inner layer of the pericardium that directly covers the heart surface (epicardium); serous membrane allowing the heart to beat smoothly within the pericardial sac; the outermost of the three heart layers (epicardium, myocardium, endocardium)",
+                    commonConfusions: ["Visceral pericardium = epicardium — these are the same structure (two names for the serous layer on the heart surface)", "Epicardium vs endocardium: epicardium = outer (serous membrane); endocardium = inner (lines the heart chambers)", "Three heart wall layers: epicardium (outer, serous) → myocardium (middle, cardiac muscle) → endocardium (inner, simple squamous)"],
+                    examTips: ["MASTER TABLE: visceral pericardium (heart) = visceral pleura (lungs) = visceral peritoneum (abdominal organs) — all are simple squamous mesothelium covering the organ directly", "On histology slides of the heart wall: outermost layer = epicardium/visceral pericardium (simple squamous); middle = myocardium (cardiac muscle); innermost = endocardium (simple squamous endothelium)"],
+                    histology: "Simple squamous mesothelium (serous pericardium); directly adheres to underlying myocardium; may contain adipose tissue in the subepicardial space",
+                    connections: "Directly covers heart surface; continuous with parietal pericardium at great vessel reflections; lies over myocardium; pericardial cavity between visceral and parietal layers",
+                    highYield: true
+                ),
             ])
         }
-        
+
         // MARK: Urinary System additional structures
         if let urinaryCat2 = categories.first(where: { $0.name == "Urinary System" }) {
             structures.append(contentsOf: [
