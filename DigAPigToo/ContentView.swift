@@ -998,48 +998,145 @@ struct FillBlankDetailView: View {
 
 // MARK: - Quiz
 
+// Category name sets used for preset selection buttons
+private let grossAnatomyCategoryNames: Set<String> = [
+    "Anatomical Planes", "Directional Terminology", "External",
+    "Buccal Cavity", "Upper Thoracic", "Peritoneal Cavity",
+    "Digestive System", "Respiratory System", "Circulatory System",
+    "Urinary System", "Male Reproductive", "Female Reproductive",
+    "Fetal Structures", "Adult Maternal Pig", "Cow Eye"
+]
+private let histologyCategoryNames: Set<String> = [
+    "Blood Histology", "Vessel Histology", "Respiratory Histology",
+    "Gastrointestinal Histology", "Liver Histology", "Pancreas Histology",
+    "Kidney Histology", "Reproductive Histology", "Microscope", "Epithelial Types"
+]
+
 struct QuizCustomizationView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
+
     @State private var numQuestions = 10
-    @State private var timePerQuestion = 20
-    @State private var selectedCategory: AnatomyCategory?
+    /// -1 = custom, 0 = unlimited, positive = seconds
+    @State private var timeSelection = 20
+    @State private var customTime = 18
+    @State private var quizMode: QuizMode = .multipleChoice
+    @State private var selectedCategoryIDs: Set<UUID> = []
+
+    var effectiveTime: Int { timeSelection == -1 ? customTime : timeSelection }
+
+    private var allIDs: Set<UUID>   { Set(dataManager.categories.map { $0.id }) }
+    private var grossIDs: Set<UUID> { Set(dataManager.categories.filter { grossAnatomyCategoryNames.contains($0.name) }.map { $0.id }) }
+    private var histoIDs: Set<UUID> { Set(dataManager.categories.filter { histologyCategoryNames.contains($0.name) }.map { $0.id }) }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Number of Questions")) {
-                    Picker("Questions", selection: $numQuestions) {
-                        ForEach([5,10,15,20], id: \.self) { Text("\($0)") }
-                    }
-                    .pickerStyle(.segmented)
-                }
-
-                Section(header: Text("Time Per Question")) {
-                    Picker("Time", selection: $timePerQuestion) {
-                        Text("10").tag(10)
-                        Text("20").tag(20)
-                        Text("30").tag(30)
-                        Text("Unlimited").tag(0)
-                    }
-                    .pickerStyle(.segmented)
-                }
-
-                Section(header: Text("Category (Optional)")) {
-                    Picker("Category", selection: $selectedCategory) {
-                        Text("All").tag(Optional<AnatomyCategory>(nil))
-                        ForEach(dataManager.categories) { cat in
-                            Text(cat.name).tag(Optional(cat))
+                // Quiz Mode
+                Section {
+                    Picker("Mode", selection: $quizMode) {
+                        ForEach(QuizMode.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
                         }
                     }
-                }
+                    .pickerStyle(.segmented)
+                    if quizMode == .freeWrite {
+                        Text("Type the structure name from memory. Minor spelling errors and differences in capitalisation are accepted.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                } header: { Text("Quiz Mode") }
 
+                // Number of Questions
+                Section {
+                    Picker("Questions", selection: $numQuestions) {
+                        ForEach([5, 10, 15, 20], id: \.self) { Text("\($0)") }
+                    }
+                    .pickerStyle(.segmented)
+                } header: { Text("Number of Questions") }
+
+                // Time Per Question
+                Section {
+                    Picker("Time", selection: $timeSelection) {
+                        Text("10s").tag(10)
+                        Text("18s").tag(18)
+                        Text("30s").tag(30)
+                        Text("∞").tag(0)
+                        Text("Custom").tag(-1)
+                    }
+                    .pickerStyle(.segmented)
+                    if timeSelection == 18 {
+                        Text("Real exam pace — ~90 s per station, 5 IDs each")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    if timeSelection == -1 {
+                        Stepper("Custom: \(customTime) seconds", value: $customTime, in: 5...300, step: 5)
+                    }
+                } header: { Text("Time Per Question") }
+
+                // Categories
+                Section {
+                    // Preset quick-select
+                    HStack(spacing: 8) {
+                        QuizPresetButton("All")        { selectedCategoryIDs = allIDs }
+                        QuizPresetButton("Gross")      { selectedCategoryIDs = grossIDs }
+                        QuizPresetButton("Histology")  { selectedCategoryIDs = histoIDs }
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+
+                    // Individual toggles
+                    ForEach(dataManager.categories) { cat in
+                        Button {
+                            if selectedCategoryIDs.contains(cat.id) {
+                                selectedCategoryIDs.remove(cat.id)
+                            } else {
+                                selectedCategoryIDs.insert(cat.id)
+                            }
+                        } label: {
+                            HStack {
+                                Text(cat.name).foregroundStyle(.primary)
+                                Spacer()
+                                if selectedCategoryIDs.contains(cat.id) {
+                                    Image(systemName: "checkmark").foregroundStyle(.blue)
+                                }
+                            }
+                        }
+                    }
+                } header: { Text("Categories") }
+
+                // Start
                 Section {
                     NavigationLink("Start Quiz") {
-                        QuizView(numQuestions: numQuestions, timePerQuestion: timePerQuestion, selectedCategory: selectedCategory)
+                        QuizView(
+                            numQuestions: numQuestions,
+                            timePerQuestion: effectiveTime,
+                            selectedCategoryIDs: selectedCategoryIDs,
+                            quizMode: quizMode
+                        )
                     }
+                    .disabled(selectedCategoryIDs.isEmpty)
                 }
             }
             .navigationTitle("Quiz")
+            .onAppear {
+                if selectedCategoryIDs.isEmpty { selectedCategoryIDs = allIDs }
+            }
+        }
+    }
+}
+
+struct QuizPresetButton: View {
+    let label: String
+    let action: () -> Void
+    init(_ label: String, action: @escaping () -> Void) {
+        self.label = label; self.action = action
+    }
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .font(.caption.bold())
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .background(.blue.opacity(0.12))
+                .foregroundStyle(.blue)
+                .cornerRadius(8)
         }
     }
 }
@@ -1051,7 +1148,8 @@ struct QuizView: View {
 
     let numQuestions: Int
     let timePerQuestion: Int
-    let selectedCategory: AnatomyCategory?
+    let selectedCategoryIDs: Set<UUID>
+    let quizMode: QuizMode
 
     var body: some View {
         Group {
@@ -1070,23 +1168,22 @@ struct QuizView: View {
     }
 
     private func startQuiz() {
-        var pool: [AnatomyStructure]
-        if let category = selectedCategory {
-            pool = dataManager.structures(in: category)
-        } else {
-            pool = dataManager.structures
-        }
+        let selectedCats = dataManager.categories.filter { selectedCategoryIDs.contains($0.id) }
+        var pool: [AnatomyStructure] = selectedCats.isEmpty
+            ? dataManager.structures
+            : selectedCats.flatMap { dataManager.structures(in: $0) }
         pool.shuffle()
         let chosen = Array(pool.prefix(numQuestions))
 
+        // Always draw distractors from the full structure list for variety
+        let distractorPool = dataManager.structures
         var questions: [QuizQuestion] = []
         for s in chosen {
-            let distractorPool = selectedCategory != nil ? pool : dataManager.structures
             let distractors = Array(distractorPool.filter { $0.id != s.id }.shuffled().prefix(3)).map { $0.name }
             questions.append(QuizQuestion(structure: s, distractors: distractors))
         }
 
-        quizSession = QuizSession(questions: questions, timePerQuestion: TimeInterval(timePerQuestion))
+        quizSession = QuizSession(questions: questions, timePerQuestion: TimeInterval(timePerQuestion), quizMode: quizMode)
     }
 }
 
@@ -1094,16 +1191,26 @@ struct QuizQuestionView: View {
     @Binding var quizSession: QuizSession?
     @StateObject private var statsManager = StatsManager.shared
     @StateObject private var dataManager = AnatomyDataManager.shared
-    @State private var shuffledChoices: [String] = []
-    @State private var selectedAnswer: String?
+
+    // Shared state
     @State private var isAnswered = false
     @State private var timer: Timer?
     @State private var timeRemaining: TimeInterval = 0
     @State private var questionStartDate: Date = Date()
 
+    // Multiple-choice state
+    @State private var shuffledChoices: [String] = []
+    @State private var selectedAnswer: String?
+
+    // Free-write state
+    @State private var typedAnswer = ""
+    @State private var freeWriteCorrect = false
+    @FocusState private var fieldFocused: Bool
+
     var body: some View {
         if let session = quizSession, session.currentQuestion != nil {
             VStack(spacing: 16) {
+                // Header: progress + score
                 HStack {
                     Text("Question \(session.currentQuestionIndex + 1)/\(session.questions.count)")
                         .font(.subheadline).foregroundStyle(.secondary)
@@ -1112,6 +1219,7 @@ struct QuizQuestionView: View {
                         .font(.subheadline.bold())
                 }
 
+                // Timer bar
                 if session.timePerQuestion > 0 {
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
@@ -1126,9 +1234,9 @@ struct QuizQuestionView: View {
                         .font(.caption).foregroundStyle(timerColor).monospacedDigit()
                 }
 
+                // Photo
                 Group {
-                    if let q = session.currentQuestion,
-                       !q.structure.images.isEmpty {
+                    if let q = session.currentQuestion, !q.structure.images.isEmpty {
                         let img = q.structure.images[min(q.imageIndex, q.structure.images.count - 1)]
                         AnatomyImageView(image: img, fillsFrame: false, title: q.structure.name,
                                          hideFullscreenTitle: true)
@@ -1139,7 +1247,7 @@ struct QuizQuestionView: View {
                             .overlay(
                                 VStack(spacing: 8) {
                                     Image(systemName: "photo").font(.system(size: 40)).foregroundStyle(.secondary)
-                                    Text("What structure is shown?").font(.caption).foregroundStyle(.secondary)
+                                    Text("What structure is this?").font(.caption).foregroundStyle(.secondary)
                                 }
                             )
                     }
@@ -1147,18 +1255,11 @@ struct QuizQuestionView: View {
                 .frame(height: 180)
                 .clipped()
 
-                VStack(spacing: 10) {
-                    ForEach(shuffledChoices, id: \.self) { choice in
-                        Button(action: { answer(choice) }) {
-                            Text(choice)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(buttonColor(choice: choice))
-                                .foregroundStyle(.white)
-                                .cornerRadius(10)
-                        }
-                        .disabled(isAnswered)
-                    }
+                // Answer area — branches on quiz mode
+                if session.quizMode == .freeWrite {
+                    freeWriteAnswerArea(session: session)
+                } else {
+                    multipleChoiceAnswerArea(session: session)
                 }
 
                 Spacer()
@@ -1175,6 +1276,66 @@ struct QuizQuestionView: View {
         }
     }
 
+    // MARK: Multiple-choice answer buttons
+    @ViewBuilder
+    private func multipleChoiceAnswerArea(session: QuizSession) -> some View {
+        VStack(spacing: 10) {
+            ForEach(shuffledChoices, id: \.self) { choice in
+                Button(action: { answerMultipleChoice(choice) }) {
+                    Text(choice)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(mcButtonColor(choice: choice, session: session))
+                        .foregroundStyle(.white)
+                        .cornerRadius(10)
+                }
+                .disabled(isAnswered)
+            }
+        }
+    }
+
+    // MARK: Free-write answer field
+    @ViewBuilder
+    private func freeWriteAnswerArea(session: QuizSession) -> some View {
+        VStack(spacing: 12) {
+            TextField("Type the structure name…", text: $typedAnswer)
+                .textFieldStyle(.roundedBorder)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+                .focused($fieldFocused)
+                .disabled(isAnswered)
+                .onSubmit { submitFreeWrite(session: session) }
+
+            if isAnswered {
+                HStack(spacing: 8) {
+                    Image(systemName: freeWriteCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .foregroundStyle(freeWriteCorrect ? .green : .red)
+                        .font(.title3)
+                    if freeWriteCorrect {
+                        Text("Correct!").foregroundStyle(.green).fontWeight(.semibold)
+                    } else {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Incorrect").foregroundStyle(.red).fontWeight(.semibold)
+                            if let q = session.currentQuestion {
+                                Text("Answer: \(q.structure.name)")
+                                    .font(.subheadline).foregroundStyle(.primary)
+                            }
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(10)
+                .background(freeWriteCorrect ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
+                .cornerRadius(10)
+            } else {
+                Button("Submit") { submitFreeWrite(session: session) }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(typedAnswer.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+        }
+    }
+
+    // MARK: Timer helpers
     private var timerColor: Color {
         guard let session = quizSession, session.timePerQuestion > 0 else { return .blue }
         let ratio = timeRemaining / session.timePerQuestion
@@ -1190,8 +1351,11 @@ struct QuizQuestionView: View {
         timeRemaining = session.timePerQuestion
         isAnswered = false
         selectedAnswer = nil
+        typedAnswer = ""
+        freeWriteCorrect = false
         questionStartDate = Date()
         if timeRemaining > 0 { startTimer() }
+        if session.quizMode == .freeWrite { fieldFocused = true }
     }
 
     private func restartTimerFromDate() {
@@ -1220,28 +1384,84 @@ struct QuizQuestionView: View {
 
     private func stopTimer() { timer?.invalidate(); timer = nil }
 
-    private func answer(_ choice: String) {
+    // MARK: Multiple-choice answer
+    private func answerMultipleChoice(_ choice: String) {
         guard var session = quizSession, let q = session.currentQuestion else { return }
         stopTimer()
         isAnswered = true
         selectedAnswer = choice
         let correct = choice == q.structure.name
-
-        // Find category name for this structure
         let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
-
         if correct { session.score += 1 }
         session.answerHistory.append(AnswerRecord(
             structureName: q.structure.name,
             categoryName: catName,
-            givenAnswer: choice
+            givenAnswer: choice,
+            wasCorrect: correct
         ))
         quizSession = session
-
-        // Record to long-term stats
         statsManager.record(structureName: q.structure.name, correct: correct)
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { advance() }
+    }
+
+    private func mcButtonColor(choice: String, session: QuizSession) -> Color {
+        guard let q = session.currentQuestion else { return .blue }
+        if !isAnswered { return .blue }
+        if choice == q.structure.name { return .green }
+        if choice == selectedAnswer { return .red }
+        return .blue.opacity(0.35)
+    }
+
+    // MARK: Free-write answer
+    private func submitFreeWrite(session: QuizSession) {
+        guard var s = quizSession, let q = s.currentQuestion, !isAnswered else { return }
+        stopTimer()
+        fieldFocused = false
+        isAnswered = true
+        let correct = isAcceptableAnswer(typedAnswer, for: q.structure)
+        freeWriteCorrect = correct
+        let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
+        if correct { s.score += 1 }
+        s.answerHistory.append(AnswerRecord(
+            structureName: q.structure.name,
+            categoryName: catName,
+            givenAnswer: typedAnswer.isEmpty ? "(no answer)" : typedAnswer,
+            wasCorrect: correct
+        ))
+        quizSession = s
+        statsManager.record(structureName: q.structure.name, correct: correct)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advance() }
+    }
+
+    // MARK: Fuzzy matching
+    private func isAcceptableAnswer(_ typed: String, for structure: AnatomyStructure) -> Bool {
+        let typed = typed.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !typed.isEmpty else { return false }
+        let candidates = ([structure.name] + structure.aliases).map { $0.lowercased() }
+        for target in candidates {
+            if typed == target { return true }
+            let maxLen = max(typed.count, target.count)
+            let threshold = maxLen <= 5 ? 1 : maxLen <= 10 ? 2 : 3
+            if levenshtein(typed, target) <= threshold { return true }
+        }
+        return false
+    }
+
+    private func levenshtein(_ s: String, _ t: String) -> Int {
+        let s = Array(s), t = Array(t)
+        if s.isEmpty { return t.count }
+        if t.isEmpty { return s.count }
+        var dist = Array(repeating: Array(repeating: 0, count: t.count + 1), count: s.count + 1)
+        for i in 0...s.count { dist[i][0] = i }
+        for j in 0...t.count { dist[0][j] = j }
+        for i in 1...s.count {
+            for j in 1...t.count {
+                dist[i][j] = s[i-1] == t[j-1]
+                    ? dist[i-1][j-1]
+                    : 1 + min(dist[i-1][j], dist[i][j-1], dist[i-1][j-1])
+            }
+        }
+        return dist[s.count][t.count]
     }
 
     private func advance() {
@@ -1250,14 +1470,6 @@ struct QuizQuestionView: View {
             session.currentQuestionIndex += 1
             quizSession = session
         }
-    }
-
-    private func buttonColor(choice: String) -> Color {
-        guard let session = quizSession, let q = session.currentQuestion else { return .blue }
-        if !isAnswered { return .blue }
-        if choice == q.structure.name { return .green }
-        if choice == selectedAnswer { return .red }
-        return .blue.opacity(0.35)
     }
 }
 

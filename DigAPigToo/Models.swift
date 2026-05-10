@@ -92,6 +92,12 @@ struct AnatomyStructure: Identifiable, Hashable {
 
 // MARK: - Quiz Models
 
+enum QuizMode: String, CaseIterable, Identifiable {
+    case multipleChoice = "Multiple Choice"
+    case freeWrite = "Type Answer"
+    var id: String { rawValue }
+}
+
 struct QuizQuestion: Identifiable {
     let id: UUID
     let structure: AnatomyStructure
@@ -170,13 +176,14 @@ struct AnswerRecord: Identifiable {
     let structureName: String
     let categoryName: String
     let givenAnswer: String
-    var wasCorrect: Bool { givenAnswer == structureName }
+    let wasCorrect: Bool   // stored so fuzzy-match wins are counted correctly
 }
 
 struct QuizSession: Identifiable {
     let id: UUID
     let questions: [QuizQuestion]
-    let timePerQuestion: TimeInterval // seconds
+    let timePerQuestion: TimeInterval // seconds; 0 = unlimited
+    let quizMode: QuizMode
     var currentQuestionIndex: Int = 0
     var score: Int = 0
     var answerHistory: [AnswerRecord] = []
@@ -190,9 +197,10 @@ struct QuizSession: Identifiable {
         return questions[currentQuestionIndex]
     }
 
-    init(questions: [QuizQuestion], timePerQuestion: TimeInterval = 20) {
+    init(questions: [QuizQuestion], timePerQuestion: TimeInterval = 20, quizMode: QuizMode = .multipleChoice) {
         self.id = UUID()
         self.questions = questions
         self.timePerQuestion = timePerQuestion
+        self.quizMode = quizMode
     }
 }
