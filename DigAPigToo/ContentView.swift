@@ -351,6 +351,7 @@ struct AnatomyImageView: View {
     var fillsFrame: Bool = true        // false → scaledToFit (show full image, no cropping)
     var title: String = ""             // shown in fullscreen nav bar
     var fullscreenMode: FullscreenMode = .structure
+    var hideFullscreenTitle: Bool = false  // true in quiz context — shows "?" instead of answer
     @State private var showFullscreen = false
 
     var body: some View {
@@ -395,15 +396,17 @@ struct AnatomyImageView: View {
                     .foregroundStyle(.white)
                     .cornerRadius(5)
 
-                if let mag = image.magnification {
-                    Text("\(mag)x").font(.caption.bold()).padding(6)
-                        .background(.black.opacity(0.55)).foregroundStyle(.white)
-                        .cornerRadius(6)
-                }
-                if !image.caption.isEmpty {
-                    Text(image.caption).font(.caption2).padding(6)
-                        .background(.black.opacity(0.45)).foregroundStyle(.white)
-                        .cornerRadius(6)
+                if !hideFullscreenTitle {
+                    if let mag = image.magnification {
+                        Text("\(mag)x").font(.caption.bold()).padding(6)
+                            .background(.black.opacity(0.55)).foregroundStyle(.white)
+                            .cornerRadius(6)
+                    }
+                    if !image.caption.isEmpty {
+                        Text(image.caption).font(.caption2).padding(6)
+                            .background(.black.opacity(0.45)).foregroundStyle(.white)
+                            .cornerRadius(6)
+                    }
                 }
             }
             .padding(8)
@@ -411,7 +414,8 @@ struct AnatomyImageView: View {
         .background(Color.gray.opacity(0.1))
         .onTapGesture { showFullscreen = true }
         .fullScreenCover(isPresented: $showFullscreen) {
-            FullscreenImageSheet(image: image, title: title, mode: fullscreenMode)
+            FullscreenImageSheet(image: image, title: title, mode: fullscreenMode,
+                                 hideTitle: hideFullscreenTitle)
         }
     }
 }
@@ -434,6 +438,7 @@ struct FullscreenImageSheet: View {
     let image: AnatomyImage        // tapped image — used to find initial position
     var title: String = ""
     var mode: FullscreenMode = .structure
+    var hideTitle: Bool = false    // true in quiz — replaces structure name with "?" to avoid spoilers
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var dataManager = AnatomyDataManager.shared
@@ -506,12 +511,12 @@ struct FullscreenImageSheet: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .ignoresSafeArea()
             }
-            .navigationTitle(currentEntry?.title ?? title)
+            .navigationTitle(hideTitle ? "?" : (currentEntry?.title ?? title))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if let mag = currentEntry?.image?.magnification {
+                    if !hideTitle, let mag = currentEntry?.image?.magnification {
                         Text("\(mag)×")
                             .font(.caption.bold())
                             .padding(.horizontal, 8).padding(.vertical, 4)
@@ -1126,7 +1131,8 @@ struct QuizQuestionView: View {
                     if let q = session.currentQuestion,
                        !q.structure.images.isEmpty {
                         let img = q.structure.images[min(q.imageIndex, q.structure.images.count - 1)]
-                        AnatomyImageView(image: img, fillsFrame: true, title: q.structure.name)
+                        AnatomyImageView(image: img, fillsFrame: false, title: q.structure.name,
+                                         hideFullscreenTitle: true)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     } else {
                         RoundedRectangle(cornerRadius: 12)
