@@ -168,6 +168,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Toward snout"],
                     function: "Toward the snout/front",
                     commonConfusions: [],
+                    images: [ImageCDN.image("rostral_gross_1.png", caption: "Rostral direction")],
                     examTips: ["Specific to head region"]
                 ),
                 AnatomyStructure(
