@@ -1015,146 +1015,182 @@ private let histologyCategoryNames: Set<String> = [
 struct QuizCustomizationView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
 
+    // Regular quiz state
     @State private var numQuestions = 10
-    /// -1 = custom, 0 = unlimited, positive = seconds
-    @State private var timeSelection = 20
+    @State private var timeSelection = 20   // -1 = custom, 0 = unlimited
     @State private var customTime = 18
     @State private var quizMode: QuizMode = .multipleChoice
     @State private var selectedCategoryIDs: Set<UUID> = []
 
-    var effectiveTime: Int { timeSelection == -1 ? customTime : timeSelection }
+    // Real Exam state
+    @State private var numStations = 30
+    @State private var stationTimeSelection = 90   // -1 = custom
+    @State private var stationCustomTime = 90
 
-    private var allIDs: Set<UUID>   { Set(dataManager.categories.map { $0.id }) }
-    // Robust matching: histology = any category whose name contains "Histology",
-    // plus Microscope and Epithelial Types; everything else is gross anatomy.
-    private var histoIDs: Set<UUID> {
-        Set(dataManager.categories.filter {
-            $0.name.contains("Histology") || $0.name == "Microscope" || $0.name == "Epithelial Types"
-        }.map { $0.id })
+    var effectiveQuizTime: Int   { timeSelection == -1 ? customTime : timeSelection }
+    var effectiveStationTime: Int { stationTimeSelection == -1 ? stationCustomTime : stationTimeSelection }
+
+    // Robust category grouping: pattern-based, not hardcoded name lists
+    private var allIDs: Set<UUID> { Set(dataManager.categories.map { $0.id }) }
+    private func isHisto(_ cat: AnatomyCategory) -> Bool {
+        cat.name.contains("Histology") || cat.name == "Microscope" || cat.name == "Epithelial Types"
     }
-    private var grossIDs: Set<UUID> {
-        Set(dataManager.categories.filter {
-            !$0.name.contains("Histology") && $0.name != "Microscope" && $0.name != "Epithelial Types"
-        }.map { $0.id })
-    }
+    private var histoIDs: Set<UUID> { Set(dataManager.categories.filter { isHisto($0) }.map { $0.id }) }
+    private var grossIDs: Set<UUID> { Set(dataManager.categories.filter { !isHisto($0) }.map { $0.id }) }
 
     var body: some View {
         NavigationStack {
             Form {
-                // Quiz Mode
+                // ── Quiz Mode ──────────────────────────────────────────────
                 Section {
                     Picker("Mode", selection: $quizMode) {
-                        ForEach(QuizMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
+                        Text("Multiple Choice").tag(QuizMode.multipleChoice)
+                        Text("Write Answer").tag(QuizMode.writeAnswer)
+                        Text("Real Exam").tag(QuizMode.realExam)
                     }
                     .pickerStyle(.segmented)
-                    if quizMode == .freeWrite {
-                        Text("Type the structure name from memory. Minor spelling errors and differences in capitalisation are accepted.")
-                            .font(.caption).foregroundStyle(.secondary)
+                    Group {
+                        switch quizMode {
+                        case .writeAnswer:
+                            Text("Write the structure name from memory. Minor spelling errors are accepted.")
+                        case .realExam:
+                            Text("Replicates the actual practical: stations of 5 IDs, structures grouped by organ system/region — just like real dissection setups.")
+                        case .multipleChoice:
+                            EmptyView()
+                        }
                     }
+                    .font(.caption).foregroundStyle(.secondary)
                 } header: { Text("Quiz Mode") }
 
-                // Number of Questions
-                Section {
-                    Picker("Questions", selection: $numQuestions) {
-                        ForEach([5, 10, 15, 20], id: \.self) { Text("\($0)") }
-                    }
-                    .pickerStyle(.segmented)
-                } header: { Text("Number of Questions") }
-
-                // Time Per Question
-                Section {
-                    Picker("Time", selection: $timeSelection) {
-                        Text("10s").tag(10)
-                        Text("18s").tag(18)
-                        Text("30s").tag(30)
-                        Text("∞").tag(0)
-                        Text("Custom").tag(-1)
-                    }
-                    .pickerStyle(.segmented)
-                    if timeSelection == 18 {
-                        Text("Real exam pace — ~90 s per station, 5 IDs each")
+                // ── Real Exam settings ─────────────────────────────────────
+                if quizMode == .realExam {
+                    Section {
+                        Picker("Stations", selection: $numStations) {
+                            ForEach([5, 10, 20, 30], id: \.self) { Text("\($0)") }
+                        }
+                        .pickerStyle(.segmented)
+                        Text("\(numStations) stations × 5 IDs = \(numStations * 5) total items")
                             .font(.caption).foregroundStyle(.secondary)
-                    }
-                    if timeSelection == -1 {
-                        Stepper("Custom: \(customTime) seconds", value: $customTime, in: 1...300, step: 1)
-                    }
-                } header: { Text("Time Per Question") }
+                    } header: { Text("Number of Stations") }
 
-                // Categories
-                Section {
-                    // Preset quick-select — each button toggles its group on/off
-                    HStack(spacing: 8) {
-                        QuizPresetButton("All") {
-                            if allIDs.isSubset(of: selectedCategoryIDs) {
-                                selectedCategoryIDs.removeAll()
-                            } else {
-                                selectedCategoryIDs = allIDs
-                            }
+                    Section {
+                        Picker("Time", selection: $stationTimeSelection) {
+                            Text("60s").tag(60)
+                            Text("90s").tag(90)
+                            Text("120s").tag(120)
+                            Text("Custom").tag(-1)
                         }
-                        QuizPresetButton("Gross") {
-                            if grossIDs.isSubset(of: selectedCategoryIDs) {
-                                selectedCategoryIDs.subtract(grossIDs)
-                            } else {
-                                selectedCategoryIDs.formUnion(grossIDs)
-                            }
+                        .pickerStyle(.segmented)
+                        if stationTimeSelection == 90 {
+                            Text("Real exam: 90 seconds per station")
+                                .font(.caption).foregroundStyle(.secondary)
                         }
-                        QuizPresetButton("Histology") {
-                            if histoIDs.isSubset(of: selectedCategoryIDs) {
-                                selectedCategoryIDs.subtract(histoIDs)
-                            } else {
-                                selectedCategoryIDs.formUnion(histoIDs)
-                            }
+                        if stationTimeSelection == -1 {
+                            Stepper("Custom: \(stationCustomTime) seconds",
+                                    value: $stationCustomTime, in: 30...300, step: 5)
+                        }
+                    } header: { Text("Time Per Station") }
+
+                    Section {
+                        let gross = Int((Double(numStations) * 22.0 / 30.0).rounded())
+                        let histo = numStations - gross
+                        Label("~\(gross) gross anatomy stations, ~\(histo) histology/microscope stations — structures grouped by organ system within each station", systemImage: "chart.pie")
+                            .font(.caption).foregroundStyle(.secondary)
+                    } header: { Text("Exam Structure") }
+
+                    Section {
+                        NavigationLink("Start Exam") {
+                            ExamHostView(numStations: numStations, timePerStation: effectiveStationTime)
                         }
                     }
-                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
 
-                    // Individual toggles
-                    ForEach(dataManager.categories) { cat in
-                        Button {
-                            if selectedCategoryIDs.contains(cat.id) {
-                                selectedCategoryIDs.remove(cat.id)
-                            } else {
-                                selectedCategoryIDs.insert(cat.id)
+                // ── Regular quiz settings ──────────────────────────────────
+                } else {
+                    Section {
+                        Picker("Questions", selection: $numQuestions) {
+                            ForEach([5, 10, 15, 20], id: \.self) { Text("\($0)") }
+                        }
+                        .pickerStyle(.segmented)
+                    } header: { Text("Number of Questions") }
+
+                    Section {
+                        Picker("Time", selection: $timeSelection) {
+                            Text("10s").tag(10)
+                            Text("18s").tag(18)
+                            Text("30s").tag(30)
+                            Text("∞").tag(0)
+                            Text("Custom").tag(-1)
+                        }
+                        .pickerStyle(.segmented)
+                        if timeSelection == 18 {
+                            Text("Real exam pace — ~90 s per station, 5 IDs each")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        if timeSelection == -1 {
+                            Stepper("Custom: \(customTime) seconds", value: $customTime, in: 1...300, step: 1)
+                        }
+                    } header: { Text("Time Per Question") }
+
+                    Section {
+                        // Preset toggles — .buttonStyle(.borderless) makes taps register inside Form rows
+                        HStack(spacing: 8) {
+                            QuizPresetButton("All") {
+                                if allIDs.isSubset(of: selectedCategoryIDs) {
+                                    selectedCategoryIDs.removeAll()
+                                } else {
+                                    selectedCategoryIDs = allIDs
+                                }
                             }
-                        } label: {
-                            HStack {
-                                Text(cat.name).foregroundStyle(.primary)
-                                Spacer()
-                                if selectedCategoryIDs.contains(cat.id) {
-                                    Image(systemName: "checkmark").foregroundStyle(.blue)
+                            QuizPresetButton("Gross") {
+                                if grossIDs.isSubset(of: selectedCategoryIDs) {
+                                    selectedCategoryIDs.subtract(grossIDs)
+                                } else {
+                                    selectedCategoryIDs.formUnion(grossIDs)
+                                }
+                            }
+                            QuizPresetButton("Histology") {
+                                if histoIDs.isSubset(of: selectedCategoryIDs) {
+                                    selectedCategoryIDs.subtract(histoIDs)
+                                } else {
+                                    selectedCategoryIDs.formUnion(histoIDs)
                                 }
                             }
                         }
-                    }
-                } header: { Text("Categories") }
+                        .buttonStyle(.borderless)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
 
-                // Start regular quiz
-                Section {
-                    NavigationLink("Start Quiz") {
-                        QuizView(
-                            numQuestions: numQuestions,
-                            timePerQuestion: effectiveTime,
-                            selectedCategoryIDs: selectedCategoryIDs,
-                            quizMode: quizMode
-                        )
-                    }
-                    .disabled(selectedCategoryIDs.isEmpty)
-                }
-
-                // Real Exam shortcut
-                Section {
-                    NavigationLink(destination: ExamCustomizationView()) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Label("Real Exam Mode", systemImage: "graduationcap.fill")
-                                .font(.headline).foregroundStyle(.indigo)
-                            Text("30 stations · 5 IDs each · 90 s per station — replicates the actual practical")
-                                .font(.caption).foregroundStyle(.secondary)
+                        ForEach(dataManager.categories) { cat in
+                            Button {
+                                if selectedCategoryIDs.contains(cat.id) {
+                                    selectedCategoryIDs.remove(cat.id)
+                                } else {
+                                    selectedCategoryIDs.insert(cat.id)
+                                }
+                            } label: {
+                                HStack {
+                                    Text(cat.name).foregroundStyle(.primary)
+                                    Spacer()
+                                    if selectedCategoryIDs.contains(cat.id) {
+                                        Image(systemName: "checkmark").foregroundStyle(.blue)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .padding(.vertical, 4)
+                    } header: { Text("Categories") }
+
+                    Section {
+                        NavigationLink("Start Quiz") {
+                            QuizView(
+                                numQuestions: numQuestions,
+                                timePerQuestion: effectiveQuizTime,
+                                selectedCategoryIDs: selectedCategoryIDs,
+                                quizMode: quizMode
+                            )
+                        }
+                        .disabled(selectedCategoryIDs.isEmpty)
                     }
-                } header: { Text("Exam Simulation") }
+                }
             }
             .navigationTitle("Quiz")
             .onAppear {
@@ -1297,7 +1333,7 @@ struct QuizQuestionView: View {
                 .clipped()
 
                 // Answer area — branches on quiz mode
-                if session.quizMode == .freeWrite {
+                if session.quizMode == .writeAnswer {
                     freeWriteAnswerArea(session: session)
                 } else {
                     multipleChoiceAnswerArea(session: session)
@@ -1401,7 +1437,7 @@ struct QuizQuestionView: View {
         freeWriteCorrect = false
         questionStartDate = Date()
         if timeRemaining > 0 { startTimer() }
-        if session.quizMode == .freeWrite { fieldFocused = true }
+        if session.quizMode == .writeAnswer { fieldFocused = true }
     }
 
     private func restartTimerFromDate() {
@@ -1620,59 +1656,6 @@ struct QuizResultsView: View {
 
 // MARK: - Real Exam Mode
 
-struct ExamCustomizationView: View {
-    @State private var numStations = 30
-    @State private var timeSelection = 90   // -1 = custom
-    @State private var customTime = 90
-
-    var effectiveTime: Int { timeSelection == -1 ? customTime : timeSelection }
-
-    var body: some View {
-        Form {
-            Section {
-                Picker("Stations", selection: $numStations) {
-                    ForEach([5, 10, 20, 30], id: \.self) { Text("\($0)") }
-                }
-                .pickerStyle(.segmented)
-                Text("\(numStations) stations × 5 IDs = \(numStations * 5) total items")
-                    .font(.caption).foregroundStyle(.secondary)
-            } header: { Text("Number of Stations") }
-
-            Section {
-                Picker("Time", selection: $timeSelection) {
-                    Text("60s").tag(60)
-                    Text("90s").tag(90)
-                    Text("120s").tag(120)
-                    Text("Custom").tag(-1)
-                }
-                .pickerStyle(.segmented)
-                if timeSelection == 90 {
-                    Text("Real exam: 90 seconds per station")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                if timeSelection == -1 {
-                    Stepper("Custom: \(customTime) seconds", value: $customTime, in: 30...300, step: 5)
-                }
-            } header: { Text("Time Per Station") }
-
-            Section {
-                let gross = Int((Double(numStations) * 22.0 / 30.0).rounded())
-                let histo = numStations - gross
-                Label("~\(gross) gross anatomy stations, ~\(histo) histology/microscope stations", systemImage: "chart.pie")
-                    .font(.caption).foregroundStyle(.secondary)
-            } header: { Text("Exam Proportions") }
-
-            Section {
-                NavigationLink("Start Exam") {
-                    ExamHostView(numStations: numStations, timePerStation: effectiveTime)
-                }
-            }
-        }
-        .navigationTitle("Real Exam Mode")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
 struct ExamHostView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var examSession: ExamSession?
@@ -1699,30 +1682,70 @@ struct ExamHostView: View {
     }
 
     private func buildExam() {
-        let histoCats = dataManager.categories.filter {
-            $0.name.contains("Histology") || $0.name == "Microscope" || $0.name == "Epithelial Types"
-        }
-        let grossCats = dataManager.categories.filter {
-            !$0.name.contains("Histology") && $0.name != "Microscope" && $0.name != "Epithelial Types"
-        }
-
-        let grossPool  = grossCats.flatMap { dataManager.structures(in: $0) }.shuffled()
-        let histoPool  = histoCats.flatMap { dataManager.structures(in: $0) }.shuffled()
+        // Each inner array = one real-exam "station type": categories that appear
+        // together in the same dissection setup or on the same histology slide.
+        // Frequency reflects the actual exam station distribution.
+        let grossGroupPool: [[String]] = [
+            ["Circulatory System"],
+            ["Circulatory System"],
+            ["Circulatory System"],
+            ["Peritoneal Cavity", "Digestive System"],
+            ["Peritoneal Cavity", "Digestive System"],
+            ["Peritoneal Cavity", "Digestive System"],
+            ["Upper Thoracic"],
+            ["Upper Thoracic"],
+            ["External"],
+            ["External"],
+            ["Urinary System"],
+            ["Urinary System"],
+            ["Male Reproductive"],
+            ["Female Reproductive"],
+            ["Buccal Cavity"],
+            ["Respiratory System"],
+            ["Fetal Structures", "Adult Maternal Pig"],
+            ["Cow Eye"],
+        ]
+        let histoGroupPool: [[String]] = [
+            ["Gastrointestinal Histology"],
+            ["Gastrointestinal Histology"],
+            ["Kidney Histology"],
+            ["Blood Histology"],
+            ["Vessel Histology"],
+            ["Liver Histology"],
+            ["Pancreas Histology"],
+            ["Respiratory Histology"],
+            ["Microscope", "Epithelial Types"],
+            ["Reproductive Histology"],
+        ]
 
         let histoCount = max(1, Int((Double(numStations) * 8.0 / 30.0).rounded()))
         let grossCount = numStations - histoCount
-
-        var stations: [ExamStation] = []
         let tl = TimeInterval(timePerStation)
+        let cats = dataManager.categories
 
-        func makeStation(_ pool: [AnatomyStructure], startIdx: Int) -> ExamStation {
-            let n = max(1, pool.count)
-            let items = (0..<5).map { ExamItem(structure: pool[(startIdx + $0) % n]) }
+        // Build one station from a given set of category names
+        func makeStation(catNames: [String]) -> ExamStation {
+            let pool = cats
+                .filter { catNames.contains($0.name) }
+                .flatMap { dataManager.structures(in: $0) }
+                .shuffled()
+            guard !pool.isEmpty else {
+                return ExamStation(items: [], timeLimit: tl)
+            }
+            let items = (0..<5).map { ExamItem(structure: pool[$0 % pool.count]) }
             return ExamStation(items: items, timeLimit: tl)
         }
 
-        for i in 0..<grossCount { stations.append(makeStation(grossPool, startIdx: i * 5)) }
-        for i in 0..<histoCount { stations.append(makeStation(histoPool, startIdx: i * 5)) }
+        let shuffledGross = grossGroupPool.shuffled()
+        let shuffledHisto = histoGroupPool.shuffled()
+        var stations: [ExamStation] = []
+
+        for i in 0..<grossCount {
+            stations.append(makeStation(catNames: shuffledGross[i % shuffledGross.count]))
+        }
+        for i in 0..<histoCount {
+            stations.append(makeStation(catNames: shuffledHisto[i % shuffledHisto.count]))
+        }
 
         examSession = ExamSession(stations: stations.shuffled(), timePerStation: tl)
     }

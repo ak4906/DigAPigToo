@@ -94,7 +94,8 @@ struct AnatomyStructure: Identifiable, Hashable {
 
 enum QuizMode: String, CaseIterable, Identifiable {
     case multipleChoice = "Multiple Choice"
-    case freeWrite = "Type Answer"
+    case writeAnswer    = "Write Answer"
+    case realExam       = "Real Exam"
     var id: String { rawValue }
 }
 
