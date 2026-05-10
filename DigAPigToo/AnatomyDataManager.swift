@@ -150,8 +150,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Belly/back", "Anterior/Posterior"],
                     function: "Describes position relative to the ventral (belly) or dorsal (back) surface. In human anatomy these directions are called Anterior (front) and Posterior (back) — same concept, different terms used for bipeds.",
                     commonConfusions: ["Anterior/Posterior is the human anatomy equivalent — in quadrupeds like the pig, Ventral/Dorsal is the correct terminology"],
-                    images: [ImageCDN.image("dorsal-ventral_gross_1.png", caption: "Dorsal vs. Ventral")],
-                    examTips: ["Ventral = toward belly; Dorsal = toward back", "Human equivalent: Anterior (ventral) / Posterior (dorsal)"]
+                    examTips: ["Ventral = toward belly; Dorsal = toward back", "Human equivalent: Anterior (ventral) / Posterior (dorsal)"],
+                    images: [ImageCDN.image("dorsal-ventral_gross_1.png", caption: "Dorsal vs. Ventral")]
                 ),
                 AnatomyStructure(
                     categoryId: directionalCat.id,
@@ -159,8 +159,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Head/tail direction", "Superior/Inferior"],
                     function: "Describes position toward the head (cranial) or toward the tail (caudal). In human anatomy — a biped — these directions are called Superior (up/toward head) and Inferior (down/toward feet). In quadrupeds like the pig, Cranial/Caudal is the correct terminology.",
                     commonConfusions: ["Superior/Inferior is the human anatomy equivalent — used for bipeds where 'up' aligns with toward the head; in quadrupeds use Cranial/Caudal instead"],
-                    images: [ImageCDN.image("cranial-caudal_gross_1.png", caption: "Cranial vs. Caudal")],
-                    examTips: ["Cranial = toward head; Caudal = toward tail", "Human equivalent: Superior (cranial) / Inferior (caudal)"]
+                    examTips: ["Cranial = toward head; Caudal = toward tail", "Human equivalent: Superior (cranial) / Inferior (caudal)"],
+                    images: [ImageCDN.image("cranial-caudal_gross_1.png", caption: "Cranial vs. Caudal")]
                 ),
                 AnatomyStructure(
                     categoryId: directionalCat.id,
@@ -168,8 +168,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Toward snout"],
                     function: "Toward the snout/nose; used specifically within the head region where 'cranial' would be ambiguous",
                     commonConfusions: [],
-                    images: [ImageCDN.image("rostral_gross_1.png", caption: "Rostral direction")],
-                    examTips: ["Specific to head region — toward the snout"]
+                    examTips: ["Specific to head region — toward the snout"],
+                    images: [ImageCDN.image("rostral_gross_1.png", caption: "Rostral direction")]
                 ),
                 AnatomyStructure(
                     categoryId: directionalCat.id,
@@ -177,8 +177,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Far/near"],
                     function: "Far from and near to a reference point (usually where a limb or vessel attaches to the body)",
                     commonConfusions: [],
-                    images: [ImageCDN.image("proximal-distal_gross_1.png", caption: "Proximal vs. Distal")],
-                    examTips: ["Proximal = closer to body/origin; Distal = farther from body/origin", "Useful for limbs and vessels"]
+                    examTips: ["Proximal = closer to body/origin; Distal = farther from body/origin", "Useful for limbs and vessels"],
+                    images: [ImageCDN.image("proximal-distal_gross_1.png", caption: "Proximal vs. Distal")]
                 ),
                 AnatomyStructure(
                     categoryId: directionalCat.id,
@@ -186,8 +186,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Side/middle"],
                     function: "Toward the side of the body (lateral) or toward the midline (medial)",
                     commonConfusions: [],
-                    images: [ImageCDN.image("medial-lateral_gross_1.png", caption: "Medial vs. Lateral")],
-                    examTips: ["Lateral = toward side; Medial = toward midline"]
+                    examTips: ["Lateral = toward side; Medial = toward midline"],
+                    images: [ImageCDN.image("medial-lateral_gross_1.png", caption: "Medial vs. Lateral")]
                 ),
                 AnatomyStructure(
                     categoryId: directionalCat.id,
