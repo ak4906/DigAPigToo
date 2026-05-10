@@ -258,6 +258,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Protects eyeball; maintains moist surface for eye function",
                     commonConfusions: ["In fetal pigs, eyelids may be fused"],
                     examTips: ["On fetal pigs, eyelids can be closed/fused. Make small incision near rostral corner to open"],
+                    images: [ImageCDN.image("eyelid_gross_1.jpeg", caption: "Eyelid")],
                     histology: "Stratified protective surface",
                     connections: "Eyelid covers eye; when opened reveals nictitating membrane",
                     highYield: false
