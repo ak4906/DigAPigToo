@@ -417,25 +417,72 @@ struct AnatomyImageView: View {
 
 // MARK: - Fullscreen Zoomable Image Sheet
 
-struct FullscreenImageSheet: View {
+/// A flat entry pairing an image with its structure name, used for cross-structure swiping.
+private struct FullscreenEntry: Identifiable {
     let image: AnatomyImage
-    var title: String = ""
+    let structureName: String
+    var id: UUID { image.id }
+}
+
+struct FullscreenImageSheet: View {
+    let image: AnatomyImage   // the image that was tapped — used to find initial position
+    var title: String = ""    // structure name passed from the caller
+
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var dataManager = AnatomyDataManager.shared
+    @State private var currentIndex: Int = 0
+
+    /// All images from all structures that have at least one photo, in atlas order.
+    private var allEntries: [FullscreenEntry] {
+        dataManager.orderedStructures
+            .filter { !$0.images.isEmpty }
+            .flatMap { structure in
+                structure.images.map { img in
+                    FullscreenEntry(image: img, structureName: structure.name)
+                }
+            }
+    }
+
+    /// Whether the tapped image exists in the cross-structure list.
+    private var isInStructureList: Bool {
+        allEntries.contains(where: { $0.image.id == image.id })
+    }
+
+    private var currentEntry: FullscreenEntry? {
+        guard currentIndex < allEntries.count else { return nil }
+        return allEntries[currentIndex]
+    }
 
     private var navigationTitle: String {
-        if !title.isEmpty { return title }
-        if !image.caption.isEmpty { return image.caption }
-        return "Photo"
+        currentEntry?.structureName ?? (title.isEmpty ? (image.caption.isEmpty ? "Photo" : image.caption) : title)
+    }
+
+    private var currentMag: Int? {
+        currentEntry?.image.magnification ?? image.magnification
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
-                if image.isRemote, let url = URL(string: image.source) {
-                    AsyncZoomableImage(url: url)
-                } else if let uiImg = UIImage(named: image.source) {
-                    ZoomableUIImage(uiImage: uiImg)
+
+                if isInStructureList {
+                    // Cross-structure swipeable pager
+                    TabView(selection: $currentIndex) {
+                        ForEach(Array(allEntries.enumerated()), id: \.element.id) { idx, entry in
+                            FullscreenZoomablePage(image: entry.image)
+                                .tag(idx)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .ignoresSafeArea()
+                } else {
+                    // Fallback: single image (e.g. diagram images)
+                    if image.isRemote, let url = URL(string: image.source) {
+                        AsyncZoomableImage(url: url)
+                    } else if let uiImg = UIImage(named: image.source) {
+                        ZoomableUIImage(uiImage: uiImg)
+                    }
                 }
             }
             .navigationTitle(navigationTitle)
@@ -443,8 +490,8 @@ struct FullscreenImageSheet: View {
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    if let mag = image.magnification {
-                        Text("\(mag)x")
+                    if let mag = currentMag {
+                        Text("\(mag)×")
                             .font(.caption.bold())
                             .padding(.horizontal, 8).padding(.vertical, 4)
                             .background(.white.opacity(0.2))
@@ -457,6 +504,26 @@ struct FullscreenImageSheet: View {
                         .foregroundStyle(.white)
                 }
             }
+        }
+        .onAppear {
+            if let idx = allEntries.firstIndex(where: { $0.image.id == image.id }) {
+                currentIndex = idx
+            }
+        }
+    }
+}
+
+/// One page inside the fullscreen pager — handles remote/local images.
+private struct FullscreenZoomablePage: View {
+    let image: AnatomyImage
+
+    var body: some View {
+        if image.isRemote, let url = URL(string: image.source) {
+            AsyncZoomableImage(url: url)
+        } else if let uiImg = UIImage(named: image.source) {
+            ZoomableUIImage(uiImage: uiImg)
+        } else {
+            Color.black
         }
     }
 }
