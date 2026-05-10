@@ -313,6 +313,10 @@ class AnatomyDataManager: ObservableObject {
                     function: "Provides distal forelimb mobility while maintaining elevated limb posture",
                     commonConfusions: [],
                     examTips: ["Distal forelimb joint; held above ground in ungulates"],
+                    images: [
+                        ImageCDN.image("wrist_gross_1.jpg", caption: "Wrist"),
+                        ImageCDN.image("wrist_gross_2.png", caption: "Wrist"),
+                    ],
                     histology: "Joint structure",
                     connections: "Distal forelimb joint",
                     highYield: false
