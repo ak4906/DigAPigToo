@@ -195,7 +195,8 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Surface"],
                     function: "Closer to the surface",
                     commonConfusions: [],
-                    examTips: ["Opposite of deep"]
+                    examTips: ["Opposite of deep"],
+                    images: [ImageCDN.image("superficial_gross_1.png", caption: "Superficial")]
                 ),
             ])
         }
