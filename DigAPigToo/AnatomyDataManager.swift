@@ -328,6 +328,10 @@ class AnatomyDataManager: ObservableObject {
                     function: "Allows forelimb flexion and extension",
                     commonConfusions: [],
                     examTips: ["Forelimb joint between upper and lower forelimb"],
+                    images: [
+                        ImageCDN.image("elbow_gross_1.jpg", caption: "Elbow"),
+                        ImageCDN.image("elbow_gross_2.png", caption: "Elbow"),
+                    ],
                     histology: "Joint structure",
                     connections: "Proximal forelimb joint",
                     highYield: false
