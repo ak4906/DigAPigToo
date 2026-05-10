@@ -1025,8 +1025,18 @@ struct QuizCustomizationView: View {
     var effectiveTime: Int { timeSelection == -1 ? customTime : timeSelection }
 
     private var allIDs: Set<UUID>   { Set(dataManager.categories.map { $0.id }) }
-    private var grossIDs: Set<UUID> { Set(dataManager.categories.filter { grossAnatomyCategoryNames.contains($0.name) }.map { $0.id }) }
-    private var histoIDs: Set<UUID> { Set(dataManager.categories.filter { histologyCategoryNames.contains($0.name) }.map { $0.id }) }
+    // Robust matching: histology = any category whose name contains "Histology",
+    // plus Microscope and Epithelial Types; everything else is gross anatomy.
+    private var histoIDs: Set<UUID> {
+        Set(dataManager.categories.filter {
+            $0.name.contains("Histology") || $0.name == "Microscope" || $0.name == "Epithelial Types"
+        }.map { $0.id })
+    }
+    private var grossIDs: Set<UUID> {
+        Set(dataManager.categories.filter {
+            !$0.name.contains("Histology") && $0.name != "Microscope" && $0.name != "Epithelial Types"
+        }.map { $0.id })
+    }
 
     var body: some View {
         NavigationStack {
@@ -1068,17 +1078,35 @@ struct QuizCustomizationView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                     if timeSelection == -1 {
-                        Stepper("Custom: \(customTime) seconds", value: $customTime, in: 5...300, step: 5)
+                        Stepper("Custom: \(customTime) seconds", value: $customTime, in: 1...300, step: 1)
                     }
                 } header: { Text("Time Per Question") }
 
                 // Categories
                 Section {
-                    // Preset quick-select
+                    // Preset quick-select — each button toggles its group on/off
                     HStack(spacing: 8) {
-                        QuizPresetButton("All")        { selectedCategoryIDs = allIDs }
-                        QuizPresetButton("Gross")      { selectedCategoryIDs = grossIDs }
-                        QuizPresetButton("Histology")  { selectedCategoryIDs = histoIDs }
+                        QuizPresetButton("All") {
+                            if allIDs.isSubset(of: selectedCategoryIDs) {
+                                selectedCategoryIDs.removeAll()
+                            } else {
+                                selectedCategoryIDs = allIDs
+                            }
+                        }
+                        QuizPresetButton("Gross") {
+                            if grossIDs.isSubset(of: selectedCategoryIDs) {
+                                selectedCategoryIDs.subtract(grossIDs)
+                            } else {
+                                selectedCategoryIDs.formUnion(grossIDs)
+                            }
+                        }
+                        QuizPresetButton("Histology") {
+                            if histoIDs.isSubset(of: selectedCategoryIDs) {
+                                selectedCategoryIDs.subtract(histoIDs)
+                            } else {
+                                selectedCategoryIDs.formUnion(histoIDs)
+                            }
+                        }
                     }
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
 
@@ -1102,7 +1130,7 @@ struct QuizCustomizationView: View {
                     }
                 } header: { Text("Categories") }
 
-                // Start
+                // Start regular quiz
                 Section {
                     NavigationLink("Start Quiz") {
                         QuizView(
@@ -1114,6 +1142,19 @@ struct QuizCustomizationView: View {
                     }
                     .disabled(selectedCategoryIDs.isEmpty)
                 }
+
+                // Real Exam shortcut
+                Section {
+                    NavigationLink(destination: ExamCustomizationView()) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label("Real Exam Mode", systemImage: "graduationcap.fill")
+                                .font(.headline).foregroundStyle(.indigo)
+                            Text("30 stations · 5 IDs each · 90 s per station — replicates the actual practical")
+                                .font(.caption).foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                } header: { Text("Exam Simulation") }
             }
             .navigationTitle("Quiz")
             .onAppear {
@@ -1328,9 +1369,14 @@ struct QuizQuestionView: View {
                 .background(freeWriteCorrect ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
                 .cornerRadius(10)
             } else {
-                Button("Submit") { submitFreeWrite(session: session) }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(typedAnswer.trimmingCharacters(in: .whitespaces).isEmpty)
+                HStack(spacing: 10) {
+                    Button("Don't Know") { dontKnow(session: session) }
+                        .buttonStyle(.bordered)
+                        .tint(.secondary)
+                    Button("Submit") { submitFreeWrite(session: session) }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(typedAnswer.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
             }
         }
     }
@@ -1418,7 +1464,7 @@ struct QuizQuestionView: View {
         stopTimer()
         fieldFocused = false
         isAnswered = true
-        let correct = isAcceptableAnswer(typedAnswer, for: q.structure)
+        let correct = q.structure.accepts(answer: typedAnswer)
         freeWriteCorrect = correct
         let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
         if correct { s.score += 1 }
@@ -1433,35 +1479,22 @@ struct QuizQuestionView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advance() }
     }
 
-    // MARK: Fuzzy matching
-    private func isAcceptableAnswer(_ typed: String, for structure: AnatomyStructure) -> Bool {
-        let typed = typed.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard !typed.isEmpty else { return false }
-        let candidates = ([structure.name] + structure.aliases).map { $0.lowercased() }
-        for target in candidates {
-            if typed == target { return true }
-            let maxLen = max(typed.count, target.count)
-            let threshold = maxLen <= 5 ? 1 : maxLen <= 10 ? 2 : 3
-            if levenshtein(typed, target) <= threshold { return true }
-        }
-        return false
-    }
-
-    private func levenshtein(_ s: String, _ t: String) -> Int {
-        let s = Array(s), t = Array(t)
-        if s.isEmpty { return t.count }
-        if t.isEmpty { return s.count }
-        var dist = Array(repeating: Array(repeating: 0, count: t.count + 1), count: s.count + 1)
-        for i in 0...s.count { dist[i][0] = i }
-        for j in 0...t.count { dist[0][j] = j }
-        for i in 1...s.count {
-            for j in 1...t.count {
-                dist[i][j] = s[i-1] == t[j-1]
-                    ? dist[i-1][j-1]
-                    : 1 + min(dist[i-1][j], dist[i][j-1], dist[i-1][j-1])
-            }
-        }
-        return dist[s.count][t.count]
+    private func dontKnow(session: QuizSession) {
+        guard var s = quizSession, let q = s.currentQuestion, !isAnswered else { return }
+        stopTimer()
+        fieldFocused = false
+        isAnswered = true
+        freeWriteCorrect = false
+        let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
+        s.answerHistory.append(AnswerRecord(
+            structureName: q.structure.name,
+            categoryName: catName,
+            givenAnswer: "(skipped)",
+            wasCorrect: false
+        ))
+        quizSession = s
+        statsManager.record(structureName: q.structure.name, correct: false)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advance() }
     }
 
     private func advance() {
@@ -1581,6 +1614,411 @@ struct QuizResultsView: View {
             .padding()
         }
         .navigationTitle("Results")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Real Exam Mode
+
+struct ExamCustomizationView: View {
+    @State private var numStations = 30
+    @State private var timeSelection = 90   // -1 = custom
+    @State private var customTime = 90
+
+    var effectiveTime: Int { timeSelection == -1 ? customTime : timeSelection }
+
+    var body: some View {
+        Form {
+            Section {
+                Picker("Stations", selection: $numStations) {
+                    ForEach([5, 10, 20, 30], id: \.self) { Text("\($0)") }
+                }
+                .pickerStyle(.segmented)
+                Text("\(numStations) stations × 5 IDs = \(numStations * 5) total items")
+                    .font(.caption).foregroundStyle(.secondary)
+            } header: { Text("Number of Stations") }
+
+            Section {
+                Picker("Time", selection: $timeSelection) {
+                    Text("60s").tag(60)
+                    Text("90s").tag(90)
+                    Text("120s").tag(120)
+                    Text("Custom").tag(-1)
+                }
+                .pickerStyle(.segmented)
+                if timeSelection == 90 {
+                    Text("Real exam: 90 seconds per station")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                if timeSelection == -1 {
+                    Stepper("Custom: \(customTime) seconds", value: $customTime, in: 30...300, step: 5)
+                }
+            } header: { Text("Time Per Station") }
+
+            Section {
+                let gross = Int((Double(numStations) * 22.0 / 30.0).rounded())
+                let histo = numStations - gross
+                Label("~\(gross) gross anatomy stations, ~\(histo) histology/microscope stations", systemImage: "chart.pie")
+                    .font(.caption).foregroundStyle(.secondary)
+            } header: { Text("Exam Proportions") }
+
+            Section {
+                NavigationLink("Start Exam") {
+                    ExamHostView(numStations: numStations, timePerStation: effectiveTime)
+                }
+            }
+        }
+        .navigationTitle("Real Exam Mode")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct ExamHostView: View {
+    @StateObject private var dataManager = AnatomyDataManager.shared
+    @State private var examSession: ExamSession?
+    @Environment(\.dismiss) var dismiss
+
+    let numStations: Int
+    let timePerStation: Int
+
+    var body: some View {
+        Group {
+            if let session = examSession {
+                if session.isComplete {
+                    ExamResultsView(session: session, dismiss: dismiss)
+                } else {
+                    ExamStationView(examSession: $examSession)
+                }
+            } else {
+                ProgressView("Building your exam…")
+                    .onAppear(perform: buildExam)
+            }
+        }
+        .navigationTitle("Exam")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func buildExam() {
+        let histoCats = dataManager.categories.filter {
+            $0.name.contains("Histology") || $0.name == "Microscope" || $0.name == "Epithelial Types"
+        }
+        let grossCats = dataManager.categories.filter {
+            !$0.name.contains("Histology") && $0.name != "Microscope" && $0.name != "Epithelial Types"
+        }
+
+        let grossPool  = grossCats.flatMap { dataManager.structures(in: $0) }.shuffled()
+        let histoPool  = histoCats.flatMap { dataManager.structures(in: $0) }.shuffled()
+
+        let histoCount = max(1, Int((Double(numStations) * 8.0 / 30.0).rounded()))
+        let grossCount = numStations - histoCount
+
+        var stations: [ExamStation] = []
+        let tl = TimeInterval(timePerStation)
+
+        func makeStation(_ pool: [AnatomyStructure], startIdx: Int) -> ExamStation {
+            let n = max(1, pool.count)
+            let items = (0..<5).map { ExamItem(structure: pool[(startIdx + $0) % n]) }
+            return ExamStation(items: items, timeLimit: tl)
+        }
+
+        for i in 0..<grossCount { stations.append(makeStation(grossPool, startIdx: i * 5)) }
+        for i in 0..<histoCount { stations.append(makeStation(histoPool, startIdx: i * 5)) }
+
+        examSession = ExamSession(stations: stations.shuffled(), timePerStation: tl)
+    }
+}
+
+struct ExamStationView: View {
+    @Binding var examSession: ExamSession?
+    @StateObject private var dataManager = AnatomyDataManager.shared
+
+    @State private var answers: [String] = Array(repeating: "", count: 5)
+    @State private var isSubmitted = false
+    @State private var timer: Timer?
+    @State private var timeRemaining: TimeInterval = 90
+    @State private var stationStartDate = Date()
+
+    var body: some View {
+        if let session = examSession, let station = session.currentStation {
+            ScrollView {
+                VStack(spacing: 16) {
+                    // Header
+                    HStack {
+                        Text("Station \(session.currentStationIndex + 1) / \(session.stations.count)")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                        Spacer()
+                        Text("Score: \(session.score) / \(session.currentStationIndex * 5)")
+                            .font(.subheadline.bold())
+                    }
+
+                    // Timer bar
+                    if station.timeLimit > 0 {
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 4).fill(.gray.opacity(0.2)).frame(height: 8)
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(examTimerColor)
+                                    .frame(width: max(0, CGFloat(timeRemaining / station.timeLimit)) * geo.size.width, height: 8)
+                            }
+                        }
+                        .frame(height: 8)
+                        Text(isSubmitted ? "Submitted" : "\(Int(ceil(timeRemaining)))s remaining")
+                            .font(.caption.monospacedDigit()).foregroundStyle(examTimerColor)
+                    }
+
+                    // 5 item rows
+                    VStack(spacing: 10) {
+                        ForEach(Array(station.items.enumerated()), id: \.element.id) { idx, item in
+                            ExamItemRow(
+                                index: idx,
+                                item: item,
+                                answer: idx < answers.count ? $answers[idx] : .constant(""),
+                                isSubmitted: isSubmitted
+                            )
+                        }
+                    }
+
+                    // Action button
+                    if isSubmitted {
+                        Button(session.currentStationIndex + 1 < session.stations.count
+                               ? "Next Station →"
+                               : "See Results") { advance() }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.indigo)
+                            .frame(maxWidth: .infinity)
+                    } else {
+                        Button("Submit Station") { submitStation() }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.indigo)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding()
+            }
+            .onAppear { resetForStation(station) }
+            .onChange(of: session.currentStationIndex) {
+                if let s = examSession, let st = s.currentStation { resetForStation(st) }
+            }
+            .onDisappear { stopTimer() }
+        } else {
+            ProgressView()
+        }
+    }
+
+    private var examTimerColor: Color {
+        guard let session = examSession, let station = session.currentStation, station.timeLimit > 0 else { return .blue }
+        let ratio = timeRemaining / station.timeLimit
+        if ratio > 0.5 { return .green }
+        if ratio > 0.25 { return .orange }
+        return .red
+    }
+
+    private func resetForStation(_ station: ExamStation) {
+        stopTimer()
+        answers = Array(repeating: "", count: station.items.count)
+        isSubmitted = false
+        timeRemaining = station.timeLimit
+        stationStartDate = Date()
+        if timeRemaining > 0 { startTimer() }
+    }
+
+    private func startTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { _ in
+            guard let session = examSession, let station = session.currentStation else { return }
+            let elapsed = Date().timeIntervalSince(stationStartDate)
+            let remaining = station.timeLimit - elapsed
+            if remaining <= 0 {
+                timeRemaining = 0
+                timer?.invalidate()
+                if !isSubmitted { submitStation() }
+            } else {
+                timeRemaining = remaining
+            }
+        }
+    }
+
+    private func stopTimer() { timer?.invalidate(); timer = nil }
+
+    private func submitStation() {
+        guard var session = examSession, let station = session.currentStation, !isSubmitted else { return }
+        stopTimer()
+        isSubmitted = true
+        var updatedStation = station
+        for idx in 0..<updatedStation.items.count {
+            let typed = idx < answers.count ? answers[idx] : ""
+            let correct = updatedStation.items[idx].structure.accepts(answer: typed)
+            updatedStation.items[idx].givenAnswer = typed.isEmpty ? "(blank)" : typed
+            updatedStation.items[idx].wasCorrect = correct
+            if correct { session.score += 1 }
+        }
+        updatedStation.isSubmitted = true
+        session.stations[session.currentStationIndex] = updatedStation
+        examSession = session
+    }
+
+    private func advance() {
+        stopTimer()
+        if var session = examSession {
+            session.currentStationIndex += 1
+            examSession = session
+        }
+    }
+}
+
+struct ExamItemRow: View {
+    let index: Int
+    let item: ExamItem
+    @Binding var answer: String
+    let isSubmitted: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Small thumbnail
+            ExamItemThumbnail(images: item.structure.images)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("ID \(index + 1)").font(.caption2).foregroundStyle(.tertiary)
+
+                if isSubmitted {
+                    HStack(spacing: 6) {
+                        Image(systemName: item.wasCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundStyle(item.wasCorrect ? .green : .red)
+                            .font(.subheadline)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(item.structure.name)
+                                .font(.subheadline)
+                                .fontWeight(item.wasCorrect ? .regular : .semibold)
+                                .foregroundStyle(item.wasCorrect ? .primary : .red)
+                            if !item.wasCorrect && item.givenAnswer != "(blank)" {
+                                Text("You wrote: \(item.givenAnswer)")
+                                    .font(.caption2).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                } else {
+                    TextField("Structure name…", text: $answer)
+                        .textFieldStyle(.roundedBorder)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                        .font(.subheadline)
+                }
+            }
+        }
+        .padding(10)
+        .background(.gray.opacity(0.06))
+        .cornerRadius(10)
+    }
+}
+
+struct ExamItemThumbnail: View {
+    let images: [AnatomyImage]
+
+    var body: some View {
+        Group {
+            if let img = images.first {
+                if img.isRemote {
+                    AsyncImage(url: URL(string: img.source)) { phase in
+                        if let image = phase.image {
+                            image.resizable().scaledToFill()
+                        } else {
+                            Color.gray.opacity(0.12)
+                        }
+                    }
+                } else {
+                    Image(img.source).resizable().scaledToFill()
+                }
+            } else {
+                Color.gray.opacity(0.12)
+                    .overlay(Image(systemName: "camera").foregroundStyle(.secondary.opacity(0.5)))
+            }
+        }
+        .frame(width: 65, height: 65)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+struct ExamResultsView: View {
+    let session: ExamSession
+    let dismiss: DismissAction
+
+    var total: Int { session.totalItems }
+    var pct: Int { total > 0 ? Int(Double(session.score) / Double(total) * 100) : 0 }
+    var grade: String {
+        switch pct {
+        case 90...100: return "Excellent! 🎉"
+        case 75..<90:  return "Good work!"
+        case 60..<75:  return "Getting there"
+        default:       return "Keep studying"
+        }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // Score card
+                VStack(spacing: 6) {
+                    Text(grade).font(.title2).fontWeight(.semibold)
+                    Text("\(session.score) / \(total)")
+                        .font(.system(size: 52, weight: .bold, design: .rounded))
+                        .foregroundStyle(pct >= 75 ? .green : pct >= 60 ? .orange : .red)
+                    Text("\(pct)%").font(.title3).foregroundStyle(.secondary)
+                    Text("\(session.stations.count) stations · \(total) items")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(.gray.opacity(0.08))
+                .cornerRadius(16)
+
+                // Station breakdown
+                VStack(alignment: .leading, spacing: 10) {
+                    Label("By Station", systemImage: "list.number")
+                        .font(.headline).foregroundStyle(.indigo)
+
+                    ForEach(Array(session.stations.enumerated()), id: \.element.id) { idx, station in
+                        let correct = station.items.filter { $0.wasCorrect }.count
+                        let total = station.items.count
+                        DisclosureGroup {
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(station.items) { item in
+                                    HStack(spacing: 8) {
+                                        Image(systemName: item.wasCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                            .foregroundStyle(item.wasCorrect ? .green : .red)
+                                            .font(.caption)
+                                        VStack(alignment: .leading, spacing: 1) {
+                                            Text(item.structure.name).font(.caption).fontWeight(.semibold)
+                                            if !item.wasCorrect {
+                                                Text("You wrote: \(item.givenAnswer)").font(.caption2).foregroundStyle(.secondary)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.top, 4)
+                        } label: {
+                            HStack {
+                                Text("Station \(idx + 1)").font(.subheadline)
+                                Spacer()
+                                Text("\(correct)/\(total)")
+                                    .font(.subheadline.monospacedDigit())
+                                    .foregroundStyle(correct == total ? .green : correct == 0 ? .red : .orange)
+                            }
+                        }
+                    }
+                }
+                .padding()
+                .background(.indigo.opacity(0.06))
+                .cornerRadius(12)
+
+                Button("Done") { dismiss() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.indigo)
+                    .padding(.top, 4)
+            }
+            .padding()
+        }
+        .navigationTitle("Exam Results")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

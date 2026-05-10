@@ -204,3 +204,71 @@ struct QuizSession: Identifiable {
         self.quizMode = quizMode
     }
 }
+
+// MARK: - Fuzzy Answer Matching
+
+extension AnatomyStructure {
+    /// Returns true if `typed` is close enough to match this structure's name or any alias.
+    /// Case-insensitive; allows 1–3 character differences scaling with word length.
+    func accepts(answer typed: String) -> Bool {
+        let typed = typed.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !typed.isEmpty else { return false }
+        for target in ([name] + aliases).map({ $0.lowercased() }) {
+            if typed == target { return true }
+            let maxLen = max(typed.count, target.count)
+            let threshold = maxLen <= 5 ? 1 : maxLen <= 10 ? 2 : 3
+            if levenshteinDistance(typed, target) <= threshold { return true }
+        }
+        return false
+    }
+}
+
+private func levenshteinDistance(_ s: String, _ t: String) -> Int {
+    let s = Array(s), t = Array(t)
+    if s.isEmpty { return t.count }
+    if t.isEmpty { return s.count }
+    var d = Array(repeating: Array(repeating: 0, count: t.count + 1), count: s.count + 1)
+    for i in 0...s.count { d[i][0] = i }
+    for j in 0...t.count { d[0][j] = j }
+    for i in 1...s.count {
+        for j in 1...t.count {
+            d[i][j] = s[i-1] == t[j-1]
+                ? d[i-1][j-1]
+                : 1 + min(d[i-1][j], d[i][j-1], d[i-1][j-1])
+        }
+    }
+    return d[s.count][t.count]
+}
+
+// MARK: - Real Exam Models
+
+struct ExamItem: Identifiable {
+    let id = UUID()
+    let structure: AnatomyStructure
+    var givenAnswer: String = ""
+    var wasCorrect: Bool = false
+}
+
+struct ExamStation: Identifiable {
+    let id = UUID()
+    var items: [ExamItem]       // always 5
+    let timeLimit: TimeInterval
+    var isSubmitted: Bool = false
+}
+
+struct ExamSession: Identifiable {
+    let id = UUID()
+    var stations: [ExamStation]
+    let timePerStation: TimeInterval
+    var currentStationIndex: Int = 0
+    var score: Int = 0
+
+    var isComplete: Bool { currentStationIndex >= stations.count }
+
+    var currentStation: ExamStation? {
+        guard currentStationIndex < stations.count else { return nil }
+        return stations[currentStationIndex]
+    }
+
+    var totalItems: Int { stations.reduce(0) { $0 + $1.items.count } }
+}
