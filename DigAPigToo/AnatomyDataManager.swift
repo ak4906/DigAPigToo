@@ -246,6 +246,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Conducts sound waves from auricle toward eardrum",
                     commonConfusions: [],
                     examTips: ["Opening/tunnel at base of auricle"],
+                    images: [ImageCDN.image("external-acoustic-meatus_gross_1.jpeg", caption: "External Acoustic Meatus")],
                     histology: "Continuous with external skin; typically stratified squamous epithelium",
                     connections: "Auricle → external acoustic meatus → tympanic membrane",
                     highYield: false
