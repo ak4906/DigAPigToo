@@ -231,8 +231,9 @@ class AnatomyDataManager: ObservableObject {
                     name: "Auricle",
                     aliases: ["Pinna", "External ear"],
                     function: "Collects sound waves and directs them into the external acoustic meatus",
-                    commonConfusions: [],
+                    commonConfusions: ["Auricle (ear/pinna) vs auricle of the heart — completely different structures; in external anatomy context, auricle = the ear flap"],
                     examTips: ["Look for obvious external ear flap on lateral head"],
+                    images: [ImageCDN.image("auricle_gross_1.jpeg", caption: "Auricle (Pinna)")],
                     histology: "Flexible external ear flap; supported by connective tissue/cartilage and covered by skin",
                     connections: "Auricle → external acoustic meatus → tympanic membrane",
                     highYield: false
