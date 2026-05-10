@@ -1139,7 +1139,8 @@ struct QuizQuestionView: View {
                             )
                     }
                 }
-                .frame(height: 200)
+                .frame(height: 180)
+                .clipped()
 
                 VStack(spacing: 10) {
                     ForEach(shuffledChoices, id: \.self) { choice in
@@ -1766,7 +1767,10 @@ struct DiagramsView: View {
                 } else {
                     List(dataManager.diagramGroups) { group in
                         NavigationLink {
-                            DiagramDetailView(group: group, allGroups: dataManager.diagramGroups)
+                            DiagramPagerView(
+                                allGroups: dataManager.diagramGroups,
+                                initialIndex: dataManager.diagramGroups.firstIndex(where: { $0.id == group.id }) ?? 0
+                            )
                         } label: {
                             Label {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -1791,6 +1795,29 @@ struct DiagramsView: View {
             }
             .navigationTitle("Diagrams")
         }
+    }
+}
+
+// Swipe between all diagram groups — mirrors StructurePagerView for diagrams
+struct DiagramPagerView: View {
+    let allGroups: [DiagramGroup]
+    @State private var currentIndex: Int
+
+    init(allGroups: [DiagramGroup], initialIndex: Int) {
+        self.allGroups = allGroups
+        self._currentIndex = State(initialValue: initialIndex)
+    }
+
+    var body: some View {
+        TabView(selection: $currentIndex) {
+            ForEach(Array(allGroups.enumerated()), id: \.element.id) { idx, group in
+                DiagramDetailView(group: group, allGroups: allGroups)
+                    .tag(idx)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .navigationTitle(allGroups[currentIndex].title)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
