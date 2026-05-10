@@ -348,6 +348,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "In adult females, serve as openings for milk delivery; allow offspring nursing",
                     commonConfusions: ["Both male and female fetal pigs possess them"],
                     examTips: ["Small nipple-like projections in rows along ventral trunk surface"],
+                    images: [ImageCDN.image("mammary-papilla_gross_1.HEIC", caption: "Mammary Papilla")],
                     histology: "External projection; internal connection to lactiferous ducts. External surface: stratified squamous; ducts: cuboidal epithelium",
                     connections: "Connected internally to mammary gland ducts, glandular tissue, connective tissue, blood vessels",
                     highYield: false
