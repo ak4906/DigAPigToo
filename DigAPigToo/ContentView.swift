@@ -340,7 +340,6 @@ struct StructurePagerView: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
         .navigationTitle(allStructures[currentIndex].name)
         .navigationBarTitleDisplayMode(.inline)
-        .ignoresSafeArea(edges: .bottom)
     }
 }
 
