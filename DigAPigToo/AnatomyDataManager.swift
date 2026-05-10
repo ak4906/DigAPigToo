@@ -3874,6 +3874,32 @@ class AnatomyDataManager: ObservableObject {
     func structures(in category: AnatomyCategory) -> [AnatomyStructure] {
         return structures.filter { $0.categoryId == category.id }
     }
+
+    /// All structures in the same order they appear in the Atlas
+    /// (Terminology → Gross Anatomy → Histology → Microscope → Epithelial Types,
+    ///  categories in atlas order, structures in their original insertion order).
+    var orderedStructures: [AnatomyStructure] {
+        let atlasOrder: [String] = [
+            // Terminology
+            "Anatomical Planes", "Directional Terminology",
+            // Gross Anatomy
+            "External", "Buccal Cavity", "Upper Thoracic", "Peritoneal Cavity",
+            "Digestive System", "Respiratory System", "Circulatory System",
+            "Urinary System", "Male Reproductive", "Female Reproductive",
+            "Fetal Structures", "Adult Maternal Pig", "Cow Eye",
+            // Histology
+            "Blood Histology", "Vessel Histology", "Respiratory Histology",
+            "Gastrointestinal Histology", "Liver Histology", "Pancreas Histology",
+            "Kidney Histology", "Reproductive Histology",
+            // Microscope
+            "Microscope",
+            // Epithelial Types
+            "Epithelial Types"
+        ]
+        return atlasOrder.compactMap { name in
+            categories.first { $0.name == name }
+        }.flatMap { structures(in: $0) }
+    }
     
     func structure(named name: String) -> AnatomyStructure? {
         return structures.first { $0.name.lowercased() == name.lowercased() }

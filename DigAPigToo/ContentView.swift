@@ -183,9 +183,13 @@ struct StructureListView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
 
     var body: some View {
+        let ordered = dataManager.orderedStructures
         List(dataManager.structures(in: category)) { structure in
             NavigationLink(structure.name) {
-                StructureDetailView(structure: structure)
+                StructurePagerView(
+                    allStructures: ordered,
+                    initialIndex: ordered.firstIndex(where: { $0.id == structure.id }) ?? 0
+                )
             }
         }
         .navigationTitle(category.name)
@@ -207,7 +211,7 @@ struct StructureDetailView: View {
                 if !structure.images.isEmpty {
                     TabView {
                         ForEach(structure.images) { img in
-                            AnatomyImageView(image: img, fillsFrame: false)
+                            AnatomyImageView(image: img, fillsFrame: false, title: structure.name)
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                         }
                     }
@@ -308,8 +312,35 @@ struct StructureDetailView: View {
             }
             .padding()
         }
+        // navigationTitle is set by StructurePagerView when used in the atlas.
+        // When navigated to directly (e.g. from Search), set it here as a fallback.
         .navigationTitle(structure.name)
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Structure Pager (swipe left/right between all structures in atlas order)
+
+struct StructurePagerView: View {
+    let allStructures: [AnatomyStructure]
+    @State private var currentIndex: Int
+
+    init(allStructures: [AnatomyStructure], initialIndex: Int) {
+        self.allStructures = allStructures
+        self._currentIndex = State(initialValue: initialIndex)
+    }
+
+    var body: some View {
+        TabView(selection: $currentIndex) {
+            ForEach(Array(allStructures.enumerated()), id: \.element.id) { idx, structure in
+                StructureDetailView(structure: structure)
+                    .tag(idx)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .navigationTitle(allStructures[currentIndex].name)
+        .navigationBarTitleDisplayMode(.inline)
+        .ignoresSafeArea(edges: .bottom)
     }
 }
 
@@ -318,6 +349,7 @@ struct StructureDetailView: View {
 struct AnatomyImageView: View {
     let image: AnatomyImage
     var fillsFrame: Bool = true   // false → scaledToFit (show full image, no cropping)
+    var title: String = ""        // shown in fullscreen nav bar (falls back to caption then "Photo")
     @State private var showFullscreen = false
 
     var body: some View {
@@ -378,7 +410,7 @@ struct AnatomyImageView: View {
         .background(Color.gray.opacity(0.1))
         .onTapGesture { showFullscreen = true }
         .fullScreenCover(isPresented: $showFullscreen) {
-            FullscreenImageSheet(image: image)
+            FullscreenImageSheet(image: image, title: title)
         }
     }
 }
@@ -387,7 +419,14 @@ struct AnatomyImageView: View {
 
 struct FullscreenImageSheet: View {
     let image: AnatomyImage
+    var title: String = ""
     @Environment(\.dismiss) private var dismiss
+
+    private var navigationTitle: String {
+        if !title.isEmpty { return title }
+        if !image.caption.isEmpty { return image.caption }
+        return "Photo"
+    }
 
     var body: some View {
         NavigationStack {
@@ -399,7 +438,7 @@ struct FullscreenImageSheet: View {
                     ZoomableUIImage(uiImage: uiImg)
                 }
             }
-            .navigationTitle(image.caption.isEmpty ? "Photo" : image.caption)
+            .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
@@ -1236,8 +1275,12 @@ struct SearchView: View {
                         Text("Search for structures").foregroundStyle(.secondary)
                     }
                 } else {
+                    let ordered = dataManager.orderedStructures
                     List(results) { s in
-                        NavigationLink(destination: StructureDetailView(structure: s)) {
+                        NavigationLink(destination: StructurePagerView(
+                            allStructures: ordered,
+                            initialIndex: ordered.firstIndex(where: { $0.id == s.id }) ?? 0
+                        )) {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(s.name)
                                     .font(.body)
@@ -1645,7 +1688,7 @@ struct DiagramDetailView: View {
             // Full-screen swipeable image gallery
             TabView(selection: $currentIndex) {
                 ForEach(Array(group.images.enumerated()), id: \.element.id) { idx, img in
-                    AnatomyImageView(image: img, fillsFrame: false)
+                    AnatomyImageView(image: img, fillsFrame: false, title: group.title)
                         .tag(idx)
                 }
             }
