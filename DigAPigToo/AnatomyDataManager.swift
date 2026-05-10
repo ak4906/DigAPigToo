@@ -298,6 +298,10 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supports locomotion; force transfer; hoof-bearing stance",
                     commonConfusions: ["Often mistaken for knee because pig's heel is elevated off ground"],
                     examTips: ["Distal hindlimb joint; in pigs, ankle/wrist elevated, not plantigrade like humans"],
+                    images: [
+                        ImageCDN.image("ankle_gross_1.jpg", caption: "Ankle"),
+                        ImageCDN.image("ankle_gross_2.png", caption: "Ankle"),
+                    ],
                     histology: "Joint structure",
                     connections: "Distal to knee; supports hoof",
                     highYield: false
