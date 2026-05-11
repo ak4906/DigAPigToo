@@ -3185,7 +3185,8 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: microscopeCat.id,
                     name: "Light Source/Illuminator",
                     aliases: ["Lamp", "Illumination"],
-                    function: "Provides light for specimen viewing"
+                    function: "Provides light for specimen viewing",
+                    images: [ImageCDN.image("light-source_gross_1.jpeg", caption: "Light Source/Illuminator")]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
@@ -3254,8 +3255,7 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: microscopeCat.id,
                     name: "Condenser",
                     aliases: ["Illumination system"],
-                    function: "Focuses light onto specimen",
-                    images: [ImageCDN.image("condenser_gross_1.jpeg", caption: "Condenser")]
+                    function: "Focuses light onto specimen"
                 ),
             ])
         }
