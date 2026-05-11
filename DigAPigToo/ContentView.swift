@@ -1030,13 +1030,7 @@ struct QuizCustomizationView: View {
     var effectiveQuizTime: Int   { timeSelection == -1 ? customTime : timeSelection }
     var effectiveStationTime: Int { stationTimeSelection == -1 ? stationCustomTime : stationTimeSelection }
 
-    // Robust category grouping: pattern-based, not hardcoded name lists
     private var allIDs: Set<UUID> { Set(dataManager.categories.map { $0.id }) }
-    private func isHisto(_ cat: AnatomyCategory) -> Bool {
-        cat.name.contains("Histology") || cat.name == "Microscope" || cat.name == "Epithelial Types"
-    }
-    private var histoIDs: Set<UUID> { Set(dataManager.categories.filter { isHisto($0) }.map { $0.id }) }
-    private var grossIDs: Set<UUID> { Set(dataManager.categories.filter { !isHisto($0) }.map { $0.id }) }
 
     var body: some View {
         NavigationStack {
@@ -1132,28 +1126,33 @@ struct QuizCustomizationView: View {
                     } header: { Text("Time Per Question") }
 
                     Section {
-                        // Preset toggles — .buttonStyle(.borderless) makes taps register inside Form rows
+                        // Preset toggles: computed inline at press-time to avoid
+                        // SwiftUI closure-capture issues with computed properties.
+                        // Each preset REPLACES the selection (not additive), and
+                        // pressing the same preset a second time clears it.
                         HStack(spacing: 8) {
+                            // All
+                            let allSet = allIDs
                             QuizPresetButton("All") {
-                                if allIDs.isSubset(of: selectedCategoryIDs) {
-                                    selectedCategoryIDs.removeAll()
-                                } else {
-                                    selectedCategoryIDs = allIDs
-                                }
+                                selectedCategoryIDs = (selectedCategoryIDs == allSet) ? [] : allSet
                             }
+                            // Gross anatomy (everything that isn't histology)
+                            let grossSet = Set(dataManager.categories.filter { cat in
+                                !cat.name.contains("Histology")
+                                    && cat.name != "Microscope"
+                                    && cat.name != "Epithelial Types"
+                            }.map { $0.id })
                             QuizPresetButton("Gross") {
-                                if grossIDs.isSubset(of: selectedCategoryIDs) {
-                                    selectedCategoryIDs.subtract(grossIDs)
-                                } else {
-                                    selectedCategoryIDs.formUnion(grossIDs)
-                                }
+                                selectedCategoryIDs = (selectedCategoryIDs == grossSet) ? [] : grossSet
                             }
+                            // Histology (name contains "Histology", Microscope, Epithelial Types)
+                            let histoSet = Set(dataManager.categories.filter { cat in
+                                cat.name.contains("Histology")
+                                    || cat.name == "Microscope"
+                                    || cat.name == "Epithelial Types"
+                            }.map { $0.id })
                             QuizPresetButton("Histology") {
-                                if histoIDs.isSubset(of: selectedCategoryIDs) {
-                                    selectedCategoryIDs.subtract(histoIDs)
-                                } else {
-                                    selectedCategoryIDs.formUnion(histoIDs)
-                                }
+                                selectedCategoryIDs = (selectedCategoryIDs == histoSet) ? [] : histoSet
                             }
                         }
                         .buttonStyle(.borderless)
