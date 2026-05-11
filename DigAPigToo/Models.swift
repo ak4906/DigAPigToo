@@ -259,8 +259,17 @@ private func levenshteinDistance(_ s: String, _ t: String) -> Int {
 struct ExamItem: Identifiable {
     let id = UUID()
     let structure: AnatomyStructure
+    /// Custom question label shown instead of "ID N".
+    /// nil → gross anatomy default ("ID 1", "ID 2", …)
+    /// non-nil → histology sticky-note style ("Tissue / organ:", "Pointer — identify:", …)
+    let questionPrompt: String?
     var givenAnswer: String = ""
     var wasCorrect: Bool = false
+
+    init(structure: AnatomyStructure, questionPrompt: String? = nil) {
+        self.structure = structure
+        self.questionPrompt = questionPrompt
+    }
 }
 
 struct ExamStation: Identifiable {

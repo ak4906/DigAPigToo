@@ -1838,34 +1838,68 @@ struct ExamHostView: View {
             "Gastrointestinal Histology", "Vessel Histology", "Respiratory Histology"
         ]
 
+        // Histology station: structured like the real exam sticky note.
+        // Q1 = tissue/organ ID, Q2 = pointer structure, Q3 = layer or region,
+        // Q4 = additional structure, Q5 = microscope component or epithelial type.
+        // Items are NOT shuffled so the role order is preserved.
+        //
+        // Vessel Histology exclusion: Aorta and Vena Cava are too specific to
+        // identify on a generic artery/vein/nerve slide — the slide only supports
+        // "Artery" and "Vein", not the named vessels.
+        let vesselHistoExclude: Set<String> = ["Aorta", "Vena Cava"]
+
         func makeHistoStation(mainCatNames: [String]) -> ExamStation {
-            let slidePool = structs(in: mainCatNames).shuffled()
+            let isVesselHisto = mainCatNames.contains("Vessel Histology")
+            let slidePool = structs(in: mainCatNames)
+                .filter { !(isVesselHisto && vesselHistoExclude.contains($0.name)) }
+                .shuffled()
             guard !slidePool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
 
             let canUseEpithelial = mainCatNames.contains { epithelialSlides.contains($0) }
             let useMicroscope = !canUseEpithelial || Double.random(in: 0...1) < 0.7
             let bonusCatName = useMicroscope ? "Microscope" : "Epithelial Types"
             let bonusPool = structs(in: [bonusCatName]).shuffled()
+            let bonusPrompt = useMicroscope ? "Microscope component:" : "Epithelial type:"
 
-            let slideItems = (0..<4).map { ExamItem(structure: slidePool[$0 % slidePool.count]) }
-            let bonusItem: ExamItem = bonusPool.isEmpty
-                ? ExamItem(structure: slidePool[4 % slidePool.count])
-                : ExamItem(structure: bonusPool[0])
-
-            return ExamStation(items: (slideItems + [bonusItem]).shuffled(), timeLimit: tl)
+            // Assign role-based prompts matching the real practical sticky-note format.
+            let slidePrompts = [
+                "Tissue / organ:",       // Q1 — what is the main organ on this slide?
+                "Pointer — identify:",   // Q2 — what does the pointer indicate?
+                "Layer or region:",      // Q3 — what layer/region surrounds it?
+                "Identify:",             // Q4 — additional structure on the slide
+            ]
+            let slideItems = (0..<4).map { i in
+                ExamItem(structure: slidePool[i % slidePool.count],
+                         questionPrompt: slidePrompts[i])
+            }
+            let bonusItem: ExamItem = ExamItem(
+                structure: bonusPool.isEmpty ? slidePool[4 % slidePool.count] : bonusPool[0],
+                questionPrompt: bonusPrompt
+            )
+            // Keep role order — do NOT shuffle
+            return ExamStation(items: slideItems + [bonusItem], timeLimit: tl)
         }
 
-        // Reproductive histology: pick one sex at random per station,
-        // always pair with a Microscope component (epithelium not distinctive here).
+        // Reproductive histology: one sex per station, always Microscope bonus.
         func makeReproHistoStation() -> ExamStation {
             let pool = (Bool.random() ? reproMale : reproFemale).shuffled()
             guard !pool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
             let bonusPool = structs(in: ["Microscope"]).shuffled()
-            let slideItems = (0..<4).map { ExamItem(structure: pool[$0 % pool.count]) }
-            let bonusItem: ExamItem = bonusPool.isEmpty
-                ? ExamItem(structure: pool[4 % pool.count])
-                : ExamItem(structure: bonusPool[0])
-            return ExamStation(items: (slideItems + [bonusItem]).shuffled(), timeLimit: tl)
+            let slidePrompts = [
+                "Tissue / organ:",
+                "Pointer — identify:",
+                "Cell type:",
+                "Identify:",
+            ]
+            let slideItems = (0..<4).map { i in
+                ExamItem(structure: pool[i % pool.count],
+                         questionPrompt: slidePrompts[i])
+            }
+            let bonusItem = ExamItem(
+                structure: bonusPool.isEmpty ? pool[4 % pool.count] : bonusPool[0],
+                questionPrompt: "Microscope component:"
+            )
+            return ExamStation(items: slideItems + [bonusItem], timeLimit: tl)
         }
 
         // MARK: Pool tables (closures, each call = fresh shuffle of its fixed pool)
@@ -2098,7 +2132,8 @@ struct ExamItemRow: View {
             ExamItemThumbnail(images: item.structure.images)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("ID \(index + 1)").font(.caption2).foregroundStyle(.tertiary)
+                Text(item.questionPrompt ?? "ID \(index + 1)")
+                    .font(.caption2).foregroundStyle(.tertiary)
 
                 if isSubmitted {
                     HStack(spacing: 6) {
