@@ -1763,28 +1763,29 @@ struct ExamHostView: View {
             "Descending Aorta", "Brachiocephalic Trunk", "Common Carotid Arteries",
             "External Jugular Veins", "Internal Jugular Veins", "Brachiocephalic Veins",
             "Pulmonary Trunk", "Pulmonary Arteries", "Pulmonary Veins",
-            "Cranial Vena Cava", "Caudal Vena Cava", "Subclavian Arteries and Veins",
-            "Axillary Arteries and Veins", "Thyrocervical Trunk",
-            "Internal Thoracic Arteries and Veins", "External Thoracic Arteries",
+            "Cranial Vena Cava", "Caudal Vena Cava", "Subclavian Arteries",
+            "Subclavian Veins", "Axillary Arteries", "Axillary Veins", "Thyrocervical Trunk",
+            "Internal Thoracic Arteries", "Internal Thoracic Veins", "External Thoracic Arteries",
             "Subscapular Veins", "Costocervical Veins"
         ]
         let abdominalVesselNames: Set<String> = [
             "Celiac Artery", "Hepatic Artery", "Hepatic Portal Vein", "Liver Sinusoids",
             "Hepatic Vein", "Cranial Mesenteric Artery", "Caudal Mesenteric Artery",
-            "Mesenteric Vein", "Jejunal Arteries and Veins", "Gastric Artery and Vein",
-            "Gastroepiploic Artery and Vein", "Splenic Artery and Vein",
-            "Splenogastric Vein", "Renal Arteries", "Renal Veins"
+            "Mesenteric Vein", "Jejunal Arteries", "Jejunal Veins",
+            "Gastric Artery", "Gastric Vein", "Gastroepiploic Artery", "Gastroepiploic Vein",
+            "Splenic Artery", "Splenic Vein", "Splenogastric Vein", "Renal Arteries", "Renal Veins"
         ]
         // Pelvic vessels split: sex-neutral vessels shared by both sexes,
         // plus gonadal vessels that are sex-exclusive — never mix male + female
         // gonadal vessels in the same station (one pig is one sex).
         let pelvicNeutralNames: Set<String> = [
-            "Common Iliac Vein", "Internal Iliac Artery and Vein",
-            "External Iliac Artery and Vein",
-            "Deep Femoral Artery and Vein", "Deep Circumflex Iliac Artery and Vein"
+            "Common Iliac Vein", "Internal Iliac Artery", "Internal Iliac Vein",
+            "External Iliac Artery", "External Iliac Vein",
+            "Deep Femoral Artery", "Deep Femoral Vein",
+            "Deep Circumflex Iliac Artery", "Deep Circumflex Iliac Vein"
         ]
         let pelvicMaleNames:   Set<String> = ["Testicular Artery", "Testicular Vein"]
-        let pelvicFemaleNames: Set<String> = ["Ovarian Artery and Vein"]
+        let pelvicFemaleNames: Set<String> = ["Ovarian Artery", "Ovarian Vein"]
 
         let circCowHeart     = circAll.filter { cowHeartNames.contains($0.name) }
         let circFetalCardiac = circAll.filter { fetalPigCardiacNames.contains($0.name) }
