@@ -1713,7 +1713,7 @@ struct ExamHostView: View {
             ["Liver Histology"],
             ["Pancreas Histology"],
             ["Respiratory Histology"],
-            ["Microscope", "Epithelial Types"],
+            ["Microscope"],
             ["Reproductive Histology"],
         ]
 
