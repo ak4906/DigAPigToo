@@ -454,6 +454,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Anal orifice"],
                     function: "Terminal opening for elimination of feces",
                     commonConfusions: [],
+                    images: [
+                        ImageCDN.image("anus_gross_1.jpg", caption: "Anus"),
+                    ],
                     examTips: ["Located immediately ventral to tail; present in both sexes"],
                     histology: "Protective stratified squamous epithelium at terminal digestive tract",
                     connections: "Rectum → anal canal → anus",
