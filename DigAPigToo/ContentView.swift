@@ -1136,20 +1136,24 @@ struct QuizCustomizationView: View {
                             QuizPresetButton("All") {
                                 selectedCategoryIDs = (selectedCategoryIDs == allSet) ? [] : allSet
                             }
-                            // Gross anatomy (everything that isn't histology)
+                            // Gross anatomy (excludes histology, microscope, epithelial types,
+                            // and the pure reference/terminology categories)
                             let grossSet = Set(dataManager.categories.filter { cat in
                                 !cat.name.contains("Histology")
                                     && cat.name != "Microscope"
                                     && cat.name != "Epithelial Types"
+                                    && cat.name != "Anatomical Planes"
+                                    && cat.name != "Directional Terminology"
                             }.map { $0.id })
                             QuizPresetButton("Gross") {
                                 selectedCategoryIDs = (selectedCategoryIDs == grossSet) ? [] : grossSet
                             }
-                            // Histology (name contains "Histology", Microscope, Epithelial Types)
+                            // Histology: slide-based categories + Microscope only
+                            // (Epithelial Types excluded — they're embedded in histo stations,
+                            //  not a standalone quiz category)
                             let histoSet = Set(dataManager.categories.filter { cat in
                                 cat.name.contains("Histology")
                                     || cat.name == "Microscope"
-                                    || cat.name == "Epithelial Types"
                             }.map { $0.id })
                             QuizPresetButton("Histology") {
                                 selectedCategoryIDs = (selectedCategoryIDs == histoSet) ? [] : histoSet
@@ -1681,85 +1685,264 @@ struct ExamHostView: View {
     }
 
     private func buildExam() {
-        // Each inner array = one real-exam "station type": categories that appear
-        // together in the same dissection setup or on the same histology slide.
-        // Frequency reflects the actual exam station distribution.
-        let grossGroupPool: [[String]] = [
-            ["Circulatory System"],
-            ["Circulatory System"],
-            ["Circulatory System"],
-            ["Peritoneal Cavity", "Digestive System"],
-            ["Peritoneal Cavity", "Digestive System"],
-            ["Peritoneal Cavity", "Digestive System"],
-            ["Upper Thoracic"],
-            ["Upper Thoracic"],
-            ["External"],
-            ["External"],
-            ["Urinary System"],
-            ["Urinary System"],
-            ["Male Reproductive"],
-            ["Female Reproductive"],
-            ["Buccal Cavity"],
-            ["Respiratory System"],
-            ["Fetal Structures", "Adult Maternal Pig"],
-            ["Cow Eye"],
-        ]
-        let histoGroupPool: [[String]] = [
-            ["Gastrointestinal Histology"],
-            ["Gastrointestinal Histology"],
-            ["Kidney Histology"],
-            ["Blood Histology"],
-            ["Vessel Histology"],
-            ["Liver Histology"],
-            ["Pancreas Histology"],
-            ["Respiratory Histology"],
-            ["Microscope"],
-            ["Reproductive Histology"],
-        ]
-
-        let histoCount = max(1, Int((Double(numStations) * 8.0 / 30.0).rounded()))
-        let grossCount = numStations - histoCount
         let tl = TimeInterval(timePerStation)
         let cats = dataManager.categories
 
-        // Build one station from a given set of category names
-        // Gross anatomy stations prefer tangible, physically-pinnable structures.
-        // Pure regions and potential spaces (mediastinum, pericardial/pleural/
-        // peritoneal cavity) are excluded because TAs can't stick a pin through
-        // a space — they'd gesture broadly instead, which the app can't simulate.
-        // Histology stations have NO such filter since a pointer can indicate any
-        // layer, lumen, or space on a slide.
+        // MARK: Helpers
+
+        // Gross-anatomy filter: exclude pure spaces/regions a TA cannot pin,
+        // and abstract circulatory-pathway concepts that aren't physical structures.
         func isPinnable(_ name: String) -> Bool {
             let n = name.lowercased()
-            return !n.hasSuffix(" cavity")   // pericardial cavity, peritoneal cavity, etc.
+            return !n.hasSuffix(" cavity")       // pericardial/peritoneal/pleural cavity
                 && !n.hasSuffix(" space")
                 && n != "mediastinum"
+                && !n.contains("circulation")    // Systemic Adult Circulation, Portal Circulation
+                && !n.contains("trace")          // Maternal-to-Fetal Circulatory Trace
         }
 
-        func makeStation(catNames: [String], grossOnly: Bool) -> ExamStation {
-            var pool = cats
-                .filter { catNames.contains($0.name) }
+        // Return all structures from the named categories.
+        func structs(in catNames: [String]) -> [AnatomyStructure] {
+            cats.filter { catNames.contains($0.name) }
                 .flatMap { dataManager.structures(in: $0) }
-            if grossOnly {
-                let pinnable = pool.filter { isPinnable($0.name) }
-                if pinnable.count >= 3 { pool = pinnable }   // only filter if enough remain
-            }
-            pool = pool.shuffled()
-            guard !pool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
-            let items = (0..<5).map { ExamItem(structure: pool[$0 % pool.count]) }
+        }
+
+        // Build one station from an already-filtered pool (shuffles internally).
+        func station(from pool: [AnatomyStructure]) -> ExamStation {
+            let shuffled = pool.shuffled()
+            guard !shuffled.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
+            let items = (0..<5).map { ExamItem(structure: shuffled[$0 % shuffled.count]) }
             return ExamStation(items: items, timeLimit: tl)
         }
 
-        let shuffledGross = grossGroupPool.shuffled()
-        let shuffledHisto = histoGroupPool.shuffled()
+        // Build one gross station: applies isPinnable, then optional name exclusions.
+        func grossStation(from catNames: [String],
+                          exclude: Set<String> = []) -> ExamStation {
+            var pool = structs(in: catNames).filter { !exclude.contains($0.name) }
+            let pinnable = pool.filter { isPinnable($0.name) }
+            if pinnable.count >= 3 { pool = pinnable }
+            return station(from: pool)
+        }
+
+        // MARK: External sub-pools
+        // The External category spans head, limbs, and ventral/fetal surface —
+        // very different viewing angles. Split so each station sees one region.
+        let extAll = structs(in: ["External"])
+        let extHeadNames: Set<String> = [
+            "Rostral Plate", "External Nostril", "Auricle", "External Acoustic Meatus",
+            "Eyelid", "Nictitating Membrane"
+        ]
+        let extHead = extAll.filter {  extHeadNames.contains($0.name) }
+        let extBody = extAll.filter { !extHeadNames.contains($0.name) }
+
+        // MARK: Circulatory sub-pools
+        // All structures in Circulatory System, with abstract concepts removed.
+        let circAll = structs(in: ["Circulatory System"]).filter { isPinnable($0.name) }
+
+        // Two cardiac preparation contexts — fundamentally different specimens.
+        //
+        // Cow heart (isolated adult, cut open): internal anatomy is visible.
+        // Valves, chordae, and chamber detail only seen when heart is sectioned.
+        let cowHeartNames: Set<String> = [
+            "Heart", "Right Atrium", "Left Atrium", "Right Ventricle", "Left Ventricle",
+            "Auricles", "Tricuspid Valve", "Bicuspid Valve", "Pulmonary Valve",
+            "Aortic Valve", "Chordae Tendineae",
+            "Pulmonary Trunk", "Ascending Aorta",      // truncated vessel stumps on isolated heart
+            "Left Coronary Artery", "Great Cardiac Vein", "Coronary Sinus"
+        ]
+        // Fetal pig heart in situ (not cut open): only external anatomy visible.
+        // Valves and chordae are inaccessible without opening the heart, so excluded.
+        // The surrounding thoracic vessels (aorta, vena cava, etc.) are the focus here.
+        let fetalPigCardiacNames: Set<String> = [
+            "Heart", "Right Atrium", "Left Atrium", "Right Ventricle", "Left Ventricle",
+            "Auricles", "Left Coronary Artery", "Great Cardiac Vein", "Coronary Sinus",
+            "Left Azygos Vein"
+        ]
+        let thoracicVesselNames: Set<String> = [
+            "Left Azygos Vein", "Ascending Aorta", "Arch of the Aorta",
+            "Descending Aorta", "Brachiocephalic Trunk", "Common Carotid Arteries",
+            "External Jugular Veins", "Internal Jugular Veins", "Brachiocephalic Veins",
+            "Pulmonary Trunk", "Pulmonary Arteries", "Pulmonary Veins",
+            "Cranial Vena Cava", "Caudal Vena Cava", "Subclavian Arteries and Veins",
+            "Axillary Arteries and Veins", "Thyrocervical Trunk",
+            "Internal Thoracic Arteries and Veins", "External Thoracic Arteries",
+            "Subscapular Veins", "Costocervical Veins"
+        ]
+        let abdominalVesselNames: Set<String> = [
+            "Celiac Artery", "Hepatic Artery", "Hepatic Portal Vein", "Liver Sinusoids",
+            "Hepatic Vein", "Cranial Mesenteric Artery", "Caudal Mesenteric Artery",
+            "Mesenteric Vein", "Jejunal Arteries and Veins", "Gastric Artery and Vein",
+            "Gastroepiploic Artery and Vein", "Splenic Artery and Vein",
+            "Splenogastric Vein", "Renal Arteries", "Renal Veins"
+        ]
+        // Pelvic vessels split: sex-neutral vessels shared by both sexes,
+        // plus gonadal vessels that are sex-exclusive — never mix male + female
+        // gonadal vessels in the same station (one pig is one sex).
+        let pelvicNeutralNames: Set<String> = [
+            "Common Iliac Vein", "Internal Iliac Artery and Vein",
+            "External Iliac Artery and Vein",
+            "Deep Femoral Artery and Vein", "Deep Circumflex Iliac Artery and Vein"
+        ]
+        let pelvicMaleNames:   Set<String> = ["Testicular Artery", "Testicular Vein"]
+        let pelvicFemaleNames: Set<String> = ["Ovarian Artery and Vein"]
+
+        let circCowHeart     = circAll.filter { cowHeartNames.contains($0.name) }
+        let circFetalCardiac = circAll.filter { fetalPigCardiacNames.contains($0.name) }
+        let circThoracic     = circAll.filter { thoracicVesselNames.contains($0.name) }
+        let circAbdominal    = circAll.filter { abdominalVesselNames.contains($0.name) }
+        let pelvicNeutral    = circAll.filter { pelvicNeutralNames.contains($0.name) }
+        let pelvicMaleOnly   = circAll.filter { pelvicMaleNames.contains($0.name) }
+        let pelvicFemaleOnly = circAll.filter { pelvicFemaleNames.contains($0.name) }
+        // At station build time, pick one sex for the gonadal vessels.
+        let makePelvicStation: () -> ExamStation = {
+            let gonadal = Bool.random() ? pelvicMaleOnly : pelvicFemaleOnly
+            return station(from: pelvicNeutral + gonadal)
+        }
+
+        // MARK: Urinary sub-pools
+        // Two completely different preparation contexts — never mix them.
+        //
+        // 1) Intact fetal pig dissection: kidney exterior + urinary tract (external view).
+        //    "Kidney" lives in Peritoneal Cavity in our data, so pull it explicitly.
+        let urinaryIntactNames: Set<String> = [
+            "Adrenal Gland", "Ureter", "Urinary Bladder", "Urethra"
+        ]
+        let urinaryIntact = structs(in: ["Urinary System"]).filter { urinaryIntactNames.contains($0.name) }
+                          + structs(in: ["Peritoneal Cavity"]).filter { $0.name == "Kidney" }
+
+        // 2) Adult/cut kidney cross-section: internal collecting anatomy.
+        //    Renal Medulla lives in Kidney Histology; Renal Arteries in Circulatory.
+        //    Both are visible in a sectioned specimen, so pull them cross-category.
+        let urinarySectionedNames: Set<String> = [
+            "Renal Cortex", "Renal Pelvis", "Renal Calyx", "Renal Pyramid"
+        ]
+        let urinarySectioned = structs(in: ["Urinary System"]).filter { urinarySectionedNames.contains($0.name) }
+                             + structs(in: ["Kidney Histology"]).filter { $0.name == "Renal Medulla" }
+                             + structs(in: ["Circulatory System"]).filter { $0.name == "Renal Arteries" }
+
+        // MARK: Reproductive histology sub-pools
+        // Male (testis) and female (ovary) are different slides — never mix them.
+        let reproAll = structs(in: ["Reproductive Histology"])
+        let maleReproNames: Set<String> = [
+            "Seminiferous Tubule", "Spermatogonia", "Spermatocytes",
+            "Spermatids", "Spermatozoa", "Leydig Cells"
+        ]
+        let reproMale   = reproAll.filter {  maleReproNames.contains($0.name) }
+        let reproFemale = reproAll.filter { !maleReproNames.contains($0.name) }
+
+        // MARK: Histology station builders
+
+        // Slides that visibly feature a distinctive epithelium get a 30% chance of
+        // an Epithelial Types bonus; all others always get a Microscope component.
+        let epithelialSlides: Set<String> = [
+            "Gastrointestinal Histology", "Vessel Histology", "Respiratory Histology"
+        ]
+
+        func makeHistoStation(mainCatNames: [String]) -> ExamStation {
+            let slidePool = structs(in: mainCatNames).shuffled()
+            guard !slidePool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
+
+            let canUseEpithelial = mainCatNames.contains { epithelialSlides.contains($0) }
+            let useMicroscope = !canUseEpithelial || Double.random(in: 0...1) < 0.7
+            let bonusCatName = useMicroscope ? "Microscope" : "Epithelial Types"
+            let bonusPool = structs(in: [bonusCatName]).shuffled()
+
+            let slideItems = (0..<4).map { ExamItem(structure: slidePool[$0 % slidePool.count]) }
+            let bonusItem: ExamItem = bonusPool.isEmpty
+                ? ExamItem(structure: slidePool[4 % slidePool.count])
+                : ExamItem(structure: bonusPool[0])
+
+            return ExamStation(items: (slideItems + [bonusItem]).shuffled(), timeLimit: tl)
+        }
+
+        // Reproductive histology: pick one sex at random per station,
+        // always pair with a Microscope component (epithelium not distinctive here).
+        func makeReproHistoStation() -> ExamStation {
+            let pool = (Bool.random() ? reproMale : reproFemale).shuffled()
+            guard !pool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
+            let bonusPool = structs(in: ["Microscope"]).shuffled()
+            let slideItems = (0..<4).map { ExamItem(structure: pool[$0 % pool.count]) }
+            let bonusItem: ExamItem = bonusPool.isEmpty
+                ? ExamItem(structure: pool[4 % pool.count])
+                : ExamItem(structure: bonusPool[0])
+            return ExamStation(items: (slideItems + [bonusItem]).shuffled(), timeLimit: tl)
+        }
+
+        // MARK: Pool tables (closures, each call = fresh shuffle of its fixed pool)
+
+        // Gross pool — each closure = one coherent specimen/viewing-angle context.
+        // Circulatory is split by region so heart stations don't mix pelvic vessels.
+        // External is split head vs. body so eye structures don't share a station
+        //   with umbilical/ventral structures.
+        // Bronchioles excluded from Respiratory gross pool: they're microscopic.
+        let grossPool: [() -> ExamStation] = [
+            // Isolated adult cow heart (×1): cut open, internal anatomy visible —
+            // valves, chordae, chambers, truncated vessel stumps.
+            { station(from: circCowHeart) },
+            // Fetal pig heart in situ (×2): heart still in thorax, NOT cut open —
+            // only external chamber surfaces and coronary vessels visible; no valves.
+            { station(from: circFetalCardiac) },
+            { station(from: circFetalCardiac) },
+            // Thoracic great vessels (×2)
+            { station(from: circThoracic) },
+            { station(from: circThoracic) },
+            // Abdominal vessels (×2)
+            { station(from: circAbdominal) },
+            { station(from: circAbdominal) },
+            // Pelvic vessels (×1) — randomly male or female gonadal vessels, never mixed
+            { makePelvicStation() },
+            // Peritoneal cavity + Digestive (×3)
+            { grossStation(from: ["Peritoneal Cavity", "Digestive System"]) },
+            { grossStation(from: ["Peritoneal Cavity", "Digestive System"]) },
+            { grossStation(from: ["Peritoneal Cavity", "Digestive System"]) },
+            // Upper Thoracic (×2)
+            { grossStation(from: ["Upper Thoracic"]) },
+            { grossStation(from: ["Upper Thoracic"]) },
+            // External — head / face region (×1)
+            { station(from: extHead) },
+            // External — body, limbs, ventral surface (×1)
+            { station(from: extBody) },
+            // Urinary — intact fetal pig prep (×1): externally visible urinary tract
+            { station(from: urinaryIntact) },
+            // Urinary — adult kidney cross-section (×1): internal collecting anatomy
+            { station(from: urinarySectioned) },
+            // Reproductive (×2)
+            { grossStation(from: ["Male Reproductive"]) },
+            { grossStation(from: ["Female Reproductive"]) },
+            // Buccal Cavity (×1)
+            { grossStation(from: ["Buccal Cavity"]) },
+            // Respiratory — bronchioles excluded (too small to pin grossly) (×1)
+            { grossStation(from: ["Respiratory System"], exclude: ["Bronchioles"]) },
+            // Fetal Structures + Adult Maternal Pig (×1)
+            { grossStation(from: ["Fetal Structures", "Adult Maternal Pig"]) },
+            // Cow Eye (×1)
+            { grossStation(from: ["Cow Eye"]) },
+        ]
+
+        // Histo pool — each histology station draws from ONE slide context.
+        // GI gets double weight to match the two GI stations on the real exam.
+        let histoPool: [() -> ExamStation] = [
+            { makeHistoStation(mainCatNames: ["Gastrointestinal Histology"]) },
+            { makeHistoStation(mainCatNames: ["Gastrointestinal Histology"]) },
+            { makeHistoStation(mainCatNames: ["Kidney Histology"]) },
+            { makeHistoStation(mainCatNames: ["Blood Histology"]) },
+            { makeHistoStation(mainCatNames: ["Vessel Histology"]) },
+            { makeHistoStation(mainCatNames: ["Liver Histology"]) },
+            { makeHistoStation(mainCatNames: ["Pancreas Histology"]) },
+            { makeHistoStation(mainCatNames: ["Respiratory Histology"]) },
+            { makeReproHistoStation() },
+        ]
+
+        // MARK: Build
+        let histoCount = max(1, Int((Double(numStations) * 8.0 / 30.0).rounded()))
+        let grossCount = numStations - histoCount
+
+        let shuffledGross = grossPool.shuffled()
+        let shuffledHisto = histoPool.shuffled()
         var stations: [ExamStation] = []
 
-        for i in 0..<grossCount {
-            stations.append(makeStation(catNames: shuffledGross[i % shuffledGross.count], grossOnly: true))
-        }
-        for i in 0..<histoCount {
-            stations.append(makeStation(catNames: shuffledHisto[i % shuffledHisto.count], grossOnly: false))
-        }
+        for i in 0..<grossCount { stations.append(shuffledGross[i % shuffledGross.count]()) }
+        for i in 0..<histoCount { stations.append(shuffledHisto[i % shuffledHisto.count]()) }
 
         examSession = ExamSession(stations: stations.shuffled(), timePerStation: tl)
     }
@@ -1950,6 +2133,9 @@ struct ExamItemRow: View {
 
 struct ExamItemThumbnail: View {
     let images: [AnatomyImage]
+    // Use item-based fullScreenCover so the image is guaranteed non-nil when the
+    // sheet opens — avoids the isPresented + separate state timing race.
+    @State private var fullscreenImage: AnatomyImage?
 
     var body: some View {
         Group {
@@ -1972,6 +2158,66 @@ struct ExamItemThumbnail: View {
         }
         .frame(width: 65, height: 65)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        // Zoom-hint badge (only when an image exists)
+        .overlay(alignment: .bottomTrailing) {
+            if !images.isEmpty {
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.system(size: 7, weight: .semibold))
+                    .padding(3)
+                    .background(.black.opacity(0.6))
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 3))
+                    .padding(3)
+            }
+        }
+        .onTapGesture {
+            // randomElement() picks one image; setting it triggers the sheet.
+            fullscreenImage = images.randomElement()
+        }
+        .fullScreenCover(item: $fullscreenImage) { img in
+            ExamImageFullscreen(image: img)
+        }
+    }
+}
+
+/// Fullscreen zoomable viewer for one exam ID image (single, no multi-image paging).
+struct ExamImageFullscreen: View {
+    let image: AnatomyImage
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                // Use a single-page TabView — gives ZoomableUIImage a proper full-screen
+                // frame the same way FullscreenImageSheet does. Direct ZStack placement
+                // leaves UIViewRepresentable with zero proposed size → black screen.
+                TabView {
+                    FullscreenPageView(image: image, structureName: "")
+                        .ignoresSafeArea()
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .ignoresSafeArea()
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if let mag = image.magnification {
+                        Text("\(mag)×")
+                            .font(.caption.bold())
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(.white.opacity(0.2))
+                            .foregroundStyle(.white)
+                            .cornerRadius(6)
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                        .foregroundStyle(.white)
+                }
+            }
+        }
     }
 }
 

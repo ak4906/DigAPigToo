@@ -1453,17 +1453,6 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
-                    name: "Femoral Vessels",
-                    aliases: ["Femoral artery", "Femoral vein"],
-                    function: "Major vessels of the hindlimb; supply and drain hindlimb musculature",
-                    commonConfusions: [],
-                    examTips: ["Practical ID: pass through hindlimb region", "Continuation of external iliac vessels"],
-                    histology: "Artery and vein pair; simple squamous endothelium",
-                    connections: "External iliac → femoral artery → hindlimb; hindlimb → femoral vein → external iliac vein",
-                    highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: circulatoryCat.id,
                     name: "Deep Femoral Artery and Vein",
                     aliases: ["Deep femoral vessels", "Profunda femoris"],
                     function: "Branch vessels serving deeper thigh and hindlimb structures",
@@ -1601,40 +1590,6 @@ class AnatomyDataManager: ObservableObject {
                     highYield: false
                 ),
 
-                // MARK: Circulation Flow Paths (High-Yield Conceptual Entries)
-                AnatomyStructure(
-                    categoryId: circulatoryCat.id,
-                    name: "Systemic Adult Circulation",
-                    aliases: ["Adult systemic flow path", "Pulmonary and systemic circuit"],
-                    function: "Complete adult circulatory loop: cranial/caudal vena cava → right atrium → tricuspid valve → right ventricle → pulmonary valve → pulmonary trunk → pulmonary arteries → lung capillaries → pulmonary veins → left atrium → bicuspid valve → left ventricle → aortic valve → ascending aorta → arch of aorta → descending aorta → systemic distribution",
-                    commonConfusions: ["Key rule: ARTERIES carry blood AWAY from heart; VEINS carry blood TOWARD heart — regardless of oxygen content"],
-                    examTips: ["Arteries usually have thicker, rounder walls; veins thinner and more irregular/collapsed", "Memorize complete flow path for practical trace questions"],
-                    histology: "Arteries: thick tunica media; veins: thin wall; all with simple squamous endothelium",
-                    connections: "Full loop: body → vena cava → right heart → pulmonary circuit → left heart → aorta → body",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: circulatoryCat.id,
-                    name: "Portal Circulation",
-                    aliases: ["Hepatic portal system", "Portal flow path"],
-                    function: "Nutrient-rich venous blood from GI organs routes through liver before returning to systemic circulation: GI organs → mesenteric/gastric/splenic veins → hepatic portal vein → liver sinusoids → hepatic veins → caudal vena cava",
-                    commonConfusions: [],
-                    examTips: ["Portal system connects two capillary beds (GI capillaries and liver sinusoids)", "Blood is processed by liver (detoxification, nutrient storage) before systemic return"],
-                    histology: "Portal vein and tributaries: thin-walled veins; liver sinusoids: highly permeable discontinuous endothelium",
-                    connections: "GI capillaries → mesenteric/gastric/splenic veins → portal vein → liver → hepatic veins → caudal vena cava",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: circulatoryCat.id,
-                    name: "Maternal-to-Fetal Circulatory Trace",
-                    aliases: ["Fetal circulation trace", "Placental circulation"],
-                    function: "Complete maternal-to-fetal exchange pathway: descending aorta → internal iliac artery (OFTEN FORGOTTEN) → uterine artery → uterine arterioles → maternal placental capillaries → uterine epithelium barrier → chorioallantoic membrane → fetal capillaries → umbilical venules → umbilical vein → ductus venosus → caudal vena cava",
-                    commonConfusions: ["Internal iliac artery is often forgotten in this trace — review notes explicitly warn about this", "Maternal and fetal blood do NOT directly mix — exchange occurs across tissue barriers"],
-                    examTips: ["VERY HIGH YIELD trace for practical", "Key vessels: internal iliac artery → uterine artery → placenta → umbilical vein → ductus venosus → caudal vena cava", "Three fetal shunts: ductus venosus (liver bypass), foramen ovale (atrial bypass), ductus arteriosus (pulmonary bypass)"],
-                    histology: "Exchange across: uterine epithelium and chorioallantoic membrane; simple squamous endothelium in all vessels",
-                    connections: "Maternal aorta → internal iliac → uterine artery → placenta → umbilical vein → ductus venosus → caudal vena cava → right atrium",
-                    highYield: true
-                ),
             ])
         }
         
