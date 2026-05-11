@@ -382,6 +382,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Umbilicus"],
                     function: "Connects fetus to placenta; contains vessels for nutrient transport, gas exchange, waste transport",
                     commonConfusions: [],
+                    images: [
+                        ImageCDN.image("umbilical-cord_gross_1.jpg", caption: "Umbilical Cord"),
+                    ],
                     examTips: ["Attaches to ventral abdominal surface"],
                     histology: "Contains umbilical vessels protected by Wharton's jelly",
                     connections: "Fetal → placenta; contains umbilical vein, two umbilical arteries, allantoic stalk",
@@ -1654,6 +1657,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Umbilical stalk"],
                     function: "Fetal connection between pig and placenta; the major route for fetal-maternal exchange of oxygen, nutrients, and wastes",
                     commonConfusions: ["Do not treat umbilical cord as merely an external structure — it is a major fetal circulatory bundle"],
+                    images: [
+                        ImageCDN.image("umbilical-cord_gross_1.jpg", caption: "Umbilical Cord"),
+                    ],
                     examTips: ["Contains: umbilical vein (1), umbilical arteries (2), allantoic stalk/urachus, and connective tissue", "Oxygen and nutrients: placenta → fetus via umbilical vein; fetal wastes: fetus → placenta via umbilical arteries"],
                     histology: "Wharton's jelly (mucous connective tissue) supporting umbilical vessels",
                     connections: "Placenta ↔ umbilical cord ↔ fetal circulation",
