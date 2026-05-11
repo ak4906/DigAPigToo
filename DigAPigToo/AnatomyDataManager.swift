@@ -3582,6 +3582,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Arytenoid cartilage"],
                     function: "Critical airway protection; during swallowing, folds over glottis to prevent food/liquid entering airway",
                     commonConfusions: ["VERY IMPORTANT: distinguish epiglottis (flap) from glottis (opening)"],
+                    images: [
+                        ImageCDN.image("epiglottis_gross_1.jpeg", caption: "Epiglottis"),
+                    ],
                     examTips: ["Leaf-shaped cartilage flap at cranial end of larynx"],
                     histology: "Elastic cartilage core with connective tissue and mucosal lining; respiratory-facing: respiratory epithelium; food-contact: protective stratified squamous",
                     connections: "Laryngeal pharynx ↔ epiglottis ↔ glottis/larynx",
