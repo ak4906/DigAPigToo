@@ -1231,7 +1231,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Internal mammary arteries"],
                     function: "Supply the internal thoracic wall and anterior chest structures",
                     commonConfusions: [],
-                    examTips: ["Practical ID: vessels running along internal thoracic wall"],
+                    examTips: ["Practical ID: vessels running along internal thoracic wall", "Flow: subclavian arteries → internal thoracic arteries → thoracic wall"],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Subclavian arteries → internal thoracic arteries → thoracic wall",
                     highYield: false
@@ -1242,7 +1242,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Internal mammary veins"],
                     function: "Drain the internal thoracic wall into the brachiocephalic veins",
                     commonConfusions: [],
-                    examTips: ["Practical ID: vessels running along internal thoracic wall"],
+                    examTips: ["Practical ID: vessels running along internal thoracic wall", "Flow: thoracic wall → internal thoracic veins → brachiocephalic veins → cranial vena cava"],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Thoracic wall → internal thoracic veins → brachiocephalic veins",
                     highYield: false
@@ -1556,7 +1556,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Deep femoral artery", "Profunda femoris artery"],
                     function: "Supplies deep thigh and hindlimb musculature; major branch of the femoral artery",
                     commonConfusions: [],
-                    examTips: ["Branches off femoral artery toward deeper thigh musculature"],
+                    examTips: ["Branches off femoral artery toward deeper thigh musculature", "Flow: external iliac artery → femoral artery → deep femoral artery → deep thigh muscles"],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "External iliac artery → femoral artery → deep femoral artery → deep thigh muscles",
                     highYield: false
@@ -1567,7 +1567,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Deep femoral vein", "Profunda femoris vein"],
                     function: "Drains deep thigh muscles back into the femoral vein",
                     commonConfusions: [],
-                    examTips: ["Drains deeper thigh musculature → deep femoral vein → femoral vein"],
+                    examTips: ["Flow: deep thigh muscles → deep femoral vein → femoral vein → external iliac vein"],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Deep thigh muscles → deep femoral vein → femoral vein → external iliac vein",
                     highYield: false
@@ -1578,7 +1578,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Deep circumflex iliac artery"],
                     function: "Supplies the lateral abdominal wall and iliac-associated tissues",
                     commonConfusions: [],
-                    examTips: ["Associated with lateral abdominal wall near iliac region"],
+                    examTips: ["Flow: external iliac artery → deep circumflex iliac artery → lateral abdominal wall", "Associated with lateral abdominal wall near iliac region"],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "External iliac artery → deep circumflex iliac artery → lateral abdominal wall",
                     highYield: false
@@ -1589,7 +1589,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Deep circumflex iliac vein"],
                     function: "Drains the lateral abdominal wall and iliac-associated tissues",
                     commonConfusions: [],
-                    examTips: ["Associated with lateral abdominal wall near iliac region"],
+                    examTips: ["Flow: lateral abdominal wall → deep circumflex iliac vein → external iliac vein", "Associated with lateral abdominal wall near iliac region"],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Lateral abdominal wall → deep circumflex iliac vein → external iliac vein",
                     highYield: false
@@ -1732,29 +1732,45 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: urinaryCat.id,
                     name: "Renal Cortex",
                     aliases: ["Kidney cortex"],
-                    function: "Outer region containing glomeruli",
-                    examTips: ["Site of initial filtration"]
+                    function: "Outer kidney region containing glomeruli, Bowman's capsules, and convoluted tubules; primary site of filtration initiation and tubular reabsorption/secretion",
+                    commonConfusions: [],
+                    examTips: ["Practical ID: outer kidney zone — identifiable histologically by the high density of glomeruli (absent in medulla)", "KEY histology logic: Bowman's capsule = simple squamous (filtration); renal tubules = simple cuboidal (active transport/reabsorption)", "Glomeruli are the easiest histological landmark to distinguish cortex from medulla"],
+                    histology: "Glomeruli (capillary tufts with simple squamous endothelium), Bowman's capsules (simple squamous), proximal and distal convoluted tubules (simple cuboidal with brush border on proximal tubule)",
+                    connections: "Outer zone of kidney; afferent arterioles → glomerulus → efferent arterioles → peritubular capillaries; filtrate flows cortex → medulla → renal pelvis",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: urinaryCat.id,
                     name: "Renal Pelvis",
-                    aliases: ["Funnel structure"],
-                    function: "Collects urine from pyramids",
-                    examTips: ["Connects to ureter"]
+                    aliases: ["Pelvis renalis"],
+                    function: "Central urine-collecting chamber of the kidney; receives urine from renal calyces and funnels it into the ureter",
+                    commonConfusions: [],
+                    examTips: ["Flow: renal calyces → renal pelvis → ureter → urinary bladder", "Expandable lining accommodates variable urine volume"],
+                    histology: "Transitional epithelium (urothelium) — allows distension while maintaining a watertight barrier against urine",
+                    connections: "Renal calyces → renal pelvis → ureter",
+                    highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: urinaryCat.id,
                     name: "Renal Calyx",
-                    aliases: ["Calyces"],
-                    function: "Collects urine from collecting ducts",
-                    examTips: ["Multiple calyces per kidney"]
+                    aliases: ["Calyces", "Renal cup"],
+                    function: "Cup-shaped structures that collect urine draining from individual renal pyramid tips (papillae) and funnel it toward the renal pelvis",
+                    commonConfusions: [],
+                    examTips: ["Flow: renal pyramid papilla → renal calyx → renal pelvis → ureter", "Cup shape directs urine centrally — funnel geometry", "Transitional epithelium lines the calyx — same urine-tolerant pattern as ureter and bladder"],
+                    histology: "Transitional epithelium (urothelium) — allows distension while resisting urine toxicity",
+                    connections: "Renal pyramid tip (papilla) → renal calyx → renal pelvis",
+                    highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: urinaryCat.id,
                     name: "Renal Pyramid",
                     aliases: ["Medullary pyramid"],
-                    function: "Medullary structure containing collecting ducts",
-                    examTips: ["Striated appearance"]
+                    function: "Triangular medullary structures containing loops of Henle and collecting ducts; responsible for osmotic gradient formation that enables urine concentration via countercurrent mechanisms",
+                    commonConfusions: [],
+                    examTips: ["Practical ID: triangular striped structures pointing inward toward the renal pelvis", "Contain loops of Henle + collecting ducts — NO glomeruli (glomeruli are cortex only)", "Parallel tubule arrangement supports countercurrent concentration gradient — key to water conservation and concentrated urine"],
+                    histology: "Parallel arrays of collecting ducts and loops of Henle; simple cuboidal to simple squamous epithelium along loop segments; striated gross appearance due to tubule alignment",
+                    connections: "Receives filtrate from cortical tubules → loop of Henle → collecting ducts → renal papilla → renal calyx",
+                    highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: urinaryCat.id,
@@ -3280,12 +3296,12 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: peritonealCat.id,
                     name: "Kidney",
                     aliases: ["Renal organ", "Renal structure"],
-                    function: "Filters blood, produces urine",
-                    commonConfusions: ["Notable as retroperitoneal (not in peritoneal cavity proper)"],
-                    examTips: ["Bean-shaped; usually paired structures"],
-                    histology: "Renal filtration units",
-                    connections: "Kidney → ureter → bladder",
-                    highYield: false
+                    function: "Paired retroperitoneal organs responsible for: blood filtration, metabolic waste removal (urea, creatinine), water balance, electrolyte regulation, acid-base regulation, and blood pressure regulation. Functional unit is the nephron (glomerulus → Bowman's capsule → proximal tubule → loop of Henle → distal tubule → collecting duct). Humans filter ~1100–2000 L of blood/day but produce only ~1.5 L of urine — illustrating massive tubular reabsorption",
+                    commonConfusions: ["RETROPERITONEAL: kidneys sit behind the parietal peritoneum, bulging into the abdominal cavity rather than suspended freely within it — do not say they are 'inside' the peritoneal cavity", "Simple squamous (Bowman's capsule) = filtration; simple cuboidal (renal tubules) = active transport/reabsorption — do not mix these up"],
+                    examTips: ["Practical ID: paired, bean-shaped organs pressed against the dorsal body wall", "KEY histology logic: simple squamous → filtration (Bowman's capsule); simple cuboidal → active transport/reabsorption (tubules) — one of the biggest kidney histology concepts", "Nephron contains: glomerulus, Bowman's capsule, proximal tubule, loop of Henle, distal tubule, collecting duct"],
+                    histology: "Cortex: glomeruli (simple squamous endothelium + Bowman's capsule), convoluted tubules (simple cuboidal). Medulla: collecting ducts and loops of Henle (simple cuboidal → simple squamous in thin descending limb)",
+                    connections: "Renal arteries (from descending aorta) → kidney → renal veins → caudal vena cava; kidney → ureter → urinary bladder",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: peritonealCat.id,
