@@ -3569,11 +3569,11 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: buccalCat.id,
                     name: "Entrance to Esophagus",
                     aliases: ["Esophageal opening"],
-                    function: "Passageway for swallowed food from pharynx into esophagus",
-                    commonConfusions: [],
-                    examTips: ["Located near laryngeal pharynx, posterior to airway opening"],
+                    function: "Passageway for swallowed food from pharynx into esophagus; guarded by the Upper Esophageal Sphincter (UES), formed by the cricopharyngeus muscle, which remains tonically closed at rest and relaxes during swallowing to allow food to pass",
+                    commonConfusions: ["The UES is the functional checkpoint at this opening — on trace questions, food/liquid crosses the UES to enter the esophagus; do not skip this step"],
+                    examTips: ["Located near laryngeal pharynx, posterior to airway opening", "TRACE TIP: Upper Esophageal Sphincter (UES) = the functional gateway here — pharynx → UES → esophagus"],
                     histology: "Stratified squamous epithelium (protective against abrasion from food)",
-                    connections: "Pharynx → esophagus → stomach",
+                    connections: "Pharynx → Upper Esophageal Sphincter (UES) → esophagus → stomach",
                     highYield: true
                 ),
                 AnatomyStructure(
