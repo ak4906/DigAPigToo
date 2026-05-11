@@ -354,11 +354,14 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: externalCat.id,
                     name: "2nd, 3rd, 4th, 5th Digits",
                     aliases: ["Toes", "Digits"],
-                    function: "Weight-bearing and locomotion",
-                    commonConfusions: ["Pig digits correspond to human digits 2-5; digit 1 is absent"],
-                    examTips: ["Digits 3 and 4 largest and primary weight-bearing; digits 2 and 5 smaller"],
+                    function: "Weight-bearing and locomotion; digits III and IV are the primary weight-bearing claws, digits II and V are accessory dewclaws",
+                    commonConfusions: ["Digits are numbered medial (inside) → lateral (outside): II is the inner dewclaw, III is the inner main claw, IV is the outer main claw, V is the outer dewclaw — easy to get the direction backwards on the exam", "Pig digit 1 is absent; numbering starts at II"],
+                    images: [
+                        ImageCDN.image("digits_gross_1.jpg", caption: "Digits II–V"),
+                    ],
+                    examTips: ["NUMBERING DIRECTION: medial (inside) → lateral (outside)", "Digit II: smaller inner dewclaw (accessory)", "Digit III: larger inner claw — primary weight-bearing", "Digit IV: larger outer claw — primary weight-bearing", "Digit V: smaller outer dewclaw (accessory)", "Digits III and IV touch the ground; II and V are elevated dewclaws"],
                     histology: "Skeletal elements and integument",
-                    connections: "Supported by limb skeletal system",
+                    connections: "Supported by limb skeletal system; covered distally by hooves",
                     highYield: false
                 ),
                 AnatomyStructure(
