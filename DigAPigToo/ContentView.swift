@@ -1723,14 +1723,29 @@ struct ExamHostView: View {
         let cats = dataManager.categories
 
         // Build one station from a given set of category names
-        func makeStation(catNames: [String]) -> ExamStation {
-            let pool = cats
+        // Gross anatomy stations prefer tangible, physically-pinnable structures.
+        // Pure regions and potential spaces (mediastinum, pericardial/pleural/
+        // peritoneal cavity) are excluded because TAs can't stick a pin through
+        // a space — they'd gesture broadly instead, which the app can't simulate.
+        // Histology stations have NO such filter since a pointer can indicate any
+        // layer, lumen, or space on a slide.
+        func isPinnable(_ name: String) -> Bool {
+            let n = name.lowercased()
+            return !n.hasSuffix(" cavity")   // pericardial cavity, peritoneal cavity, etc.
+                && !n.hasSuffix(" space")
+                && n != "mediastinum"
+        }
+
+        func makeStation(catNames: [String], grossOnly: Bool) -> ExamStation {
+            var pool = cats
                 .filter { catNames.contains($0.name) }
                 .flatMap { dataManager.structures(in: $0) }
-                .shuffled()
-            guard !pool.isEmpty else {
-                return ExamStation(items: [], timeLimit: tl)
+            if grossOnly {
+                let pinnable = pool.filter { isPinnable($0.name) }
+                if pinnable.count >= 3 { pool = pinnable }   // only filter if enough remain
             }
+            pool = pool.shuffled()
+            guard !pool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
             let items = (0..<5).map { ExamItem(structure: pool[$0 % pool.count]) }
             return ExamStation(items: items, timeLimit: tl)
         }
@@ -1740,10 +1755,10 @@ struct ExamHostView: View {
         var stations: [ExamStation] = []
 
         for i in 0..<grossCount {
-            stations.append(makeStation(catNames: shuffledGross[i % shuffledGross.count]))
+            stations.append(makeStation(catNames: shuffledGross[i % shuffledGross.count], grossOnly: true))
         }
         for i in 0..<histoCount {
-            stations.append(makeStation(catNames: shuffledHisto[i % shuffledHisto.count]))
+            stations.append(makeStation(catNames: shuffledHisto[i % shuffledHisto.count], grossOnly: false))
         }
 
         examSession = ExamSession(stations: stations.shuffled(), timePerStation: tl)

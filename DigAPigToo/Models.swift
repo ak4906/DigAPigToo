@@ -211,10 +211,23 @@ struct QuizSession: Identifiable {
 extension AnatomyStructure {
     /// Returns true if `typed` is close enough to match this structure's name or any alias.
     /// Case-insensitive; allows 1–3 character differences scaling with word length.
+    /// Also accepts slash-separated terms in either order (e.g. "dorsal/ventral" matches
+    /// "Ventral/Dorsal") since the exam accepts either ordering for paired terms.
     func accepts(answer typed: String) -> Bool {
         let typed = typed.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !typed.isEmpty else { return false }
-        for target in ([name] + aliases).map({ $0.lowercased() }) {
+
+        // Build candidate list: name + aliases, each also with slash-parts reversed
+        var candidates: [String] = []
+        for raw in ([name] + aliases).map({ $0.lowercased() }) {
+            candidates.append(raw)
+            if raw.contains("/") {
+                let parts = raw.split(separator: "/", omittingEmptySubsequences: false).map(String.init)
+                candidates.append(parts.reversed().joined(separator: "/"))
+            }
+        }
+
+        for target in candidates {
             if typed == target { return true }
             let maxLen = max(typed.count, target.count)
             let threshold = maxLen <= 5 ? 1 : maxLen <= 10 ? 2 : 3
