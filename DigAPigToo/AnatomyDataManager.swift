@@ -487,6 +487,20 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Urethra + vagina → urogenital orifice",
                     highYield: false
                 ),
+                AnatomyStructure(
+                    categoryId: externalCat.id,
+                    name: "Mental Gland",
+                    aliases: ["Cutaneous exocrine gland"],
+                    function: "Secretes pheromones; chemical signals affecting behavior/physiology of other pigs",
+                    commonConfusions: ["ETYMOLOGY: 'Mental' here derives from Latin mentum (chin) — NOT from mens/mentis (mind). The chin-related 'mental' (e.g. mental foramen, mental gland) is a completely separate Latin root from the mind-related 'mental' (e.g. mental health)"],
+                    examTips: ["Located near base of chin vibrissae (whisker region)"],
+                    images: [
+                        ImageCDN.image("mental-gland_gross_1.png", caption: "Mental Gland"),
+                    ],
+                    histology: "Exocrine gland; secretes through ducts onto body surface",
+                    connections: "Duct secretion to body surface",
+                    highYield: true
+                ),
             ])
         }
         
@@ -3409,20 +3423,6 @@ class AnatomyDataManager: ObservableObject {
         // MARK: Buccal Cavity
         if let buccalCat = categories.first(where: { $0.name == "Buccal Cavity" }) {
             structures.append(contentsOf: [
-                AnatomyStructure(
-                    categoryId: buccalCat.id,
-                    name: "Mental Gland",
-                    aliases: ["Cutaneous exocrine gland"],
-                    function: "Secretes pheromones; chemical signals affecting behavior/physiology of other pigs",
-                    commonConfusions: ["ETYMOLOGY: 'Mental' here derives from Latin mentum (chin) — NOT from mens/mentis (mind). The chin-related 'mental' (e.g. mental foramen, mental gland) is a completely separate Latin root from the mind-related 'mental' (e.g. mental health)"],
-                    examTips: ["Located near base of chin vibrissae (whisker region)"],
-                    images: [
-                        ImageCDN.image("mental-gland_gross_1.png", caption: "Mental Gland"),
-                    ],
-                    histology: "Exocrine gland; secretes through ducts onto body surface",
-                    connections: "Duct secretion to body surface",
-                    highYield: true
-                ),
                 AnatomyStructure(
                     categoryId: buccalCat.id,
                     name: "Tongue",
