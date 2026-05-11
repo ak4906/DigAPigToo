@@ -3094,6 +3094,9 @@ class AnatomyDataManager: ObservableObject {
                     name: "Secondary Follicle",
                     aliases: ["Growing follicle"],
                     function: "Developing oocyte with multiple cell layers",
+                    images: [
+                        ImageCDN.slide("secondary-follicle_hist_1.HEIC", caption: "Secondary Follicle"),
+                    ],
                     examTips: ["Begins estrogen production"],
                     histology: "Multiple layers of granulosa cells"
                 ),
