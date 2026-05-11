@@ -342,6 +342,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Unguis"],
                     function: "Protects distal digits during locomotion, weight bearing, contact with hard surfaces",
                     commonConfusions: ["Similar to fingernails/toenails"],
+                    images: [
+                        ImageCDN.image("hoof_gross_1.jpg", caption: "Hoof"),
+                    ],
                     examTips: ["Keratinized distal covering of pig digits"],
                     histology: "Keratinized covering",
                     connections: "Covers distal digits",
