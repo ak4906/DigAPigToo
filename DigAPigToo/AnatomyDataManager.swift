@@ -440,6 +440,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Scrotal sac"],
                     function: "In mature males, houses testes; participates in temperature regulation for spermatogenesis",
                     commonConfusions: [],
+                    images: [
+                        ImageCDN.image("scrotum_gross_1.jpeg", caption: "Scrotum"),
+                    ],
                     examTips: ["Sac-like structure caudal to hind limbs, ventral to tail"],
                     histology: "External: protective stratified squamous epithelium; internal: connective tissue and smooth muscle",
                     connections: "Contains testicular structures",
@@ -1932,6 +1935,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Scrotal sac"],
                     function: "Maintains testes at lower temperature optimal for spermatogenesis",
                     commonConfusions: [],
+                    images: [
+                        ImageCDN.image("scrotum_gross_1.jpeg", caption: "Scrotum"),
+                    ],
                     examTips: ["Practical ID: sac-like external structure near hindlimbs/tail", "External location allows cooler temperature than body core — expandable sac organization supports thermoregulation"],
                     histology: "External surface: stratified squamous epithelium (skin); underlying: connective tissue, smooth muscle, vessels",
                     connections: "Contains testes and spermatic cord",
