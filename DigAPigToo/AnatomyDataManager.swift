@@ -345,10 +345,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Unguis"],
                     function: "Protects distal digits during locomotion, weight bearing, contact with hard surfaces",
                     commonConfusions: ["Similar to fingernails/toenails"],
+                    examTips: ["Keratinized distal covering of pig digits"],
                     images: [
                         ImageCDN.image("hoof_gross_1.jpg", caption: "Hoof"),
                     ],
-                    examTips: ["Keratinized distal covering of pig digits"],
                     histology: "Keratinized covering",
                     connections: "Covers distal digits",
                     highYield: false
@@ -359,10 +359,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Toes", "Digits"],
                     function: "Weight-bearing and locomotion; digits III and IV are the primary weight-bearing claws, digits II and V are accessory dewclaws",
                     commonConfusions: ["Digits are numbered medial (inside) → lateral (outside): II is the inner dewclaw, III is the inner main claw, IV is the outer main claw, V is the outer dewclaw — easy to get the direction backwards on the exam", "Pig digit 1 is absent; numbering starts at II"],
+                    examTips: ["NUMBERING DIRECTION: medial (inside) → lateral (outside)", "Digit II: smaller inner dewclaw (accessory)", "Digit III: larger inner claw — primary weight-bearing", "Digit IV: larger outer claw — primary weight-bearing", "Digit V: smaller outer dewclaw (accessory)", "Digits III and IV touch the ground; II and V are elevated dewclaws"],
                     images: [
                         ImageCDN.image("digits_gross_1.jpg", caption: "Digits II–V"),
                     ],
-                    examTips: ["NUMBERING DIRECTION: medial (inside) → lateral (outside)", "Digit II: smaller inner dewclaw (accessory)", "Digit III: larger inner claw — primary weight-bearing", "Digit IV: larger outer claw — primary weight-bearing", "Digit V: smaller outer dewclaw (accessory)", "Digits III and IV touch the ground; II and V are elevated dewclaws"],
                     histology: "Skeletal elements and integument",
                     connections: "Supported by limb skeletal system; covered distally by hooves",
                     highYield: false
@@ -385,10 +385,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Umbilicus"],
                     function: "Connects fetus to placenta; contains vessels for nutrient transport, gas exchange, waste transport",
                     commonConfusions: [],
+                    examTips: ["Attaches to ventral abdominal surface"],
                     images: [
                         ImageCDN.image("umbilical-cord_gross_1.jpg", caption: "Umbilical Cord"),
                     ],
-                    examTips: ["Attaches to ventral abdominal surface"],
                     histology: "Contains umbilical vessels protected by Wharton's jelly",
                     connections: "Fetal → placenta; contains umbilical vein, two umbilical arteries, allantoic stalk",
                     highYield: true
@@ -443,10 +443,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Scrotal sac"],
                     function: "In mature males, houses testes; participates in temperature regulation for spermatogenesis",
                     commonConfusions: [],
+                    examTips: ["Sac-like structure caudal to hind limbs, ventral to tail"],
                     images: [
                         ImageCDN.image("scrotum_gross_1.jpeg", caption: "Scrotum"),
                     ],
-                    examTips: ["Sac-like structure caudal to hind limbs, ventral to tail"],
                     histology: "External: protective stratified squamous epithelium; internal: connective tissue and smooth muscle",
                     connections: "Contains testicular structures",
                     highYield: false
@@ -457,10 +457,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Anal orifice"],
                     function: "Terminal opening for elimination of feces",
                     commonConfusions: [],
+                    examTips: ["Located immediately ventral to tail; present in both sexes"],
                     images: [
                         ImageCDN.image("anus_gross_1.jpg", caption: "Anus"),
                     ],
-                    examTips: ["Located immediately ventral to tail; present in both sexes"],
                     histology: "Protective stratified squamous epithelium at terminal digestive tract",
                     connections: "Rectum → anal canal → anus",
                     highYield: false
@@ -1666,10 +1666,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Umbilical stalk"],
                     function: "Fetal connection between pig and placenta; the major route for fetal-maternal exchange of oxygen, nutrients, and wastes",
                     commonConfusions: ["Do not treat umbilical cord as merely an external structure — it is a major fetal circulatory bundle"],
+                    examTips: ["Contains: umbilical vein (1), umbilical arteries (2), allantoic stalk/urachus, and connective tissue", "Oxygen and nutrients: placenta → fetus via umbilical vein; fetal wastes: fetus → placenta via umbilical arteries"],
                     images: [
                         ImageCDN.image("umbilical-cord_gross_1.jpg", caption: "Umbilical Cord"),
                     ],
-                    examTips: ["Contains: umbilical vein (1), umbilical arteries (2), allantoic stalk/urachus, and connective tissue", "Oxygen and nutrients: placenta → fetus via umbilical vein; fetal wastes: fetus → placenta via umbilical arteries"],
                     histology: "Wharton's jelly (mucous connective tissue) supporting umbilical vessels",
                     connections: "Placenta ↔ umbilical cord ↔ fetal circulation",
                     highYield: true
@@ -1941,10 +1941,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Scrotal sac"],
                     function: "Maintains testes at lower temperature optimal for spermatogenesis",
                     commonConfusions: [],
+                    examTips: ["Practical ID: sac-like external structure near hindlimbs/tail", "External location allows cooler temperature than body core — expandable sac organization supports thermoregulation"],
                     images: [
                         ImageCDN.image("scrotum_gross_1.jpeg", caption: "Scrotum"),
                     ],
-                    examTips: ["Practical ID: sac-like external structure near hindlimbs/tail", "External location allows cooler temperature than body core — expandable sac organization supports thermoregulation"],
                     histology: "External surface: stratified squamous epithelium (skin); underlying: connective tissue, smooth muscle, vessels",
                     connections: "Contains testes and spermatic cord",
                     highYield: false
@@ -3097,10 +3097,10 @@ class AnatomyDataManager: ObservableObject {
                     name: "Secondary Follicle",
                     aliases: ["Growing follicle"],
                     function: "Developing oocyte with multiple cell layers",
-                    images: [
-                        ImageCDN.slide("secondary-follicle_hist_1.HEIC", caption: "Secondary Follicle"),
-                    ],
                     examTips: ["Begins estrogen production"],
+                    images: [
+                        ImageCDN.slide("secondary-follicle_hist_1.HEIC", magnification: 10, caption: "Secondary Follicle"),
+                    ],
                     histology: "Multiple layers of granulosa cells"
                 ),
                 AnatomyStructure(
@@ -3124,10 +3124,10 @@ class AnatomyDataManager: ObservableObject {
                     name: "Corpus Luteum",
                     aliases: ["Yellow body"],
                     function: "Produces progesterone after ovulation",
+                    examTips: ["Temporary endocrine gland"],
                     images: [
                         ImageCDN.image("corpus-luteum_gross_1.HEIC", caption: "Corpus Luteum"),
                     ],
-                    examTips: ["Temporary endocrine gland"],
                     histology: "Lutein cells from granulosa cells"
                 ),
                 AnatomyStructure(
@@ -3530,10 +3530,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Oropharynx"],
                     function: "Passageway for food bolus and air; part of swallowing pathway",
                     commonConfusions: ["Often confused with nasal pharynx and laryngeal pharynx"],
+                    examTips: ["Located caudal to oral cavity, posterior to tongue, inferior to soft palate"],
                     images: [
                         ImageCDN.image("oral-pharynx_gross_1.png", caption: "Oral Pharynx"),
                     ],
-                    examTips: ["Located caudal to oral cavity, posterior to tongue, inferior to soft palate"],
                     histology: "Stratified squamous epithelium (abrasion exposure from food)",
                     connections: "Oral cavity → oral pharynx → laryngeal pharynx",
                     highYield: true
@@ -3588,10 +3588,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Arytenoid cartilage"],
                     function: "Critical airway protection; during swallowing, folds over glottis to prevent food/liquid entering airway",
                     commonConfusions: ["VERY IMPORTANT: distinguish epiglottis (flap) from glottis (opening)"],
+                    examTips: ["Leaf-shaped cartilage flap at cranial end of larynx"],
                     images: [
                         ImageCDN.image("epiglottis_gross_1.jpeg", caption: "Epiglottis"),
                     ],
-                    examTips: ["Leaf-shaped cartilage flap at cranial end of larynx"],
                     histology: "Elastic cartilage core with connective tissue and mucosal lining; respiratory-facing: respiratory epithelium; food-contact: protective stratified squamous",
                     connections: "Laryngeal pharynx ↔ epiglottis ↔ glottis/larynx",
                     highYield: true
