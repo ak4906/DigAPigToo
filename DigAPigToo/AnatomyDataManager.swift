@@ -3530,6 +3530,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Oropharynx"],
                     function: "Passageway for food bolus and air; part of swallowing pathway",
                     commonConfusions: ["Often confused with nasal pharynx and laryngeal pharynx"],
+                    images: [
+                        ImageCDN.image("oral-pharynx_gross_1.png", caption: "Oral Pharynx"),
+                    ],
                     examTips: ["Located caudal to oral cavity, posterior to tongue, inferior to soft palate"],
                     histology: "Stratified squamous epithelium (abrasion exposure from food)",
                     connections: "Oral cavity → oral pharynx → laryngeal pharynx",
