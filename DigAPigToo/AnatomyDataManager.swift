@@ -271,7 +271,10 @@ class AnatomyDataManager: ObservableObject {
                     function: "In pigs, moves across eyeball to distribute tears",
                     commonConfusions: ["Human equivalent is semilunar fold (doesn't move)"],
                     examTips: ["Look for it after carefully opening fused eyelids near rostral/inner eye corner"],
-                    images: [ImageCDN.image("nictitating-membrane_gross_1.png", caption: "Nictitating Membrane")],
+                    images: [
+                        ImageCDN.image("nictitating-membrane_gross_1.png", caption: "Nictitating Membrane"),
+                        ImageCDN.image("nictitating-membrane_gross_2.jpg", caption: "Nictitating Membrane"),
+                    ],
                     histology: "Thin movable membrane",
                     connections: "Associated with eyeball and eyelids",
                     highYield: false
