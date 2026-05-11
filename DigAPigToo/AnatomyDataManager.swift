@@ -3121,6 +3121,9 @@ class AnatomyDataManager: ObservableObject {
                     name: "Corpus Luteum",
                     aliases: ["Yellow body"],
                     function: "Produces progesterone after ovulation",
+                    images: [
+                        ImageCDN.image("corpus-luteum_gross_1.HEIC", caption: "Corpus Luteum"),
+                    ],
                     examTips: ["Temporary endocrine gland"],
                     histology: "Lutein cells from granulosa cells"
                 ),
