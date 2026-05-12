@@ -433,6 +433,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Shared external opening for urinary and reproductive systems",
                     commonConfusions: ["Located just caudal to umbilical cord; easy to confuse with female opening"],
                     examTips: ["Male opening more cranial than female opening"],
+                    images: [
+                        ImageCDN.image("preputal-orifice_gross_1.HEIC", caption: "Preputial Orifice"),
+                    ],
                     histology: "Transitions between external protective epithelium and urinary/reproductive mucosa",
                     connections: "Urethra → penis → preputial orifice",
                     highYield: false
@@ -1951,6 +1954,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "External outlet for urine and reproductive secretions; key sex-identification structure in fetal pig",
                     commonConfusions: ["Male opening is caudal to umbilical cord — NOT near the tail (a near-tail opening indicates female)"],
                     examTips: ["Practical ID: male opening near umbilical region, NOT near tail", "VERY important sex-identification landmark"],
+                    images: [
+                        ImageCDN.image("preputal-orifice_gross_1.HEIC", caption: "Preputial Orifice"),
+                    ],
                     histology: "Transition zone between external protective epithelium and internal mucosal epithelium",
                     connections: "Penis → preputial orifice → external environment",
                     highYield: true
