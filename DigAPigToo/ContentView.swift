@@ -207,8 +207,12 @@ struct StructureListView: View {
             .navigationTitle(dest.category.name)
             .onAppear {
                 if let scrollID = dest.scrollToID {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                        withAnimation(.easeInOut) { proxy.scrollTo(scrollID, anchor: .center) }
+                    // Retry at increasing intervals — List renders lazily so the
+                    // bottom rows may not exist in the layout until after first paint.
+                    for delay in [0.15, 0.5, 1.0] {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                            withAnimation(.easeInOut) { proxy.scrollTo(scrollID, anchor: .center) }
+                        }
                     }
                 }
             }
@@ -1896,14 +1900,14 @@ struct ExamHostView: View {
             let useMicroscope = !canUseEpithelial || Double.random(in: 0...1) < 0.7
             let bonusCatName = useMicroscope ? "Microscope" : "Epithelial Types"
             let bonusPool = structs(in: [bonusCatName]).shuffled()
-            let bonusPrompt = useMicroscope ? "Microscope component:" : "Epithelial type:"
+            let bonusPrompt = useMicroscope ? "E. Name this microscope part." : "E. Name the epithelial type."
 
-            // Assign role-based prompts matching the real practical sticky-note format.
+            // Prompts match the real practical sticky-note A–E format.
             let slidePrompts = [
-                "Tissue / organ:",       // Q1 — what is the main organ on this slide?
-                "Pointer — identify:",   // Q2 — what does the pointer indicate?
-                "Layer or region:",      // Q3 — what layer/region surrounds it?
-                "Identify:",             // Q4 — additional structure on the slide
+                "A. What organ / tissue is this?",
+                "B. What structure does the arrow point to?",
+                "C. Name a cell type or related structure.",
+                "D. What is the function or product of C?",
             ]
             let slideItems = (0..<4).map { i in
                 ExamItem(structure: slidePool[i % slidePool.count],
@@ -1923,10 +1927,10 @@ struct ExamHostView: View {
             guard !pool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
             let bonusPool = structs(in: ["Microscope"]).shuffled()
             let slidePrompts = [
-                "Tissue / organ:",
-                "Pointer — identify:",
-                "Cell type:",
-                "Identify:",
+                "A. What organ / tissue is this?",
+                "B. What structure does the arrow point to?",
+                "C. Name a cell type or related structure.",
+                "D. What is the function or product of C?",
             ]
             let slideItems = (0..<4).map { i in
                 ExamItem(structure: pool[i % pool.count],
@@ -1934,7 +1938,7 @@ struct ExamHostView: View {
             }
             let bonusItem = ExamItem(
                 structure: bonusPool.isEmpty ? pool[4 % pool.count] : bonusPool[0],
-                questionPrompt: "Microscope component:"
+                questionPrompt: "E. Name this microscope part."
             )
             return ExamStation(items: slideItems + [bonusItem], timeLimit: tl)
         }
