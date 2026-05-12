@@ -486,6 +486,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Common opening for urinary tract and vagina",
                     commonConfusions: ["Located ventral to anus; different from male opening"],
                     examTips: ["Near anus, associated with genital papilla in females"],
+                    images: [
+                        ImageCDN.image("urogenital-orifice_gross_1.png", caption: "Urogenital Orifice"),
+                    ],
                     histology: "Transitions between external protective epithelium and reproductive/urinary mucosa",
                     connections: "Urethra + vagina → urogenital orifice",
                     highYield: false
