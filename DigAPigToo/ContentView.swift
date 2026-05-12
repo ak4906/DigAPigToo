@@ -48,6 +48,7 @@ struct ContentView: View {
 
 struct AtlasView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @State private var navPath = NavigationPath()
 
     // Ordered super-category groupings
     private var groups: [(title: String, systemImage: String, categories: [AnatomyCategory])] {
@@ -93,14 +94,12 @@ struct AtlasView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navPath) {
             List {
                 ForEach(groups, id: \.title) { group in
                     Section {
                         ForEach(group.categories) { category in
-                            NavigationLink {
-                                StructureListView(category: category)
-                            } label: {
+                            NavigationLink(value: CategoryNavDestination(category)) {
                                 Label {
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text(category.name)
@@ -134,6 +133,9 @@ struct AtlasView: View {
                 }
             }
             .navigationTitle("Dig a Pig Too")
+            .navigationDestination(for: CategoryNavDestination.self) { dest in
+                StructureListView(dest: dest, navPath: $navPath)
+            }
         }
     }
 
@@ -179,20 +181,38 @@ struct AtlasView: View {
 }
 
 struct StructureListView: View {
-    let category: AnatomyCategory
+    let dest: CategoryNavDestination
+    @Binding var navPath: NavigationPath
     @StateObject private var dataManager = AnatomyDataManager.shared
 
     var body: some View {
         let ordered = dataManager.orderedStructures
-        List(dataManager.structures(in: category)) { structure in
-            NavigationLink(structure.name) {
-                StructurePagerView(
-                    allStructures: ordered,
-                    initialIndex: ordered.firstIndex(where: { $0.id == structure.id }) ?? 0
-                )
+        let structures = dataManager.structures(in: dest.category)
+        ScrollViewReader { proxy in
+            List(structures) { structure in
+                NavigationLink(structure.name) {
+                    StructurePagerView(
+                        allStructures: ordered,
+                        initialIndex: ordered.firstIndex(where: { $0.id == structure.id }) ?? 0,
+                        onBack: { finalStructure in
+                            guard let finalCat = dataManager.categories.first(where: { $0.id == finalStructure.categoryId }) else { return }
+                            var newPath = NavigationPath()
+                            newPath.append(CategoryNavDestination(finalCat, scrollTo: finalStructure.id))
+                            navPath = newPath
+                        }
+                    )
+                }
+                .id(structure.id)
+            }
+            .navigationTitle(dest.category.name)
+            .onAppear {
+                if let scrollID = dest.scrollToID {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        withAnimation(.easeInOut) { proxy.scrollTo(scrollID, anchor: .center) }
+                    }
+                }
             }
         }
-        .navigationTitle(category.name)
     }
 }
 
@@ -319,14 +339,27 @@ struct StructureDetailView: View {
     }
 }
 
+// MARK: - Atlas Navigation Destination
+
+struct CategoryNavDestination: Hashable {
+    let category: AnatomyCategory
+    let scrollToID: UUID?
+    init(_ category: AnatomyCategory, scrollTo id: UUID? = nil) {
+        self.category = category
+        self.scrollToID = id
+    }
+}
+
 // MARK: - Structure Pager (swipe left/right between all structures in atlas order)
 
 struct StructurePagerView: View {
     let allStructures: [AnatomyStructure]
+    var onBack: ((AnatomyStructure) -> Void)? = nil
     @State private var currentIndex: Int
 
-    init(allStructures: [AnatomyStructure], initialIndex: Int) {
+    init(allStructures: [AnatomyStructure], initialIndex: Int, onBack: ((AnatomyStructure) -> Void)? = nil) {
         self.allStructures = allStructures
+        self.onBack = onBack
         self._currentIndex = State(initialValue: initialIndex)
     }
 
@@ -340,6 +373,9 @@ struct StructurePagerView: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
         .navigationTitle(allStructures[currentIndex].name)
         .navigationBarTitleDisplayMode(.inline)
+        .onDisappear {
+            onBack?(allStructures[currentIndex])
+        }
     }
 }
 
@@ -1017,7 +1053,7 @@ struct QuizCustomizationView: View {
 
     // Regular quiz state
     @State private var numQuestions = 10
-    @State private var timeSelection = 20   // -1 = custom, 0 = unlimited
+    @State private var timeSelection = 18   // -1 = custom, 0 = unlimited
     @State private var customTime = 18
     @State private var quizMode: QuizMode = .multipleChoice
     @State private var selectedCategoryIDs: Set<UUID> = []
