@@ -134,7 +134,7 @@ struct AtlasView: View {
             }
             .navigationTitle("Dig a Pig Too")
             .navigationDestination(for: CategoryNavDestination.self) { dest in
-                StructureListView(dest: dest, navPath: $navPath)
+                StructureListView(initialCategory: dest.category, initialScrollID: dest.scrollToID)
             }
         }
     }
@@ -181,39 +181,67 @@ struct AtlasView: View {
 }
 
 struct StructureListView: View {
-    let dest: CategoryNavDestination
-    @Binding var navPath: NavigationPath
     @StateObject private var dataManager = AnatomyDataManager.shared
+    /// Mutable — updated proactively while StructurePagerView is open so the correct
+    /// list content is already rendered before the back animation starts.
+    @State private var displayCategory: AnatomyCategory
+    /// Updated by onCurrentChanged (not onBack) so the list can be scrolled WHILE the
+    /// pager is still covering it — the back animation then reveals it in the right place.
+    @State private var pendingScrollID: UUID?
+
+    init(initialCategory: AnatomyCategory, initialScrollID: UUID? = nil) {
+        self._displayCategory = State(initialValue: initialCategory)
+        self._pendingScrollID = State(initialValue: initialScrollID)
+    }
 
     var body: some View {
         let ordered = dataManager.orderedStructures
-        let structures = dataManager.structures(in: dest.category)
+        let structures = dataManager.structures(in: displayCategory)
         ScrollViewReader { proxy in
             List(structures) { structure in
-                NavigationLink(structure.name) {
-                    StructurePagerView(
-                        allStructures: ordered,
-                        initialIndex: ordered.firstIndex(where: { $0.id == structure.id }) ?? 0,
-                        onBack: { finalStructure in
-                            guard let finalCat = dataManager.categories.first(where: { $0.id == finalStructure.categoryId }) else { return }
-                            var newPath = NavigationPath()
-                            newPath.append(CategoryNavDestination(finalCat, scrollTo: finalStructure.id))
-                            navPath = newPath
-                        }
-                    )
+                // Value-based NavigationLink: the pager is tied to the AnatomyStructure
+                // VALUE in the nav-path, NOT to this specific row.  When displayCategory
+                // changes and this row disappears, the pushed pager is unaffected.
+                NavigationLink(value: structure) {
+                    Text(structure.name)
                 }
                 .id(structure.id)
             }
-            .navigationTitle(dest.category.name)
-            .onAppear {
-                if let scrollID = dest.scrollToID {
-                    // Retry at increasing intervals — List renders lazily so the
-                    // bottom rows may not exist in the layout until after first paint.
-                    for delay in [0.15, 0.5, 1.0] {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                            withAnimation(.easeInOut) { proxy.scrollTo(scrollID, anchor: .center) }
+            // Destination defined separately so it survives list-content changes.
+            .navigationDestination(for: AnatomyStructure.self) { structure in
+                let idx = ordered.firstIndex(where: { $0.id == structure.id }) ?? 0
+                StructurePagerView(
+                    allStructures: ordered,
+                    initialIndex: idx,
+                    onCurrentChanged: { current in
+                        // 1. Instantly switch category (no animation — hidden behind pager).
+                        if let cat = dataManager.categories.first(where: { $0.id == current.categoryId }),
+                           cat.id != displayCategory.id {
+                            withTransaction(Transaction(animation: .none)) {
+                                displayCategory = cat
+                            }
                         }
+                        // 2. Pre-scroll the list NOW, while the pager still covers it.
+                        //    The back animation will reveal a list already at the right position.
+                        pendingScrollID = current.id
                     }
+                    // NOTE: No onBack — scrolling after the pager disappears causes a visible
+                    // jump on the now-revealed list. All scrolling is done proactively via
+                    // onCurrentChanged while the pager still covers the list.
+                )
+            }
+            .navigationTitle(displayCategory.name)
+            // Suppress List row animations when the category switches underneath the pager.
+            .animation(.none, value: displayCategory.id)
+            .onChange(of: pendingScrollID) { id in
+                guard let id else { return }
+                // Immediate attempt — the list is already rendered behind the pager.
+                withAnimation(.none) { proxy.scrollTo(id, anchor: .center) }
+                // One short retry for lazy rows that haven't laid out yet.
+                // Kept under 0.2 s so it always fires while the pager is still visible
+                // (back animation takes ~0.35 s), eliminating any visible scroll jump.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                    withAnimation(.none) { proxy.scrollTo(id, anchor: .center) }
                 }
             }
         }
@@ -358,11 +386,19 @@ struct CategoryNavDestination: Hashable {
 
 struct StructurePagerView: View {
     let allStructures: [AnatomyStructure]
+    /// Called every time the user swipes to a new page — fires while the pager is still visible.
+    /// StructureListView uses this to proactively update its displayed category, so that the
+    /// correct list content is already rendered by the time the back animation begins.
+    var onCurrentChanged: ((AnatomyStructure) -> Void)? = nil
+    /// Called once when the pager disappears — used only for triggering the final scroll.
     var onBack: ((AnatomyStructure) -> Void)? = nil
     @State private var currentIndex: Int
 
-    init(allStructures: [AnatomyStructure], initialIndex: Int, onBack: ((AnatomyStructure) -> Void)? = nil) {
+    init(allStructures: [AnatomyStructure], initialIndex: Int,
+         onCurrentChanged: ((AnatomyStructure) -> Void)? = nil,
+         onBack: ((AnatomyStructure) -> Void)? = nil) {
         self.allStructures = allStructures
+        self.onCurrentChanged = onCurrentChanged
         self.onBack = onBack
         self._currentIndex = State(initialValue: initialIndex)
     }
@@ -377,6 +413,11 @@ struct StructurePagerView: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
         .navigationTitle(allStructures[currentIndex].name)
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: currentIndex) { _ in
+            // Proactive update — runs while pager is still on screen so the list
+            // behind it is already correct before the back animation starts.
+            onCurrentChanged?(allStructures[currentIndex])
+        }
         .onDisappear {
             onBack?(allStructures[currentIndex])
         }
@@ -1697,6 +1738,307 @@ struct QuizResultsView: View {
     }
 }
 
+// MARK: - Histology Scenario Data
+
+/// One curated histology station scenario: 4 items (A–D).
+/// E is always a random Microscope structure appended at build time.
+struct HistoScenario {
+    struct Entry {
+        let prompt: String
+        let answer: String   // exact AnatomyStructure.name OR free-text (slash = alternatives)
+    }
+    let slideId: String      // "01", "02", …"20"
+    let label: String        // e.g. "Slide #01 — Artery"
+    let entries: [Entry]     // exactly 4
+}
+
+private let _pA = "A. What organ / tissue is this?"
+private let _pB = "B. What structure does the arrow point to?"
+private let _pC = "C. Name a cell type or related structure."
+private let _pD = "D. What is the function or product of C?"
+
+/// All curated scenarios for all 20 slides.
+/// `answer` is resolved at exam-build time: if an AnatomyStructure with that exact
+/// name exists it becomes a structure-backed ExamItem; otherwise it becomes freeText.
+private let allHistoScenarios: [HistoScenario] = {
+    func e(_ prompt: String, _ answer: String) -> HistoScenario.Entry {
+        HistoScenario.Entry(prompt: prompt, answer: answer)
+    }
+    return [
+        // SLIDE #01 — Artery / Vein / Nerve
+        HistoScenario(slideId: "01", label: "Slide #01 — Artery", entries: [
+            e(_pA, "Artery"),
+            e(_pB, "Tunica Media"),
+            e(_pC, "Smooth muscle"),
+            e(_pD, "Vasoconstriction/vasodilation"),
+        ]),
+        HistoScenario(slideId: "01", label: "Slide #01 — Vein", entries: [
+            e(_pA, "Vein"),
+            e(_pB, "Tunica Adventitia"),
+            e(_pC, "Endothelium/Simple squamous epithelium"),
+            e(_pD, "Low-resistance blood return to heart"),
+        ]),
+        HistoScenario(slideId: "01", label: "Slide #01 — Nerve", entries: [
+            e(_pA, "Nerve"),
+            e(_pB, "Nerve"),
+            e(_pC, "Axon/Nerve fiber"),           // axons are what conduct impulses
+            e(_pD, "Conducts electrical impulses/Electrical conduction"),
+        ]),
+        // SLIDE #02 — Trachea / Esophagus
+        HistoScenario(slideId: "02", label: "Slide #02 — Trachea (cartilage)", entries: [
+            e(_pA, "Trachea"),
+            e(_pB, "Tracheal Cartilage"),
+            e(_pC, "Respiratory Epithelium"),
+            e(_pD, "Mucociliary clearance"),
+        ]),
+        HistoScenario(slideId: "02", label: "Slide #02 — Esophagus", entries: [
+            e(_pA, "Esophagus"),
+            e(_pB, "Muscularis Mucosae"),
+            e(_pC, "Stratified squamous epithelium"),
+            e(_pD, "Protection from abrasion"),
+        ]),
+        HistoScenario(slideId: "02", label: "Slide #02 — Trachea (glands)", entries: [
+            e(_pA, "Trachea"),
+            e(_pB, "Sero-Mucous Glands"),
+            e(_pC, "Mucous cells/Serous cells"),  // cell types within sero-mucous glands
+            e(_pD, "Mucus secretion/Airway humidification"),
+        ]),
+        // SLIDE #03 — Mammal Ileum
+        HistoScenario(slideId: "03", label: "Slide #03 — Ileum (Peyer's patches)", entries: [
+            e(_pA, "Ileum"),
+            e(_pB, "Peyer's Patches"),
+            e(_pC, "Goblet Cells"),
+            e(_pD, "Mucus secretion"),
+        ]),
+        HistoScenario(slideId: "03", label: "Slide #03 — Ileum (villi)", entries: [
+            e(_pA, "Ileum"),
+            e(_pB, "Villi"),
+            e(_pC, "Enterocyte/Absorptive cell"),
+            e(_pD, "Nutrient absorption"),
+        ]),
+        // SLIDE #04 — Cardiac Stomach
+        HistoScenario(slideId: "04", label: "Slide #04 — Cardiac Stomach (glands)", entries: [
+            e(_pA, "Cardiac Stomach"),
+            e(_pB, "Gastric Pits"),
+            e(_pC, "Cardiac Glands"),
+            e(_pD, "Mucus secretion"),
+        ]),
+        HistoScenario(slideId: "04", label: "Slide #04 — Cardiac Stomach (muscle)", entries: [
+            e(_pA, "Cardiac Stomach"),
+            e(_pB, "Muscularis"),
+            e(_pC, "Smooth muscle"),
+            e(_pD, "Mechanical mixing/Peristalsis"),
+        ]),
+        // SLIDE #05 — Large Intestine
+        HistoScenario(slideId: "05", label: "Slide #05 — Large Intestine (goblet)", entries: [
+            e(_pA, "Large Intestine"),
+            e(_pB, "Crypts of Lieberkühn"),
+            e(_pC, "Goblet Cells"),
+            e(_pD, "Mucus secretion"),
+        ]),
+        HistoScenario(slideId: "05", label: "Slide #05 — Large Intestine (absorption)", entries: [
+            e(_pA, "Large Intestine"),
+            e(_pB, "Crypts of Lieberkühn"),
+            e(_pC, "Enterocyte/Absorptive cell"),
+            e(_pD, "Water absorption"),
+        ]),
+        // SLIDE #06 — Mammal Jejunum
+        HistoScenario(slideId: "06", label: "Slide #06 — Jejunum (villi)", entries: [
+            e(_pA, "Jejunum"),
+            e(_pB, "Villi"),
+            e(_pC, "Enterocyte/Absorptive cell"),
+            e(_pD, "Nutrient absorption"),
+        ]),
+        HistoScenario(slideId: "06", label: "Slide #06 — Jejunum (crypts)", entries: [
+            e(_pA, "Jejunum"),
+            e(_pB, "Crypts of Lieberkühn"),       // B=crypt; C=cell type within B
+            e(_pC, "Goblet Cells"),
+            e(_pD, "Mucus secretion"),
+        ]),
+        // SLIDE #07 — Human Aorta
+        HistoScenario(slideId: "07", label: "Slide #07 — Aorta (media)", entries: [
+            e(_pA, "Aorta"),
+            e(_pB, "Tunica Media"),
+            e(_pC, "Elastic connective tissue/Elastic lamellae"),
+            e(_pD, "Dampens pulse pressure/Elastic recoil"),
+        ]),
+        HistoScenario(slideId: "07", label: "Slide #07 — Aorta (intima)", entries: [
+            e(_pA, "Aorta"),
+            e(_pB, "Tunica Intima"),
+            e(_pC, "Endothelium/Simple squamous epithelium"),
+            e(_pD, "Reduces friction for blood flow"),
+        ]),
+        // SLIDE #08 — Liver
+        HistoScenario(slideId: "08", label: "Slide #08 — Liver (portal triad)", entries: [
+            e(_pA, "Liver"),
+            e(_pB, "Portal Triad"),
+            e(_pC, "Bile duct"),                  // one of three vessels in the portal triad
+            e(_pD, "Bile transport"),
+        ]),
+        HistoScenario(slideId: "08", label: "Slide #08 — Liver (hepatocyte)", entries: [
+            e(_pA, "Liver"),
+            e(_pB, "Central Vein"),
+            e(_pC, "Hepatocyte"),
+            e(_pD, "Detoxification/Metabolism"),
+        ]),
+        // SLIDE #09 — Mammal Pancreas
+        HistoScenario(slideId: "09", label: "Slide #09 — Pancreas (alpha cells)", entries: [
+            e(_pA, "Pancreas"),
+            e(_pB, "Islet of Langerhans"),
+            e(_pC, "Alpha cells"),                // unambiguous: alpha → glucagon
+            e(_pD, "Glucagon secretion"),
+        ]),
+        HistoScenario(slideId: "09", label: "Slide #09 — Pancreas (beta cells)", entries: [
+            e(_pA, "Pancreas"),
+            e(_pB, "Islet of Langerhans"),
+            e(_pC, "Beta cells"),                 // unambiguous: beta → insulin
+            e(_pD, "Insulin secretion"),
+        ]),
+        HistoScenario(slideId: "09", label: "Slide #09 — Pancreas (acinus)", entries: [
+            e(_pA, "Pancreas"),
+            e(_pB, "Acinus"),
+            e(_pC, "Acinar Cells"),
+            e(_pD, "Digestive enzyme secretion"),
+        ]),
+        // SLIDE #10 — Kidney
+        HistoScenario(slideId: "10", label: "Slide #10 — Kidney (glomerulus)", entries: [
+            e(_pA, "Kidney"),
+            e(_pB, "Glomerulus"),
+            e(_pC, "Bowman's Capsule"),
+            e(_pD, "Blood filtration/Ultrafiltration"),
+        ]),
+        HistoScenario(slideId: "10", label: "Slide #10 — Kidney (PCT)", entries: [
+            e(_pA, "Kidney"),
+            e(_pB, "Proximal Convoluted Tubule"),
+            e(_pC, "Renal Cortex"),
+            e(_pD, "Reabsorption"),
+        ]),
+        HistoScenario(slideId: "10", label: "Slide #10 — Kidney (DCT)", entries: [
+            e(_pA, "Kidney"),
+            e(_pB, "Distal Convoluted Tubule"),
+            e(_pC, "Renal Medulla"),
+            e(_pD, "Ion/water regulation"),
+        ]),
+        // SLIDE #11 — Mammal Duodenum
+        HistoScenario(slideId: "11", label: "Slide #11 — Duodenum (Brunner's)", entries: [
+            e(_pA, "Duodenum"),
+            e(_pB, "Brunner's Glands"),
+            e(_pC, "Mucous cells"),               // cell type inside Brunner's glands → mucus
+            e(_pD, "Alkaline mucus secretion"),
+        ]),
+        HistoScenario(slideId: "11", label: "Slide #11 — Duodenum (villi)", entries: [
+            e(_pA, "Duodenum"),
+            e(_pB, "Villi"),
+            e(_pC, "Enterocyte/Absorptive cell"),
+            e(_pD, "Nutrient absorption"),
+        ]),
+        // SLIDE #12 — Mammal Fundic Stomach
+        HistoScenario(slideId: "12", label: "Slide #12 — Fundic Stomach (parietal)", entries: [
+            e(_pA, "Fundic Stomach"),
+            e(_pB, "Fundic Glands"),
+            e(_pC, "Parietal cells"),
+            e(_pD, "HCl secretion/Hydrochloric acid secretion"),
+        ]),
+        HistoScenario(slideId: "12", label: "Slide #12 — Fundic Stomach (chief)", entries: [
+            e(_pA, "Fundic Stomach"),
+            e(_pB, "Fundic Glands"),
+            e(_pC, "Chief cells"),
+            e(_pD, "Pepsinogen secretion"),
+        ]),
+        // SLIDE #13 — Mammal Ovary
+        HistoScenario(slideId: "13", label: "Slide #13 — Ovary (secondary follicle)", entries: [
+            e(_pA, "Ovary"),
+            e(_pB, "Secondary Follicle"),
+            e(_pC, "Corpus Luteum"),
+            e(_pD, "Progesterone production/Progesterone"),
+        ]),
+        HistoScenario(slideId: "13", label: "Slide #13 — Ovary (primary follicle)", entries: [
+            e(_pA, "Ovary"),
+            e(_pB, "Primary Follicle"),
+            e(_pC, "Primary Oocyte"),
+            e(_pD, "Oogenesis"),
+        ]),
+        // SLIDE #14 — Lung Section
+        HistoScenario(slideId: "14", label: "Slide #14 — Lung (bronchiole)", entries: [
+            e(_pA, "Lung"),
+            e(_pB, "Bronchiole"),
+            e(_pC, "Pulmonary Smooth Muscle"),
+            e(_pD, "Airflow regulation/Bronchoconstriction"),
+        ]),
+        HistoScenario(slideId: "14", label: "Slide #14 — Lung (alveoli)", entries: [
+            e(_pA, "Lung"),
+            e(_pB, "Alveolar Sacs"),              // B=sac; C=individual alveolus within
+            e(_pC, "Alveoli"),
+            e(_pD, "Gas exchange/O2-CO2 exchange"),
+        ]),
+        // SLIDE #15 — Human Vena Cava
+        HistoScenario(slideId: "15", label: "Slide #15 — Vena Cava (adventitia)", entries: [
+            e(_pA, "Vena Cava"),
+            e(_pB, "Tunica Adventitia"),
+            e(_pC, "Smooth muscle"),
+            e(_pD, "Venous return to heart"),
+        ]),
+        HistoScenario(slideId: "15", label: "Slide #15 — Vena Cava (intima)", entries: [
+            e(_pA, "Vena Cava"),
+            e(_pB, "Tunica Intima"),
+            e(_pC, "Endothelium/Simple squamous epithelium"),
+            e(_pD, "Minimizes blood flow resistance"),
+        ]),
+        // SLIDE #16 — Testis
+        HistoScenario(slideId: "16", label: "Slide #16 — Testis (spermatogenesis)", entries: [
+            e(_pA, "Testis"),
+            e(_pB, "Seminiferous Tubule"),
+            e(_pC, "Spermatogonia"),
+            e(_pD, "Spermatogenesis"),
+        ]),
+        HistoScenario(slideId: "16", label: "Slide #16 — Testis (Leydig)", entries: [
+            e(_pA, "Testis"),
+            e(_pB, "Seminiferous Tubule"),        // B=tubule; C=adjacent Leydig cells
+            e(_pC, "Leydig Cells"),               // Leydig cells produce testosterone ✓
+            e(_pD, "Testosterone secretion"),
+        ]),
+        // SLIDE #18 — Gall Bladder
+        HistoScenario(slideId: "18", label: "Slide #18 — Gall Bladder (mucosa)", entries: [
+            e(_pA, "Gall Bladder"),
+            e(_pB, "Simple columnar epithelium"),
+            e(_pC, "Mucosa"),                     // mucosa (not serosa) performs bile concentration
+            e(_pD, "Bile concentration"),
+        ]),
+        HistoScenario(slideId: "18", label: "Slide #18 — Gall Bladder (muscle)", entries: [
+            e(_pA, "Gall Bladder"),
+            e(_pB, "Muscularis"),
+            e(_pC, "Smooth muscle"),
+            e(_pD, "Bile ejection/Bile release"),
+        ]),
+        // SLIDE #19 — Blood Smear
+        HistoScenario(slideId: "19", label: "Slide #19 — Blood Smear (RBC/platelet)", entries: [
+            e(_pA, "Blood smear/Blood"),
+            e(_pB, "Erythrocyte"),
+            e(_pC, "Platelet"),
+            e(_pD, "Hemostasis/Blood clotting"),
+        ]),
+        HistoScenario(slideId: "19", label: "Slide #19 — Blood Smear (WBC)", entries: [
+            e(_pA, "Blood smear/Blood"),
+            e(_pB, "Neutrophil"),
+            e(_pC, "Lymphocyte"),
+            e(_pD, "Immune response/Phagocytosis"),
+        ]),
+        // SLIDE #20 — Mammal Pyloric Stomach
+        HistoScenario(slideId: "20", label: "Slide #20 — Pyloric Stomach (glands)", entries: [
+            e(_pA, "Pyloric Stomach"),
+            e(_pB, "Gastric Pits"),
+            e(_pC, "Pyloric Glands"),
+            e(_pD, "Mucus secretion"),
+        ]),
+        HistoScenario(slideId: "20", label: "Slide #20 — Pyloric Stomach (gastrin)", entries: [
+            e(_pA, "Pyloric Stomach"),
+            e(_pB, "Pyloric Glands"),             // B=gland; C=G cells within it
+            e(_pC, "G Cells"),                    // G cells → gastrin secretion ✓
+            e(_pD, "Gastrin secretion"),
+        ]),
+    ]
+}()
+
 // MARK: - Real Exam Mode
 
 struct ExamHostView: View {
@@ -1861,86 +2203,37 @@ struct ExamHostView: View {
                              + structs(in: ["Kidney Histology"]).filter { $0.name == "Renal Medulla" }
                              + structs(in: ["Circulatory System"]).filter { $0.name == "Renal Arteries" }
 
-        // MARK: Reproductive histology sub-pools
-        // Male (testis) and female (ovary) are different slides — never mix them.
-        let reproAll = structs(in: ["Reproductive Histology"])
-        let maleReproNames: Set<String> = [
-            "Seminiferous Tubule", "Spermatogonia", "Spermatocytes",
-            "Spermatids", "Spermatozoa", "Leydig Cells"
-        ]
-        let reproMale   = reproAll.filter {  maleReproNames.contains($0.name) }
-        let reproFemale = reproAll.filter { !maleReproNames.contains($0.name) }
+        // MARK: Histology scenario station builder
+        // Each call picks one random scenario from the provided list, resolves each
+        // entry to a structure-backed or free-text ExamItem, then appends a random
+        // Microscope part as item E.
 
-        // MARK: Histology station builders
-
-        // Slides that visibly feature a distinctive epithelium get a 30% chance of
-        // an Epithelial Types bonus; all others always get a Microscope component.
-        let epithelialSlides: Set<String> = [
-            "Gastrointestinal Histology", "Vessel Histology", "Respiratory Histology"
-        ]
-
-        // Histology station: structured like the real exam sticky note.
-        // Q1 = tissue/organ ID, Q2 = pointer structure, Q3 = layer or region,
-        // Q4 = additional structure, Q5 = microscope component or epithelial type.
-        // Items are NOT shuffled so the role order is preserved.
-        //
-        // Vessel Histology exclusion: Aorta and Vena Cava are too specific to
-        // identify on a generic artery/vein/nerve slide — the slide only supports
-        // "Artery" and "Vein", not the named vessels.
-        let vesselHistoExclude: Set<String> = ["Aorta", "Vena Cava"]
-
-        func makeHistoStation(mainCatNames: [String]) -> ExamStation {
-            let isVesselHisto = mainCatNames.contains("Vessel Histology")
-            let slidePool = structs(in: mainCatNames)
-                .filter { !(isVesselHisto && vesselHistoExclude.contains($0.name)) }
-                .shuffled()
-            guard !slidePool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
-
-            let canUseEpithelial = mainCatNames.contains { epithelialSlides.contains($0) }
-            let useMicroscope = !canUseEpithelial || Double.random(in: 0...1) < 0.7
-            let bonusCatName = useMicroscope ? "Microscope" : "Epithelial Types"
-            let bonusPool = structs(in: [bonusCatName]).shuffled()
-            let bonusPrompt = useMicroscope ? "E. Name this microscope part." : "E. Name the epithelial type."
-
-            // Prompts match the real practical sticky-note A–E format.
-            let slidePrompts = [
-                "A. What organ / tissue is this?",
-                "B. What structure does the arrow point to?",
-                "C. Name a cell type or related structure.",
-                "D. What is the function or product of C?",
-            ]
-            let slideItems = (0..<4).map { i in
-                ExamItem(structure: slidePool[i % slidePool.count],
-                         questionPrompt: slidePrompts[i])
+        func resolveItem(answer: String, prompt: String) -> ExamItem {
+            // First try an exact name match across all structures.
+            if let s = dataManager.structures.first(where: {
+                $0.name.caseInsensitiveCompare(answer) == .orderedSame
+            }) {
+                return ExamItem(structure: s, questionPrompt: prompt)
             }
-            let bonusItem: ExamItem = ExamItem(
-                structure: bonusPool.isEmpty ? slidePool[4 % slidePool.count] : bonusPool[0],
-                questionPrompt: bonusPrompt
-            )
-            // Keep role order — do NOT shuffle
-            return ExamStation(items: slideItems + [bonusItem], timeLimit: tl)
+            // Fall back to free-text answer (slash-delimited alternatives accepted).
+            return ExamItem(freeText: answer, questionPrompt: prompt)
         }
 
-        // Reproductive histology: one sex per station, always Microscope bonus.
-        func makeReproHistoStation() -> ExamStation {
-            let pool = (Bool.random() ? reproMale : reproFemale).shuffled()
-            guard !pool.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
-            let bonusPool = structs(in: ["Microscope"]).shuffled()
-            let slidePrompts = [
-                "A. What organ / tissue is this?",
-                "B. What structure does the arrow point to?",
-                "C. Name a cell type or related structure.",
-                "D. What is the function or product of C?",
-            ]
-            let slideItems = (0..<4).map { i in
-                ExamItem(structure: pool[i % pool.count],
-                         questionPrompt: slidePrompts[i])
+        func makeHistoStation(from pool: [HistoScenario]) -> ExamStation {
+            guard let scenario = pool.randomElement() else {
+                return ExamStation(items: [], timeLimit: tl)
             }
-            let bonusItem = ExamItem(
-                structure: bonusPool.isEmpty ? pool[4 % pool.count] : bonusPool[0],
-                questionPrompt: "E. Name this microscope part."
-            )
-            return ExamStation(items: slideItems + [bonusItem], timeLimit: tl)
+            let microscope = structs(in: ["Microscope"]).shuffled().first
+            let abcd = scenario.entries.map { resolveItem(answer: $0.answer, prompt: $0.prompt) }
+            let eItem: ExamItem = {
+                if let m = microscope { return ExamItem(structure: m, questionPrompt: "E. Name this microscope part.") }
+                return ExamItem(freeText: "Microscope part", questionPrompt: "E. Name this microscope part.")
+            }()
+            return ExamStation(items: abcd + [eItem], timeLimit: tl)
+        }
+
+        func slides(_ id: String) -> [HistoScenario] {
+            allHistoScenarios.filter { $0.slideId == id }
         }
 
         // MARK: Pool tables (closures, each call = fresh shuffle of its fixed pool)
@@ -1994,18 +2287,36 @@ struct ExamHostView: View {
             { grossStation(from: ["Cow Eye"]) },
         ]
 
-        // Histo pool — each histology station draws from ONE slide context.
-        // GI gets double weight to match the two GI stations on the real exam.
+        // Histo pool — one entry per slide.  Each call picks ONE random scenario
+        // from that slide's scenario list, so every station is contextually coherent.
+        // GI gets extra entries to match its higher frequency on the real exam.
         let histoPool: [() -> ExamStation] = [
-            { makeHistoStation(mainCatNames: ["Gastrointestinal Histology"]) },
-            { makeHistoStation(mainCatNames: ["Gastrointestinal Histology"]) },
-            { makeHistoStation(mainCatNames: ["Kidney Histology"]) },
-            { makeHistoStation(mainCatNames: ["Blood Histology"]) },
-            { makeHistoStation(mainCatNames: ["Vessel Histology"]) },
-            { makeHistoStation(mainCatNames: ["Liver Histology"]) },
-            { makeHistoStation(mainCatNames: ["Pancreas Histology"]) },
-            { makeHistoStation(mainCatNames: ["Respiratory Histology"]) },
-            { makeReproHistoStation() },
+            // Vessel slides (3 slides)
+            { makeHistoStation(from: slides("01")) },   // Artery/Vein/Nerve
+            { makeHistoStation(from: slides("07")) },   // Human Aorta
+            { makeHistoStation(from: slides("15")) },   // Human Vena Cava
+            // Respiratory slides (2 slides)
+            { makeHistoStation(from: slides("02")) },   // Trachea/Esophagus
+            { makeHistoStation(from: slides("14")) },   // Lung section
+            // GI slides (8 slides — more entries to match real-exam frequency)
+            { makeHistoStation(from: slides("03")) },   // Mammal Ileum
+            { makeHistoStation(from: slides("04")) },   // Cardiac Stomach
+            { makeHistoStation(from: slides("05")) },   // Large Intestine
+            { makeHistoStation(from: slides("06")) },   // Mammal Jejunum
+            { makeHistoStation(from: slides("11")) },   // Mammal Duodenum
+            { makeHistoStation(from: slides("12")) },   // Mammal Fundic Stomach
+            { makeHistoStation(from: slides("18")) },   // Gall Bladder
+            { makeHistoStation(from: slides("20")) },   // Mammal Pyloric Stomach
+            // Accessory organ slides
+            { makeHistoStation(from: slides("08")) },   // Liver
+            { makeHistoStation(from: slides("09")) },   // Mammal Pancreas
+            // Kidney
+            { makeHistoStation(from: slides("10")) },   // Kidney
+            // Blood
+            { makeHistoStation(from: slides("19")) },   // Blood Smear
+            // Reproductive slides (separate male/female slides)
+            { makeHistoStation(from: slides("13")) },   // Mammal Ovary
+            { makeHistoStation(from: slides("16")) },   // Testis
         ]
 
         // MARK: Build
@@ -2142,7 +2453,7 @@ struct ExamStationView: View {
         var updatedStation = station
         for idx in 0..<updatedStation.items.count {
             let typed = idx < answers.count ? answers[idx] : ""
-            let correct = updatedStation.items[idx].structure.accepts(answer: typed)
+            let correct = updatedStation.items[idx].accepts(typed: typed)
             updatedStation.items[idx].givenAnswer = typed.isEmpty ? "(blank)" : typed
             updatedStation.items[idx].wasCorrect = correct
             if correct { session.score += 1 }
@@ -2169,8 +2480,19 @@ struct ExamItemRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Small thumbnail
-            ExamItemThumbnail(images: item.structure.images)
+            // Thumbnail: image if available, concept icon otherwise.
+            if let s = item.structure, !s.images.isEmpty {
+                ExamItemThumbnail(images: s.images)
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.gray.opacity(0.10))
+                    Image(systemName: item.structure != nil ? "camera" : "text.bubble")
+                        .foregroundStyle(.secondary.opacity(0.5))
+                        .font(.title3)
+                }
+                .frame(width: 65, height: 65)
+            }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.questionPrompt ?? "ID \(index + 1)")
@@ -2182,7 +2504,7 @@ struct ExamItemRow: View {
                             .foregroundStyle(item.wasCorrect ? .green : .red)
                             .font(.subheadline)
                         VStack(alignment: .leading, spacing: 1) {
-                            Text(item.structure.name)
+                            Text(item.correctAnswerDisplay)
                                 .font(.subheadline)
                                 .fontWeight(item.wasCorrect ? .regular : .semibold)
                                 .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
@@ -2193,7 +2515,7 @@ struct ExamItemRow: View {
                         }
                     }
                 } else {
-                    TextField("Structure name…", text: $answer)
+                    TextField("Answer…", text: $answer)
                         .textFieldStyle(.roundedBorder)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
@@ -2346,7 +2668,7 @@ struct ExamResultsView: View {
                                             .foregroundStyle(item.wasCorrect ? .green : .red)
                                             .font(.caption)
                                         VStack(alignment: .leading, spacing: 1) {
-                                            Text(item.structure.name).font(.caption).fontWeight(.semibold)
+                                            Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
                                             if !item.wasCorrect {
                                                 Text("You wrote: \(item.givenAnswer)").font(.caption2).foregroundStyle(.secondary)
                                             }
@@ -2405,11 +2727,10 @@ struct SearchView: View {
                         Text("Search for structures").foregroundStyle(.secondary)
                     }
                 } else {
-                    let ordered = dataManager.orderedStructures
                     List(results) { s in
                         NavigationLink(destination: StructurePagerView(
-                            allStructures: ordered,
-                            initialIndex: ordered.firstIndex(where: { $0.id == s.id }) ?? 0
+                            allStructures: results,
+                            initialIndex: results.firstIndex(where: { $0.id == s.id }) ?? 0
                         )) {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(s.name)
@@ -2997,17 +3318,34 @@ struct GuideView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Getting Started") {
-                    Label("IDs — Browse anatomy categories and structures with detailed descriptions, histology, and connections.", systemImage: "photo.on.rectangle")
-                    Label("Traces — Practice tracing molecules and substances through organ systems step by step.", systemImage: "arrow.right.circle")
-                    Label("Fill-In — Complete fill-in-the-blank anatomy questions with instant feedback.", systemImage: "text.badge.plus")
-                    Label("Quiz — Test yourself with timed multiple-choice questions by category.", systemImage: "pencil")
-                    Label("Search — Find any structure by name or alias instantly.", systemImage: "magnifyingglass")
+                Section("App Tabs") {
+                    Label("IDs — Browse all anatomy categories. Tap a structure for details, or swipe left/right to move through every structure in order — even across categories.", systemImage: "photo.on.rectangle")
+                    Label("Traces — Practice tracing molecules step by step through organ systems. Reveal each step one at a time and check key points at the end.", systemImage: "arrow.right.circle")
+                    Label("Fill-In — Fill-in-the-blank questions with instant feedback. Great for memorizing specific names and terms.", systemImage: "text.badge.plus")
+                    Label("Quiz — Timed multiple-choice or write-your-own-answer practice, filterable by category.", systemImage: "pencil")
+                    Label("Search — Find any structure instantly by name, alias, or description.", systemImage: "magnifyingglass")
+                    Label("Diagrams — Swipeable reference diagrams for arterial, venous, and digestive systems.", systemImage: "photo.stack.fill")
+                    Label("Stats — Track your quiz performance over time and see which categories need the most work.", systemImage: "chart.bar.fill")
+                    Label("Real Exam — Simulate the actual BIOL 2501 lab practical: timed stations with gross anatomy IDs and histology slides.", systemImage: "clock.badge.checkmark")
+                }
+                Section("Real Exam Mode") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("How It Works").font(.headline)
+                        Text("Each station has 5 questions (A–E) and mirrors the format of the actual final practical. You get 1.5 minutes per station. Submit before time runs out — you can't go back.")
+                    }.padding(.vertical, 4)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Histology Stations").font(.headline)
+                        Text("Questions A–D follow a logical chain: organ → pointer structure → cell type → function. Question E is always a microscope component. 37 curated scenarios across all 19 BIOL 2501 histology slides.")
+                    }.padding(.vertical, 4)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Answer Matching").font(.headline)
+                        Text("Spelling doesn't have to be perfect — the app uses fuzzy matching and accepts common alternate spellings. Slash-separated terms (e.g. \"Light Source/Illuminator\") can be answered with either part.")
+                    }.padding(.vertical, 4)
                 }
                 Section("Study Tips") {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Fetal Pig Dissection").font(.headline)
-                        Text("Focus on high-yield structures marked ★. These appear most frequently on practical exams.")
+                        Text("Fetal Pig IDs").font(.headline)
+                        Text("Focus on high-yield structures marked ★. These appear most frequently on practical exams. Use the swipe pager to drill through structures quickly without going back to the list.")
                     }.padding(.vertical, 4)
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Circulatory System").font(.headline)
@@ -3018,21 +3356,17 @@ struct GuideView: View {
                         Text("\"Try before you buy!\" — TRIcuspid comes BEFORE BIcuspid (mitral) in the direction of blood flow.")
                     }.padding(.vertical, 4)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Traces (22% of exam)").font(.headline)
-                        Text("Practice tracing carbohydrates, oxygen, urea, and hormones from origin to destination. Know every organ and vessel along the path.")
+                        Text("Traces (≈22% of exam)").font(.headline)
+                        Text("Practice tracing carbohydrates, oxygen, urea, and hormones from origin to destination. Know every organ and vessel along the path — the Traces tab walks you through each one.")
                     }.padding(.vertical, 4)
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Epithelial Types").font(.headline)
-                        Text("Memorize which epithelium lines each organ. Histology slides often appear on practicals — know the tissue layer and why it suits that location.")
+                        Text("Histology").font(.headline)
+                        Text("Know the tissue layer, what it looks like under the microscope, and why that epithelium fits that organ. Real Exam mode drills the exact slides from class.")
                     }.padding(.vertical, 4)
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Sex Identification").font(.headline)
                         Text("Fetal pigs: females have a genital papilla near the anus/vulva; males have a larger urogenital papilla farther from the anus with a urethral opening at the tip.")
                     }.padding(.vertical, 4)
-                }
-                Section("Cow Eye") {
-                    Text("The tapetum lucidum is the iridescent reflective layer in the choroid — gives animals night vision and causes 'eyeshine.' This is a high-yield ID structure.")
-                    Text("Light path: Cornea → Aqueous humor → Pupil → Lens → Vitreous body → Retina → Optic nerve → Brain")
                 }
             }
             .navigationTitle("Study Guide")
@@ -3058,7 +3392,7 @@ struct AboutView: View {
                             .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                         Text("Dig a Pig Too")
                             .font(.title).fontWeight(.bold)
-                        Text("Version 1.0  •  2026")
+                        Text("Version 1.2  •  2026")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
@@ -3084,15 +3418,14 @@ struct AboutView: View {
                         Divider()
 
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("What's New in This Version").font(.headline)
+                            Text("What's New in 1.1").font(.headline)
                             Group {
-                                Label("Full histology coverage — blood, vessel, respiratory, GI, liver, pancreas, kidney, and reproductive slides", systemImage: "magnifyingglass.circle.fill")
-                                Label("Microscope component IDs", systemImage: "scope")
-                                Label("Trace practice questions covering ≈22% of the exam", systemImage: "arrow.right.circle.fill")
-                                Label("Fill-in-the-blank questions", systemImage: "text.badge.plus")
-                                Label("Long-term quiz stats and weak spot tracking", systemImage: "chart.bar.fill")
-                                Label("300+ structures across 24 categories", systemImage: "folder.fill")
-                                Label("Rebuilt for iOS 26", systemImage: "iphone")
+                                Label("Real Exam mode — simulate the actual BIOL 2501 lab practical with timed stations, gross anatomy IDs, and 37 curated histology scenarios across all 19 class slides", systemImage: "clock.badge.checkmark")
+                                Label("Swipe between structures — browse every anatomy structure left/right in the IDs tab, even across categories, seamlessly", systemImage: "hand.draw.fill")
+                                Label("Diagrams tab — swipeable arterial, venous, and digestive system reference diagrams", systemImage: "photo.stack.fill")
+                                Label("Improved answer matching — slash-separated terms (e.g. \"Light Source/Illuminator\") accepted as either component individually", systemImage: "checkmark.circle.fill")
+                                Label("Category icons throughout the IDs page", systemImage: "square.grid.2x2.fill")
+                                Label("Performance and navigation improvements", systemImage: "bolt.fill")
                             }
                             .font(.subheadline)
                         }

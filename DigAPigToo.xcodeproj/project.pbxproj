@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2E2733DA2FB3F17C006C3B8B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E2733D92FB3F17C006C3B8B /* LaunchScreen.storyboard */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		2EF304A42FAEBE1900CA61C0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,14 +28,28 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2E2733D92FB3F17C006C3B8B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2EF304962FAEBE1700CA61C0 /* DigAPigToo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DigAPigToo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EF304A32FAEBE1900CA61C0 /* DigAPigTooTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigAPigTooTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EF304AD2FAEBE1900CA61C0 /* DigAPigTooUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigAPigTooUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2E2733DC2FB3F531006C3B8B /* Exceptions for "DigAPigToo" folder in "DigAPigToo" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2EF304952FAEBE1700CA61C0 /* DigAPigToo */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2EF304982FAEBE1700CA61C0 /* DigAPigToo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2E2733DC2FB3F531006C3B8B /* Exceptions for "DigAPigToo" folder in "DigAPigToo" target */,
+			);
 			path = DigAPigToo;
 			sourceTree = "<group>";
 		};
@@ -75,6 +93,7 @@
 		2EF3048D2FAEBE1700CA61C0 = {
 			isa = PBXGroup;
 			children = (
+				2E2733D92FB3F17C006C3B8B /* LaunchScreen.storyboard */,
 				2EF304982FAEBE1700CA61C0 /* DigAPigToo */,
 				2EF304A62FAEBE1900CA61C0 /* DigAPigTooTests */,
 				2EF304B02FAEBE1900CA61C0 /* DigAPigTooUITests */,
@@ -212,6 +231,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2E2733DA2FB3F17C006C3B8B /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,23 +415,25 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DigAPigToo/DigAPigToo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = SELN5644JH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DigAPigToo/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Dig a Pig Too";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Dig a Pig Too uses the camera to let you photograph dissection specimens and histology slides for contribution to the app.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Dig a Pig Too accesses your photo library so you can select dissection or histology photos to contribute to the app.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = cometzfly.DigAPigToo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -431,23 +453,25 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = DigAPigToo/DigAPigToo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = SELN5644JH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DigAPigToo/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Dig a Pig Too";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Dig a Pig Too uses the camera to let you photograph dissection specimens and histology slides for contribution to the app.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Dig a Pig Too accesses your photo library so you can select dissection or histology photos to contribute to the app.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = cometzfly.DigAPigToo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

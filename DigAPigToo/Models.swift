@@ -218,12 +218,15 @@ extension AnatomyStructure {
         guard !typed.isEmpty else { return false }
 
         // Build candidate list: name + aliases, each also with slash-parts reversed
+        // and each individual slash-component (e.g., "Light Source" from "Light Source/Illuminator").
         var candidates: [String] = []
         for raw in ([name] + aliases).map({ $0.lowercased() }) {
             candidates.append(raw)
             if raw.contains("/") {
-                let parts = raw.split(separator: "/", omittingEmptySubsequences: false).map(String.init)
+                let parts = raw.split(separator: "/", omittingEmptySubsequences: false)
+                    .map { String($0).trimmingCharacters(in: .whitespaces) }
                 candidates.append(parts.reversed().joined(separator: "/"))
+                candidates.append(contentsOf: parts)   // each part individually
             }
         }
 
@@ -258,17 +261,58 @@ private func levenshteinDistance(_ s: String, _ t: String) -> Int {
 
 struct ExamItem: Identifiable {
     let id = UUID()
-    let structure: AnatomyStructure
+    /// For structure-backed items (most gross anatomy + many histo items).
+    let structure: AnatomyStructure?
+    /// For concept-only items (D answers like "Mucus secretion").
+    /// Slash-separated alternatives are all accepted (e.g. "Vasoconstriction/vasodilation").
+    let freeText: String?
     /// Custom question label shown instead of "ID N".
     /// nil → gross anatomy default ("ID 1", "ID 2", …)
-    /// non-nil → histology sticky-note style ("Tissue / organ:", "Pointer — identify:", …)
+    /// non-nil → histology sticky-note style ("A. What organ / tissue is this?", …)
     let questionPrompt: String?
     var givenAnswer: String = ""
     var wasCorrect: Bool = false
 
+    /// Text shown in submitted feedback and results list.
+    var correctAnswerDisplay: String {
+        structure?.name ?? freeText ?? "?"
+    }
+
+    /// Primary init — backed by a named AnatomyStructure.
     init(structure: AnatomyStructure, questionPrompt: String? = nil) {
         self.structure = structure
+        self.freeText = nil
         self.questionPrompt = questionPrompt
+    }
+
+    /// Secondary init — free-text answer (no matching structure in the DB).
+    /// `answer` may contain "/" to list alternative accepted spellings.
+    init(freeText: String, questionPrompt: String? = nil) {
+        self.structure = nil
+        self.freeText = freeText
+        self.questionPrompt = questionPrompt
+    }
+
+    /// Unified answer checker — delegates to structure fuzzy matching OR
+    /// slash-split free-text matching.
+    func accepts(typed: String) -> Bool {
+        let t = typed.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !t.isEmpty else { return false }
+        if let s = structure { return s.accepts(answer: t) }
+        guard let answer = freeText else { return false }
+        // Build candidate list from slash-separated alternatives.
+        var candidates: [String] = [answer.lowercased()]
+        let parts = answer.lowercased()
+            .split(separator: "/")
+            .map { String($0).trimmingCharacters(in: .whitespaces) }
+        candidates.append(contentsOf: parts)
+        for target in candidates {
+            if t == target { return true }
+            let maxLen = max(t.count, target.count)
+            let threshold = maxLen <= 5 ? 1 : maxLen <= 10 ? 2 : 3
+            if levenshteinDistance(t, target) <= threshold { return true }
+        }
+        return false
     }
 }
 

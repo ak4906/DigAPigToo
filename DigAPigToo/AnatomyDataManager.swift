@@ -471,15 +471,15 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: externalCat.id,
                     name: "Genital Papilla",
-                    aliases: ["Female external genitalia"],
-                    function: "Part of external female reproductive anatomy",
-                    commonConfusions: ["Spike-like projection; contains clitoris internally"],
-                    examTips: ["Located ventral to anus, near urogenital orifice; important for sex identification"],
+                    aliases: ["Urogenital papilla", "Clitoral papilla", "Female external genitalia"],
+                    function: "Small erectile projection near the urogenital opening; homologous to the penis in males; helps identify sex in fetal pigs",
+                    commonConfusions: ["The genital papilla in females is much smaller than the male urogenital papilla/penis and does not have a urethral opening on it like the male", "In fetal pigs, the genital papilla is the easiest external sex determination landmark"],
+                    examTips: ["KEY SEX DETERMINATION: females have a smaller genital papilla located just ventral to the anus/vulva", "Males have a larger urogenital papilla (penile projection) with the urethral opening at its tip — located farther from the anus", "The tail-to-papilla distance is greater in males than females — females' papilla is right near the anus"],
                     images: [
                         ImageCDN.image("genital-papilla_gross_1.png", caption: "Genital Papilla"),
                     ],
-                    histology: "Skin-covered projection with underlying connective tissue",
-                    connections: "Associated with vulva, urogenital opening, reproductive tract",
+                    histology: "Stratified squamous epithelium overlying erectile (vascular) connective tissue",
+                    connections: "Near vulva; homologous to male penile shaft",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -2111,20 +2111,6 @@ class AnatomyDataManager: ObservableObject {
                     examTips: ["Practical ID: visible external slit-like opening on the ventral surface caudal to the anus", "In fetal pigs, the vulva is located ventral to the anus — opposite of males where the scrotal sac/penis is located", "The genital papilla (small projection) is sometimes visible near the vulva"],
                     histology: "Stratified squamous epithelium (keratinized on outer skin surface, nonkeratinized internally)",
                     connections: "External opening of urogenital sinus; located caudal to anus on the perineum",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: femaleRepCat.id,
-                    name: "Genital Papilla",
-                    aliases: ["Urogenital papilla", "Clitoral papilla"],
-                    function: "Small erectile projection near the urogenital opening; homologous to the penis in males; helps identify sex in fetal pigs",
-                    commonConfusions: ["The genital papilla in females is much smaller than the male urogenital papilla/penis and does not have a urethral opening on it like the male", "In fetal pigs, the genital papilla is the easiest external sex determination landmark"],
-                    examTips: ["KEY SEX DETERMINATION: females have a smaller genital papilla located just ventral to the anus/vulva", "Males have a larger urogenital papilla (penile projection) with the urethral opening at its tip — located farther from the anus", "The tail-to-papilla distance is greater in males than females — females' papilla is right near the anus"],
-                    images: [
-                        ImageCDN.image("genital-papilla_gross_1.png", caption: "Genital Papilla"),
-                    ],
-                    histology: "Stratified squamous epithelium overlying erectile (vascular) connective tissue",
-                    connections: "Near vulva; homologous to male penile shaft",
                     highYield: true
                 ),
             ])
