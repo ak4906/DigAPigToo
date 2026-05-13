@@ -101,14 +101,22 @@ struct AtlasView: View {
                         ForEach(group.categories) { category in
                             NavigationLink(value: CategoryNavDestination(category)) {
                                 Label {
-                                    VStack(alignment: .leading, spacing: 1) {
-                                        Text(category.name)
-                                            .font(.body)
-                                        if !category.description.isEmpty {
-                                            Text(category.description)
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 1) {
+                                            Text(category.name)
+                                                .font(.body)
+                                            if !category.description.isEmpty {
+                                                Text(category.description)
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                            }
                                         }
+                                        Spacer()
+                                        let count = dataManager.structures.filter { $0.categoryId == category.id }.count
+                                        Text("\(count)")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .padding(.trailing, 4)
                                     }
                                 } icon: {
                                     let info = categoryIcon(category.name)
@@ -393,6 +401,8 @@ struct StructurePagerView: View {
     /// Called once when the pager disappears — used only for triggering the final scroll.
     var onBack: ((AnatomyStructure) -> Void)? = nil
     @State private var currentIndex: Int
+    @AppStorage("hasSeenSwipeHint") private var hasSeenSwipeHint = false
+    @State private var showSwipeHint = false
 
     init(allStructures: [AnatomyStructure], initialIndex: Int,
          onCurrentChanged: ((AnatomyStructure) -> Void)? = nil,
@@ -404,19 +414,62 @@ struct StructurePagerView: View {
     }
 
     var body: some View {
-        TabView(selection: $currentIndex) {
-            ForEach(Array(allStructures.enumerated()), id: \.element.id) { idx, structure in
-                StructureDetailView(structure: structure)
-                    .tag(idx)
+        ZStack(alignment: .bottom) {
+            TabView(selection: $currentIndex) {
+                ForEach(Array(allStructures.enumerated()), id: \.element.id) { idx, structure in
+                    StructureDetailView(structure: structure)
+                        .tag(idx)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+
+            // First-time swipe hint overlay
+            if showSwipeHint {
+                HStack(spacing: 10) {
+                    Image(systemName: "chevron.left")
+                    Text("Swipe to browse structures")
+                        .font(.subheadline)
+                    Image(systemName: "chevron.right")
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 10)
+                .background(.black.opacity(0.65), in: Capsule())
+                .padding(.bottom, 24)
+                .transition(.opacity)
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .navigationTitle(allStructures[currentIndex].name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                VStack(spacing: 1) {
+                    Text(allStructures[currentIndex].name)
+                        .font(.headline)
+                        .lineLimit(1)
+                    Text("\(currentIndex + 1) / \(allStructures.count)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
         .onChange(of: currentIndex) { _ in
             // Proactive update — runs while pager is still on screen so the list
             // behind it is already correct before the back animation starts.
             onCurrentChanged?(allStructures[currentIndex])
+            // Hide swipe hint on first swipe
+            if showSwipeHint {
+                withAnimation(.easeOut(duration: 0.3)) { showSwipeHint = false }
+                hasSeenSwipeHint = true
+            }
+        }
+        .onAppear {
+            if !hasSeenSwipeHint && allStructures.count > 1 {
+                // Brief delay so the view settles before hint appears
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    withAnimation(.easeIn(duration: 0.3)) { showSwipeHint = true }
+                    // No auto-dismiss — hint stays until the user swipes
+                }
+            }
         }
         .onDisappear {
             onBack?(allStructures[currentIndex])
@@ -523,6 +576,9 @@ struct FullscreenImageSheet: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var currentIndex = 0
+    @State private var dismissOffset: CGFloat = 0
+    @State private var dismissOpacity: Double = 1.0
+    @State private var isZoomed = false
 
     // MARK: Entry lists
 
@@ -582,14 +638,19 @@ struct FullscreenImageSheet: View {
         NavigationStack {
             ZStack {
                 Color.black.ignoresSafeArea()
+
+                // Only the image TabView moves — nav bar stays fixed
                 TabView(selection: $currentIndex) {
                     ForEach(Array(entries.enumerated()), id: \.element.id) { idx, entry in
-                        FullscreenPageView(image: entry.image, structureName: entry.title)
+                        FullscreenPageView(image: entry.image, structureName: entry.title,
+                                          isZoomed: $isZoomed)
                             .tag(idx)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .ignoresSafeArea()
+                .offset(y: dismissOffset)
+                .opacity(dismissOpacity)
             }
             .navigationTitle(hideTitle ? "?" : (currentEntry?.title ?? title))
             .navigationBarTitleDisplayMode(.inline)
@@ -612,6 +673,35 @@ struct FullscreenImageSheet: View {
             }
         }
         .onAppear { currentIndex = initialIndex }
+        .onChange(of: currentIndex) { _ in isZoomed = false }
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 20)
+                .onChanged { value in
+                    guard !isZoomed else { return }
+                    let h = value.translation.height
+                    let w = value.translation.width
+                    guard abs(h) > abs(w) else { return }
+                    dismissOffset = h
+                    dismissOpacity = max(0.3, 1.0 - abs(h) / 400)
+                }
+                .onEnded { value in
+                    guard !isZoomed else { return }
+                    let h = value.translation.height
+                    let w = value.translation.width
+                    if abs(h) > abs(w) && abs(h) > 120 {
+                        withAnimation(.easeOut(duration: 0.22)) {
+                            dismissOffset = h > 0 ? 900 : -900
+                            dismissOpacity = 0
+                        }
+                        dismiss()
+                    } else {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                            dismissOffset = 0
+                            dismissOpacity = 1.0
+                        }
+                    }
+                }
+        )
     }
 }
 
@@ -619,13 +709,14 @@ struct FullscreenImageSheet: View {
 private struct FullscreenPageView: View {
     let image: AnatomyImage?
     let structureName: String
+    @Binding var isZoomed: Bool
 
     var body: some View {
         if let img = image {
             if img.isRemote, let url = URL(string: img.source) {
-                AsyncZoomableImage(url: url)
+                AsyncZoomableImage(url: url, isZoomed: $isZoomed)
             } else if let uiImg = UIImage(named: img.source) {
-                ZoomableUIImage(uiImage: uiImg)
+                ZoomableUIImage(uiImage: uiImg, isZoomed: $isZoomed)
             } else {
                 noPhotoPlaceholder
             }
@@ -655,12 +746,13 @@ private struct FullscreenPageView: View {
 // Loads a remote image then hands it to ZoomableUIImage
 struct AsyncZoomableImage: View {
     let url: URL
+    @Binding var isZoomed: Bool
     @State private var loadedImage: UIImage?
 
     var body: some View {
         Group {
             if let img = loadedImage {
-                ZoomableUIImage(uiImage: img)
+                ZoomableUIImage(uiImage: img, isZoomed: $isZoomed)
             } else {
                 ProgressView().tint(.white)
             }
@@ -678,6 +770,7 @@ struct AsyncZoomableImage: View {
 // UIScrollView wrapper — real pinch-to-zoom + pan, up to 6×
 struct ZoomableUIImage: UIViewRepresentable {
     let uiImage: UIImage
+    @Binding var isZoomed: Bool
 
     func makeUIView(context: Context) -> UIScrollView {
         let scrollView = UIScrollView()
@@ -706,15 +799,24 @@ struct ZoomableUIImage: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIScrollView, context: Context) {}
 
-    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeCoordinator() -> Coordinator { Coordinator(isZoomed: $isZoomed) }
 
     class Coordinator: NSObject, UIScrollViewDelegate {
         weak var imageView: UIImageView?
         weak var scrollView: UIScrollView?
+        var isZoomed: Binding<Bool>
+
+        init(isZoomed: Binding<Bool>) {
+            self.isZoomed = isZoomed
+        }
 
         func viewForZooming(in scrollView: UIScrollView) -> UIView? {
             self.scrollView = scrollView
             return imageView
+        }
+
+        func scrollViewDidZoom(_ scrollView: UIScrollView) {
+            isZoomed.wrappedValue = scrollView.zoomScale > scrollView.minimumZoomScale
         }
 
         @objc func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
@@ -2582,6 +2684,7 @@ struct ExamItemThumbnail: View {
 struct ExamImageFullscreen: View {
     let image: AnatomyImage
     @Environment(\.dismiss) private var dismiss
+    @State private var isZoomed = false
 
     var body: some View {
         NavigationStack {
@@ -2591,7 +2694,7 @@ struct ExamImageFullscreen: View {
                 // frame the same way FullscreenImageSheet does. Direct ZStack placement
                 // leaves UIViewRepresentable with zero proposed size → black screen.
                 TabView {
-                    FullscreenPageView(image: image, structureName: "")
+                    FullscreenPageView(image: image, structureName: "", isZoomed: $isZoomed)
                         .ignoresSafeArea()
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
