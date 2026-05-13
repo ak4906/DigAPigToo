@@ -3521,7 +3521,24 @@ struct AboutView: View {
                         Divider()
 
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("What's New in 1.1").font(.headline)
+                            Text("What's New in 1.2").font(.headline)
+                            Group {
+                                Label("Launch screen with app icon", systemImage: "iphone")
+                                Label("iOS 18 compatibility and Mac availability", systemImage: "checkmark.seal.fill")
+                                Label("Search results now swipe within results, not the full atlas", systemImage: "magnifyingglass")
+                                Label("First-time swipe hint so new users discover structure browsing", systemImage: "hand.draw.fill")
+                                Label("Structure counter in nav bar while browsing (e.g. 3 / 47)", systemImage: "number")
+                                Label("Structure counts on each category row in the IDs page", systemImage: "list.number")
+                                Label("Swipe up or down to dismiss fullscreen images", systemImage: "arrow.up.and.down")
+                                Label("Umbilical vessels and Allantoic Stalk moved to their correct categories", systemImage: "folder.fill")
+                            }
+                            .font(.subheadline)
+                        }
+
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("What's New in 1.1").font(.headline).foregroundStyle(.secondary)
                             Group {
                                 Label("Real Exam mode — simulate the actual BIOL 2501 lab practical with timed stations, gross anatomy IDs, and 37 curated histology scenarios across all 19 class slides", systemImage: "clock.badge.checkmark")
                                 Label("Swipe between structures — browse every anatomy structure left/right in the IDs tab, even across categories, seamlessly", systemImage: "hand.draw.fill")
@@ -3531,6 +3548,7 @@ struct AboutView: View {
                                 Label("Performance and navigation improvements", systemImage: "bolt.fill")
                             }
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                         }
 
                         Divider()

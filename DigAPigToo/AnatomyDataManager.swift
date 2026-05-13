@@ -382,49 +382,16 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: externalCat.id,
                     name: "Umbilical Cord",
-                    aliases: ["Umbilicus"],
-                    function: "Connects fetus to placenta; contains vessels for nutrient transport, gas exchange, waste transport",
-                    commonConfusions: [],
-                    examTips: ["Attaches to ventral abdominal surface"],
+                    aliases: ["Umbilicus", "Umbilical stalk"],
+                    function: "Connects fetus to placenta; the major route for fetal-maternal exchange of oxygen, nutrients, and wastes",
+                    commonConfusions: ["The cord is more than an external attachment point — it is a fetal circulatory bundle containing two umbilical arteries, one umbilical vein, and the allantoic stalk"],
+                    examTips: ["Attaches to ventral abdominal surface", "Contains: umbilical vein (1, thin-walled), umbilical arteries (2, thick-walled), allantoic stalk/urachus, and Wharton's jelly connective tissue"],
                     images: [
                         ImageCDN.image("umbilical-cord_gross_1.jpg", caption: "Umbilical Cord"),
                     ],
-                    histology: "Contains umbilical vessels protected by Wharton's jelly",
-                    connections: "Fetal → placenta; contains umbilical vein, two umbilical arteries, allantoic stalk",
+                    histology: "Wharton's jelly (mucous connective tissue) surrounds and cushions the umbilical vessels",
+                    connections: "Placenta ↔ umbilical cord ↔ fetal circulation; contains umbilical vein, two umbilical arteries, allantoic stalk",
                     highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: externalCat.id,
-                    name: "Umbilical Vein",
-                    aliases: ["Umbilical venous trunk"],
-                    function: "Carries oxygenated blood and nutrients FROM placenta TO fetus",
-                    commonConfusions: ["Single large vessel; different from paired umbilical arteries"],
-                    examTips: ["Single large thin-walled vessel within umbilical cord"],
-                    histology: "Thin-walled vessel with simple squamous endothelium (simple squamous epithelium)",
-                    connections: "Placenta → umbilical vein → ductus venosus → caudal vena cava",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: externalCat.id,
-                    name: "Umbilical Arteries",
-                    aliases: ["Umbilical arterial trunks"],
-                    function: "Carry deoxygenated blood and metabolic wastes FROM fetus TO placenta",
-                    commonConfusions: ["Two thick-walled vessels; opposite of what intuition suggests"],
-                    examTips: ["Two thick-walled paired vessels; arteries have thicker walls than veins"],
-                    histology: "Thick-walled with smooth muscle; simple squamous endothelium (simple squamous epithelium)",
-                    connections: "Fetus → umbilical arteries → placenta",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: externalCat.id,
-                    name: "Allantoic Stalk",
-                    aliases: ["Urachus"],
-                    function: "Embryologically associated with fetal urine handling; in pigs, allantois develops extensively",
-                    commonConfusions: ["Hard cord-like structure between/beneath umbilical arteries"],
-                    examTips: ["Hard cord-like structure within umbilical cord"],
-                    histology: "Connective tissue stalk",
-                    connections: "Fetal bladder ↔ allantoic sac",
-                    highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: externalCat.id,
@@ -1685,20 +1652,6 @@ class AnatomyDataManager: ObservableObject {
                 // MARK: Fetal / Umbilical Circulation
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
-                    name: "Umbilical Cord",
-                    aliases: ["Umbilical stalk"],
-                    function: "Fetal connection between pig and placenta; the major route for fetal-maternal exchange of oxygen, nutrients, and wastes",
-                    commonConfusions: ["Do not treat umbilical cord as merely an external structure — it is a major fetal circulatory bundle"],
-                    examTips: ["Contains: umbilical vein (1), umbilical arteries (2), allantoic stalk/urachus, and connective tissue", "Oxygen and nutrients: placenta → fetus via umbilical vein; fetal wastes: fetus → placenta via umbilical arteries"],
-                    images: [
-                        ImageCDN.image("umbilical-cord_gross_1.jpg", caption: "Umbilical Cord"),
-                    ],
-                    histology: "Wharton's jelly (mucous connective tissue) supporting umbilical vessels",
-                    connections: "Placenta ↔ umbilical cord ↔ fetal circulation",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: circulatoryCat.id,
                     name: "Umbilical Arteries",
                     aliases: ["Umbilical arterial pair"],
                     function: "Paired fetal vessels carrying relatively deoxygenated blood and fetal wastes from fetus to placenta",
@@ -1713,8 +1666,8 @@ class AnatomyDataManager: ObservableObject {
                     name: "Umbilical Vein",
                     aliases: ["Fetal umbilical vein"],
                     function: "Single large vessel carrying oxygenated, nutrient-rich blood from placenta to fetus",
-                    commonConfusions: [],
-                    examTips: ["Usually a single large thin-walled vessel — contrast with the two thicker umbilical arteries", "Flow: placenta → umbilical vein → ductus venosus → caudal vena cava → right atrium — explicitly emphasized in review notes"],
+                    commonConfusions: ["Umbilical vein = oxygenated (unusual — veins normally carry deoxygenated blood); umbilical arteries = deoxygenated (unusual — arteries normally carry oxygenated blood)", "Single umbilical vein vs two umbilical arteries — the single larger thin-walled vessel is the vein"],
+                    examTips: ["Single large thin-walled vessel — contrast with the two thicker umbilical arteries", "Practical ID inside peritoneal cavity: runs along the ventral abdominal wall from the umbilical cord toward the liver", "Flow: placenta → umbilical vein → ductus venosus → caudal vena cava → right atrium — explicitly emphasized in review notes"],
                     histology: "Vein: thin wall, large lumen; simple squamous endothelium",
                     connections: "Placenta → umbilical vein → ductus venosus → caudal vena cava → right atrium",
                     highYield: true
@@ -2129,6 +2082,17 @@ class AnatomyDataManager: ObservableObject {
                     histology: "Simple cuboidal to transitional epithelium lining; outer surface is vascularized mesoderm fusing with chorion",
                     connections: "Fuses with chorion to form chorioallantoic membrane; connects to fetal bladder via urachus (allantoic stalk); lines the inside of the chorion",
                     highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: fetalCat.id,
+                    name: "Allantoic Stalk",
+                    aliases: ["Urachus"],
+                    function: "Fibromuscular tube connecting the fetal bladder to the allantoic sac; carries fetal urine into the allantois; regresses after birth to become the median umbilical ligament",
+                    commonConfusions: ["Hard cord-like structure running between the two umbilical arteries within the umbilical cord — distinct from the vessels surrounding it"],
+                    examTips: ["Identified within the umbilical cord as a firm whitish cord between the umbilical arteries", "Connects bladder → allantoic sac, not to the placenta directly"],
+                    histology: "Transitional epithelium (urothelium) lining; surrounded by smooth muscle and connective tissue",
+                    connections: "Fetal bladder → allantoic stalk (urachus) → allantoic sac",
+                    highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: fetalCat.id,
@@ -3291,17 +3255,6 @@ class AnatomyDataManager: ObservableObject {
                     examTips: ["Practical ID: the large abdominal space opened when the ventral abdominal wall is reflected", "HISTOLOGY KEY: peritoneal lining = mesothelium = simple squamous epithelium — optimized for low-friction lubrication, NOT abrasion protection", "Serous fluid in the cavity reduces friction between moving organs"],
                     histology: "Lined by mesothelium (simple squamous epithelium); serous fluid produced for lubrication and friction reduction between organs",
                     connections: "Surrounded by: diaphragm (cranial), pelvic inlet (caudal), abdominal wall (ventral/lateral), dorsal body wall (dorsal); contains stomach, liver, spleen, intestines, pancreas, gallbladder",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: peritonealCat.id,
-                    name: "Umbilical Vein",
-                    aliases: ["Umbilical venous trunk (abdominal portion)", "Fetal umbilical vein"],
-                    function: "Fetal vessel carrying oxygenated blood and nutrients FROM the placenta TO the fetus; runs from umbilical cord along the ventral abdominal wall to the liver, where it joins the ductus venosus",
-                    commonConfusions: ["Umbilical vein = oxygenated (unusual — veins normally carry deoxygenated blood); umbilical arteries = deoxygenated (unusual — arteries normally carry oxygenated blood)", "Single umbilical vein vs two umbilical arteries — the single larger vessel is the vein"],
-                    examTips: ["Practical ID: large single vessel running along the ventral abdominal wall from the umbilical cord toward the liver", "FETAL TRACE: Placenta → umbilical vein → ductus venosus → caudal vena cava — VERY important fetal circulation route"],
-                    histology: "Thin-walled vessel lined by simple squamous endothelium; no thick muscular wall (vein structure)",
-                    connections: "Placenta → umbilical vein → ductus venosus → caudal vena cava → right atrium",
                     highYield: true
                 ),
                 AnatomyStructure(
