@@ -124,9 +124,18 @@ struct AtlasView: View {
                                         RoundedRectangle(cornerRadius: 7)
                                             .fill(info.color)
                                             .frame(width: 32, height: 32)
-                                        Image(systemName: info.symbol)
-                                            .font(.system(size: 15, weight: .medium))
-                                            .foregroundStyle(.white)
+                                        if let asset = info.customAsset {
+                                            Image(asset)
+                                                .renderingMode(.template)
+                                                .resizable()
+                                                .scaledToFit()
+                                                .frame(width: 28, height: 28)
+                                                .foregroundStyle(.white)
+                                        } else {
+                                            Image(systemName: info.symbol)
+                                                .font(.system(size: 15, weight: .medium))
+                                                .foregroundStyle(.white)
+                                        }
                                     }
                                 }
                             }
@@ -148,8 +157,15 @@ struct AtlasView: View {
     }
 
     struct IconInfo {
-        let symbol: String
+        let symbol: String          // SF Symbol name (used when customAsset is nil)
         let color: Color
+        let customAsset: String?    // Optional asset-catalog image name (rendered as template)
+
+        init(symbol: String, color: Color, customAsset: String? = nil) {
+            self.symbol = symbol
+            self.color = color
+            self.customAsset = customAsset
+        }
     }
 
     private func categoryIcon(_ name: String) -> IconInfo {
@@ -158,7 +174,7 @@ struct AtlasView: View {
         case "Anatomical Planes":           return IconInfo(symbol: "square.split.2x2",                  color: .blue)
         case "Directional Terminology":     return IconInfo(symbol: "arrow.up.left.and.arrow.down.right", color: .blue)
         // Gross anatomy
-        case "External":                    return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.6, green: 0.35, blue: 0.1))
+        case "External":                    return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.6, green: 0.35, blue: 0.1), customAsset: "External")
         case "Buccal Cavity":               return IconInfo(symbol: "mouth.fill",                         color: .pink)
         case "Upper Thoracic":              return IconInfo(symbol: "figure.arms.open",                   color: .indigo)
         case "Peritoneal Cavity":           return IconInfo(symbol: "circle.inset.filled",                color: .orange)
@@ -190,64 +206,94 @@ struct AtlasView: View {
 
 struct StructureListView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
-    /// Mutable — updated proactively while StructurePagerView is open so the correct
-    /// list content is already rendered before the back animation starts.
-    @State private var displayCategory: AnatomyCategory
+    /// Index into `orderedCategories` — drives the TabView selection so the user
+    /// can swipe horizontally to navigate between adjacent categories.
+    @State private var categoryIndex: Int
     /// Updated by onCurrentChanged (not onBack) so the list can be scrolled WHILE the
     /// pager is still covering it — the back animation then reveals it in the right place.
     @State private var pendingScrollID: UUID?
 
     init(initialCategory: AnatomyCategory, initialScrollID: UUID? = nil) {
-        self._displayCategory = State(initialValue: initialCategory)
+        let ordered = Self.buildOrderedCategories()
+        let idx = ordered.firstIndex(where: { $0.id == initialCategory.id }) ?? 0
+        self._categoryIndex = State(initialValue: idx)
         self._pendingScrollID = State(initialValue: initialScrollID)
     }
 
+    /// Ordered list of all categories, matching the order shown in AtlasView's groups.
+    /// Built statically so it can be referenced from the initializer.
+    private static func buildOrderedCategories() -> [AnatomyCategory] {
+        let cats = AnatomyDataManager.shared.categories
+        func find(_ name: String) -> AnatomyCategory? { cats.first { $0.name == name } }
+        let names: [String] = [
+            // Terminology
+            "Anatomical Planes", "Directional Terminology",
+            // Gross Anatomy
+            "External", "Buccal Cavity", "Upper Thoracic", "Peritoneal Cavity",
+            "Digestive System", "Respiratory System", "Circulatory System",
+            "Urinary System", "Male Reproductive", "Female Reproductive",
+            "Fetal Structures", "Adult Maternal Pig", "Cow Eye",
+            // Histology
+            "Blood Histology", "Vessel Histology", "Respiratory Histology",
+            "Gastrointestinal Histology", "Liver Histology", "Pancreas Histology",
+            "Kidney Histology", "Reproductive Histology",
+            // Other
+            "Epithelial Types", "Microscope",
+        ]
+        return names.compactMap(find)
+    }
+
+    private var orderedCategories: [AnatomyCategory] { Self.buildOrderedCategories() }
+    private var displayCategory: AnatomyCategory { orderedCategories[categoryIndex] }
+
     var body: some View {
         let ordered = dataManager.orderedStructures
-        let structures = dataManager.structures(in: displayCategory)
+
+        TabView(selection: $categoryIndex) {
+            ForEach(Array(orderedCategories.enumerated()), id: \.offset) { idx, category in
+                categoryPage(for: category)
+                    .tag(idx)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .navigationTitle(displayCategory.name)
+        // Destination defined at the outer level so it survives category swipes.
+        .navigationDestination(for: AnatomyStructure.self) { structure in
+            let idx = ordered.firstIndex(where: { $0.id == structure.id }) ?? 0
+            StructurePagerView(
+                allStructures: ordered,
+                initialIndex: idx,
+                onCurrentChanged: { current in
+                    // 1. Instantly switch category if the structure pager crossed into a new one.
+                    if let newIdx = orderedCategories.firstIndex(where: { $0.id == current.categoryId }),
+                       newIdx != categoryIndex {
+                        withTransaction(Transaction(animation: .none)) {
+                            categoryIndex = newIdx
+                        }
+                    }
+                    // 2. Pre-scroll the list NOW, while the pager still covers it.
+                    pendingScrollID = current.id
+                }
+            )
+        }
+    }
+
+    /// The list of structures for a single category. Each TabView page renders this.
+    @ViewBuilder
+    private func categoryPage(for category: AnatomyCategory) -> some View {
+        let structures = dataManager.structures(in: category)
         ScrollViewReader { proxy in
             List(structures) { structure in
-                // Value-based NavigationLink: the pager is tied to the AnatomyStructure
-                // VALUE in the nav-path, NOT to this specific row.  When displayCategory
-                // changes and this row disappears, the pushed pager is unaffected.
                 NavigationLink(value: structure) {
                     Text(structure.name)
                 }
                 .id(structure.id)
             }
-            // Destination defined separately so it survives list-content changes.
-            .navigationDestination(for: AnatomyStructure.self) { structure in
-                let idx = ordered.firstIndex(where: { $0.id == structure.id }) ?? 0
-                StructurePagerView(
-                    allStructures: ordered,
-                    initialIndex: idx,
-                    onCurrentChanged: { current in
-                        // 1. Instantly switch category (no animation — hidden behind pager).
-                        if let cat = dataManager.categories.first(where: { $0.id == current.categoryId }),
-                           cat.id != displayCategory.id {
-                            withTransaction(Transaction(animation: .none)) {
-                                displayCategory = cat
-                            }
-                        }
-                        // 2. Pre-scroll the list NOW, while the pager still covers it.
-                        //    The back animation will reveal a list already at the right position.
-                        pendingScrollID = current.id
-                    }
-                    // NOTE: No onBack — scrolling after the pager disappears causes a visible
-                    // jump on the now-revealed list. All scrolling is done proactively via
-                    // onCurrentChanged while the pager still covers the list.
-                )
-            }
-            .navigationTitle(displayCategory.name)
-            // Suppress List row animations when the category switches underneath the pager.
-            .animation(.none, value: displayCategory.id)
-            .onChange(of: pendingScrollID) { id in
+            .onChange(of: pendingScrollID) { _, id in
                 guard let id else { return }
-                // Immediate attempt — the list is already rendered behind the pager.
+                // Only scroll if this page contains the target structure.
+                guard structures.contains(where: { $0.id == id }) else { return }
                 withAnimation(.none) { proxy.scrollTo(id, anchor: .center) }
-                // One short retry for lazy rows that haven't laid out yet.
-                // Kept under 0.2 s so it always fires while the pager is still visible
-                // (back animation takes ~0.35 s), eliminating any visible scroll jump.
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
                     withAnimation(.none) { proxy.scrollTo(id, anchor: .center) }
                 }
@@ -452,7 +498,7 @@ struct StructurePagerView: View {
                 }
             }
         }
-        .onChange(of: currentIndex) { _ in
+        .onChange(of: currentIndex) { _, _ in
             // Proactive update — runs while pager is still on screen so the list
             // behind it is already correct before the back animation starts.
             onCurrentChanged?(allStructures[currentIndex])
@@ -673,7 +719,7 @@ struct FullscreenImageSheet: View {
             }
         }
         .onAppear { currentIndex = initialIndex }
-        .onChange(of: currentIndex) { _ in isZoomed = false }
+        .onChange(of: currentIndex) { _, _ in isZoomed = false }
         .simultaneousGesture(
             DragGesture(minimumDistance: 20)
                 .onChanged { value in

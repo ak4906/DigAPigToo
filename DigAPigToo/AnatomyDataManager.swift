@@ -475,7 +475,7 @@ class AnatomyDataManager: ObservableObject {
                     ],
                     histology: "Exocrine gland; secretes through ducts onto body surface",
                     connections: "Duct secretion to body surface",
-                    highYield: true
+                    highYield: false
                 ),
             ])
         }
@@ -3384,9 +3384,12 @@ class AnatomyDataManager: ObservableObject {
                     function: "Mechanical manipulation of food, swallowing, taste sensation, positioning food, forming bolus, moving food into pharynx",
                     commonConfusions: [],
                     examTips: ["Occupies much of oral cavity floor; extends caudally toward oral pharynx"],
+                    images: [
+                        ImageCDN.image("tongue_gross_1.jpeg", caption: "Tongue"),
+                    ],
                     histology: "Stratified squamous epithelium on surface; contains skeletal muscle (striated, multinucleated), connective tissue, nerves, blood vessels, sensory receptors",
                     connections: "Tongue → oral cavity → oral pharynx → laryngeal pharynx/esophagus during swallowing",
-                    highYield: true
+                    highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: buccalCat.id,
