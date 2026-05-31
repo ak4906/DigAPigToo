@@ -9,44 +9,111 @@ import SwiftUI
 import PhotosUI
 
 struct ContentView: View {
+    @State private var selectedTab: Int = 0
+    /// Tracks whether the IDs tab is at its root (no category drilled into). When inside
+    /// a category, IDs tab-swipe is disabled so the category-level swipe takes over.
+    @State private var idsAtRoot: Bool = true
+    private let lastTabIndex = 9
+
     var body: some View {
-        TabView {
-            AtlasView()
+        TabView(selection: $selectedTab) {
+            AtlasView(isAtRoot: $idsAtRoot)
                 .tabItem { Label("IDs", systemImage: "photo.on.rectangle") }
+                .tag(0)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: idsAtRoot)
 
             TracesView()
                 .tabItem { Label("Traces", systemImage: "arrow.right.circle") }
+                .tag(1)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             FillBlankListView()
                 .tabItem { Label("Fill-In", systemImage: "text.badge.plus") }
+                .tag(2)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             QuizCustomizationView()
                 .tabItem { Label("Quiz", systemImage: "pencil") }
+                .tag(3)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             SearchView()
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
+                .tag(4)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             DiagramsView()
                 .tabItem { Label("Diagrams", systemImage: "photo.stack.fill") }
+                .tag(5)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             StatsView()
                 .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
+                .tag(6)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             GuideView()
                 .tabItem { Label("Guide", systemImage: "book") }
+                .tag(7)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             AboutView()
                 .tabItem { Label("About", systemImage: "info.circle") }
+                .tag(8)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             UploadView()
                 .tabItem { Label("Contribute", systemImage: "plus.app") }
+                .tag(9)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
         }
+    }
+}
+
+// MARK: - Tab swipe modifier
+
+/// Adds a horizontal swipe to a tab's content that moves between tabs. Uses
+/// `.simultaneousGesture` so it coexists with vertical scrolling: a swipe that is
+/// predominantly horizontal (a natural human diagonal counts) switches tabs on release.
+/// `enabled` lets callers opt out per-tab (e.g. IDs while inside a category).
+struct TabSwipeGesture: ViewModifier {
+    @Binding var selection: Int
+    let maxTab: Int
+    var enabled: Bool = true
+
+    func body(content: Content) -> some View {
+        content.simultaneousGesture(
+            DragGesture(minimumDistance: 24)
+                .onEnded { value in
+                    guard enabled else { return }
+                    let h = value.translation.width
+                    let v = value.translation.height
+                    // Horizontal must dominate (allows up to ~45° diagonal) and clear a
+                    // minimum distance, so deliberate sideways swipes register but
+                    // ordinary vertical scrolls never switch tabs.
+                    guard abs(h) > abs(v) else { return }
+                    guard abs(h) > 44 else { return }
+                    if h < 0, selection < maxTab {
+                        selection += 1
+                    } else if h > 0, selection > 0 {
+                        selection -= 1
+                    }
+                }
+        )
+    }
+}
+
+extension View {
+    func tabSwipe(selection: Binding<Int>, maxTab: Int, enabled: Bool = true) -> some View {
+        modifier(TabSwipeGesture(selection: selection, maxTab: maxTab, enabled: enabled))
     }
 }
 
 // MARK: - Atlas
 
 struct AtlasView: View {
+    /// Reports nav-stack depth to ContentView so IDs tab-swipe disables inside a category.
+    @Binding var isAtRoot: Bool
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var navPath = NavigationPath()
 
@@ -153,6 +220,9 @@ struct AtlasView: View {
             .navigationDestination(for: CategoryNavDestination.self) { dest in
                 StructureListView(initialCategory: dest.category, initialScrollID: dest.scrollToID)
             }
+        }
+        .onChange(of: navPath.count) { _, count in
+            isAtRoot = (count == 0)
         }
     }
 

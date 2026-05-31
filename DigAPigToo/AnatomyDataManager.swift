@@ -3398,6 +3398,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Primarily mechanical; grip food, manipulate bolus, increase friction",
                     commonConfusions: ["Most numerous papillae; generally NOT gustatory"],
                     examTips: ["Tiny numerous rough papillae giving tongue textured appearance"],
+                    images: [
+                        ImageCDN.image("filiform-papillae_gross_1.HEIC", caption: "Filiform Papillae"),
+                    ],
                     histology: "Protective keratinized epithelium due to friction",
                     connections: "Cover much of tongue surface",
                     highYield: false
@@ -3409,6 +3412,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Contain taste buds; participate in gustation",
                     commonConfusions: [],
                     examTips: ["Small mushroom-like papillae among other tongue papillae"],
+                    images: [
+                        ImageCDN.image("fungiform-papillae_gross_1.HEIC", caption: "Fungiform Papillae"),
+                    ],
                     histology: "Rounded projections with taste buds",
                     connections: "Scattered on tongue surface",
                     highYield: false
@@ -3420,6 +3426,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Large papillae containing many taste buds; important gustatory structures",
                     commonConfusions: [],
                     examTips: ["Larger papillae near posterior tongue"],
+                    images: [
+                        ImageCDN.image("vallate-papillae_gross_1.HEIC", caption: "Vallate Papillae"),
+                    ],
                     histology: "Large papillae with trench-like surrounding grooves",
                     connections: "Located on posterior tongue",
                     highYield: false
@@ -3431,6 +3440,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Help newborn mammals grip the nipple during nursing/suckling",
                     commonConfusions: ["Especially prominent in fetal pigs"],
                     examTips: ["Small projections along tongue edges in fetal specimens"],
+                    images: [
+                        ImageCDN.image("marginal-papillae_gross_1.HEIC", caption: "Marginal Papillae"),
+                    ],
                     histology: "Protective oral epithelium",
                     connections: "Located along tongue margins",
                     highYield: false
