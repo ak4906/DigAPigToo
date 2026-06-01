@@ -2090,6 +2090,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Fibromuscular tube connecting the fetal bladder to the allantoic sac; carries fetal urine into the allantois; regresses after birth to become the median umbilical ligament",
                     commonConfusions: ["Hard cord-like structure running between the two umbilical arteries within the umbilical cord — distinct from the vessels surrounding it"],
                     examTips: ["Identified within the umbilical cord as a firm whitish cord between the umbilical arteries", "Connects bladder → allantoic sac, not to the placenta directly"],
+                    images: [
+                        ImageCDN.image("allantoic-stalk_gross_1.jpg", caption: "Allantoic Stalk"),
+                    ],
                     histology: "Transitional epithelium (urothelium) lining; surrounded by smooth muscle and connective tissue",
                     connections: "Fetal bladder → allantoic stalk (urachus) → allantoic sac",
                     highYield: false
@@ -3468,6 +3471,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Mechanical digestion via chewing, bolus formation, initial chemical digestion via saliva, protection against pathogens",
                     commonConfusions: [],
                     examTips: ["Larger anterior chamber bounded by palate above and tongue below"],
+                    images: [
+                        ImageCDN.image("oral-cavity_gross_1.png", caption: "Oral Cavity"),
+                    ],
                     histology: "Stratified squamous epithelium (HIGH YIELD); experiences friction, chewing stress, mechanical trauma, food abrasion",
                     connections: "Oral cavity → oral pharynx → laryngeal pharynx → esophagus",
                     highYield: true
@@ -3513,10 +3519,13 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: buccalCat.id,
                     name: "Laryngeal Pharynx",
-                    aliases: ["Laryngopharynx"],
+                    aliases: ["Laryngopharynx", "Hypopharynx"],
                     function: "Critical traffic-directing zone where food diverges to esophagus and air diverges to larynx/trachea",
                     commonConfusions: ["Most caudal pharynx; easy to confuse with other pharyngeal regions"],
                     examTips: ["Look near epiglottis, esophageal opening, laryngeal opening in sagittal sections"],
+                    images: [
+                        ImageCDN.image("laryngeal-pharynx_gross_1.png", caption: "Laryngeal Pharynx"),
+                    ],
                     histology: "Stratified squamous epithelium (protective due to food abrasion and swallowing friction)",
                     connections: "Oral pharynx → laryngeal pharynx; then diverges to esophagus OR larynx/trachea",
                     highYield: true
@@ -3528,6 +3537,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Allows airflow from nasal cavity → nasal pharynx → larynx/trachea",
                     commonConfusions: [],
                     examTips: ["Located dorsal/posterior to soft palate region"],
+                    images: [
+                        ImageCDN.image("entrance-to-nasal-pharynx_gross_1.jpeg", caption: "Entrance to Nasal Pharynx"),
+                    ],
                     histology: "Pseudostratified ciliated columnar epithelium with goblet cells (VERY HIGH YIELD respiratory epithelium)",
                     connections: "External nostrils → nasal cavity → nasal pharynx → larynx → trachea",
                     highYield: true
@@ -3539,6 +3551,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Conducts air from nasal cavity to larynx/trachea; primarily part of respiratory pathway",
                     commonConfusions: [],
                     examTips: ["Located dorsal/superior to soft palate, posterior to nasal cavity"],
+                    images: [
+                        ImageCDN.image("nasal-pharynx_gross_1.png", caption: "Nasal Pharynx"),
+                    ],
                     histology: "Pseudostratified ciliated columnar epithelium with goblet cells and cilia; optimized for air conditioning",
                     connections: "Nasal cavity → nasal pharynx → larynx → trachea; soft palate separates from oral pathway",
                     highYield: true
@@ -3550,6 +3565,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Passageway for swallowed food from pharynx into esophagus; guarded by the Upper Esophageal Sphincter (UES), formed by the cricopharyngeus muscle, which remains tonically closed at rest and relaxes during swallowing to allow food to pass",
                     commonConfusions: ["The UES is the functional checkpoint at this opening — on trace questions, food/liquid crosses the UES to enter the esophagus; do not skip this step"],
                     examTips: ["Located at the transition from laryngeal pharynx to esophagus", "TRACE TIP: Oral cavity → Oral pharynx → Laryngeal pharynx → UES → Esophagus"],
+                    images: [
+                        ImageCDN.image("entrance-to-esophagus_gross_1.jpg", caption: "Entrance to Esophagus"),
+                    ],
                     histology: "Stratified squamous epithelium (protective against abrasion from food)",
                     connections: "Oral cavity → Oral pharynx → Laryngeal pharynx → Upper Esophageal Sphincter (UES) → Esophagus → Stomach",
                     highYield: true
@@ -3575,6 +3593,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Provides anchoring points for muscles involved in swallowing, tongue movement, laryngeal elevation; stabilizes upper airway",
                     commonConfusions: ["Suspended support structure; doesn't articulate directly with other bones"],
                     examTips: ["Located in neck near tongue base, larynx, pharynx"],
+                    images: [
+                        ImageCDN.image("hyoid-bone_gross_1.png", caption: "Hyoid Bone"),
+                    ],
                     histology: "Bone with connective and skeletal muscle attachments",
                     connections: "Tongue muscles ↔ hyoid ↔ laryngeal structures",
                     highYield: false
@@ -3586,6 +3607,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Produces saliva for lubrication, food softening, digestion, oral moisture",
                     commonConfusions: [],
                     examTips: ["Large obvious cheek/jaw muscle adjacent to parotid gland"],
+                    images: [
+                        ImageCDN.image("parotid-gland_gross_1.png", caption: "Parotid Gland"),
+                    ],
                     histology: "Exocrine gland; secretory epithelial cells: cuboidal; duct epithelium: cuboidal",
                     connections: "Parotid gland → parotid duct → oral cavity",
                     highYield: false
@@ -3597,6 +3621,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Transports saliva from parotid gland into oral cavity",
                     commonConfusions: [],
                     examTips: ["Tube leaving parotid gland traveling toward oral cavity"],
+                    images: [
+                        ImageCDN.image("parotid-duct_gross_1.png", caption: "Parotid Duct"),
+                    ],
                     histology: "Ductal epithelium: simple cuboidal",
                     connections: "Parotid gland → parotid duct → oral cavity",
                     highYield: false
@@ -3608,6 +3635,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Produces saliva for lubrication, digestion, oral moisture",
                     commonConfusions: [],
                     examTips: ["Salivary gland near lower jaw/mandible"],
+                    images: [
+                        ImageCDN.image("mandibular-gland_gross_1.png", caption: "Mandibular Gland"),
+                    ],
                     histology: "Exocrine gland; secretory epithelium: cuboidal/columnar; ducts: cuboidal epithelium",
                     connections: "Mandibular gland → salivary duct system → oral cavity",
                     highYield: false
@@ -3619,6 +3649,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Primary muscle for jaw closing and chewing; generates bite force",
                     commonConfusions: [],
                     examTips: ["Large jaw muscle located lateral to mandible"],
+                    images: [
+                        ImageCDN.image("masseter-muscle_gross_1.png", caption: "Masseter Muscle"),
+                    ],
                     histology: "Skeletal muscle (striated, multinucleated, peripheral nuclei)",
                     connections: "Located lateral to mandible",
                     highYield: false
@@ -3630,6 +3663,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Cutting/shearing food; specialized for biting, clipping, initial mechanical processing",
                     commonConfusions: [],
                     examTips: ["Anterior tooth at front of mouth"],
+                    images: [
+                        ImageCDN.image("incisor-tooth_gross_1.HEIC", caption: "Incisor Tooth"),
+                    ],
                     histology: "Enamel, dentin, pulp cavity; surrounding: stratified squamous epithelium",
                     connections: "Within oral cavity",
                     highYield: false
@@ -3641,6 +3677,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Carries motor/sensory neural signals associated with facial structures",
                     commonConfusions: [],
                     examTips: ["Branch of facial nerve visible near parotid region"],
+                    images: [
+                        ImageCDN.image("dorsal-branch-of-facial-nerve_gross_1.png", caption: "Dorsal Branch of Facial Nerve"),
+                    ],
                     histology: "Nervous tissue (electrically excitable; specialized for signal transmission)",
                     connections: "Branches to innervate facial muscles/regions",
                     highYield: false
@@ -3692,6 +3731,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "EXTREMELY important respiratory conditioning; increase surface area, warm air, humidify air, trap particles/pathogens",
                     commonConfusions: [],
                     examTips: ["Scroll-like/folded structures inside nasal cavity in sagittal sections"],
+                    images: [
+                        ImageCDN.image("conchae_gross_1.png", caption: "Conchae"),
+                    ],
                     histology: "Pseudostratified ciliated columnar epithelium with goblet cells (VERY HIGH YIELD respiratory epithelium)",
                     connections: "External nostrils → nasal cavity/conchae → nasal pharynx → larynx → trachea",
                     highYield: true
@@ -3714,6 +3756,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Main airway tube conducting air from larynx to lungs; participates in air conditioning (warming, humidifying, filtering); maintains airway patency",
                     commonConfusions: ["Distinguished from esophagus by C-shaped cartilage rings"],
                     examTips: ["Obvious ringed tube; rigid appearance; ventral to esophagus"],
+                    images: [
+                        ImageCDN.image("trachea_gross_1.jpg", caption: "Trachea"),
+                    ],
                     histology: "Pseudostratified ciliated columnar epithelium with goblet cells (VERY HIGH YIELD). Contains C-shaped hyaline cartilage rings for support",
                     connections: "Larynx → trachea → right/left bronchi",
                     highYield: true
@@ -3747,6 +3792,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Produces thyroxine (T4) and triiodothyronine (T3), hormones that set the basal metabolic rate — essential for maintaining the high metabolism and heat production characteristic of mammals; also produces calcitonin for calcium regulation",
                     commonConfusions: ["Thyroid (endocrine, releases hormones into blood, no duct) vs thymus (lymphoid, T-cell maturation) — both are in the neck/thorax but completely different functions", "Thyroid is located near the LARYNX (caudal to it); thymus is more caudal in the MEDIASTINUM near the heart"],
                     examTips: ["Practical ID: compact, deep-red/purplish glandular mass located caudal to the larynx, covering/straddling the trachea in the cranial thorax/neck junction", "In fetal pigs it may appear as a small bilobed gland near the trachea", "Endocrine gland = secretes into blood, no duct; this is functionally different from salivary glands (exocrine, have ducts)"],
+                    images: [
+                        ImageCDN.image("thyroid-gland_gross_1.jpg", caption: "Thyroid Gland"),
+                    ],
                     histology: "Follicular epithelium (simple cuboidal normally, flattened when inactive, columnar when active) surrounding colloid-filled follicles; colloid = thyroglobulin storage (precursor to T3/T4); parafollicular C cells produce calcitonin",
                     connections: "Located caudal to larynx, straddling the trachea; blood supply from superior and inferior thyroid arteries; drains into thyroid veins",
                     highYield: true
@@ -3758,6 +3806,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Site of T-lymphocyte maturation and selection — immature T-cells migrate from bone marrow to the thymus where they mature and are exported to peripheral lymphoid tissue; also secretes thymic hormones (thymosin) required for normal lymphoid development",
                     commonConfusions: ["Thymus vs thyroid: thymus is in the mediastinum near the heart (more caudal), thyroid is near the larynx; thymus = lymphoid/immune function, thyroid = metabolic hormone function", "The thymus is LARGE in fetal and neonatal life but involutes after puberty — in a fetal pig it is very prominent"],
                     examTips: ["Practical ID: large, pale, lobulated glandular mass in the cranial mediastinum, cranial to the heart; often extends into the neck region around the trachea in fetal pigs", "The lobulated pale appearance distinguishes it from the compact dark thyroid", "Fetal pig thymus is proportionally much larger than in adults — it involutes after birth"],
+                    images: [
+                        ImageCDN.image("thymus_gross_1.jpg", caption: "Thymus"),
+                    ],
                     histology: "Cortex (dense thymocytes = immature T-cells) + medulla (lighter, contains Hassall's corpuscles = concentric epithelial whorls, a histological hallmark of thymus)",
                     connections: "Located in cranial mediastinum between sternum and great vessels; cranial extent reaches neck around trachea; thymocytes exit via blood to populate peripheral lymphoid organs",
                     highYield: true
@@ -3802,6 +3853,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Tough fibroserous sac surrounding the heart; protects the heart from infection and overdistension; anchors it in the mediastinum; the transparent membrane visible in dissection before you reach the heart",
                     commonConfusions: ["Pericardial wall = pericardial sac = the covering of the heart; different from the pericardial CAVITY (the space inside it)", "Two layers: fibrous pericardium (tough outer) + serous pericardium (smooth inner lining = visceral layer, epicardium, on heart)"],
                     examTips: ["Practical ID: in thoracic dissection, the transparent/translucent membrane you see before reaching the heart is the pericardial wall/sac", "The handout describes 'the heart lying behind the transparent pericardial wall'", "Open/cut the pericardial sac to enter the pericardial cavity and access the heart"],
+                    images: [
+                        ImageCDN.image("pericardial-wall_gross_1.jpg", caption: "Pericardial Wall"),
+                    ],
                     histology: "Outer fibrous pericardium: dense irregular connective tissue; Inner serous pericardium: simple squamous mesothelium with underlying connective tissue; pericardial fluid in cavity",
                     connections: "Surrounds heart and proximal great vessels; fused with central tendon of diaphragm; fibrous layer fuses with adventitia of ascending aorta and pulmonary trunk",
                     highYield: true
