@@ -16,7 +16,7 @@ struct ContentView: View {
     /// Same idea for Diagrams: disabled while viewing a diagram's image pager so the
     /// internal left/right image swipe isn't hijacked into a tab change.
     @State private var diagramsAtRoot: Bool = true
-    private let lastTabIndex = 9
+    private let lastTabIndex = 10
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -40,34 +40,39 @@ struct ContentView: View {
                 .tag(3)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
+            FlashcardView()
+                .tabItem { Label("Flashcards", systemImage: "rectangle.stack.fill") }
+                .tag(4)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
+
             SearchView()
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
-                .tag(4)
+                .tag(5)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             DiagramsView(isAtRoot: $diagramsAtRoot)
                 .tabItem { Label("Diagrams", systemImage: "photo.stack.fill") }
-                .tag(5)
+                .tag(6)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: diagramsAtRoot)
 
             StatsView()
                 .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
-                .tag(6)
+                .tag(7)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             GuideView()
                 .tabItem { Label("Guide", systemImage: "book") }
-                .tag(7)
+                .tag(8)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             AboutView()
                 .tabItem { Label("About", systemImage: "info.circle") }
-                .tag(8)
+                .tag(9)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             UploadView()
                 .tabItem { Label("Contribute", systemImage: "plus.app") }
-                .tag(9)
+                .tag(10)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
         }
     }
