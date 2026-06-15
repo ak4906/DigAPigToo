@@ -1771,13 +1771,24 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: urinaryCat.id,
-                    name: "Urethra",
-                    aliases: ["Urinary passage"],
-                    function: "Conducts urine from bladder to the exterior; in males also conducts semen",
-                    commonConfusions: ["In females: carries only urine; in males: carries both urine and semen (shared reproductive/urinary pathway)", "Female urethra is much shorter than male urethra"],
-                    examTips: ["Practical ID in female: short tube from bladder opening into floor of urogenital sinus", "Practical ID in male: long tube running through the penis to the tip (urogenital orifice)"],
+                    name: "Urethra (Male)",
+                    aliases: ["Male urethra", "Male urinary passage"],
+                    function: "Conducts urine from the bladder to the exterior; in males it also serves as the passage for semen during ejaculation (shared urinary pathway, but the urethra itself is a urinary structure)",
+                    commonConfusions: ["Male urethra is long — it runs through the pelvis, perineum, and the entire length of the penis", "Although semen passes through it, the urethra is classified here as a urinary structure (it has no reproductive secretory function)"],
+                    examTips: ["Practical ID: long tube running from the bladder neck through the penis to the tip (urogenital orifice)", "Much longer than the female urethra"],
                     histology: "Transitional epithelium near bladder, transitioning to stratified squamous near the external opening",
-                    connections: "Proximal: urinary bladder; in females: distal end opens into urogenital sinus; in males: runs through prostate, perineum, and penis",
+                    connections: "Urinary bladder → (through prostate region) → pelvic urethra → penile urethra → urogenital orifice at penis tip",
+                    highYield: false
+                ),
+                AnatomyStructure(
+                    categoryId: urinaryCat.id,
+                    name: "Urethra (Female)",
+                    aliases: ["Female urethra", "Female urinary passage"],
+                    function: "Conducts urine from the bladder to the exterior in females; carries urine only (no reproductive role)",
+                    commonConfusions: ["Female urethra is much SHORTER than the male urethra", "Opens into the urogenital sinus, separate from the reproductive tract opening"],
+                    examTips: ["Practical ID: short tube running from the bladder neck to open on the floor of the urogenital sinus"],
+                    histology: "Transitional epithelium near bladder, transitioning to stratified squamous near the external opening",
+                    connections: "Urinary bladder → short female urethra → opens into the urogenital sinus floor",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -1891,45 +1902,6 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: maleRepCat.id,
-                    name: "Urethra",
-                    aliases: ["Male urethra", "Urethral tube"],
-                    function: "Shared urinary and reproductive transport pathway; carries urine and semen through penis",
-                    commonConfusions: [],
-                    examTips: ["Practical ID: tube associated with penile/reproductive structures", "Epithelium changes regionally: more transitional proximally, more protective distally"],
-                    histology: "Epithelium changes regionally depending on function and exposure; flexible lumen supports fluid transport",
-                    connections: "Bladder + reproductive ducts → urethra → penis → preputial opening",
-                    highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: maleRepCat.id,
-                    name: "Preputial Orifice",
-                    aliases: ["Preputial opening", "Male urogenital opening"],
-                    function: "External outlet for urine and reproductive secretions; key sex-identification structure in fetal pig",
-                    commonConfusions: ["Male opening is caudal to umbilical cord — NOT near the tail (a near-tail opening indicates female)"],
-                    examTips: ["Practical ID: male opening near umbilical region, NOT near tail", "VERY important sex-identification landmark"],
-                    images: [
-                        ImageCDN.image("preputial-orifice_gross_1.HEIC", caption: "Preputial Orifice"),
-                    ],
-                    histology: "Transition zone between external protective epithelium and internal mucosal epithelium",
-                    connections: "Penis → preputial orifice → external environment",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: maleRepCat.id,
-                    name: "Scrotum",
-                    aliases: ["Scrotal sac"],
-                    function: "Maintains testes at lower temperature optimal for spermatogenesis",
-                    commonConfusions: [],
-                    examTips: ["Practical ID: sac-like external structure near hindlimbs/tail", "External location allows cooler temperature than body core — expandable sac organization supports thermoregulation"],
-                    images: [
-                        ImageCDN.image("scrotum_gross_1.jpeg", caption: "Scrotum"),
-                    ],
-                    histology: "External surface: stratified squamous epithelium (skin); underlying: connective tissue, smooth muscle, vessels",
-                    connections: "Contains testes and spermatic cord",
-                    highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: maleRepCat.id,
                     name: "Inguinal Canal",
                     aliases: ["Inguinal passage"],
                     function: "Passageway allowing transit of spermatic cord, vessels, and nerves between abdominal cavity and scrotal region; supports testicular descent",
@@ -2035,17 +2007,6 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: femaleRepCat.id,
-                    name: "Urethra",
-                    aliases: ["Female urethra"],
-                    function: "Carries urine from the urinary bladder to the urogenital sinus for elimination; does NOT carry reproductive products in females",
-                    commonConfusions: ["In male pigs the urethra carries both urine and semen; in females it carries only urine", "The urethra opens into the urogenital sinus, where it meets the vagina"],
-                    examTips: ["Practical ID: short tube running from the bladder ventrally, opening into the floor of the urogenital sinus", "Much shorter in females than in males", "The female urethral opening (urethral orifice) is on the ventral floor of the urogenital sinus"],
-                    histology: "Transitional epithelium near bladder, transitioning to stratified squamous epithelium near the external opening",
-                    connections: "Proximal: urinary bladder; distal: urogenital sinus; runs ventral to vagina",
-                    highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: femaleRepCat.id,
                     name: "Urogenital Sinus",
                     aliases: ["Urogenital vestibule", "Common urogenital opening"],
                     function: "Common chamber that receives both the vagina (reproductive) and the urethra (urinary) before opening to the exterior; unique shared opening in many non-primate mammals",
@@ -2129,17 +2090,6 @@ class AnatomyDataManager: ObservableObject {
                     histology: "Chorionic trophoblast epithelium surrounding fluid-filled extraembryonic cavity (exocoelom)",
                     connections: "Contains embryo + yolk sac early on; later the allantois grows out to fuse with it; located within uterine horn",
                     highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: fetalCat.id,
-                    name: "Ductus Venosus",
-                    aliases: ["Fetal venous shunt", "Arantius' duct"],
-                    function: "Fetal shunt that bypasses the liver: carries oxygenated blood from the umbilical vein directly to the inferior vena cava, allowing most of the richly oxygenated blood from the placenta to go directly to the heart rather than being filtered by the liver",
-                    commonConfusions: ["One of THREE fetal shunts: ductus venosus (liver bypass), foramen ovale (right-to-left atrial shunt), ductus arteriosus (pulmonary bypass)", "After birth it closes and becomes the ligamentum venosum (fibrous remnant in liver)"],
-                    examTips: ["Mnemonic for three shunts: 'DVD' — Ductus Venosus, foramen oVale, Ductus arteriosus", "Ductus venosus → ligamentum venosum (post-birth remnant)", "Closes within days of birth as umbilical flow ceases — functional closure is rapid, anatomical closure takes weeks"],
-                    histology: "Thin-walled venous shunt with endothelial lining; smooth muscle in wall allows active regulation",
-                    connections: "Receives: umbilical vein; drains into: inferior vena cava (at junction with hepatic veins); bypasses hepatic sinusoids",
-                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: fetalCat.id,
@@ -2459,30 +2409,6 @@ class AnatomyDataManager: ObservableObject {
             structures.append(contentsOf: [
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
-                    name: "Tunica Intima",
-                    aliases: ["Inner lining"],
-                    function: "Innermost layer; provides smooth surface",
-                    examTips: ["Reduces friction with blood"],
-                    histology: "Simple squamous endothelium"
-                ),
-                AnatomyStructure(
-                    categoryId: vesselHistologyCat.id,
-                    name: "Tunica Media",
-                    aliases: ["Middle layer"],
-                    function: "Provides elasticity and contraction",
-                    examTips: ["Thicker in arteries than veins"],
-                    histology: "Smooth muscle and elastic tissue"
-                ),
-                AnatomyStructure(
-                    categoryId: vesselHistologyCat.id,
-                    name: "Tunica Adventitia",
-                    aliases: ["Outer layer"],
-                    function: "Structural support",
-                    examTips: ["Anchors vessel in place"],
-                    histology: "Connective tissue"
-                ),
-                AnatomyStructure(
-                    categoryId: vesselHistologyCat.id,
                     name: "Artery",
                     aliases: ["Arterial vessel"],
                     function: "Carries blood away from heart",
@@ -2490,6 +2416,12 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("artery-vein-nerve_histo_artery_1.jpeg", magnification: 10, caption: "Artery")],
                     histology: "Thick muscular wall; small lumen"
                 ),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Artery)", aliases: ["Inner lining (artery)"],
+                    function: "Innermost layer of the artery: smooth endothelial surface plus a prominent internal elastic lamina", examTips: ["Endothelium + internal elastic lamina"], histology: "Simple squamous endothelium + thin subendothelial connective tissue + internal elastic lamina"),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Artery)", aliases: ["Middle layer (artery)"],
+                    function: "Thick smooth-muscle middle layer — the defining feature of a muscular artery; controls vessel diameter", examTips: ["Thick smooth muscle = muscular artery"], histology: "Multiple layers of circular smooth muscle with some elastic fibers"),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Artery)", aliases: ["Outer layer (artery)"],
+                    function: "Outer connective tissue layer anchoring the artery", examTips: ["Connective tissue; thinner than the media in muscular arteries"], histology: "Dense connective tissue (collagen and elastic fibers)"),
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
                     name: "Vein",
@@ -2502,6 +2434,12 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Systemic veins return to right heart; pulmonary veins return to left heart; venules → small veins → larger veins → vena cava",
                     highYield: true
                 ),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Vein)", aliases: ["Inner lining (vein)"],
+                    function: "Innermost layer of the vein: thin endothelial lining with little subendothelial tissue and no prominent elastic lamina", examTips: ["Thin; no prominent internal elastic lamina (unlike artery)"], histology: "Simple squamous endothelium on a thin layer of connective tissue"),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Vein)", aliases: ["Middle layer (vein)"],
+                    function: "Thin smooth-muscle middle layer — much thinner than in arteries because venous pressure is low", examTips: ["Thin media = vein (vs thick media in artery)"], histology: "Sparse circular smooth muscle with connective tissue"),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Vein)", aliases: ["Outer layer (vein)"],
+                    function: "Outer connective tissue layer — the thickest layer of the vein wall", examTips: ["Thickest layer of the vein (opposite of artery)"], histology: "Dense connective tissue, the predominant layer of the vein wall"),
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
                     name: "Aorta",
@@ -2513,6 +2451,12 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Ascends from left ventricle → aortic arch (gives off brachiocephalic, left common carotid, left subclavian) → descending thoracic aorta → abdominal aorta → bifurcates into common iliac arteries",
                     highYield: true
                 ),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Aorta)", aliases: ["Inner lining (aorta)"],
+                    function: "Innermost layer of the aorta: endothelium over subendothelial connective tissue with an internal elastic lamina", examTips: ["Endothelium + subendothelial tissue + internal elastic lamina"], histology: "Simple squamous endothelium + subendothelial connective tissue + internal elastic lamina"),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Aorta)", aliases: ["Middle layer (aorta)"],
+                    function: "Thick middle layer dominated by concentric elastic lamellae — the defining feature of an elastic artery; stretches in systole and recoils in diastole", examTips: ["Wavy elastic lamellae = elastic artery (aorta)"], histology: "Many concentric elastic lamellae alternating with smooth muscle"),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Aorta)", aliases: ["Outer layer (aorta)"],
+                    function: "Outer connective tissue layer of the aorta; contains vasa vasorum that nourish the thick wall", examTips: ["Contains vasa vasorum"], histology: "Dense irregular connective tissue with vasa vasorum and nerves"),
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
                     name: "Vena Cava",
@@ -2524,10 +2468,16 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Cranial vena cava: drains SVC territory → right atrium; caudal vena cava: drains IVC territory (kidneys, liver, lower limbs) → right atrium",
                     highYield: true
                 ),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Vena Cava)", aliases: ["Inner lining (vena cava)"],
+                    function: "Innermost layer of the vena cava: thin endothelial lining", examTips: ["Thin endothelial lining"], histology: "Simple squamous endothelium on a thin connective tissue layer"),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Vena Cava)", aliases: ["Middle layer (vena cava)"],
+                    function: "Thin smooth-muscle middle layer of the vena cava (relatively poorly developed, as in all large veins)", examTips: ["Thin media relative to the large lumen"], histology: "Thin, sparse circular smooth muscle and elastic fibers"),
+                AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Vena Cava)", aliases: ["Outer layer (vena cava)"],
+                    function: "Very thick outer layer of the vena cava containing prominent longitudinal smooth muscle bundles — the thickest layer of the wall", examTips: ["Thickest layer; longitudinal smooth muscle bundles"], histology: "Very thick dense connective tissue with longitudinal smooth muscle bundles"),
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
-                    name: "Nerve",
-                    aliases: ["Peripheral nerve", "Nerve bundle", "Nerve fascicle"],
+                    name: "Nerve Fibers",
+                    aliases: ["Nerve", "Nerve fibers in cross-section", "Peripheral nerve", "Nerve bundle", "Nerve fascicle"],
                     function: "Transmits electrical signals (action potentials) between body regions; peripheral nerves carry motor commands to muscles and sensory information from receptors to the CNS",
                     commonConfusions: ["On the artery/vein/nerve slide: nerve has NO hollow lumen (unlike vessels); it consists of bundled fascicles of axons — look for the 'telephone cable' cross-section appearance", "Nerve vs blood vessel: vessels have clear hollow lumens; nerve is solid bundled tissue with no lumen"],
                     examTips: ["KEY ID on the artery/vein/nerve slide — three structures side by side: artery (thick round wall, round lumen), vein (thin wall, irregular lumen), nerve (NO lumen, bundled fascicles)", "Nerve cross-section looks like a 'bundle of cables': multiple fascicles each containing many small round axons, surrounded by connective tissue sheaths", "Epineurium = outermost connective tissue around whole nerve; perineurium = around each fascicle; endoneurium = around each axon"],
@@ -2544,8 +2494,8 @@ class AnatomyDataManager: ObservableObject {
             structures.append(contentsOf: [
                 AnatomyStructure(
                     categoryId: respHistologyCat.id,
-                    name: "Sero-Mucous Glands",
-                    aliases: ["Tracheal submucosal glands", "Serous-mucous glands", "Seromucous glands"],
+                    name: "Sero-Mucous Glands (Trachea)",
+                    aliases: ["Sero-Mucous Glands", "Tracheal submucosal glands", "Serous-mucous glands", "Seromucous glands"],
                     function: "Mixed exocrine glands in the tracheal submucosa that produce both watery serous secretions and viscous mucus; together they humidify inhaled air, trap particulate matter and pathogens, and provide the fluid layer that the mucociliary escalator moves upward",
                     commonConfusions: ["Sero-mucous glands are in the SUBMUCOSA of the trachea, below the mucosa — not the same as goblet cells which are in the epithelium itself", "Sero-mucous = MIXED glands (both serous + mucous cells) — contrast with purely mucous glands or purely serous glands"],
                     examTips: ["Practical ID on trachea/esophagus slide: look DEEP to the tracheal epithelium, below the cartilage rings, for clusters of glandular tissue in the submucosa — these are the sero-mucous glands", "On the slide, the trachea shows (inside to out): pseudostratified columnar epithelium → submucosa WITH sero-mucous glands → tracheal cartilage → smooth muscle → adventitia", "The glands appear as clusters of pale (mucous) and darker (serous) secretory cells with small ducts"],
@@ -2595,11 +2545,25 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: respHistologyCat.id,
-                    name: "Respiratory Epithelium",
-                    aliases: ["Pseudostratified ciliated columnar"],
-                    function: "Air conditioning and defense",
-                    examTips: ["VERY HIGH YIELD concept"],
-                    histology: "Pseudostratified columnar with cilia and goblet cells"
+                    name: "Mucosa (Lung)",
+                    aliases: ["Mucosa lined with pseudostratified respiratory epithelial cells", "Respiratory epithelium (lung)"],
+                    function: "The respiratory epithelial lining of the conducting airways within the lung (bronchi and larger bronchioles): pseudostratified ciliated columnar epithelium with goblet cells that conditions air and traps particles",
+                    commonConfusions: ["Mucosa of the conducting airways (pseudostratified ciliated columnar) is NOT the same as the alveolar lining (simple squamous for gas exchange)", "Epithelium becomes progressively simpler distally: pseudostratified → simple columnar/cuboidal in small bronchioles → simple squamous in alveoli"],
+                    examTips: ["Practical ID on lung slide: airway lined by pseudostratified ciliated columnar epithelium with goblet cells = respiratory mucosa", "Mucosa lined with pseudostratified respiratory epithelial cells is the handout ID phrase"],
+                    histology: "Pseudostratified ciliated columnar epithelium with goblet cells over a thin lamina propria",
+                    connections: "Lines bronchi and larger bronchioles within the lung; transitions to simpler epithelium distally toward alveoli",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: respHistologyCat.id,
+                    name: "Branches of Pulmonary Arteries and Veins",
+                    aliases: ["Pulmonary vessels", "Pulmonary artery and vein branches"],
+                    function: "Blood vessels coursing through the lung parenchyma: pulmonary artery branches (carry deoxygenated blood toward the alveoli, travel alongside bronchi/bronchioles) and pulmonary vein branches (carry oxygenated blood away, travel in the connective tissue septa)",
+                    commonConfusions: ["Pulmonary ARTERY branches run WITH the airways (bronchovascular bundle); pulmonary VEIN branches run separately in the interlobular septa — a classic lung ID clue", "Pulmonary arteries here carry DEOXYGENATED blood (toward alveoli) — opposite of the systemic naming intuition"],
+                    examTips: ["Practical ID on lung slide: vessel next to a bronchiole = pulmonary artery branch; vessel alone in the septa = pulmonary vein branch", "Look for thin-walled vessels with blood among the alveoli"],
+                    histology: "Pulmonary artery branch: thinner wall than systemic arteries of the same size (low-pressure circuit); pulmonary vein branch: thin-walled, in connective tissue septa; both lined by simple squamous endothelium",
+                    connections: "Pulmonary artery → arterioles → alveolar capillaries (gas exchange) → venules → pulmonary vein branches → pulmonary veins → left atrium",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: respHistologyCat.id,
@@ -2612,20 +2576,9 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Located in bronchiole walls between epithelium and connective tissue; regulated by autonomic nerves and circulating hormones (epinephrine dilates)",
                     highYield: false
                 ),
-                AnatomyStructure(
-                    categoryId: respHistologyCat.id,
-                    name: "Adventitia",
-                    aliases: ["Tunica adventitia (non-vessel)", "Outer connective tissue layer"],
-                    function: "Outermost connective tissue layer anchoring the trachea and esophagus to surrounding structures; provides structural support and allows passage of vessels and nerves",
-                    commonConfusions: ["Adventitia ≠ serosa: serosa = smooth slippery peritoneal covering for organs that move freely in body cavities; adventitia = connective tissue anchoring layer for organs that are FIXED to surrounding structures (like trachea/esophagus in the neck/thorax)", "Trachea and esophagus have adventitia (not serosa) because they are retroperitoneal/fixed — they don't float freely in a cavity"],
-                    examTips: ["KEY DISTINCTION: on the trachea/esophagus slide, the outermost layer is ADVENTITIA (not serosa)", "Serosa = found on intraperitoneal organs (stomach, small intestine, most of colon); Adventitia = found on retroperitoneal/fixed organs (trachea, esophagus, kidneys, duodenum in part)", "Adventitia appears as loose connective tissue with no clear outer mesothelial boundary — just blending into surrounding tissue"],
-                    histology: "Loose connective tissue (collagen fibers, fibroblasts, adipocytes, blood vessels, nerves) with no distinct mesothelial lining",
-                    connections: "Outermost layer of trachea and esophagus; blends into surrounding mediastinal connective tissue and fascia",
-                    highYield: true
-                ),
             ])
         }
-        
+
         // MARK: Gastrointestinal Histology
         if let giHistologyCat = categories.first(where: { $0.name == "Gastrointestinal Histology" }) {
             structures.append(contentsOf: [
@@ -2666,8 +2619,8 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
-                    name: "Gall Bladder",
-                    aliases: ["Gallbladder", "Cholecyst"],
+                    name: "Gallbladder",
+                    aliases: ["Gall Bladder", "Cholecyst"],
                     function: "Stores and concentrates bile produced by the liver; releases bile into the duodenum via the common bile duct in response to cholecystokinin (CCK) when fat enters the small intestine",
                     commonConfusions: ["Gall bladder has NO muscularis mucosae — this is the key distinguishing histological feature (all other GI organs have it)", "Gall bladder has NO submucosa — another unique feature; the mucosa sits directly on the muscularis", "The highly folded mucosa resembles villi but these are mucosal FOLDS (rugae), not true villi — they flatten when the gallbladder is distended"],
                     examTips: ["KEY ID: highly folded simple columnar mucosa + NO muscularis mucosae + NO submucosa = gall bladder", "The epithelium is simple columnar with apical modifications for water absorption (concentrates bile 10×)", "Rokitansky-Aschoff sinuses: invaginations of epithelium into the muscularis — may be visible on slides and are a normal variant"],
@@ -2688,11 +2641,11 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
-                    name: "Gastric Pits",
-                    aliases: ["Foveolae gastricae"],
-                    function: "Invaginations of the gastric surface epithelium into the mucosa; each pit leads into one or more gastric glands; present in all regions of the stomach",
-                    commonConfusions: ["Gastric pits are different from glands — the pit is the opening/channel; the gland is the secretory unit at the bottom", "Pyloric pits are deeper than fundic pits — pits:gland ratio differs by region"],
-                    examTips: ["KEY ID for ANY stomach region: gastric pits (invaginations) + simple columnar epithelium + NO villi = stomach", "Depth of pits varies: cardiac/fundic = shallow pits; pyloric = deeper pits", "Gastric pits line the entire stomach surface — seeing them confirms you are in stomach, not intestine"],
+                    name: "Gastric Pits (Cardiac Stomach)",
+                    aliases: ["Gastric Pits", "Foveolae gastricae (cardiac)"],
+                    function: "Invaginations of the cardiac gastric surface epithelium leading into the mucus-secreting cardiac glands",
+                    commonConfusions: ["Gastric pits are different from glands — the pit is the opening/channel; the gland is the secretory unit at the bottom", "Cardiac pits are relatively shallow"],
+                    examTips: ["Gastric pits + simple columnar epithelium + NO villi = stomach", "Cardiac region: shallow pits opening into mucous cardiac glands"],
                     histology: "Simple columnar epithelium lining; surface mucous cells (tall columnar with apical mucin granules) line the pit walls; gland openings at the pit base",
                     highYield: true
                 ),
@@ -2727,6 +2680,36 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
+                    name: "Gastric Pits (Fundic Stomach)",
+                    aliases: ["Foveolae gastricae (fundic)"],
+                    function: "Invaginations of the fundic gastric surface epithelium leading into the deep fundic glands; relatively shallow (the long glands occupy most of the mucosal depth)",
+                    commonConfusions: ["Fundic pits are SHALLOW relative to the deep fundic glands beneath them (pit:gland ratio is low)", "Pit = the opening/channel; gland = the secretory unit below"],
+                    examTips: ["Shallow pits + very deep glands packed with parietal & chief cells = fundic stomach"],
+                    histology: "Simple columnar surface mucous cells lining shallow pits that open into fundic glands",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Parietal Cells",
+                    aliases: ["Oxyntic cells"],
+                    function: "Secrete hydrochloric acid (HCl) and intrinsic factor; the HCl activates pepsinogen and creates the acidic gastric environment, while intrinsic factor is required for vitamin B12 absorption in the ileum",
+                    commonConfusions: ["Parietal cells (HCl + intrinsic factor, mid-gland, large & pink) vs chief cells (pepsinogen, base of gland, basophilic)", "Parietal cells are found in FUNDIC glands (and some cardiac) — NOT in pyloric glands"],
+                    examTips: ["KEY ID: large, rounded/pyramidal cells with intensely eosinophilic (bright pink) cytoplasm in the middle of the fundic glands — the most recognizable stomach cell", "Located in the upper-middle portion of the fundic gland"],
+                    histology: "Large rounded cells, intensely eosinophilic cytoplasm, central nucleus, intracellular canaliculi (site of HCl secretion)",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
+                    name: "Chief Cells",
+                    aliases: ["Zymogenic cells", "Peptic cells"],
+                    function: "Secrete pepsinogen (the inactive precursor of pepsin, a protein-digesting enzyme) and gastric lipase; found at the base of the fundic glands",
+                    commonConfusions: ["Chief cells (pepsinogen, basophilic, base of gland) vs parietal cells (HCl, eosinophilic, mid-gland)", "'Chief' cells make the digestive enzyme precursor — remember chief = chef = cooking/digesting"],
+                    examTips: ["KEY ID: smaller basophilic (blue-purple) cells clustered at the BASE of the fundic glands", "Basophilic because they are packed with rough ER making pepsinogen"],
+                    histology: "Cuboidal-to-pyramidal cells with basophilic cytoplasm (abundant rough ER) and apical zymogen (pepsinogen) granules; located at the base of fundic glands",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
                     name: "Pyloric Stomach",
                     aliases: ["Pyloric antrum", "Pyloric region", "Pylorus"],
                     function: "Regulates gastric emptying into duodenum; secretes mucus and gastrin; the pyloric sphincter controls chyme release; more mucus-dominated than fundic region",
@@ -2748,6 +2731,16 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
+                    name: "Gastric Pits (Pyloric Stomach)",
+                    aliases: ["Foveolae gastricae (pyloric)"],
+                    function: "Invaginations of the pyloric gastric surface epithelium; DEEP pits (occupying about half the mucosal thickness) leading into the coiled pyloric glands",
+                    commonConfusions: ["Pyloric pits are DEEP (high pit:gland ratio) — opposite of the shallow fundic pits", "Pit = the opening; gland = the secretory unit below"],
+                    examTips: ["DEEP pits + coiled mucus-heavy glands + NO villi = pyloric stomach", "The deep pits are a key way to tell pyloric from fundic stomach"],
+                    histology: "Simple columnar surface mucous cells lining deep pits that open into coiled pyloric glands",
+                    highYield: true
+                ),
+                AnatomyStructure(
+                    categoryId: giHistologyCat.id,
                     name: "G Cells",
                     aliases: ["Gastrin-producing cells", "Enteroendocrine G cells"],
                     function: "Produce and secrete gastrin in response to food, stomach distension, and vagal stimulation; gastrin travels via bloodstream to stimulate parietal cells to produce HCl",
@@ -2766,33 +2759,28 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Pyloric sphincter → duodenum → jejunum; receives common bile duct and pancreatic duct at ampulla of Vater/hepatopancreatic ampulla; C-shaped loop around head of pancreas",
                     highYield: true
                 ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Villi",
-                    aliases: ["Intestinal projections"],
-                    function: "Increase absorption surface area",
-                    examTips: ["Cover intestinal lumen"],
-                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Villi — Ileum 10×")],
-                    histology: "Simple columnar epithelium with microvilli"
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Goblet Cells",
-                    aliases: ["Mucus-secreting cells"],
-                    function: "Produces protective mucus layer",
-                    examTips: ["Increases up colon"],
-                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Goblet Cells — Ileum 10×")],
-                    histology: "Goblet-shaped; PAS-positive"
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Crypts of Lieberkühn",
-                    aliases: ["Intestinal crypts"],
-                    function: "Produces replacement epithelial cells",
-                    examTips: ["Continuous cell renewal"],
-                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Crypts of Lieberkühn — Ileum 10×")],
-                    histology: "Simple columnar epithelium"
-                ),
+                // Villi / goblet cells / crypts appear on duodenum, jejunum AND ileum slides —
+                // one slide-specific entry each so every small-intestine slide is self-contained.
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Villi (Duodenum)", aliases: ["Duodenal villi"],
+                    function: "Finger-like mucosal projections of the duodenum that increase absorptive surface area", examTips: ["Villi present (shorter than jejunum) + Brunner's glands = duodenum"], histology: "Simple columnar epithelium with microvilli over a lamina propria core"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Duodenum)", aliases: ["Crypts of Lieberkühn (duodenum)", "Duodenal crypts"],
+                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the duodenum that renew the epithelium", examTips: ["Mucosal crypts — distinct from the SUBMUCOSAL Brunner's glands"], histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Duodenum)", aliases: ["Duodenal goblet cells"],
+                    function: "Mucus-secreting cells scattered in the duodenal epithelium (fewest of the small-intestine segments)", examTips: ["Goblet cells increase duodenum → jejunum → ileum"], histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
+
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Villi (Jejunum)", aliases: ["Jejunal villi"],
+                    function: "The tallest villi of the small intestine, maximizing the jejunum's absorptive surface", examTips: ["Tallest villi + NO Brunner's + NO Peyer's patches = jejunum"], histology: "Tall simple columnar epithelium with microvilli over a lamina propria core"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Jejunum)", aliases: ["Crypts of Lieberkühn (jejunum)", "Jejunal crypts"],
+                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the jejunum that renew the epithelium", examTips: ["Mucosal crypts at the bases of the tall villi"], histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Jejunum)", aliases: ["Jejunal goblet cells"],
+                    function: "Mucus-secreting cells in the jejunal epithelium (intermediate number)", examTips: ["More than duodenum, fewer than ileum"], histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
+
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Villi (Ileum)", aliases: ["Villi", "Intestinal projections", "Ileal villi"],
+                    function: "Mucosal projections of the ileum (shorter than jejunum) that increase absorptive surface area", examTips: ["Villi + Peyer's patches = ileum"], images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Villi — Ileum 10×")], histology: "Simple columnar epithelium with microvilli over a lamina propria core"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Ileum)", aliases: ["Crypts of Lieberkühn", "Crypts of Lieberkühn (ileum)", "Intestinal crypts", "Ileal crypts"],
+                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the ileum that renew the epithelium", examTips: ["Mucosal crypts between the villi bases"], images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Crypts of Lieberkühn — Ileum 10×")], histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Ileum)", aliases: ["Goblet Cells", "Mucus-secreting cells", "Ileal goblet cells"],
+                    function: "Mucus-secreting cells in the ileal epithelium (most numerous of the small-intestine segments)", examTips: ["Goblet cells are most abundant here among the small-intestine segments"], images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Goblet Cells — Ileum 10×")], histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
                     name: "Peyer's Patches",
@@ -2815,50 +2803,6 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
-                    name: "Muscularis Mucosae",
-                    aliases: ["Muscular mucosae", "Inner smooth muscle layer of mucosa"],
-                    function: "Thin smooth muscle layer at the base of the mucosa; causes local folding and movement of the mucosal layer — helps empty glands, rearrange villi, and enhance local mixing without full-layer peristalsis",
-                    commonConfusions: ["Muscularis mucosae (thin, inner, in mucosa) vs muscularis (thick outer muscle layers that drive peristalsis) — they are different layers", "The muscularis mucosae is part of the MUCOSA; the muscularis is a separate, much larger outer layer"],
-                    examTips: ["Layer order from lumen outward: mucosa (epithelium + lamina propria + muscularis mucosae) → submucosa → muscularis → serosa/adventitia", "Practical ID: thin pink smooth muscle band just deep to the mucosa; separates mucosa from submucosa", "The muscularis mucosae is the boundary between mucosa and submucosa — use it as your landmark for layer identification"],
-                    histology: "Thin layer of smooth muscle (1-2 cell layers); inner circular and sometimes outer longitudinal orientation; cells are smooth, elongated, non-striated",
-                    connections: "Base of the mucosa; deep to the lamina propria; superficial to the submucosa; present throughout the GI tract from esophagus to rectum",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Submucosa",
-                    aliases: ["Submucosal layer"],
-                    function: "Connective tissue layer beneath the mucosa; supports blood vessels, lymphatics, and nerves (Meissner's plexus) traveling to the mucosa; in duodenum also contains Brunner's glands",
-                    commonConfusions: ["Submucosa is between muscularis mucosae and muscularis — it's a connective tissue layer, not muscle", "Special features by region: duodenum (Brunner's glands in submucosa), esophagus (mucous glands in submucosa), ileum (Peyer's patches extend into submucosa)"],
-                    examTips: ["Layer order: mucosa → submucosa → muscularis → serosa", "Practical ID: pale-staining loose connective tissue layer between the muscularis mucosae and the thick muscularis; contains visible blood vessels", "Submucosa = the 'support layer' — look for vessels and connective tissue, no epithelial cells, no large muscle bundles"],
-                    histology: "Loose areolar connective tissue; contains blood vessels (arteries, veins, capillaries), lymphatic vessels, Meissner's submucosal nerve plexus, and in specific regions glands (Brunner's, esophageal)",
-                    connections: "Deep to muscularis mucosae; superficial to muscularis; present throughout GI tract; carries submucosal blood supply and Meissner's plexus",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Muscularis",
-                    aliases: ["Muscularis externa", "Smooth muscle layers of GI wall", "Inner circular / outer longitudinal muscle"],
-                    function: "The main muscle coat of the GI wall responsible for peristalsis (wave-like propulsion of contents) and mixing/churning movements; contains the Auerbach's (myenteric) nerve plexus between its layers",
-                    commonConfusions: ["Muscularis has TWO layers: inner circular (constricts lumen) + outer longitudinal (shortens segment) — both needed for peristalsis", "Muscularis ≠ muscularis mucosae; muscularis is OUTER and much thicker; muscularis mucosae is thin and inner"],
-                    examTips: ["Practical ID: thick double smooth muscle layer outside the submucosa — the largest-looking muscle region on any GI slide", "Inner circular layer = muscle cells cut in CROSS section (round profiles); outer longitudinal layer = muscle cells cut in LONGITUDINAL section (elongated profiles)", "The stomach has an additional third layer (oblique) making three layers total — this is why the stomach wall looks extra thick"],
-                    histology: "Two layers of smooth muscle: inner circular (perpendicular to gut axis) and outer longitudinal (parallel to gut axis); Auerbach's myenteric plexus sits between the two layers",
-                    connections: "Deep to submucosa; superficial to serosa/adventitia; extends throughout GI tract from esophagus to rectum; Auerbach's plexus coordinates peristaltic waves",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Serosa",
-                    aliases: ["Visceral peritoneum", "Serosal layer", "Outer serosal coat"],
-                    function: "Outermost layer of intraperitoneal GI organs; smooth, slippery surface that reduces friction as organs slide against each other during digestion and movement; continuous with the peritoneum lining the body cavity",
-                    commonConfusions: ["Serosa ≠ adventitia: serosa = slippery peritoneal covering for intraperitoneal organs; adventitia = anchoring connective tissue for retroperitoneal/fixed organs", "NOT all digestive organs have serosa: the esophagus and duodenum (retroperitoneal portions) have adventitia instead", "The handout notes 'serosa may not be present on your slide' for ileum and large intestine — the serosa is the outermost thin layer and may be lost during slide preparation"],
-                    examTips: ["Practical ID: outermost thin layer on GI slides — a wispy layer of connective tissue + simple squamous mesothelium on the outside surface", "May be absent from slides or cut off during sectioning — if the outermost visible layer looks like muscle, the serosa was trimmed", "Organs WITH serosa: stomach, most of small intestine (except duodenum), much of colon; WITHOUT serosa (have adventitia instead): esophagus, duodenum, rectum"],
-                    histology: "Simple squamous mesothelium (one cell layer) over a thin layer of loose connective tissue (sub-mesothelial connective tissue)",
-                    connections: "Outermost GI wall layer for intraperitoneal organs; continuous with visceral peritoneum; parietal peritoneum on opposite side lines body wall; fluid between them reduces friction",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
                     name: "Large Intestine",
                     aliases: ["Colon histology", "Large bowel", "Intestinum crassum"],
                     function: "Absorbs water and electrolytes from indigestible food residue; consolidates waste into feces; no enzymatic digestion or nutrient absorption of note (contrast with small intestine)",
@@ -2868,40 +2812,6 @@ class AnatomyDataManager: ObservableObject {
                     histology: "Mucosa: simple columnar epithelium with abundant goblet cells, flat surface (NO villi), crypts of Lieberkühn; muscularis mucosae; submucosa; muscularis (inner circular + outer longitudinal); serosa (if intraperitoneal) or adventitia",
                     connections: "Receives unabsorbed material from ileum via ileocecal valve; segments: cecum → ascending → transverse → descending → sigmoid colon → rectum → anus",
                     highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Caecum",
-                    aliases: ["Cecum", "Cecal pouch"],
-                    function: "Blind-ended pouch at the start of the large intestine; site of microbial fermentation (especially in herbivores); absorbs water and electrolytes; transitional morphology between ileum and colon",
-                    commonConfusions: ["Caecum vs ileum: caecum has reduced or absent villi + more goblet cells; ileum has villi + Peyer's patches", "Caecum vs colon: both lack villi and have abundant goblet cells; caecum is a blind pouch grossly — histologically transitional appearance", "In pigs the caecum is large and important for fermentation — more prominent than in humans"],
-                    examTips: ["KEY ID: more goblet cells + fewer/reduced villi + transitional morphology toward large intestine = caecum", "May appear similar to proximal colon histologically — context (gross anatomy) helps differentiate", "The ileocecal valve is at the junction of ileum and caecum — villi disappear at this boundary"],
-                    histology: "Mucosa: simple columnar epithelium with increasing goblet cells; villi reduced or absent; crypts of Lieberkühn present; muscularis mucosae; submucosa; muscularis; serosa",
-                    connections: "Ileocecal valve → caecum → ascending colon; appendix (vermiform appendix) opens at caecum base",
-                    highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Spiral Colon",
-                    aliases: ["Spiral loop of colon", "Ansa spiralis"],
-                    function: "Segment of colon unique to pigs arranged in a spiral/coiled pattern; absorbs water and electrolytes from digestive waste; consolidates feces; highly mucus-lubricated for fecal transit",
-                    commonConfusions: ["Spiral colon vs small intestine: NO villi + abundant goblet cells = large intestine/spiral colon; small intestine has villi", "Spiral colon vs stomach: crypts (not gastric pits) + columnar epithelium + many goblet cells = colon; stomach has gastric pits and no goblet cells"],
-                    examTips: ["KEY ID: abundant goblet cells + NO villi + flat mucosal surface + crypts of Lieberkühn = large intestine / spiral colon", "The spiral arrangement is a gross anatomical feature — histologically it looks like other large intestine segments", "Smooth luminal surface (no villi) + very many goblet cells = colon histology"],
-                    images: [ImageCDN.slide("large-intestine_histo_1.jpeg", magnification: 10, caption: "Spiral Colon — no villi, abundant goblet cells 10×")],
-                    histology: "Mucosa: simple columnar epithelium with extremely abundant goblet cells; NO villi; crypts of Lieberkühn (deep, straight); flat mucosal surface; muscularis mucosae; submucosa; muscularis: inner circular + outer longitudinal (taenia coli in humans; fused in pigs); serosa",
-                    connections: "Continuation of ascending/transverse colon in pigs; coiled spiral arrangement; transitions to descending colon then rectum",
-                    highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: giHistologyCat.id,
-                    name: "Rectum",
-                    aliases: ["Rectal ampulla", "Terminal large intestine"],
-                    function: "Stores feces prior to defecation; highly lubricated by goblet cell mucus; the distal transition toward stratified squamous epithelium at the anal canal is a unique histological feature",
-                    commonConfusions: ["Proximal rectum vs colon: histologically similar — both have goblet cells, no villi, crypts; rectum is more mucus-heavy and approaches stratified squamous distally", "Distal rectum vs esophagus: both transition to stratified squamous — but context is completely different (rectum is distal GI, esophagus is proximal)", "Rectum has adventitia (retroperitoneal below peritoneal reflection) rather than serosa — similar to esophagus and duodenum"],
-                    examTips: ["KEY ID of distal rectum: approaching stratified squamous transition + goblet-cell-rich mucosa + large intestine architecture", "Proximal rectum is histologically indistinguishable from colon without gross context", "Rectum has adventitia (not serosa) — the peritoneum does not cover the lower rectum"],
-                    histology: "Proximal: simple columnar epithelium with abundant goblet cells, no villi, crypts; approaching anus: abrupt transition to non-keratinized stratified squamous (anorectal junction); muscularis: inner circular (forms internal anal sphincter distally) + outer longitudinal; adventitia in lower rectum",
-                    connections: "Sigmoid colon → rectum → anal canal → anus; internal anal sphincter (smooth muscle) + external anal sphincter (skeletal muscle) control defecation",
-                    highYield: false
                 ),
             ])
         }
@@ -3691,6 +3601,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Immune surveillance and filtration of lymph; contain lymphocytes for immune cell interactions",
                     commonConfusions: [],
                     examTips: ["Small nodular immune structures associated with lymphatic vessels"],
+                    images: [
+                        ImageCDN.image("lymph-node_gross_1.png", caption: "Lymph Nodes"),
+                    ],
                     histology: "Lymphocyte-rich immune connective tissue; packed with leukocytes, reticular support tissue",
                     connections: "Associated with lymphatic vessels",
                     highYield: false
@@ -4015,38 +3928,330 @@ class AnatomyDataManager: ObservableObject {
                     connections: "Epididymis, proximal vas deferens",
                     highYield: true
                 ),
-                AnatomyStructure(
-                    categoryId: epithelialCat.id,
-                    name: "Epithelial Type Quick Reference",
-                    aliases: ["Epithelial summary", "Epithelium locations"],
-                    function: "Summary of all epithelial types and their key locations for rapid review",
-                    commonConfusions: ["The naming rule: Simple = 1 layer; Stratified = multiple layers; Pseudo = looks stratified but is actually 1 layer"],
-                    examTips: [
-                        "Alveoli → Simple squamous (diffusion)",
-                        "All blood/lymph vessel endothelium → Simple squamous",
-                        "Mesothelium (pleura/peritoneum/pericardium) → Simple squamous",
-                        "Kidney tubules (PCT/DCT) → Simple cuboidal",
-                        "Stomach/intestine/gallbladder → Simple columnar",
-                        "Trachea/bronchi/nasal cavity → Pseudostratified ciliated columnar (respiratory epithelium)",
-                        "Epididymis → Pseudostratified columnar with stereocilia (nonmotile)",
-                        "Esophagus/oral cavity/vagina/cornea → Stratified squamous nonkeratinized",
-                        "Skin epidermis → Stratified squamous keratinized",
-                        "Bladder/ureters → Transitional (urothelium)"
-                    ],
-                    histology: "See individual epithelial type entries for detailed histology",
-                    connections: "Cross-reference with specific organ entries for clinical and practical context",
-                    highYield: true
-                ),
+            ])
+        }
+
+        // MARK: Histology Slide Wall-Layers (per-slide, slide-suffixed)
+        // The BIOL2501 handout lists the same wall layers (mucosa, submucosa, muscularis,
+        // serosa, etc.) separately for each organ slide because they look different on each.
+        // These are brief, slide-specific entries appended here; they are mapped to their
+        // slide in `histologySlideByStructureName`. Names are suffixed with the organ so the
+        // alphabetical view and search stay unambiguous.
+        if let giHistologyCat = categories.first(where: { $0.name == "Gastrointestinal Histology" }) {
+            structures.append(contentsOf: [
+                // ----- Slide 13: Duodenum layers -----
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Duodenum)", aliases: ["Duodenal mucosa"],
+                    function: "Inner lining of the duodenum: simple columnar epithelium with villi and goblet cells for absorption",
+                    examTips: ["Simple columnar + villi + goblet cells"], histology: "Simple columnar epithelium with villi, goblet cells, crypts of Lieberkühn"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Duodenum)", aliases: [],
+                    function: "Thin smooth muscle at the base of the duodenal mucosa", examTips: ["Boundary between mucosa and submucosa"], histology: "Thin smooth muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Duodenum)", aliases: [],
+                    function: "Connective tissue layer of the duodenum; contains Brunner's glands (defining duodenal feature)", examTips: ["Look for Brunner's glands here"], histology: "Loose connective tissue containing Brunner's glands"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Duodenum)", aliases: ["Muscularis externa (duodenum)"],
+                    function: "Inner circular + outer longitudinal smooth muscle driving peristalsis", examTips: ["Two layers: inner circular, outer longitudinal"], histology: "Inner circular + outer longitudinal smooth muscle"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Duodenum)", aliases: [],
+                    function: "Outer covering of the intraperitoneal duodenum (proximal portion); adventitia where retroperitoneal", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
+
+                // ----- Slide 14: Jejunum layers -----
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Jejunum)", aliases: ["Jejunal mucosa"],
+                    function: "Inner lining of the jejunum: tall villi and goblet cells; the most absorptive small-intestine mucosa", examTips: ["Tallest villi of the small intestine"], histology: "Simple columnar epithelium with tall villi, goblet cells, crypts of Lieberkühn"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Jejunum)", aliases: [],
+                    function: "Thin smooth muscle at the base of the jejunal mucosa", examTips: ["Boundary between mucosa and submucosa"], histology: "Thin smooth muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Jejunum)", aliases: [],
+                    function: "Connective tissue layer of the jejunum; NO Brunner's glands and NO Peyer's patches (distinguishes from duodenum and ileum)", examTips: ["No Brunner's glands, no Peyer's patches"], histology: "Loose connective tissue, no special glands"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Jejunum)", aliases: ["Muscularis externa (jejunum)"],
+                    function: "Inner circular + outer longitudinal smooth muscle driving peristalsis", examTips: ["Inner circular + outer longitudinal"], histology: "Inner circular + outer longitudinal smooth muscle"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Jejunum)", aliases: [],
+                    function: "Outer serous covering of the jejunum (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"], histology: "Simple squamous mesothelium over thin connective tissue"),
+
+                // ----- Slide 15: Ileum layers -----
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Ileum)", aliases: ["Ileal mucosa"],
+                    function: "Inner lining of the ileum: villi (shorter than jejunum), many goblet cells", examTips: ["Villi + Peyer's patches nearby"], histology: "Simple columnar epithelium with villi, abundant goblet cells, crypts of Lieberkühn"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Ileum)", aliases: [],
+                    function: "Thin smooth muscle at the base of the ileal mucosa", examTips: ["Boundary between mucosa and submucosa"], histology: "Thin smooth muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Ileum)", aliases: [],
+                    function: "Connective tissue layer of the ileum; Peyer's patches extend into it (defining ileal feature)", examTips: ["Peyer's patches extend into submucosa"], histology: "Loose connective tissue with aggregated lymphoid nodules (Peyer's patches)"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Ileum)", aliases: ["Muscularis externa (ileum)"],
+                    function: "Inner circular + outer longitudinal smooth muscle driving peristalsis", examTips: ["Inner circular + outer longitudinal"], histology: "Inner circular + outer longitudinal smooth muscle"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Ileum)", aliases: [],
+                    function: "Outer serous covering of the ileum (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"], histology: "Simple squamous mesothelium over thin connective tissue"),
+
+                // ----- Slide 16: Large Intestine layers -----
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Large Intestine)", aliases: ["Colonic mucosa"],
+                    function: "Inner lining of the large intestine: flat surface (NO villi), abundant goblet cells", examTips: ["No villi + many goblet cells"], histology: "Simple columnar epithelium, no villi, abundant goblet cells, straight crypts of Lieberkühn"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Large Intestine)", aliases: ["Crypts of Lieberkühn (large intestine)", "Colonic crypts"],
+                    function: "Straight tubular glands extending down from the flat colonic surface; produce mucus and replacement epithelial cells", examTips: ["Deep, straight crypts opening at a flat (villus-free) surface"], histology: "Straight tubular crypts of Lieberkühn lined by goblet-cell-rich simple columnar epithelium"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Large Intestine)", aliases: ["Colonic goblet cells"],
+                    function: "Mucus-secreting cells, especially abundant in the large intestine, lubricating the passage of feces", examTips: ["Goblet cells are MOST abundant in the large intestine"], histology: "Goblet-shaped mucous cells (PAS-positive) packed throughout the surface and crypt epithelium"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Large Intestine)", aliases: [],
+                    function: "Thin smooth muscle at the base of the colonic mucosa", examTips: ["Boundary between mucosa and submucosa"], histology: "Thin smooth muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Large Intestine)", aliases: [],
+                    function: "Connective tissue layer of the large intestine", examTips: ["Loose connective tissue with vessels"], histology: "Loose connective tissue with blood vessels and lymphatics"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Large Intestine)", aliases: ["Muscularis externa (large intestine)"],
+                    function: "Inner circular + outer longitudinal smooth muscle (in pigs the longitudinal layer is continuous, not in taeniae)", examTips: ["Inner circular + outer longitudinal"], histology: "Inner circular + outer longitudinal smooth muscle"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Large Intestine)", aliases: [],
+                    function: "Outer serous covering of the large intestine (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"], histology: "Simple squamous mesothelium over thin connective tissue"),
+
+                // ----- Slide 7: Cardiac Stomach layers -----
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Cardiac Stomach)", aliases: ["Cardiac gastric mucosa"],
+                    function: "Inner lining of the cardiac stomach: simple columnar epithelium with gastric pits leading to mucus-secreting cardiac glands", examTips: ["Simple columnar + gastric pits, NO villi"], histology: "Simple columnar epithelium; gastric pits; cardiac (mucous) glands"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Cardiac Stomach)", aliases: [],
+                    function: "Thin smooth muscle at the base of the cardiac gastric mucosa", examTips: ["Base of mucosa"], histology: "Thin smooth muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Cardiac Stomach)", aliases: [],
+                    function: "Connective tissue layer of the cardiac stomach", examTips: ["Loose connective tissue with vessels"], histology: "Loose connective tissue with blood vessels"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Cardiac Stomach)", aliases: ["Muscularis externa (cardiac stomach)"],
+                    function: "Smooth muscle of the stomach wall (three layers: oblique, circular, longitudinal)", examTips: ["Stomach has THREE muscle layers"], histology: "Three smooth muscle layers: inner oblique, middle circular, outer longitudinal"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Cardiac Stomach)", aliases: [],
+                    function: "Outer serous covering of the cardiac stomach", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
+
+                // ----- Slide 8: Fundic Stomach layers -----
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Fundic Stomach)", aliases: ["Fundic gastric mucosa"],
+                    function: "Inner lining of the fundic stomach: thick, densely glandular; gastric pits leading to fundic glands with parietal and chief cells", examTips: ["Thick glandular mucosa + parietal & chief cells"], histology: "Simple columnar epithelium; gastric pits; fundic glands (parietal + chief cells)"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Fundic Stomach)", aliases: [],
+                    function: "Thin smooth muscle at the base of the fundic gastric mucosa", examTips: ["Base of mucosa"], histology: "Thin smooth muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Fundic Stomach)", aliases: [],
+                    function: "Connective tissue layer of the fundic stomach", examTips: ["Loose connective tissue with vessels"], histology: "Loose connective tissue with blood vessels"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Fundic Stomach)", aliases: ["Muscularis externa (fundic stomach)"],
+                    function: "Smooth muscle of the stomach wall (three layers: oblique, circular, longitudinal)", examTips: ["Stomach has THREE muscle layers"], histology: "Three smooth muscle layers: inner oblique, middle circular, outer longitudinal"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Fundic Stomach)", aliases: [],
+                    function: "Outer serous covering of the fundic stomach", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
+
+                // ----- Slide 9: Pyloric Stomach layers -----
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Pyloric Stomach)", aliases: ["Pyloric gastric mucosa"],
+                    function: "Inner lining of the pyloric stomach: deep gastric pits leading to coiled, mucus-heavy pyloric glands with G cells", examTips: ["Deep pits + coiled mucous glands + G cells"], histology: "Simple columnar epithelium; deep gastric pits; pyloric glands (mucous + G cells)"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Pyloric Stomach)", aliases: [],
+                    function: "Thin smooth muscle at the base of the pyloric gastric mucosa", examTips: ["Base of mucosa"], histology: "Thin smooth muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Pyloric Stomach)", aliases: [],
+                    function: "Connective tissue layer of the pyloric stomach", examTips: ["Loose connective tissue with vessels"], histology: "Loose connective tissue with blood vessels"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Pyloric Stomach)", aliases: ["Muscularis externa (pyloric stomach)"],
+                    function: "Smooth muscle of the stomach wall; thickened distally to form the pyloric sphincter", examTips: ["Thickens into pyloric sphincter"], histology: "Smooth muscle layers; thickened circular layer forms pyloric sphincter"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Pyloric Stomach)", aliases: [],
+                    function: "Outer serous covering of the pyloric stomach", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
+
+                // ----- Slide 11: Gallbladder layers -----
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Gallbladder)", aliases: ["Gallbladder mucosa"],
+                    function: "Highly folded inner lining of the gallbladder: simple columnar epithelium specialized to concentrate bile", examTips: ["Highly folded simple columnar; NO muscularis mucosae, NO submucosa"], histology: "Simple columnar epithelium (tall, microvilli) on lamina propria; highly folded"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Smooth Muscle Bundles in Muscularis (Gallbladder)", aliases: ["Gallbladder muscularis"],
+                    function: "Interlacing smooth muscle that contracts to expel bile into the cystic duct", examTips: ["Interlacing bundles, not distinct layers"], histology: "Interlacing smooth muscle bundles (no distinct circular/longitudinal layers)"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Gallbladder)", aliases: [],
+                    function: "Outer serous covering on the free surface of the gallbladder (adventitia on the hepatic surface)", examTips: ["Serosa on free surface; adventitia where attached to liver"], histology: "Simple squamous mesothelium over connective tissue (serosa) / connective tissue only (adventitia)"),
+            ])
+        }
+
+        // ----- Slide 5: Trachea layers (Respiratory Histology category) -----
+        if let respHistologyCat = categories.first(where: { $0.name == "Respiratory Histology" }) {
+            structures.append(contentsOf: [
+                AnatomyStructure(categoryId: respHistologyCat.id, name: "Trachea", aliases: ["Windpipe (histology)"],
+                    function: "The whole trachea as seen on the slide — identify it at a glance by its C-shaped hyaline cartilage ring and pseudostratified ciliated columnar lining before focusing on individual layers", examTips: ["Big-picture ID: C-shaped cartilage ring + ciliated pseudostratified epithelium = trachea", "Paired with the esophagus on this slide — the trachea is the one WITH cartilage"], histology: "Mucosa (pseudostratified ciliated columnar + goblet cells) → submucosa (sero-mucous glands) → hyaline cartilage (C-ring) → trachealis smooth muscle → adventitia", highYield: true),
+                AnatomyStructure(categoryId: respHistologyCat.id, name: "Mucosa (Trachea)", aliases: ["Tracheal mucosa", "Pseudostratified ciliated columnar epithelium (trachea)"],
+                    function: "Inner lining of the trachea: pseudostratified ciliated columnar epithelium with goblet cells (respiratory epithelium)", examTips: ["Pseudostratified ciliated columnar + goblet cells"], histology: "Pseudostratified ciliated columnar epithelium with goblet cells on lamina propria"),
+                AnatomyStructure(categoryId: respHistologyCat.id, name: "Submucosa (Trachea)", aliases: [],
+                    function: "Connective tissue layer of the trachea housing the sero-mucous glands", examTips: ["Contains sero-mucous glands"], histology: "Loose connective tissue with sero-mucous glands"),
+                AnatomyStructure(categoryId: respHistologyCat.id, name: "Smooth Muscle (Trachea)", aliases: ["Trachealis muscle"],
+                    function: "The trachealis muscle bridging the open dorsal ends of the C-shaped cartilage rings; allows the esophagus to expand", examTips: ["Bridges the gap of the C-ring dorsally"], histology: "Bundle of smooth muscle connecting the free ends of the tracheal cartilage"),
+                AnatomyStructure(categoryId: respHistologyCat.id, name: "Adventitia (Trachea)", aliases: [],
+                    function: "Outer connective tissue anchoring the trachea to surrounding structures", examTips: ["Outermost layer; adventitia, NOT serosa"], histology: "Loose connective tissue blending into surrounding tissue"),
+            ])
+        }
+
+        // ----- Slide 5: Esophagus layers (Gastrointestinal Histology category) -----
+        // The esophagus shares slide 5 with the trachea but is a GI structure, so its
+        // layers live in GI Histology (grouped under "Slide 5/19 · Trachea & Esophagus").
+        if let giHistologyCat = categories.first(where: { $0.name == "Gastrointestinal Histology" }) {
+            structures.append(contentsOf: [
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Esophagus)", aliases: ["Esophageal mucosa", "Stratified squamous epithelium (esophagus)"],
+                    function: "Inner lining of the esophagus: non-keratinized stratified squamous epithelium protecting against food abrasion", examTips: ["Stratified squamous — the key esophagus feature"], histology: "Non-keratinized stratified squamous epithelium on lamina propria"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Esophagus)", aliases: [],
+                    function: "Thin smooth muscle at the base of the esophageal mucosa (longitudinal only in esophagus)", examTips: ["Base of mucosa"], histology: "Thin smooth muscle (longitudinal) layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Esophagus)", aliases: [],
+                    function: "Connective tissue layer of the esophagus containing esophageal mucous glands", examTips: ["Contains esophageal mucous glands"], histology: "Loose connective tissue with esophageal mucous glands"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Inner Muscle Layer (Esophagus)", aliases: ["Inner circular layer (esophagus)"],
+                    function: "Inner circular layer of the esophageal muscularis externa", examTips: ["Inner circular; cut in cross-section appears as a ring"], histology: "Circular smooth (and upper skeletal) muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Outer Muscle Layer (Esophagus)", aliases: ["Outer longitudinal layer (esophagus)"],
+                    function: "Outer longitudinal layer of the esophageal muscularis externa", examTips: ["Outer longitudinal"], histology: "Longitudinal smooth (and upper skeletal) muscle layer"),
+                AnatomyStructure(categoryId: giHistologyCat.id, name: "Adventitia (Esophagus)", aliases: [],
+                    function: "Outer connective tissue anchoring the (thoracic) esophagus; serosa only on the short abdominal segment", examTips: ["Adventitia, NOT serosa (fixed organ)"], histology: "Loose connective tissue blending into surrounding tissue"),
             ])
         }
 
         return structures
     }
-    
+
     // MARK: - Query Methods
     
     func structures(in category: AnatomyCategory) -> [AnatomyStructure] {
         return structures.filter { $0.categoryId == category.id }
+    }
+
+    // MARK: - Histology Slides
+
+    /// The 19 histology slides in handout order. `slideName` is the label printed on the
+    /// real physical slide; `handoutName` is the name used in the BIOL2501 handout list.
+    static let histologySlides: [HistologySlide] = [
+        HistologySlide(number: 1,  handoutName: "Blood",            slideName: "blood smear"),
+        HistologySlide(number: 2,  handoutName: "Artery, Vein, Nerve", slideName: "artery, vein, and nerve"),
+        HistologySlide(number: 3,  handoutName: "Aorta",            slideName: "human aorta"),
+        HistologySlide(number: 4,  handoutName: "Vena Cava",        slideName: "human vena cava"),
+        HistologySlide(number: 5,  handoutName: "Trachea & Esophagus", slideName: "trachea and esophagus"),
+        HistologySlide(number: 6,  handoutName: "Lung",             slideName: "lung section"),
+        HistologySlide(number: 7,  handoutName: "Cardiac Stomach",  slideName: "mammal cardiac stomach"),
+        HistologySlide(number: 8,  handoutName: "Fundic Stomach",   slideName: "mammal fundic stomach"),
+        HistologySlide(number: 9,  handoutName: "Pyloric Stomach",  slideName: "mammal pyloric stomach"),
+        HistologySlide(number: 10, handoutName: "Liver",            slideName: "liver human"),
+        HistologySlide(number: 11, handoutName: "Gallbladder",      slideName: "gall bladder"),
+        HistologySlide(number: 12, handoutName: "Pancreas",         slideName: "mammal pancreas"),
+        HistologySlide(number: 13, handoutName: "Duodenum",         slideName: "mammal duodenum"),
+        HistologySlide(number: 14, handoutName: "Jejunum",          slideName: "mammal jejunum"),
+        HistologySlide(number: 15, handoutName: "Ileum",            slideName: "mammal ileum"),
+        HistologySlide(number: 16, handoutName: "Large Intestine",  slideName: "large intestine"),
+        HistologySlide(number: 17, handoutName: "Kidney",           slideName: "kidney"),
+        HistologySlide(number: 18, handoutName: "Ovary",            slideName: "mammal ovary"),
+        HistologySlide(number: 19, handoutName: "Testis",           slideName: "testis"),
+    ]
+
+    static func histologySlide(number: Int) -> HistologySlide? {
+        histologySlides.first { $0.number == number }
+    }
+
+    /// Maps each histology structure NAME to the handout slide number it appears on.
+    /// Keyed by exact structure name (names are unique within the histology categories).
+    /// Edit this table to correct any slide assignment.
+    static let histologySlideByStructureName: [String: Int] = [
+        // Slide 1 — Blood smear
+        "Erythrocyte": 1, "Platelet": 1, "Lymphocyte": 1, "Monocyte": 1,
+        "Neutrophil": 1, "Eosinophil": 1, "Basophil": 1,
+
+        // Slide 2 — Artery, vein, nerve
+        "Artery": 2, "Vein": 2, "Nerve Fibers": 2,
+        "Tunica Intima (Artery)": 2, "Tunica Media (Artery)": 2, "Tunica Adventitia (Artery)": 2,
+        "Tunica Intima (Vein)": 2, "Tunica Media (Vein)": 2, "Tunica Adventitia (Vein)": 2,
+
+        // Slide 3 — Aorta
+        "Aorta": 3,
+        "Tunica Intima (Aorta)": 3, "Tunica Media (Aorta)": 3, "Tunica Adventitia (Aorta)": 3,
+
+        // Slide 4 — Vena cava
+        "Vena Cava": 4,
+        "Tunica Intima (Vena Cava)": 4, "Tunica Media (Vena Cava)": 4, "Tunica Adventitia (Vena Cava)": 4,
+
+        // Slide 5 — Trachea & esophagus
+        "Trachea": 5, "Sero-Mucous Glands (Trachea)": 5, "Tracheal Cartilage": 5,
+        "Esophagus": 5,
+        "Mucosa (Trachea)": 5, "Submucosa (Trachea)": 5, "Smooth Muscle (Trachea)": 5, "Adventitia (Trachea)": 5,
+        "Mucosa (Esophagus)": 5, "Muscularis Mucosae (Esophagus)": 5, "Submucosa (Esophagus)": 5,
+        "Inner Muscle Layer (Esophagus)": 5, "Outer Muscle Layer (Esophagus)": 5, "Adventitia (Esophagus)": 5,
+
+        // Slide 6 — Lung
+        "Alveoli": 6, "Alveolar Sacs": 6, "Bronchus": 6, "Bronchiole": 6,
+        "Pulmonary Smooth Muscle": 6, "Mucosa (Lung)": 6, "Branches of Pulmonary Arteries and Veins": 6,
+
+        // Slide 7 — Cardiac stomach
+        "Cardiac Stomach": 7, "Cardiac Glands": 7, "Gastric Pits (Cardiac Stomach)": 7,
+        "Mucosa (Cardiac Stomach)": 7, "Muscularis Mucosae (Cardiac Stomach)": 7,
+        "Submucosa (Cardiac Stomach)": 7, "Muscularis (Cardiac Stomach)": 7, "Serosa (Cardiac Stomach)": 7,
+
+        // Slide 8 — Fundic stomach
+        "Fundic Stomach": 8, "Fundic Glands": 8, "Gastric Pits (Fundic Stomach)": 8,
+        "Parietal Cells": 8, "Chief Cells": 8,
+        "Mucosa (Fundic Stomach)": 8, "Muscularis Mucosae (Fundic Stomach)": 8,
+        "Submucosa (Fundic Stomach)": 8, "Muscularis (Fundic Stomach)": 8, "Serosa (Fundic Stomach)": 8,
+
+        // Slide 9 — Pyloric stomach
+        "Pyloric Stomach": 9, "Pyloric Glands": 9, "G Cells": 9, "Gastric Pits (Pyloric Stomach)": 9,
+        "Mucosa (Pyloric Stomach)": 9, "Muscularis Mucosae (Pyloric Stomach)": 9,
+        "Submucosa (Pyloric Stomach)": 9, "Muscularis (Pyloric Stomach)": 9, "Serosa (Pyloric Stomach)": 9,
+
+        // Slide 10 — Liver
+        "Liver Lobule": 10, "Portal Triad": 10, "Central Vein": 10, "Hepatocyte": 10,
+
+        // Slide 11 — Gallbladder
+        "Gallbladder": 11,
+        "Mucosa (Gallbladder)": 11, "Smooth Muscle Bundles in Muscularis (Gallbladder)": 11, "Serosa (Gallbladder)": 11,
+
+        // Slide 12 — Pancreas
+        "Acinus": 12, "Acinar Cells": 12, "Islet of Langerhans": 12,
+        "Interlobular / Intralobular Duct": 12,
+
+        // Slide 13 — Duodenum
+        "Duodenum": 13, "Brunner's Glands": 13,
+        "Villi (Duodenum)": 13, "Intestinal Glands (Duodenum)": 13, "Goblet Cells (Duodenum)": 13,
+        "Mucosa (Duodenum)": 13, "Muscularis Mucosae (Duodenum)": 13, "Submucosa (Duodenum)": 13,
+        "Muscularis (Duodenum)": 13, "Serosa (Duodenum)": 13,
+
+        // Slide 14 — Jejunum
+        "Jejunum": 14,
+        "Villi (Jejunum)": 14, "Intestinal Glands (Jejunum)": 14, "Goblet Cells (Jejunum)": 14,
+        "Mucosa (Jejunum)": 14, "Muscularis Mucosae (Jejunum)": 14, "Submucosa (Jejunum)": 14,
+        "Muscularis (Jejunum)": 14, "Serosa (Jejunum)": 14,
+
+        // Slide 15 — Ileum
+        "Ileum": 15, "Peyer's Patches": 15,
+        "Villi (Ileum)": 15, "Intestinal Glands (Ileum)": 15, "Goblet Cells (Ileum)": 15,
+        "Mucosa (Ileum)": 15, "Muscularis Mucosae (Ileum)": 15, "Submucosa (Ileum)": 15,
+        "Muscularis (Ileum)": 15, "Serosa (Ileum)": 15,
+
+        // Slide 16 — Large intestine
+        "Large Intestine": 16,
+        "Mucosa (Large Intestine)": 16, "Intestinal Glands (Large Intestine)": 16, "Goblet Cells (Large Intestine)": 16,
+        "Muscularis Mucosae (Large Intestine)": 16,
+        "Submucosa (Large Intestine)": 16, "Muscularis (Large Intestine)": 16, "Serosa (Large Intestine)": 16,
+
+        // Slide 17 — Kidney
+        "Glomerulus": 17, "Bowman's Capsule": 17, "Proximal Convoluted Tubule": 17,
+        "Distal Convoluted Tubule": 17, "Renal Cortex": 17, "Renal Medulla": 17,
+
+        // Slide 18 — Ovary
+        "Primary Oocyte": 18, "Primary Follicle": 18, "Secondary Follicle": 18,
+        "Tertiary Follicle": 18, "Antrum": 18, "Corpus Luteum": 18,
+
+        // Slide 19 — Testis
+        "Seminiferous Tubule": 19, "Spermatogonia": 19, "Spermatocytes": 19,
+        "Spermatids": 19, "Spermatozoa": 19, "Leydig Cells": 19,
+    ]
+
+    /// True for the histology categories whose structures should be grouped by slide.
+    static let histologyCategoryNames: Set<String> = [
+        "Blood Histology", "Vessel Histology", "Respiratory Histology",
+        "Gastrointestinal Histology", "Liver Histology", "Pancreas Histology",
+        "Kidney Histology", "Reproductive Histology",
+    ]
+
+    func isHistologyCategory(_ category: AnatomyCategory) -> Bool {
+        Self.histologyCategoryNames.contains(category.name)
+    }
+
+    /// The category name a structure belongs to, or "" if not found.
+    func categoryName(for structure: AnatomyStructure) -> String {
+        categories.first { $0.id == structure.categoryId }?.name ?? ""
+    }
+
+    /// True if a structure lives in one of the histology categories. Used to badge
+    /// histology IDs in the alphabetical list (most IDs are gross anatomy).
+    func isHistologyStructure(_ structure: AnatomyStructure) -> Bool {
+        Self.histologyCategoryNames.contains(categoryName(for: structure))
+    }
+
+    /// Structures in a histology category grouped by their handout slide, in slide-number
+    /// order. Any structure without a slide mapping is collected under a nil slide (shown
+    /// last under an "Other" heading by the view).
+    func structuresBySlide(in category: AnatomyCategory) -> [(slide: HistologySlide?, structures: [AnatomyStructure])] {
+        let items = structures(in: category)
+        var bucket: [Int: [AnatomyStructure]] = [:]
+        var unmapped: [AnatomyStructure] = []
+        for s in items {
+            if let n = Self.histologySlideByStructureName[s.name] {
+                bucket[n, default: []].append(s)
+            } else {
+                unmapped.append(s)
+            }
+        }
+        var result: [(slide: HistologySlide?, structures: [AnatomyStructure])] = bucket.keys.sorted().map { n in
+            (slide: Self.histologySlide(number: n), structures: bucket[n] ?? [])
+        }
+        if !unmapped.isEmpty {
+            result.append((slide: nil, structures: unmapped))
+        }
+        return result
     }
 
     /// All structures in the same order they appear in the Atlas

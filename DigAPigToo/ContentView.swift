@@ -13,6 +13,9 @@ struct ContentView: View {
     /// Tracks whether the IDs tab is at its root (no category drilled into). When inside
     /// a category, IDs tab-swipe is disabled so the category-level swipe takes over.
     @State private var idsAtRoot: Bool = true
+    /// Same idea for Diagrams: disabled while viewing a diagram's image pager so the
+    /// internal left/right image swipe isn't hijacked into a tab change.
+    @State private var diagramsAtRoot: Bool = true
     private let lastTabIndex = 9
 
     var body: some View {
@@ -42,10 +45,10 @@ struct ContentView: View {
                 .tag(4)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
-            DiagramsView()
+            DiagramsView(isAtRoot: $diagramsAtRoot)
                 .tabItem { Label("Diagrams", systemImage: "photo.stack.fill") }
                 .tag(5)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: diagramsAtRoot)
 
             StatsView()
                 .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
@@ -111,11 +114,36 @@ extension View {
 
 // MARK: - Atlas
 
+enum AtlasViewMode {
+    case byCategory
+    case alphabetical
+}
+
 struct AtlasView: View {
     /// Reports nav-stack depth to ContentView so IDs tab-swipe disables inside a category.
     @Binding var isAtRoot: Bool
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var navPath = NavigationPath()
+    @State private var viewMode: AtlasViewMode = .byCategory
+
+    /// All structures sorted alphabetically (flat). Drives both the grouped list and the
+    /// running "ID x/X" position counter.
+    private var alphabeticalAll: [AnatomyStructure] {
+        dataManager.structures.sorted {
+            $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+        }
+    }
+
+    private func sectionLetter(for structure: AnatomyStructure) -> String {
+        let first = structure.name.first.map { String($0).uppercased() } ?? "#"
+        return first.first?.isLetter == true ? first : "#"
+    }
+
+    /// All structures sorted alphabetically, grouped into sections by first letter.
+    private var alphabeticalGroups: [(letter: String, structures: [AnatomyStructure])] {
+        let grouped = Dictionary(grouping: alphabeticalAll) { sectionLetter(for: $0) }
+        return grouped.keys.sorted().map { (letter: $0, structures: grouped[$0] ?? []) }
+    }
 
     // Ordered super-category groupings
     private var groups: [(title: String, systemImage: String, categories: [AnatomyCategory])] {
@@ -162,68 +190,175 @@ struct AtlasView: View {
 
     var body: some View {
         NavigationStack(path: $navPath) {
-            List {
-                ForEach(groups, id: \.title) { group in
-                    Section {
-                        ForEach(group.categories) { category in
-                            NavigationLink(value: CategoryNavDestination(category)) {
-                                Label {
-                                    HStack {
-                                        VStack(alignment: .leading, spacing: 1) {
-                                            Text(category.name)
-                                                .font(.body)
-                                            if !category.description.isEmpty {
-                                                Text(category.description)
-                                                    .font(.caption)
-                                                    .foregroundStyle(.secondary)
-                                            }
-                                        }
-                                        Spacer()
-                                        let count = dataManager.structures.filter { $0.categoryId == category.id }.count
-                                        Text("\(count)")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                            .padding(.trailing, 4)
-                                    }
-                                } icon: {
-                                    let info = categoryIcon(category.name)
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 7)
-                                            .fill(info.color)
-                                            .frame(width: 32, height: 32)
-                                        if let asset = info.customAsset {
-                                            Image(asset)
-                                                .renderingMode(.template)
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 28, height: 28)
-                                                .foregroundStyle(.white)
-                                        } else {
-                                            Image(systemName: info.symbol)
-                                                .font(.system(size: 15, weight: .medium))
-                                                .foregroundStyle(.white)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } header: {
-                        Label(group.title, systemImage: group.systemImage)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.primary)
-                            .textCase(nil)
-                            .padding(.top, 4)
-                    }
+            Group {
+                switch viewMode {
+                case .byCategory:   categoryList
+                case .alphabetical: alphabeticalList
                 }
             }
             .navigationTitle("Dig a Pig Too")
             .navigationDestination(for: CategoryNavDestination.self) { dest in
                 StructureListView(initialCategory: dest.category, initialScrollID: dest.scrollToID)
             }
+            .navigationDestination(for: AlphabeticalNavDestination.self) { dest in
+                // Alphabetical mode pages through the full alphabetical order.
+                let all = dataManager.structures.sorted {
+                    $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+                }
+                StructurePagerView(
+                    allStructures: all,
+                    initialIndex: all.firstIndex(where: { $0.id == dest.structure.id }) ?? 0
+                )
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Picker("View", selection: $viewMode) {
+                        Image(systemName: "folder").tag(AtlasViewMode.byCategory)
+                        Image(systemName: "textformat.abc").tag(AtlasViewMode.alphabetical)
+                    }
+                    .pickerStyle(.segmented)
+                }
+            }
         }
         .onChange(of: navPath.count) { _, count in
             isAtRoot = (count == 0)
         }
+    }
+
+    private var categoryList: some View {
+        List {
+            ForEach(groups, id: \.title) { group in
+                Section {
+                    ForEach(group.categories) { category in
+                        NavigationLink(value: CategoryNavDestination(category)) {
+                            Label {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(category.name)
+                                            .font(.body)
+                                        if !category.description.isEmpty {
+                                            Text(category.description)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    Spacer()
+                                    let count = dataManager.structures.filter { $0.categoryId == category.id }.count
+                                    Text("\(count)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .padding(.trailing, 4)
+                                }
+                            } icon: {
+                                let info = categoryIcon(category.name)
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 7)
+                                        .fill(info.color)
+                                        .frame(width: 32, height: 32)
+                                    if let asset = info.customAsset {
+                                        Image(asset)
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 28, height: 28)
+                                            .foregroundStyle(.white)
+                                    } else {
+                                        Image(systemName: info.symbol)
+                                            .font(.system(size: 15, weight: .medium))
+                                            .foregroundStyle(.white)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } header: {
+                    Label(group.title, systemImage: group.systemImage)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .textCase(nil)
+                        .padding(.top, 4)
+                }
+            }
+        }
+    }
+
+    private var alphabeticalList: some View {
+        let total = alphabeticalAll.count
+        // Precompute each structure's 1-based position in the flat alphabetical order.
+        let positionByID: [UUID: Int] = Dictionary(
+            uniqueKeysWithValues: alphabeticalAll.enumerated().map { ($0.element.id, $0.offset + 1) }
+        )
+        return ScrollViewReader { proxy in
+            List {
+                ForEach(alphabeticalGroups, id: \.letter) { group in
+                    Section {
+                        ForEach(group.structures) { structure in
+                            NavigationLink(value: AlphabeticalNavDestination(structure: structure)) {
+                                HStack {
+                                    Text(structure.name).font(.body)
+                                    if dataManager.isHistologyStructure(structure) {
+                                        Text("HISTOLOGY")
+                                            .font(.system(size: 9, weight: .bold))
+                                            .foregroundStyle(.purple)
+                                            .padding(.horizontal, 5).padding(.vertical, 2)
+                                            .background(.purple.opacity(0.15), in: Capsule())
+                                    }
+                                    Spacer()
+                                    if let pos = positionByID[structure.id] {
+                                        Text("\(pos)/\(total)")
+                                            .font(.caption2.monospacedDigit())
+                                            .foregroundStyle(.tertiary)
+                                    }
+                                }
+                            }
+                        }
+                    } header: {
+                        HStack {
+                            Text(group.letter)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            Text("\(group.structures.count)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .id(group.letter)
+                }
+            }
+            .overlay(alignment: .trailing) {
+                alphabetIndexBar(proxy: proxy)
+            }
+        }
+    }
+
+    /// Vertical A–Z scrubber along the right edge. Dragging jumps the list to the nearest
+    /// available letter section, mapping the touch's vertical position to a letter index.
+    private func alphabetIndexBar(proxy: ScrollViewProxy) -> some View {
+        let letters = alphabeticalGroups.map { $0.letter }
+        return GeometryReader { geo in
+            VStack(spacing: 1) {
+                ForEach(letters, id: \.self) { letter in
+                    Text(letter)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.blue)
+                        .frame(maxHeight: .infinity)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        let count = letters.count
+                        guard count > 0, geo.size.height > 0 else { return }
+                        let fraction = max(0, min(0.9999, value.location.y / geo.size.height))
+                        let idx = min(count - 1, Int(fraction * CGFloat(count)))
+                        withAnimation(.none) { proxy.scrollTo(letters[idx], anchor: .top) }
+                    }
+            )
+        }
+        .frame(width: 18)
+        .padding(.trailing, 2)
     }
 
     struct IconInfo {
@@ -349,15 +484,38 @@ struct StructureListView: View {
     }
 
     /// The list of structures for a single category. Each TabView page renders this.
+    /// Histology categories are grouped into sections by their handout slide; all other
+    /// categories show a flat list.
     @ViewBuilder
     private func categoryPage(for category: AnatomyCategory) -> some View {
         let structures = dataManager.structures(in: category)
         ScrollViewReader { proxy in
-            List(structures) { structure in
-                NavigationLink(value: structure) {
-                    Text(structure.name)
+            Group {
+                if dataManager.isHistologyCategory(category) {
+                    List {
+                        ForEach(dataManager.structuresBySlide(in: category), id: \.slide?.number) { group in
+                            Section {
+                                ForEach(group.structures) { structure in
+                                    NavigationLink(value: structure) {
+                                        Text(structure.name)
+                                    }
+                                    .id(structure.id)
+                                }
+                            } header: {
+                                Text(group.slide?.displayTitle(in: category.name) ?? "Other")
+                                    .font(.subheadline.weight(.semibold))
+                                    .textCase(nil)
+                            }
+                        }
+                    }
+                } else {
+                    List(structures) { structure in
+                        NavigationLink(value: structure) {
+                            Text(structure.name)
+                        }
+                        .id(structure.id)
+                    }
                 }
-                .id(structure.id)
             }
             .onChange(of: pendingScrollID) { _, id in
                 guard let id else { return }
@@ -504,6 +662,13 @@ struct CategoryNavDestination: Hashable {
         self.category = category
         self.scrollToID = id
     }
+}
+
+/// Distinct nav value for tapping a structure in the IDs Alphabetical view. Kept separate
+/// from a plain AnatomyStructure destination so it does not collide with the one
+/// StructureListView registers for category-mode paging.
+struct AlphabeticalNavDestination: Hashable {
+    let structure: AnatomyStructure
 }
 
 // MARK: - Structure Pager (swipe left/right between all structures in atlas order)
@@ -3306,10 +3471,14 @@ struct SelectStructureView: View {
 // MARK: - Diagrams
 
 struct DiagramsView: View {
+    /// Reports nav-stack depth to ContentView so the Diagrams tab-swipe disables while
+    /// the diagram image pager is open (otherwise the internal swipe changes tabs).
+    @Binding var isAtRoot: Bool
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @State private var navPath = NavigationPath()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navPath) {
             Group {
                 if dataManager.diagramGroups.isEmpty {
                     VStack(spacing: 16) {
@@ -3320,12 +3489,7 @@ struct DiagramsView: View {
                     .padding()
                 } else {
                     List(dataManager.diagramGroups) { group in
-                        NavigationLink {
-                            DiagramPagerView(
-                                allGroups: dataManager.diagramGroups,
-                                initialIndex: dataManager.diagramGroups.firstIndex(where: { $0.id == group.id }) ?? 0
-                            )
-                        } label: {
+                        NavigationLink(value: group.id) {
                             Label {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(group.title).font(.body)
@@ -3345,9 +3509,18 @@ struct DiagramsView: View {
                             }
                         }
                     }
+                    .navigationDestination(for: UUID.self) { groupID in
+                        DiagramPagerView(
+                            allGroups: dataManager.diagramGroups,
+                            initialIndex: dataManager.diagramGroups.firstIndex(where: { $0.id == groupID }) ?? 0
+                        )
+                    }
                 }
             }
             .navigationTitle("Diagrams")
+        }
+        .onChange(of: navPath.count) { _, count in
+            isAtRoot = (count == 0)
         }
     }
 }

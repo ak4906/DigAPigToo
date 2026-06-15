@@ -17,6 +17,31 @@ struct DiagramGroup: Identifiable {
     let images: [AnatomyImage]
 }
 
+// MARK: - Histology Slides
+
+/// One of the 19 histology slides from the BIOL2501 handout. Used to group the
+/// structures inside histology categories by the slide they appear on.
+struct HistologySlide: Identifiable, Hashable {
+    let number: Int             // 1...19, the handout's slide number
+    let handoutName: String     // name as printed in the handout, e.g. "Cardiac stomach"
+    let slideName: String       // label on the real physical slide, e.g. "mammal cardiac stomach"
+    var id: Int { number }
+
+    /// Section header shown in the slide-grouped list, e.g. "Slide 7/19 · Cardiac Stomach".
+    var displayTitle: String { "Slide \(number)/19 · \(handoutName)" }
+
+    /// Section header scoped to the category showing it. Slide 5 ("Trachea & Esophagus")
+    /// is split across two categories, so it reads "Trachea" in Respiratory Histology and
+    /// "Esophagus" in Gastrointestinal Histology rather than the shared handout name.
+    func displayTitle(in categoryName: String) -> String {
+        if number == 5 {
+            if categoryName == "Gastrointestinal Histology" { return "Slide \(number)/19 · Esophagus" }
+            if categoryName == "Respiratory Histology" { return "Slide \(number)/19 · Trachea" }
+        }
+        return displayTitle
+    }
+}
+
 // MARK: - Core Anatomy Models
 
 struct AnatomyCategory: Identifiable, Hashable {
