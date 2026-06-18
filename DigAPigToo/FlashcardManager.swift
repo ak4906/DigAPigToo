@@ -60,17 +60,25 @@ class FlashcardManager: ObservableObject {
         return s.isNew || s.due <= now
     }
 
-    /// Given a candidate pool of structure names, return those due now (new + overdue),
-    /// ordered: overdue first (most overdue first), then new cards.
+    /// Given a candidate pool of structure names, return those to study now in study order:
+    ///   1. Previously-practiced cards that are due, MOST OVERDUE FIRST (need refreshing
+    ///      soonest → reviewed first).
+    ///   2. New (never-practiced) cards, SHUFFLED, after the review cards.
+    /// New cards are shuffled fresh each call, so pass once per session.
     func dueCards(from names: [String], asOf now: Date = Date()) -> [String] {
-        let due = names.filter { isDue($0, asOf: now) }
-        return due.sorted { a, b in
-            let sa = schedules[a] ?? CardSchedule()
-            let sb = schedules[b] ?? CardSchedule()
-            // New cards last; among reviewed, earliest due first.
-            if sa.isNew != sb.isNew { return !sa.isNew && sb.isNew }
-            return sa.due < sb.due
+        var reviewedDue: [String] = []
+        var newCards: [String] = []
+        for name in names {
+            let s = schedules[name] ?? CardSchedule()
+            if s.isNew {
+                newCards.append(name)
+            } else if s.due <= now {
+                reviewedDue.append(name)
+            }
         }
+        // Most overdue first = earliest due date first.
+        reviewedDue.sort { (schedules[$0]?.due ?? now) < (schedules[$1]?.due ?? now) }
+        return reviewedDue + newCards.shuffled()
     }
 
     func dueCount(from names: [String], asOf now: Date = Date()) -> Int {

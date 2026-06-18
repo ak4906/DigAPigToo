@@ -124,13 +124,14 @@ struct FlashcardView: View {
 
     private func startSession() {
         let pool = eligibleStructures()
-        // Due cards first (new + overdue); if none are due, study the whole selection.
-        let dueNames = Set(cards.dueCards(from: pool.map { $0.name }))
-        let ordered: [AnatomyStructure]
-        if dueNames.isEmpty {
+        // Ask the SRS engine for study order: most-overdue reviewed cards first, then
+        // shuffled new cards. Preserve that exact order (don't collapse to a Set).
+        let orderedNames = cards.dueCards(from: pool.map { $0.name })
+        let byName = Dictionary(uniqueKeysWithValues: pool.map { ($0.name, $0) })
+        var ordered = orderedNames.compactMap { byName[$0] }
+        // If nothing is due (all reviewed and not yet due), study the whole selection shuffled.
+        if ordered.isEmpty {
             ordered = pool.shuffled()
-        } else {
-            ordered = pool.filter { dueNames.contains($0.name) }
         }
         guard !ordered.isEmpty else { return }
         session = FlashcardSession(structures: ordered)
