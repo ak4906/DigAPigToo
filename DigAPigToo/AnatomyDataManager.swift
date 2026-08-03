@@ -501,6 +501,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "First segment of small intestine; receives acidic chyme from stomach plus bile (via common bile duct) and pancreatic enzymes (via pancreatic duct and accessory pancreatic duct); site of major chemical digestion and beginning of absorption",
                     commonConfusions: ["Duodenum receives bile AND pancreatic enzymes — the accessory pancreatic duct empties directly into the duodenum (students commonly forget this)", "Duodenum vs jejunum on histology: Brunner's glands in the SUBMUCOSA = duodenum — the single most reliable identifier"],
                     examTips: ["Practical ID: C-shaped loop of intestine immediately after the pyloric sphincter", "Villi + Brunner's glands = duodenum", "KEY: accessory pancreatic duct empties here in addition to common bile duct"],
+                    images: [
+                        ImageCDN.image("duodenum_gross_1.jpg", caption: "Duodenum"),
+                    ],
                     histology: "Simple columnar epithelium with villi; BRUNNER'S GLANDS in submucosa (alkaline mucus, acid neutralization) — distinguishing feature from rest of small intestine",
                     connections: "Pyloric sphincter → duodenum → jejunum; receives common bile duct + accessory pancreatic duct at hepatopancreatic ampulla",
                     highYield: true
@@ -518,13 +521,13 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: digestiveCat.id,
-                    name: "Caecum",
-                    aliases: ["Cecum", "Blind pouch"],
+                    name: "Cecum",
+                    aliases: ["Caecum", "Blind pouch"],
                     function: "Blind-ended pouch marking the start of the large intestine; connected to the ileum via the ileocecal valve (a one-way sphincter that prevents backflow of bacteria-laden large intestinal contents into the small intestine); in pigs, site of microbial fermentation, water absorption, and transitional digestive processing",
-                    commonConfusions: ["Caecum is LARGE INTESTINE — no villi, increasing goblet cells", "The ileocecal valve is at the junction between the ileum and caecum — it is a separate structure from the caecum itself", "Human appendix is a vestigial outgrowth of the caecum; pigs do not have a distinct appendix"],
+                    commonConfusions: ["Cecum is LARGE INTESTINE — no villi, increasing goblet cells", "The ileocecal valve is at the junction between the ileum and cecum — it is a separate structure from the cecum itself", "Human appendix is a vestigial outgrowth of the cecum; pigs do not have a distinct appendix"],
                     examTips: ["Practical ID: blind pouch where jejuno-ileum meets the large intestine via the ileocecal valve", "Larger diameter than small intestine; no villi"],
                     histology: "Simple columnar epithelium, reduced villi (transitional) → absent, increasing goblet cells; crypts of Lieberkühn; large intestine pattern",
-                    connections: "Jejuno-ileum → ileocecal valve → caecum → spiral colon",
+                    connections: "Jejuno-ileum → ileocecal valve → cecum → spiral colon",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -534,8 +537,11 @@ class AnatomyDataManager: ObservableObject {
                     function: "Pig-specific coiled large intestine segment; major site of water absorption and fecal consolidation; the characteristic spiral arrangement is unique to pigs and some other mammals",
                     commonConfusions: ["Spiral colon is pig-specific — humans do not have this structure", "Spiral colon vs small intestine: NO villi + many goblet cells = large intestine/spiral colon"],
                     examTips: ["Practical ID: tightly coiled large intestinal structure, characteristic of pigs", "No villi + abundant goblet cells on histology", "KEY PIG ANATOMY: the spiral colon is a defining pig-specific structure"],
+                    images: [
+                        ImageCDN.image("spiral-colon_gross_1.jpg", caption: "Spiral Colon"),
+                    ],
                     histology: "Simple columnar epithelium, NO villi, abundant goblet cells, crypts of Lieberkühn; large intestine pattern",
-                    connections: "Caecum → spiral colon → transverse colon",
+                    connections: "Cecum → spiral colon → transverse colon",
                     highYield: true
                 ),
                 AnatomyStructure(
@@ -567,6 +573,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Stores and concentrates bile produced by the liver; releases bile into the duodenum via the cystic duct → common bile duct in response to CCK (cholecystokinin) when dietary fat enters the small intestine",
                     commonConfusions: ["Gallbladder stores bile; liver PRODUCES bile — these are two different steps", "Bile flow path: liver → hepatic duct → (can go to gallbladder via cystic duct for storage) → cystic duct → common bile duct → duodenum"],
                     examTips: ["Practical ID: greenish sac on the underside/visceral surface of the liver", "Simple columnar epithelium inside — optimized for absorption/secretion during concentration"],
+                    images: [
+                        ImageCDN.image("gallbladder_gross_1.jpg", caption: "Gallbladder"),
+                    ],
                     histology: "Simple columnar epithelium (tall, for absorptive concentration of bile); folded mucosa; smooth muscle wall for bile expulsion; no submucosa",
                     connections: "Liver (hepatic duct) → cystic duct → gallbladder; gallbladder → cystic duct → common bile duct → duodenum",
                     highYield: true
@@ -611,6 +620,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "More lateral lobe of the left liver; participates in all liver metabolic and secretory functions",
                     commonConfusions: ["Left lateral lobe extends more toward the left body wall; the left lateral lobe is often the largest lobe of the pig liver", "Students sometimes confuse the left lateral lobe with the spleen — spleen is darker and more elongated, positioned caudal to the liver"],
                     examTips: ["Practical ID: outermost left liver lobe, positioned laterally; often the largest single liver lobe in pigs", "Histologically identical to all other liver lobes"],
+                    images: [
+                        ImageCDN.image("left-lateral-lobe-of-liver_gross_1.jpeg", caption: "Left Lateral Lobe of Liver"),
+                    ],
                     histology: "Hepatocytes in lobules, liver sinusoids, portal triads, central veins — same as all liver",
                     connections: "Part of liver mass; portal blood supply; bile drains to hepatic duct system",
                     highYield: true
@@ -863,6 +875,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Central muscular pump driving blood through pulmonary and systemic circuits; enclosed by pericardial sac",
                     commonConfusions: ["Heart muscle (myocardium) is NOT nourished by blood in heart chambers — it needs its own coronary circulation"],
                     examTips: ["Practical ID: centrally located in thoracic cavity inside pericardial sac", "Chambers lined internally by endocardium, continuous with vessel endothelium", "Mostly cardiac muscle tissue"],
+                    images: [
+                        ImageCDN.image("heart_gross_1.jpg", caption: "Heart"),
+                    ],
                     histology: "Cardiac muscle (striated, branched, intercalated discs, central single nucleus); chambers lined by endocardium (simple squamous endothelium)",
                     connections: "Cranial/caudal vena cava → right heart → pulmonary trunk → lungs → pulmonary veins → left heart → aorta → systemic circulation",
                     highYield: true
@@ -1816,8 +1831,7 @@ class AnatomyDataManager: ObservableObject {
                     commonConfusions: ["Seminiferous tubule epithelium is specialized stratified germinal epithelium — NOT simple cuboidal/columnar/squamous"],
                     examTips: ["One of the more commonly tested reproductive structures", "Practical ID: oval reproductive organ with epididymis attached along one side", "VERY important histology slide: seminiferous tubules, spermatogonia, spermatocytes, spermatids, spermatozoa, Leydig cells", "Leydig cells located between seminiferous tubules — secrete testosterone — VERY HIGH YIELD endocrine concept", "External scrotal position maintains lower temperature for spermatogenesis"],
                     images: [
-                        ImageCDN.slide("testis_10x_1.jpeg", magnification: 10),
-                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40),
+                        ImageCDN.image("testis_gross_1.png", caption: "Testis"),
                     ],
                     histology: "Composed mainly of coiled seminiferous tubules lined by specialized stratified germinal epithelium; Leydig cells (testosterone-secreting) located between tubules; Sertoli cells support sperm maturation within tubules",
                     connections: "Seminiferous tubules → epididymis → ductus deferens",
@@ -1946,6 +1960,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Produces eggs (ova) via oogenesis and secretes estrogen and progesterone to regulate the reproductive cycle and support pregnancy",
                     commonConfusions: ["Distinguished from testis by location in abdomen near oviduct opening; ovary lacks epididymis", "In fetal pig the ovaries are small and may look like fat deposits — look for the oviduct/fimbriae nearby"],
                     examTips: ["Paired organs located on either side of the dorsal mesentery in the abdominal cavity", "Practical ID: small, oval, slightly granular-textured organs near the distal ends of the uterine horns", "In fetal pigs, appear whitish-pink and smooth; in adults they may have visible follicles or corpora lutea on surface"],
+                    images: [
+                        ImageCDN.image("ovary_gross_1.jpeg", caption: "Ovary"),
+                    ],
                     histology: "Simple cuboidal to simple squamous (germinal epithelium) overlying a dense connective tissue cortex containing follicles in various stages; medulla is vascular loose connective tissue",
                     connections: "Connected to oviduct via fimbriae; suspended by mesovarium (part of broad ligament); receives blood from ovarian artery (branch of abdominal aorta)",
                     highYield: true
@@ -1968,6 +1985,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Receives fertilized eggs from oviducts; houses individual fetuses during gestation in litter-bearing animals; each horn can contain multiple fetuses",
                     commonConfusions: ["Pigs have a bicornuate uterus — two long horns joining at the body; humans have a simplex uterus with no horns", "The horns are what make the pig uterus Y-shaped overall"],
                     examTips: ["Practical ID: long, convoluted tube-like structures extending from each side of the uterine body toward the oviducts", "In pregnant pigs, fetuses are strung along the horns like beads on a string", "Each horn can be 1–1.5 meters long in an adult sow"],
+                    images: [
+                        ImageCDN.image("uterine-horn_gross_1.jpeg", caption: "Horn of Uterus"),
+                    ],
                     histology: "Endometrium (simple columnar epithelium with uterine glands), myometrium (smooth muscle layers), perimetrium (serosa)",
                     connections: "Proximal: connects to oviduct; distal: merges into body of uterus; broad ligament suspends it from body wall",
                     highYield: true
@@ -3028,6 +3048,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Sperm-producing tubule"],
                     function: "Site of spermatogenesis",
                     examTips: ["Packed with developing sperm"],
+                    images: [
+                        ImageCDN.slide("testis_10x_1.jpeg", magnification: 10, caption: "Seminiferous Tubules — 10×"),
+                    ],
                     histology: "Pseudostratified columnar with spermatogenic cells"
                 ),
                 AnatomyStructure(
@@ -3036,6 +3059,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Sperm stem cells"],
                     function: "Continuously produce primary spermatocytes",
                     examTips: ["At outer edge of tubule"],
+                    images: [
+                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Spermatogonia (outer edge of tubule) — 40×"),
+                    ],
                     histology: "Diploid stem cells"
                 ),
                 AnatomyStructure(
@@ -3044,6 +3070,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Dividing sperm cells"],
                     function: "Divide to produce spermatids",
                     examTips: ["Undergo meiosis"],
+                    images: [
+                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Spermatocytes — 40×"),
+                    ],
                     histology: "Primary (diploid) and secondary (haploid)"
                 ),
                 AnatomyStructure(
@@ -3052,6 +3081,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Young sperm"],
                     function: "Differentiate into spermatozoa",
                     examTips: ["Final stage before mature sperm"],
+                    images: [
+                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Spermatids — 40×"),
+                    ],
                     histology: "Haploid cells undergoing spermiogenesis"
                 ),
                 AnatomyStructure(
@@ -3060,6 +3092,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Mature sperm"],
                     function: "Male gamete",
                     examTips: ["Released into lumen"],
+                    images: [
+                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Spermatozoa (in lumen) — 40×"),
+                    ],
                     histology: "Head, midpiece, tail; very motile"
                 ),
                 AnatomyStructure(
@@ -3068,6 +3103,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Interstitial cells"],
                     function: "Produces testosterone",
                     examTips: ["Endocrine cells of testis"],
+                    images: [
+                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Leydig Cells (between tubules) — 40×"),
+                    ],
                     histology: "Located between seminiferous tubules"
                 ),
             ])
@@ -3177,6 +3215,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Metabolism, detoxification, storage, bile production",
                     commonConfusions: ["Largest internal organ; multiple lobes including right/left medial and lateral lobes"],
                     examTips: ["Dark reddish-brown color; occupies much of cranial abdomen"],
+                    images: [
+                        ImageCDN.image("liver_gross_1.jpeg", caption: "Liver"),
+                    ],
                     histology: "Hepatic parenchyma with portal circulation",
                     connections: "Receives umbilical vein (fetal); major organ",
                     highYield: true
@@ -3188,6 +3229,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Food storage, mechanical churning, acid secretion (HCl from parietal cells), enzyme secretion (pepsinogen from chief cells), and preliminary protein digestion. Divided into 4 regions: Cardiac (receives food from esophagus), Fundus/Body (major secretory site), Pyloric Antrum (regulates gastric emptying, secretes gastrin)",
                     commonConfusions: ["No villi — key distinction from small intestine on histology", "Stomach epithelium = simple columnar throughout (not stratified squamous like esophagus)", "Pyloric antrum vs pyloric sphincter: antrum is the stomach region; sphincter is the valve at the exit"],
                     examTips: ["Practical ID: J-shaped/sac-shaped organ cranial-left in the peritoneal cavity, between the esophagus and duodenum", "HISTOLOGY: gastric pits + glands, no villi, simple columnar epithelium", "Four regions are all testable: cardia, fundus, body/corpus, pyloric antrum"],
+                    images: [
+                        ImageCDN.image("stomach_gross_1.jpeg", caption: "Stomach"),
+                    ],
                     histology: "Simple columnar epithelium throughout; gastric pits leading to glands: cardiac glands (mucus), fundic glands (parietal cells = HCl; chief cells = pepsinogen), pyloric glands (mucus + G cells = gastrin); no villi",
                     connections: "Esophagus (via cardiac sphincter) → stomach → duodenum (via pyloric sphincter); lesser omentum attaches to liver",
                     highYield: true
@@ -3199,6 +3243,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Primary site of nutrient absorption",
                     commonConfusions: [],
                     examTips: ["Coiled loops; narrower than large intestine"],
+                    images: [
+                        ImageCDN.image("small-intestine_gross_1.jpeg", caption: "Small Intestine"),
+                    ],
                     histology: "Intestinal epithelium with villi and microvilli for absorption",
                     connections: "Stomach → small intestine → large intestine",
                     highYield: false
@@ -3210,6 +3257,10 @@ class AnatomyDataManager: ObservableObject {
                     function: "Paired retroperitoneal organs responsible for: blood filtration, metabolic waste removal (urea, creatinine), water balance, electrolyte regulation, acid-base regulation, and blood pressure regulation. Functional unit is the nephron (glomerulus → Bowman's capsule → proximal tubule → loop of Henle → distal tubule → collecting duct). Humans filter ~1100–2000 L of blood/day but produce only ~1.5 L of urine — illustrating massive tubular reabsorption",
                     commonConfusions: ["RETROPERITONEAL: kidneys sit behind the parietal peritoneum, bulging into the abdominal cavity rather than suspended freely within it — do not say they are 'inside' the peritoneal cavity", "Simple squamous (Bowman's capsule) = filtration; simple cuboidal (renal tubules) = active transport/reabsorption — do not mix these up"],
                     examTips: ["Practical ID: paired, bean-shaped organs pressed against the dorsal body wall", "KEY histology logic: simple squamous → filtration (Bowman's capsule); simple cuboidal → active transport/reabsorption (tubules) — one of the biggest kidney histology concepts", "Nephron contains: glomerulus, Bowman's capsule, proximal tubule, loop of Henle, distal tubule, collecting duct"],
+                    images: [
+                        ImageCDN.image("kidney_gross_1.jpg", caption: "Kidney"),
+                        ImageCDN.image("kidney_gross_2.jpg", caption: "Kidney"),
+                    ],
                     histology: "Cortex: glomeruli (simple squamous endothelium + Bowman's capsule), convoluted tubules (simple cuboidal). Medulla: collecting ducts and loops of Henle (simple cuboidal → simple squamous in thin descending limb)",
                     connections: "Renal arteries (from descending aorta) → kidney → renal veins → caudal vena cava; kidney → ureter → urinary bladder",
                     highYield: true
@@ -3602,7 +3653,7 @@ class AnatomyDataManager: ObservableObject {
                     commonConfusions: [],
                     examTips: ["Small nodular immune structures associated with lymphatic vessels"],
                     images: [
-                        ImageCDN.image("lymph-node_gross_1.png", caption: "Lymph Nodes"),
+                        ImageCDN.image("lymph-nodes_gross_1.png", caption: "Lymph Nodes"),
                     ],
                     histology: "Lymphocyte-rich immune connective tissue; packed with leukocytes, reticular support tissue",
                     connections: "Associated with lymphatic vessels",

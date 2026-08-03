@@ -154,15 +154,20 @@ struct FlashcardSessionView: View {
     @StateObject private var cards = FlashcardManager.shared
     @StateObject private var dataManager = AnatomyDataManager.shared
 
-    @State private var index = 0
+    /// Live study queue. Cards in a learning/relearning step whose next due time falls
+    /// within the session are re-inserted a few slots back (Anki keeps short-step cards
+    /// in the current session; "Again" always brings the card back before you finish).
+    @State private var queue: [AnatomyStructure] = []
     @State private var revealed = false
-    @State private var ratedCount = 0
+    @State private var ratedCount = 0            // total ratings (incl. repeats)
+    @State private var uniqueCompleted = 0       // cards that left the queue for good
     @State private var ratingTally: [String: Int] = ["again": 0, "hard": 0, "good": 0, "easy": 0]
 
-    private var current: AnatomyStructure? {
-        guard index < session.structures.count else { return nil }
-        return session.structures[index]
-    }
+    /// Cards that graduated far enough to leave the session stay re-inserted no sooner
+    /// than this many seconds out; anything longer means "not this session".
+    private let sessionHorizon: TimeInterval = 20 * 60   // 20 min
+
+    private var current: AnatomyStructure? { queue.first }
 
     private func categoryName(_ s: AnatomyStructure) -> String {
         dataManager.categories.first { $0.id == s.categoryId }?.name ?? ""
@@ -181,12 +186,19 @@ struct FlashcardSessionView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     if current != nil {
-                        Text("\(index + 1) / \(session.structures.count)")
+                        // Progress = cards fully done / starting count; queue can grow with
+                        // repeats, so show remaining rather than a misleading "x / total".
+                        Text("\(queue.count) left")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
+                }
+            }
+            .onAppear {
+                if queue.isEmpty && ratedCount == 0 {
+                    queue = session.structures
                 }
             }
         }
@@ -321,14 +333,11 @@ struct FlashcardSessionView: View {
                               _ rating: FlashcardManager.Rating,
                               for s: AnatomyStructure) -> some View {
         Button {
-            cards.record(name: s.name, rating: rating)
-            ratingTally[key(rating), default: 0] += 1
-            ratedCount += 1
-            advance()
+            rate(s, rating)
         } label: {
             VStack(spacing: 2) {
                 Text(label).fontWeight(.semibold)
-                Text(intervalPreview(s, rating)).font(.caption2).opacity(0.85)
+                Text(cards.previewLabel(for: s.name, rating: rating)).font(.caption2).opacity(0.85)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
@@ -342,25 +351,28 @@ struct FlashcardSessionView: View {
         switch r { case .again: return "again"; case .hard: return "hard"; case .good: return "good"; case .easy: return "easy" }
     }
 
-    /// Human-readable preview of the next interval if the user picks this rating.
-    private func intervalPreview(_ s: AnatomyStructure, _ rating: FlashcardManager.Rating) -> String {
-        let sched = cards.schedule(for: s.name)
-        switch rating {
-        case .again: return "10m"
-        case .hard:  return sched.isNew ? "1d" : fmt(max(1, sched.intervalDays * 1.2))
-        case .good:  return sched.isNew ? "1d" : (sched.reps == 1 ? "6d" : fmt(max(1, sched.intervalDays * sched.ease)))
-        case .easy:  return sched.isNew ? "4d" : fmt(max(1, sched.intervalDays * sched.ease * 1.3))
+    /// Apply a rating and update the live queue.
+    private func rate(_ s: AnatomyStructure, _ rating: FlashcardManager.Rating) {
+        let now = Date()
+        let updated = cards.record(name: s.name, rating: rating, now: now)
+        ratingTally[key(rating), default: 0] += 1
+        ratedCount += 1
+
+        // Remove the card from the front of the queue.
+        if !queue.isEmpty { queue.removeFirst() }
+
+        // If it's still in a (re)learning step due soon, keep it in this session by
+        // re-inserting it a few positions back (so a couple of other cards come first).
+        let secondsUntilDue = updated.due.timeIntervalSince(now)
+        let stillLearning = (updated.phase == .learning || updated.phase == .relearning)
+        if stillLearning && secondsUntilDue <= sessionHorizon {
+            let insertAt = min(queue.count, 3)   // ~3 cards later, like Anki's step burying
+            queue.insert(s, at: insertAt)
+        } else {
+            uniqueCompleted += 1
         }
-    }
 
-    private func fmt(_ days: Double) -> String {
-        if days >= 30 { return "\(Int((days / 30).rounded()))mo" }
-        return "\(Int(days.rounded()))d"
-    }
-
-    private func advance() {
         revealed = false
-        withAnimation(.easeInOut(duration: 0.15)) { index += 1 }
     }
 
     // MARK: Summary
@@ -369,7 +381,7 @@ struct FlashcardSessionView: View {
         VStack(spacing: 20) {
             Image(systemName: "checkmark.seal.fill").font(.system(size: 56)).foregroundStyle(.green)
             Text("Session Complete").font(.title2).fontWeight(.semibold)
-            Text("\(ratedCount) card\(ratedCount == 1 ? "" : "s") reviewed")
+            Text("\(uniqueCompleted) card\(uniqueCompleted == 1 ? "" : "s") studied · \(ratedCount) rating\(ratedCount == 1 ? "" : "s")")
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 12) {

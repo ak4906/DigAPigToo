@@ -16,6 +16,9 @@ struct ContentView: View {
     /// Same idea for Diagrams: disabled while viewing a diagram's image pager so the
     /// internal left/right image swipe isn't hijacked into a tab change.
     @State private var diagramsAtRoot: Bool = true
+    /// Same idea for Search: disabled while paging through search results so the
+    /// result pager's left/right swipe isn't hijacked into a tab change.
+    @State private var searchAtRoot: Bool = true
     private let lastTabIndex = 10
 
     var body: some View {
@@ -45,10 +48,10 @@ struct ContentView: View {
                 .tag(4)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
-            SearchView()
+            SearchView(isAtRoot: $searchAtRoot)
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
                 .tag(5)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: searchAtRoot)
 
             DiagramsView(isAtRoot: $diagramsAtRoot)
                 .tabItem { Label("Diagrams", systemImage: "photo.stack.fill") }
@@ -3096,7 +3099,11 @@ struct ExamResultsView: View {
 // MARK: - Search
 
 struct SearchView: View {
+    /// Reports nav-stack depth to ContentView so the Search tab-swipe disables while
+    /// paging through results (otherwise the result pager's swipe changes tabs).
+    @Binding var isAtRoot: Bool
     @State private var searchText = ""
+    @State private var navPath = NavigationPath()
     @StateObject private var dataManager = AnatomyDataManager.shared
 
     var results: [AnatomyStructure] {
@@ -3108,7 +3115,7 @@ struct SearchView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navPath) {
             Group {
                 if results.isEmpty {
                     VStack {
@@ -3117,10 +3124,7 @@ struct SearchView: View {
                     }
                 } else {
                     List(results) { s in
-                        NavigationLink(destination: StructurePagerView(
-                            allStructures: results,
-                            initialIndex: results.firstIndex(where: { $0.id == s.id }) ?? 0
-                        )) {
+                        NavigationLink(value: s) {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(s.name)
                                     .font(.body)
@@ -3133,10 +3137,20 @@ struct SearchView: View {
                             }
                         }
                     }
+                    .navigationDestination(for: AnatomyStructure.self) { s in
+                        // Page through the CURRENT results, starting at the tapped one.
+                        StructurePagerView(
+                            allStructures: results,
+                            initialIndex: results.firstIndex(where: { $0.id == s.id }) ?? 0
+                        )
+                    }
                 }
             }
             .searchable(text: $searchText, prompt: "Search structures")
             .navigationTitle("Search")
+        }
+        .onChange(of: navPath.count) { _, count in
+            isAtRoot = (count == 0)
         }
     }
 }
