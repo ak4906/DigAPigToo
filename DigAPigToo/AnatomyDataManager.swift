@@ -3047,11 +3047,12 @@ class AnatomyDataManager: ObservableObject {
                     name: "Seminiferous Tubule",
                     aliases: ["Sperm-producing tubule"],
                     function: "Site of spermatogenesis",
-                    examTips: ["Packed with developing sperm"],
+                    commonConfusions: ["ORIENTATION: on the slide you are looking at a CROSS-SECTION of the tubules — so each one appears as a round/circular ring, NOT as a long tube. The tubules are actually long and coiled; the slice just cuts across them. (Some may be cut obliquely and look oval.)"],
+                    examTips: ["Packed with developing sperm", "You see the tubules in cross-section: look for circular rings with germ cells layered from the outer edge (spermatogonia) toward the central lumen (spermatozoa)"],
                     images: [
-                        ImageCDN.slide("testis_10x_1.jpeg", magnification: 10, caption: "Seminiferous Tubules — 10×"),
+                        ImageCDN.slide("testis_10x_1.jpeg", magnification: 10, caption: "Seminiferous Tubules (cross-section) — 10×"),
                     ],
-                    histology: "Pseudostratified columnar with spermatogenic cells"
+                    histology: "Pseudostratified columnar with spermatogenic cells; on the slide seen as circular cross-sections of the coiled tubules"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,

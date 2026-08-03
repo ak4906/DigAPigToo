@@ -103,8 +103,11 @@ class FlashcardManager: ObservableObject {
     /// Lifetime count of card reviews, for the stats screen.
     @Published private(set) var lifetimeReviews: Int = 0
 
-    private let udKey = "DigAPigToo_FlashcardSchedules"
-    private let udReviewsKey = "DigAPigToo_FlashcardLifetimeReviews"
+    // v2: bumped from the original key to discard pre-release test data that was scheduled
+    // by the first (buggy) interval scheme and would otherwise migrate in as inflated
+    // review-phase intervals. Safe because flashcards had not shipped.
+    private let udKey = "DigAPigToo_FlashcardSchedules_v2"
+    private let udReviewsKey = "DigAPigToo_FlashcardLifetimeReviews_v2"
 
     private init() { load() }
 

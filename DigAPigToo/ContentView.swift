@@ -541,6 +541,7 @@ struct StructureListView: View {
 struct StructureDetailView: View {
     let structure: AnatomyStructure
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @State private var showingAddToDeck = false
 
     private var categoryName: String {
         dataManager.categories.first { $0.id == structure.categoryId }?.name ?? ""
@@ -642,6 +643,16 @@ struct StructureDetailView: View {
                         }
                     }
 
+                    Button {
+                        showingAddToDeck = true
+                    } label: {
+                        Label("Add to Deck", systemImage: "rectangle.stack.badge.plus")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(.blue.opacity(0.15))
+                            .cornerRadius(10)
+                    }
+
                     NavigationLink("Contribute a Photo") {
                         UploadPhotoForStructureView(structure: structure)
                     }
@@ -658,6 +669,9 @@ struct StructureDetailView: View {
         // When navigated to directly (e.g. from Search), set it here as a fallback.
         .navigationTitle(structure.name)
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingAddToDeck) {
+            AddToDeckSheet(structureName: structure.name)
+        }
     }
 }
 
