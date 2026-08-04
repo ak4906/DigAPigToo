@@ -889,6 +889,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Thin-walled receiving chamber for deoxygenated blood returning from the body via cranial/caudal vena cava and coronary sinus",
                     commonConfusions: ["In the fetus, some caudal vena cava blood passes from right atrium through foramen ovale directly into left atrium, bypassing the lungs"],
                     examTips: ["Receives: cranial vena cava, caudal vena cava, coronary sinus", "Adult flow: cranial/caudal vena cava → right atrium → tricuspid valve → right ventricle", "Fetal: some blood crosses foramen ovale to left atrium"],
+                    images: [
+                        ImageCDN.image("right-atrium_gross_1.jpg", caption: "Right Atrium"),
+                    ],
                     histology: "Thin myocardium; lined by endocardium (simple squamous)",
                     connections: "Cranial/caudal vena cava → right atrium → tricuspid valve → right ventricle",
                     highYield: true
@@ -900,6 +903,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Thin-walled receiving chamber for oxygenated blood from pulmonary veins",
                     commonConfusions: [],
                     examTips: ["Adult flow: pulmonary veins → left atrium → bicuspid valve → left ventricle", "Fetal: also receives blood from right atrium through foramen ovale"],
+                    images: [
+                        ImageCDN.image("left-atrium_gross_1.jpg", caption: "Left Atrium"),
+                    ],
                     histology: "Thin myocardium; lined by endocardium (simple squamous)",
                     connections: "Pulmonary veins → left atrium → bicuspid valve → left ventricle",
                     highYield: true
@@ -911,6 +917,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Pumps deoxygenated blood into the pulmonary trunk toward the lungs",
                     commonConfusions: ["In the fetus, because fetal lungs are nonfunctional, most right ventricular output bypasses the lungs via the ductus arteriosus into the aorta"],
                     examTips: ["Flow: right atrium → tricuspid valve → right ventricle → pulmonary valve → pulmonary trunk", "Thinner wall than left ventricle — lower pressure circuit"],
+                    images: [
+                        ImageCDN.image("right-ventricle_gross_1.jpg", caption: "Right Ventricle"),
+                    ],
                     histology: "Thinner myocardium than left ventricle; lined by endocardium",
                     connections: "Right atrium → (tricuspid valve) → right ventricle → (pulmonary valve) → pulmonary trunk",
                     highYield: true
@@ -922,6 +931,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Pumps oxygenated blood into systemic circulation via the aorta",
                     commonConfusions: [],
                     examTips: ["Flow: left atrium → bicuspid valve → left ventricle → aortic valve → ascending aorta", "Thicker wall than right ventricle — must pump against higher systemic pressure"],
+                    images: [
+                        ImageCDN.image("left-ventricle_gross_1.jpg", caption: "Left Ventricle"),
+                    ],
                     histology: "Thick myocardium; lined by endocardium",
                     connections: "Left atrium → (bicuspid valve) → left ventricle → (aortic valve) → ascending aorta",
                     highYield: true
@@ -933,6 +945,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Flap-like extensions of atria that increase atrial filling and reservoir capacity",
                     commonConfusions: ["Auricle ≠ atrium — auricle is the external flap/appendage; atrium is the chamber itself"],
                     examTips: ["Practical ID: flap-like external projections over atrial region", "Useful for orienting the heart externally before opening it"],
+                    images: [
+                        ImageCDN.image("auricles_gross_1.jpeg", caption: "Auricles"),
+                    ],
                     histology: "Thin cardiac muscle with endocardial lining",
                     connections: "Extension of right and left atria",
                     highYield: false
@@ -946,6 +961,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Prevents backflow from right ventricle into right atrium during ventricular contraction",
                     commonConfusions: [],
                     examTips: ["Between right atrium and right ventricle", "Flow: right atrium → tricuspid valve → right ventricle", "Mnemonic: 'Try before you buy!' (Tri before Bi) — blood passes through the TRIcuspid valve BEFORE the BIcuspid valve in the heart"],
+                    images: [
+                        ImageCDN.image("tricuspid-valve_gross_1.jpg", caption: "Tricuspid Valve"),
+                    ],
                     histology: "Fibrous connective tissue cusps; attached to papillary muscles via chordae tendineae",
                     connections: "Right atrium → tricuspid valve → right ventricle",
                     highYield: true
@@ -957,6 +975,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Prevents backflow from left ventricle into left atrium during ventricular contraction",
                     commonConfusions: [],
                     examTips: ["Between left atrium and left ventricle", "Flow: left atrium → bicuspid valve → left ventricle", "Also called mitral valve", "Mnemonic: 'Try before you buy!' (Tri before Bi) — blood passes TRIcuspid FIRST, then BIcuspid (Mitral) second"],
+                    images: [
+                        ImageCDN.image("bicuspid-valve_gross_1.jpg", caption: "Bicuspid Valve"),
+                    ],
                     histology: "Fibrous connective tissue cusps; attached to papillary muscles via chordae tendineae",
                     connections: "Left atrium → bicuspid valve → left ventricle",
                     highYield: true
