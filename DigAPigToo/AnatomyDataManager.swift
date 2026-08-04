@@ -1813,6 +1813,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Dual-function endocrine gland: the cortex produces steroid hormones (aldosterone for Na+/K+ balance, cortisol for stress response, sex steroids); the medulla produces catecholamines (epinephrine/norepinephrine) for the fight-or-flight response",
                     commonConfusions: ["Adrenal CORTEX (outer layer) = steroid hormones; Adrenal MEDULLA (inner layer) = catecholamines — do not confuse the two layers", "The adrenal gland is endocrine (releases hormones directly into blood), not exocrine (no duct)"],
                     examTips: ["Practical ID: small, compact gland sitting on the cranial pole of each kidney — look where the renal artery arrives at the kidney and the adrenal is nearby/above", "In fetal pigs, adrenal glands are relatively large compared to adult size", "Two functional zones: cortex (outer, steroid-producing) + medulla (inner, catecholamine-producing) — can be distinguished histologically"],
+                    images: [
+                        ImageCDN.image("adrenal-gland_gross_1.jpg", caption: "Adrenal Gland"),
+                    ],
                     histology: "Cortex: three zones — zona glomerulosa (aldosterone), zona fasciculata (cortisol), zona reticularis (sex steroids) — all steroidogenic cells with lipid droplets; Medulla: modified sympathetic neurons (chromaffin cells) storing epinephrine/norepinephrine in dense-core vesicles",
                     connections: "Located on cranial pole of kidney; receives blood from suprarenal arteries (branches of aorta/renal/phrenic arteries); veins drain to renal vein (left) or IVC (right); no duct — direct hormone secretion into bloodstream",
                     highYield: true
@@ -3860,6 +3863,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Paired muscular tubes that transport urine from each kidney to the urinary bladder via peristaltic contractions; one ureter per kidney",
                     commonConfusions: ["Ureter (kidney → bladder) vs urethra (bladder → outside); students commonly confuse these — ureTER has two e's like 'kidney to bladder'; ureTHRA has an h like 'here it exits'", "Ureters enter the bladder at an angle creating a one-way valve (vesicoureteral junction) — prevents backflow of urine"],
                     examTips: ["Practical ID: slender white tubes running retroperitoneally from each kidney caudally toward the bladder", "In fetal pig: trace from the renal hilum caudally to where they insert into the dorsal bladder wall", "The ureters cross ventral to the iliac vessels in their course to the bladder"],
+                    images: [
+                        ImageCDN.image("ureter_gross_1.jpg", caption: "Ureter"),
+                    ],
                     histology: "Transitional epithelium (urothelium) lining; muscularis of inner longitudinal + outer circular smooth muscle (opposite of GI tract); adventitia outer layer",
                     connections: "Renal pelvis (in kidney) → ureter → urinary bladder (posterior wall); bilateral; retroperitoneal course along dorsal body wall",
                     highYield: true
@@ -3871,6 +3877,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Muscular expandable sac that temporarily stores urine received from the ureters until voluntary micturition (urination); can expand dramatically to accommodate increasing urine volume",
                     commonConfusions: ["Urinary bladder vs gallbladder — both are 'bladders' (expandable sacs) but completely different systems; urinary bladder stores urine, gallbladder stores bile", "The fetal pig bladder connects to the allantoic stalk (urachus) at its apex — a developmental remnant unique to fetal life"],
                     examTips: ["Practical ID: thin-walled, expandable sac in the caudal abdomen/pelvic region, often found between the umbilical arteries in fetal pig", "In fetal pigs, the apex of the bladder connects to the allantoic stalk (urachus) which leads to the allantois through the umbilical cord", "HIGH YIELD HISTOLOGY: lined by transitional epithelium (urothelium) — the only epithelium that can stretch dramatically without tearing"],
+                    images: [
+                        ImageCDN.image("urinary-bladder_gross_1.jpg", caption: "Urinary Bladder"),
+                    ],
                     histology: "Transitional epithelium (urothelium) — multiple layers; surface 'umbrella cells' are large dome-shaped cells that flatten dramatically during bladder filling; smooth muscle wall = detrusor muscle (three layers); adventitia or serosa on outside",
                     connections: "Receives: two ureters (from kidneys); drains via: urethra → exterior; in fetal pigs: apex connects to urachus/allantoic stalk → allantois; located in caudal abdominal/pelvic region between umbilical arteries",
                     highYield: true
