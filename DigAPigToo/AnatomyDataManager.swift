@@ -2955,6 +2955,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Endocrine component of the pancreas — produces insulin (beta cells, lowers blood glucose), glucagon (alpha cells, raises blood glucose), and somatostatin (delta cells, regulates both); releases hormones directly into bloodstream with no duct",
                     commonConfusions: ["Islets (endocrine, no duct, into blood) vs acini (exocrine, has ducts, into duodenum) — this acini vs. islets distinction is one of the most tested pancreas histology concepts", "On the slide: islets appear as lighter-staining rounded 'islands' surrounded by the darker acinar tissue"],
                     examTips: ["KEY ID: islets appear as pale, lightly stained rounded islands within the darker exocrine acinar tissue — the contrast makes them easy to spot", "Two functional compartments on one slide: exocrine (acini + ducts) and endocrine (islets) — the pancreas is both!"],
+                    images: [
+                        ImageCDN.slide("islet-of-langerhans_histo_1.jpg", magnification: 40, caption: "Islet of Langerhans — 40×"),
+                    ],
                     histology: "Clusters of pale polygonal endocrine cells without secretory granules visible by light microscopy; fenestrated capillaries throughout; beta cells most abundant (60%), alpha cells (25%), delta cells (10%)",
                     connections: "Scattered throughout pancreatic parenchyma; secrete insulin and glucagon into pancreatic capillaries → portal vein → liver (first-pass effect on glucose regulation)",
                     highYield: true
@@ -2966,6 +2969,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Carry digestive enzyme-rich secretions from pancreatic acini toward the main pancreatic duct and ultimately into the duodenum; intralobular ducts (small, within lobules) drain into interlobular ducts (larger, between lobules) → main pancreatic duct → duodenum",
                     commonConfusions: ["Pancreatic ducts (exocrine transport) vs blood vessels in the islets (endocrine release) — two entirely different delivery systems on the same slide", "Intralobular = small, within the lobule, lined by simple cuboidal; interlobular = larger, between lobules, lined by simple columnar with some connective tissue sheath"],
                     examTips: ["Practical ID on pancreas slide: look for small tubular structures with cuboidal lining among the acini — these are ducts; they are SMALLER and paler than acini", "Three things to identify on the pancreas slide: acini (exocrine secretory clusters), islets of Langerhans (pale endocrine islands), and ducts (tubular structures transporting secretions)", "Centroacinar cells = ductal cells that extend into the acinus — a unique pancreatic feature; they appear as pale cells in the center of an acinus"],
+                    images: [
+                        ImageCDN.slide("interlobular-intralobular-duct_histo_1.jpeg", magnification: 10, caption: "Interlobular / Intralobular Duct — 10×"),
+                    ],
                     histology: "Intralobular ducts: simple cuboidal epithelium, small lumen, no connective tissue sheath; interlobular ducts: simple columnar to pseudostratified epithelium, larger lumen, surrounded by connective tissue stroma; centroacinar cells at acinus-duct junction",
                     connections: "Acinar cells → centroacinar cells → intralobular ducts → interlobular ducts → main pancreatic duct → joins common bile duct at hepatopancreatic ampulla (ampulla of Vater) → duodenum",
                     highYield: true
