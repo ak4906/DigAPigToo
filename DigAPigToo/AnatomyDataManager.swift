@@ -732,6 +732,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Most cranial/anterior lobe of the right lung; first lobe visible when thoracic cavity is opened",
                     commonConfusions: ["Right lung has 4 lobes (cranial, middle, caudal, accessory); left lung has only 2 (cranial, caudal) — asymmetry is testable", "Cranial lobe of right vs left: right cranial lobe is larger and more prominent"],
                     examTips: ["Right lung = 4 lobes: cranial, middle, caudal, accessory", "Cranial lobe = most anterior, toward the head end of the lung"],
+                    images: [
+                        ImageCDN.image("cranial-lobe-of-right-lung_gross_1.jpg", caption: "Cranial Lobe of Right Lung"),
+                    ],
                     connections: "Part of right lung; supplied by right cranial lobar bronchus and branch of right pulmonary artery",
                     highYield: true
                 ),
@@ -742,6 +745,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Most cranial lobe of the left lung; the left lung is smaller than right due to cardiac notch accommodating the heart",
                     commonConfusions: ["Left lung has only 2 lobes (cranial + caudal) — NO middle lobe, NO accessory lobe", "The cardiac notch is on the left lung — the heart sits in this space"],
                     examTips: ["Left lung = 2 lobes only: cranial and caudal", "KEY: left lung smaller than right because heart displaces it leftward"],
+                    images: [
+                        ImageCDN.image("cranial-lobe-of-left-lung_gross_1.jpg", caption: "Cranial Lobe of Left Lung"),
+                    ],
                     connections: "Part of left lung; left cranial lobar bronchus; left pulmonary artery branch",
                     highYield: true
                 ),
@@ -752,6 +758,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Middle lobe of the right lung, situated between the cranial and caudal lobes; present only on the right side",
                     commonConfusions: ["Middle lobe exists ONLY on the right — the left lung has no middle lobe", "Students often forget the middle lobe exists or assign it to the left lung"],
                     examTips: ["RIGHT only: cranial + middle + caudal + accessory = 4 lobes", "Middle lobe is smaller than cranial and caudal lobes"],
+                    images: [
+                        ImageCDN.image("middle-lobe-of-right-lung_gross_1.jpg", caption: "Middle Lobe of Right Lung"),
+                    ],
                     connections: "Part of right lung between cranial and caudal lobes; right middle lobar bronchus",
                     highYield: true
                 ),
@@ -762,6 +771,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Small additional lobe of the right lung; lies medially near the heart and caudal vena cava; present only in pigs and some other mammals",
                     commonConfusions: ["Accessory lobe = RIGHT lung only — not present on left", "May be confused with the thymus or a lymph node if not traced to the right bronchial tree"],
                     examTips: ["KEY ID: small lobe medial to the caudal vena cava on the right side = accessory lobe", "Only on right lung — if you see it, you know you're on the right side"],
+                    images: [
+                        ImageCDN.image("accessory-lobe-of-right-lung_gross_1.jpg", caption: "Accessory Lobe of Right Lung"),
+                    ],
                     connections: "Part of right lung; medial position near caudal vena cava; right accessory lobar bronchus",
                     highYield: true
                 ),
@@ -772,6 +784,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Largest lobe of the right lung; lies against the diaphragm caudally",
                     commonConfusions: ["Both lungs have a caudal lobe — but the right caudal lobe is larger than the left caudal lobe"],
                     examTips: ["Largest lobe of the right lung", "Lies caudally against the diaphragm"],
+                    images: [
+                        ImageCDN.image("caudal-lobe-of-right-lung_gross_1.jpg", caption: "Caudal Lobe of Right Lung"),
+                    ],
                     connections: "Part of right lung; right caudal lobar bronchus; sits on diaphragm",
                     highYield: true
                 ),
@@ -782,6 +797,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The caudal (most posterior) lobe of the left lung; lies against the diaphragm; one of only two lobes of the left lung",
                     commonConfusions: ["Left lung has only 2 lobes: cranial and caudal — no middle, no accessory", "Right caudal lobe is larger than left caudal lobe"],
                     examTips: ["Left lung = cranial lobe + caudal lobe only", "Caudal lobe = most posterior, rests on diaphragm", "If you can see only 2 lobes on one side, you are looking at the LEFT lung"],
+                    images: [
+                        ImageCDN.image("caudal-lobe-of-left-lung_gross_1.jpg", caption: "Caudal Lobe of Left Lung"),
+                    ],
                     connections: "Part of left lung; left caudal lobar bronchus; rests on diaphragm",
                     highYield: true
                 ),
@@ -1024,6 +1042,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies oxygenated blood to myocardium — heart muscle cannot be nourished by blood inside the chambers",
                     commonConfusions: [],
                     examTips: ["Branches from ascending aorta just above aortic valve", "Practical ID: vessel visible on ventral heart surface"],
+                    images: [
+                        ImageCDN.image("left-coronary-artery_gross_1.jpeg", caption: "Left Coronary Artery"),
+                    ],
                     histology: "Artery: thick tunica media with smooth muscle; lined by simple squamous endothelium",
                     connections: "Ascending aorta → coronary arteries → myocardial capillaries → cardiac veins → coronary sinus → right atrium",
                     highYield: true
