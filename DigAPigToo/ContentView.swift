@@ -540,6 +540,9 @@ struct StructureListView: View {
 
 struct StructureDetailView: View {
     let structure: AnatomyStructure
+    /// Reports the structure the user ended on after browsing images in fullscreen, so
+    /// the enclosing pager can follow along.
+    var onFullscreenNavigate: ((UUID) -> Void)? = nil
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var showingAddToDeck = false
 
@@ -554,7 +557,8 @@ struct StructureDetailView: View {
                 if !structure.images.isEmpty {
                     TabView {
                         ForEach(structure.images) { img in
-                            AnatomyImageView(image: img, fillsFrame: false, title: structure.name)
+                            AnatomyImageView(image: img, fillsFrame: false, title: structure.name,
+                                             onFullscreenNavigate: onFullscreenNavigate)
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                         }
                     }
@@ -720,7 +724,13 @@ struct StructurePagerView: View {
         ZStack(alignment: .bottom) {
             TabView(selection: $currentIndex) {
                 ForEach(Array(allStructures.enumerated()), id: \.element.id) { idx, structure in
-                    StructureDetailView(structure: structure)
+                    StructureDetailView(structure: structure, onFullscreenNavigate: { structureID in
+                        // Follow the fullscreen viewer: land on whichever structure the
+                        // user last viewed in fullscreen.
+                        if let newIdx = allStructures.firstIndex(where: { $0.id == structureID }) {
+                            currentIndex = newIdx
+                        }
+                    })
                         .tag(idx)
                 }
             }
@@ -788,6 +798,8 @@ struct AnatomyImageView: View {
     var title: String = ""             // shown in fullscreen nav bar
     var fullscreenMode: FullscreenMode = .structure
     var hideFullscreenTitle: Bool = false  // true in quiz context — shows "?" instead of answer
+    /// Reports the structure the user ended on when the fullscreen viewer closes.
+    var onFullscreenNavigate: ((UUID) -> Void)? = nil
     @State private var showFullscreen = false
 
     var body: some View {
@@ -851,7 +863,8 @@ struct AnatomyImageView: View {
         .onTapGesture { showFullscreen = true }
         .fullScreenCover(isPresented: $showFullscreen) {
             FullscreenImageSheet(image: image, title: title, mode: fullscreenMode,
-                                 hideTitle: hideFullscreenTitle)
+                                 hideTitle: hideFullscreenTitle,
+                                 onDismissAt: onFullscreenNavigate)
         }
     }
 }
@@ -875,6 +888,10 @@ struct FullscreenImageSheet: View {
     var title: String = ""
     var mode: FullscreenMode = .structure
     var hideTitle: Bool = false    // true in quiz — replaces structure name with "?" to avoid spoilers
+    /// In .structure mode, reports the structure the user ended on so the underlying
+    /// pager can follow along — you're dropped back at the structure you last viewed
+    /// in fullscreen, not the one you entered from.
+    var onDismissAt: ((UUID) -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var dataManager = AnatomyDataManager.shared
@@ -976,7 +993,14 @@ struct FullscreenImageSheet: View {
             }
         }
         .onAppear { currentIndex = initialIndex }
-        .onChange(of: currentIndex) { _, _ in isZoomed = false }
+        .onChange(of: currentIndex) { _, _ in
+            isZoomed = false
+            // Keep the underlying pager in sync LIVE while swiping, so when the viewer
+            // closes it's already on the right page — no flash of the original entry.
+            if case .structure = mode, currentIndex < entries.count {
+                onDismissAt?(entries[currentIndex].id)
+            }
+        }
         .simultaneousGesture(
             DragGesture(minimumDistance: 20)
                 .onChanged { value in

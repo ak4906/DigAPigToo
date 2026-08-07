@@ -716,7 +716,10 @@ class AnatomyDataManager: ObservableObject {
                     name: "Bronchi",
                     aliases: ["Bronchial tubes"],
                     function: "Conducts air from trachea to lungs",
-                    examTips: ["Right and left bronchi branch from trachea"]
+                    examTips: ["Right and left bronchi branch from trachea"],
+                    images: [
+                        ImageCDN.image("bronchi_gross_1.jpeg", caption: "Bronchi"),
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: respiratoryCat.id,
@@ -3736,6 +3739,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Air passage, airway protection with epiglottis, sound production via vocal folds",
                     commonConfusions: [],
                     examTips: ["Enlarged airway structure superior to trachea; oval-shaped protrusion"],
+                    images: [
+                        ImageCDN.image("larynx_gross_1.jpg", caption: "Larynx"),
+                    ],
                     histology: "Pseudostratified ciliated columnar epithelium in respiratory regions; more protective stratified squamous on vocal folds",
                     connections: "Pharynx → larynx → trachea",
                     highYield: true
@@ -3786,6 +3792,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Major muscle of mammalian respiration; contraction flattens it increasing thoracic volume drawing air in; relaxation expels air",
                     commonConfusions: ["Uniquely mammalian; skeletal muscle even though breathing often automatic"],
                     examTips: ["Thin muscular sheet beneath lungs/liver boundary; separates thoracic from abdominal cavity"],
+                    images: [
+                        ImageCDN.image("diaphragm_gross_1.jpg", caption: "Diaphragm"),
+                    ],
                     histology: "Skeletal muscle (striated, multinucleated, peripheral nuclei); serosal coverings: pleura (superior), peritoneum (inferior); both lined by simple squamous mesothelium",
                     connections: "Thoracic cavity ↔ diaphragm ↔ abdominal cavity",
                     highYield: true
@@ -3797,6 +3806,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Muscular tube transporting food bolus from pharynx to stomach via peristalsis. Guarded by two sphincters: the UES (Upper Esophageal Sphincter) at the top — normally closed to prevent air entering the esophagus during breathing and to protect the airway from stomach contents; and the LES (Lower Esophageal Sphincter, also called cardiac sphincter) at the esophagus–stomach junction — normally contracted to prevent acidic stomach contents from refluxing back up, relaxing only to allow food and liquids into the stomach.",
                     commonConfusions: ["Distinguished from trachea by lack of cartilage rings and stratified squamous epithelium", "LES failure → gastroesophageal reflux (GERD); UES failure → aspiration risk"],
                     examTips: ["Muscular tube posterior to trachea; absence of rings/cartilage", "UES = top of esophagus (airway protection); LES = bottom of esophagus (reflux prevention)"],
+                    images: [
+                        ImageCDN.image("esophagus_gross_1.jpg", caption: "Esophagus"),
+                    ],
                     histology: "Stratified squamous epithelium (VERY HIGH YIELD); contains inner circular and outer longitudinal smooth muscle for peristalsis",
                     connections: "Pharynx → UES → esophagus → LES (cardiac sphincter) → cardiac stomach; passes through diaphragm at esophageal hiatus; runs posterior to trachea in the mediastinum",
                     highYield: true
