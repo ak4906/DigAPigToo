@@ -33,8 +33,8 @@ struct ContentView: View {
                 .tag(1)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
-            FillBlankListView()
-                .tabItem { Label("Fill-In", systemImage: "text.badge.plus") }
+            FlashcardView()
+                .tabItem { Label("Flashcards", systemImage: "rectangle.stack.fill") }
                 .tag(2)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
@@ -43,8 +43,8 @@ struct ContentView: View {
                 .tag(3)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
-            FlashcardView()
-                .tabItem { Label("Flashcards", systemImage: "rectangle.stack.fill") }
+            FillBlankListView()
+                .tabItem { Label("Fill-In", systemImage: "text.badge.plus") }
                 .tag(4)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
@@ -3644,14 +3644,41 @@ struct DiagramDetailView: View {
 
 // MARK: - Stats
 
+enum StatsMode: String, CaseIterable {
+    case quiz = "Quiz"
+    case flashcards = "Flashcards"
+}
+
 struct StatsView: View {
     @StateObject private var stats = StatsManager.shared
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var showResetConfirm = false
+    @State private var mode: StatsMode = .quiz
 
     var body: some View {
         NavigationStack {
             Group {
+                switch mode {
+                case .quiz:       quizStats
+                case .flashcards: FlashcardStatsContent()
+                }
+            }
+            .navigationTitle("My Stats")
+            .safeAreaInset(edge: .top) {
+                Picker("Stats", selection: $mode) {
+                    ForEach(StatsMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(.bar)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var quizStats: some View {
+        Group {
                 if stats.totalAnswered == 0 {
                     VStack(spacing: 16) {
                         Image(systemName: "chart.bar.xaxis").font(.system(size: 52)).foregroundStyle(.secondary)
@@ -3749,14 +3776,12 @@ struct StatsView: View {
                         }
                     }
                 }
-            }
-            .navigationTitle("My Stats")
-            .confirmationDialog("Reset all quiz history?", isPresented: $showResetConfirm, titleVisibility: .visible) {
-                Button("Reset", role: .destructive) { stats.reset() }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("This cannot be undone.")
-            }
+        }
+        .confirmationDialog("Reset all quiz history?", isPresented: $showResetConfirm, titleVisibility: .visible) {
+            Button("Reset", role: .destructive) { stats.reset() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This cannot be undone.")
         }
     }
 }

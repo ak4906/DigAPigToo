@@ -25,6 +25,7 @@ struct FlashcardView: View {
     /// Selected category IDs. Empty = none chosen yet.
     @State private var selected: Set<UUID> = []
     @State private var session: FlashcardSession?
+    @State private var showingStats = false
 
     // Category groupings mirror the IDs page order.
     private var groups: [(title: String, categories: [AnatomyCategory])] {
@@ -64,13 +65,18 @@ struct FlashcardView: View {
                 }
             }
             .navigationTitle("Flashcards")
+            .safeAreaInset(edge: .top) {
+                Picker("Mode", selection: $mode) {
+                    ForEach(FlashcardMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(.bar)
+            }
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Picker("Mode", selection: $mode) {
-                        ForEach(FlashcardMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(maxWidth: 220)
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { showingStats = true } label: { Image(systemName: "chart.bar.fill") }
                 }
                 if mode == .categories {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -83,6 +89,9 @@ struct FlashcardView: View {
             }
             .fullScreenCover(item: $session) { sess in
                 FlashcardSessionView(session: sess)
+            }
+            .sheet(isPresented: $showingStats) {
+                FlashcardStatsView()
             }
         }
     }
@@ -692,5 +701,196 @@ struct AddToDeckSheet: View {
                 Button("Cancel", role: .cancel) {}
             }
         }
+    }
+}
+
+// MARK: - Flashcard stats
+
+/// Sheet wrapper — used by the chart button in the Flashcards tab.
+struct FlashcardStatsView: View {
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        NavigationStack {
+            FlashcardStatsContent()
+                .navigationTitle("Flashcard Progress")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
+                }
+        }
+    }
+}
+
+/// The reusable flashcard-stats body (no navigation chrome), so it can appear both in
+/// the Flashcards-tab sheet and inside the shared Stats tab.
+struct FlashcardStatsContent: View {
+    @StateObject private var cards = FlashcardManager.shared
+    @StateObject private var dataManager = AnatomyDataManager.shared
+    @State private var showResetConfirm = false
+
+    /// All image-backed structures = the universe of possible cards.
+    private var allCardNames: [String] {
+        dataManager.structures.filter { !$0.images.isEmpty }.map { $0.name }
+    }
+
+    // Category groupings mirror the IDs page order.
+    private var categoryOrder: [String] {
+        ["Anatomical Planes", "Directional Terminology",
+         "External", "Buccal Cavity", "Upper Thoracic", "Peritoneal Cavity",
+         "Digestive System", "Respiratory System", "Circulatory System",
+         "Urinary System", "Male Reproductive", "Female Reproductive",
+         "Fetal Structures", "Adult Maternal Pig", "Cow Eye",
+         "Blood Histology", "Vessel Histology", "Respiratory Histology",
+         "Gastrointestinal Histology", "Liver Histology", "Pancreas Histology",
+         "Kidney Histology", "Reproductive Histology",
+         "Epithelial Types", "Microscope"]
+    }
+
+    private func names(in categoryName: String) -> [String] {
+        guard let cat = dataManager.categories.first(where: { $0.name == categoryName }) else { return [] }
+        return dataManager.structures.filter { $0.categoryId == cat.id && !$0.images.isEmpty }.map { $0.name }
+    }
+
+    var body: some View {
+        let overall = cards.progress(over: allCardNames)
+        Group {
+            if overall.total == 0 {
+                VStack(spacing: 16) {
+                    Image(systemName: "rectangle.stack.badge.person.crop").font(.system(size: 52)).foregroundStyle(.secondary)
+                    Text("No cards yet").font(.headline)
+                    Text("Study some flashcards to start tracking your learning progress.")
+                        .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                }
+                .padding()
+            } else {
+                statsList(overall: overall)
+            }
+        }
+        .confirmationDialog("Reset all flashcard progress?", isPresented: $showResetConfirm, titleVisibility: .visible) {
+            Button("Reset Everything", role: .destructive) { cards.resetAll() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently erases all scheduling and review history for every card. Your decks are NOT deleted. This cannot be undone — avoid doing this right before an exam.")
+        }
+    }
+
+    @ViewBuilder
+    private func statsList(overall: FlashcardManager.ProgressBreakdown) -> some View {
+        List {
+            // Overall progress
+            Section("Overall") {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Learned").font(.subheadline)
+                        Spacer()
+                        Text("\(overall.learned) / \(overall.total)  ·  \(Int(overall.learnedFraction * 100))%")
+                            .font(.subheadline.monospacedDigit()).fontWeight(.semibold)
+                            .foregroundStyle(.blue)
+                    }
+                    progressBar(overall.learnedFraction, color: .blue)
+                }
+                .padding(.vertical, 2)
+
+                statRow("New (not started)", overall.new, "circle.dashed", .gray)
+                statRow("Learning", overall.learning, "hourglass", .orange)
+                statRow("Young (review)", overall.young, "leaf.fill", .green)
+                statRow("Mature (21+ day interval)", overall.mature, "tree.fill", .teal)
+                HStack {
+                    Label("Total reviews done", systemImage: "arrow.triangle.2.circlepath")
+                    Spacer()
+                    Text("\(cards.lifetimeReviews)").fontWeight(.semibold)
+                }
+                HStack {
+                    Label("Due now", systemImage: "bell.badge.fill")
+                    Spacer()
+                    Text("\(cards.dueCount(from: allCardNames))").fontWeight(.semibold).foregroundStyle(.red)
+                }
+            }
+
+            // Per-category progress (most-learned first for encouragement... or least? use least-learned first)
+            let catRows: [(name: String, b: FlashcardManager.ProgressBreakdown)] = categoryOrder.compactMap { cat in
+                let ns = names(in: cat)
+                guard !ns.isEmpty else { return nil }
+                return (cat, cards.progress(over: ns))
+            }.sorted { $0.b.learnedFraction < $1.b.learnedFraction }
+            if !catRows.isEmpty {
+                Section("By Category (least learned first)") {
+                    ForEach(catRows, id: \.name) { row in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(row.name).font(.subheadline)
+                                Spacer()
+                                Text("\(Int(row.b.learnedFraction * 100))%")
+                                    .font(.subheadline.monospacedDigit())
+                                    .foregroundStyle(row.b.learnedFraction >= 0.75 ? .green : row.b.learnedFraction >= 0.4 ? .orange : .secondary)
+                            }
+                            progressBar(row.b.learnedFraction, color: row.b.learnedFraction >= 0.75 ? .green : row.b.learnedFraction >= 0.4 ? .orange : .blue)
+                            Text("\(row.b.learned) / \(row.b.total) learned").font(.caption2).foregroundStyle(.secondary)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+
+            // Hardest cards
+            let hardest = cards.hardestCards(among: allCardNames, limit: 12)
+            if !hardest.isEmpty {
+                Section("Toughest Cards — Most Lapses") {
+                    ForEach(hardest, id: \.name) { item in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.name).font(.subheadline)
+                                Text("ease \(Int(item.ease * 100))%").font(.caption2).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Text("\(item.lapses)×")
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(.red)
+                            Text("forgotten").font(.caption2).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
+            // What's next
+            let next = cards.upcoming(among: allCardNames, limit: 8)
+            if !next.isEmpty {
+                Section("Coming Up Next") {
+                    ForEach(next, id: \.name) { item in
+                        HStack {
+                            Text(item.name).font(.subheadline)
+                            Spacer()
+                            Text(FlashcardManager.dueLabel(item.due))
+                                .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+
+            Section {
+                Button("Reset Flashcard Progress", role: .destructive) { showResetConfirm = true }
+            } footer: {
+                Text("Erases review scheduling for all cards. Keeps your decks.")
+            }
+        }
+    }
+
+    private func statRow(_ label: String, _ value: Int, _ icon: String, _ color: Color) -> some View {
+        HStack {
+            Label(label, systemImage: icon).foregroundStyle(.primary)
+            Spacer()
+            Text("\(value)").fontWeight(.semibold).foregroundStyle(color)
+        }
+    }
+
+    private func progressBar(_ fraction: Double, color: Color) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 3).fill(.gray.opacity(0.15)).frame(height: 6)
+                RoundedRectangle(cornerRadius: 3).fill(color)
+                    .frame(width: max(0, geo.size.width * fraction), height: 6)
+            }
+        }
+        .frame(height: 6)
     }
 }

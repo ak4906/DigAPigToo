@@ -295,6 +295,62 @@ class FlashcardManager: ObservableObject {
         schedules.values.filter { $0.phase == .review && $0.intervalDays >= 21 }.count
     }
 
+    /// Phase counts over a given pool of card names (image-backed structures). Names with
+    /// no schedule yet count as "new". Returns (new, learning, young review, mature review).
+    struct ProgressBreakdown {
+        var new = 0
+        var learning = 0        // learning + relearning
+        var young = 0           // review, interval < 21 days
+        var mature = 0          // review, interval ≥ 21 days
+        var total: Int { new + learning + young + mature }
+        /// "Learned" = graduated at least once (young + mature).
+        var learned: Int { young + mature }
+        /// 0…1 fraction of the pool that has been learned.
+        var learnedFraction: Double { total == 0 ? 0 : Double(learned) / Double(total) }
+    }
+
+    func progress(over names: [String]) -> ProgressBreakdown {
+        var b = ProgressBreakdown()
+        for name in names {
+            guard let s = schedules[name] else { b.new += 1; continue }
+            switch s.phase {
+            case .new: b.new += 1
+            case .learning, .relearning: b.learning += 1
+            case .review: (s.intervalDays >= 21 ? (b.mature += 1) : (b.young += 1))
+            }
+        }
+        return b
+    }
+
+    /// Cards the user has struggled with most (by lapse count, then low ease), limited.
+    func hardestCards(among names: [String], limit: Int = 10) -> [(name: String, lapses: Int, ease: Double)] {
+        names.compactMap { name -> (String, Int, Double)? in
+            guard let s = schedules[name], s.lapses > 0 else { return nil }
+            return (name, s.lapses, s.ease)
+        }
+        .sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.2 < $1.2 }
+        .prefix(limit)
+        .map { (name: $0.0, lapses: $0.1, ease: $0.2) }
+    }
+
+    /// Next cards coming due (soonest first), for a "what's next" preview.
+    func upcoming(among names: [String], limit: Int = 8, asOf now: Date = Date()) -> [(name: String, due: Date)] {
+        names.compactMap { name -> (String, Date)? in
+            guard let s = schedules[name], s.phase != .new, s.due > now else { return nil }
+            return (name, s.due)
+        }
+        .sorted { $0.1 < $1.1 }
+        .prefix(limit)
+        .map { (name: $0.0, due: $0.1) }
+    }
+
+    /// Human "due in" label, e.g. "2h", "3d", "in 2mo".
+    static func dueLabel(_ due: Date, from now: Date = Date()) -> String {
+        let secs = due.timeIntervalSince(now)
+        if secs <= 0 { return "now" }
+        return humanInterval(secs)
+    }
+
     // MARK: - Reset
 
     func resetAll() {

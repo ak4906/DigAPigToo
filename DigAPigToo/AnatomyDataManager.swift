@@ -726,7 +726,10 @@ class AnatomyDataManager: ObservableObject {
                     name: "Bronchioles",
                     aliases: ["Small bronchi"],
                     function: "Smallest branches of bronchial tree",
-                    examTips: ["Connect bronchi to alveoli"]
+                    examTips: ["Connect bronchi to alveoli"],
+                    images: [
+                        ImageCDN.image("bronchiole_gross_1.jpg", caption: "Bronchioles"),
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: respiratoryCat.id,
@@ -2166,6 +2169,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The developing pig contained within the fetal membranes; completely dependent on placental exchange and fetal circulatory shunts since the lungs are nonfunctional and independent feeding is absent; the fetus receives O2 and nutrients from the mother via the umbilical vein and returns CO2/waste via the umbilical arteries",
                     commonConfusions: ["Fetal circulation differs from adult: lungs are bypassed by ductus arteriosus; liver is partly bypassed by ductus venosus; oxygenated blood crosses from right to left atrium via foramen ovale", "The fetus is enclosed in amnion (innermost) → allantois → chorion (outermost); when you open the chorionic vesicle you encounter these membranes before reaching the fetus"],
                     examTips: ["On the fetal membrane diagram, the fetus is the labeled central structure enclosed by all the membrane layers", "KEY developmental physiology: three fetal shunts — ductus venosus (bypasses liver), foramen ovale (bypasses lungs at atrial level), ductus arteriosus (bypasses lungs at vessel level)", "Fetal blood oxygenation: placenta → umbilical vein → (partly via ductus venosus bypassing liver) → caudal vena cava → right atrium → foramen ovale → left atrium → left ventricle → aorta → body"],
+                    images: [
+                        ImageCDN.image("fetus_gross_1.png", caption: "Fetus"),
+                    ],
                     histology: "The fetus itself is not a tissue type; it is the whole organism. Its organs are developing but histologically similar to postnatal structures.",
                     connections: "Surrounded by: amnion → allantois → chorion → uterine wall; connected to placenta via umbilical cord (containing 2 umbilical arteries + 1 umbilical vein); enclosed within chorionic vesicle in uterine horn",
                     highYield: true
@@ -2249,6 +2255,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "In non-pregnant adult sows: site of follicle development, ovulation, and corpus luteum formation for progesterone secretion; in pregnant sows: the corpora lutea remain active throughout pregnancy maintaining progesterone levels (unlike humans where the placenta takes over)",
                     commonConfusions: ["Adult pig ovary looks very different from fetal pig ovary: adult ovaries have large visible follicles and/or corpora lutea (bumpy surface), while fetal ovaries are small and smooth", "Pig corpora lutea persist throughout pregnancy — the pig is corpus luteum-dependent for progesterone for the entire 114-day gestation"],
                     examTips: ["At the adult station: look for large, bumpy ovaries with visible follicles (fluid-filled spheres) or corpora lutea (solid yellowish structures)", "Corpora lutea = 'yellow bodies' — remnants of follicles after ovulation; appear as solid, yellowish nodules on ovary surface", "If you see multiple large corpora lutea, the sow likely had a recent pregnancy or was recently cycling"],
+                    images: [
+                        ImageCDN.image("ovary-adult_gross_1.jpg", caption: "Ovary (Adult)"),
+                    ],
                     histology: "Cortex: granulosa and theca cells of follicles; after ovulation, granulosa cells luteinize → corpus luteum (large steroidogenic cells with lipid droplets); medulla: vascular loose connective tissue",
                     connections: "Suspended by mesovarium; ovarian artery from abdominal aorta; ovarian vein to renal vein (left) or IVC (right); oviduct fimbriae draped over surface",
                     highYield: false
@@ -2277,6 +2286,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Protects the eye; allows light entry; major contributor to light refraction/focusing",
                     commonConfusions: ["Corneal epithelium is nonkeratinized unlike skin — must remain transparent; organized collagen and absence of blood vessels are required for transparency"],
                     examTips: ["Not actually tested on the practical even though it was on the study list", "Practical ID: clear dome-like anterior surface of eye"],
+                    images: [
+                        ImageCDN.image("cornea_gross_1.jpg", caption: "Cornea"),
+                    ],
                     histology: "Stratified squamous epithelium (nonkeratinized) — nonkeratinized to maintain transparency; exposed externally, vulnerable to abrasion, needs rapid repair capability",
                     connections: "Anterior eye surface; transitions to sclera at limbus",
                     highYield: true
@@ -2322,6 +2334,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Focuses light onto retina; changes shape for accommodation controlled by ciliary body/muscle",
                     commonConfusions: ["Lacks blood vessels and pigmentation to maintain optical clarity"],
                     examTips: ["WAS tested on the practical", "Practical ID: firm clear spherical/biconvex structure in center of eye"],
+                    images: [
+                        ImageCDN.image("lens_gross_1.jpg", caption: "Lens"),
+                    ],
                     histology: "Avascular transparent structure; highly organized lens fibers without nuclei in mature cells",
                     connections: "Posterior to iris/pupil; anterior to vitreous body; attached to ciliary body via suspensory ligaments",
                     highYield: true
@@ -2515,6 +2530,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Largest artery in the body; carries oxygenated blood from the left ventricle to the systemic circulation; its elastic walls stretch during systole and recoil during diastole to maintain continuous flow",
                     commonConfusions: ["Aorta is an elastic artery — its tunica media is dominated by elastic laminae (not just smooth muscle like muscular arteries)", "On the slide: the aorta wall appears thick with wavy pink elastic lamellae in the media — very different from the muscular artery on the artery/vein/nerve slide"],
                     examTips: ["KEY ID: thick wall with abundant wavy elastic lamellae in tunica media = elastic artery (aorta)", "The aorta wall is so thick it has its own blood vessels (vasa vasorum) within the adventitia to nourish the outer wall layers", "Compare: aorta (elastic) vs. smaller artery (muscular) — aorta has more elastic tissue, muscular artery has more smooth muscle in media"],
+                    images: [
+                        ImageCDN.slide("aorta_histo_1.jpg", magnification: 4, caption: "Aorta — 4×"),
+                    ],
                     histology: "Tunica intima: endothelium + subendothelial connective tissue + internal elastic lamina; tunica media: many layers of elastic lamellae alternating with smooth muscle (elastic artery type); tunica adventitia: dense irregular connective tissue with vasa vasorum",
                     connections: "Ascends from left ventricle → aortic arch (gives off brachiocephalic, left common carotid, left subclavian) → descending thoracic aorta → abdominal aorta → bifurcates into common iliac arteries",
                     highYield: true
@@ -4163,7 +4181,9 @@ class AnatomyDataManager: ObservableObject {
         if let respHistologyCat = categories.first(where: { $0.name == "Respiratory Histology" }) {
             structures.append(contentsOf: [
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Trachea", aliases: ["Windpipe (histology)"],
-                    function: "The whole trachea as seen on the slide — identify it at a glance by its C-shaped hyaline cartilage ring and pseudostratified ciliated columnar lining before focusing on individual layers", examTips: ["Big-picture ID: C-shaped cartilage ring + ciliated pseudostratified epithelium = trachea", "Paired with the esophagus on this slide — the trachea is the one WITH cartilage"], histology: "Mucosa (pseudostratified ciliated columnar + goblet cells) → submucosa (sero-mucous glands) → hyaline cartilage (C-ring) → trachealis smooth muscle → adventitia", highYield: true),
+                    function: "The whole trachea as seen on the slide — identify it at a glance by its C-shaped hyaline cartilage ring and pseudostratified ciliated columnar lining before focusing on individual layers", examTips: ["Big-picture ID: C-shaped cartilage ring + ciliated pseudostratified epithelium = trachea", "Paired with the esophagus on this slide — the trachea is the one WITH cartilage"],
+                    images: [ImageCDN.slide("trachea_histo_1.jpg", magnification: 4, caption: "Trachea (whole slice) — 4×")],
+                    histology: "Mucosa (pseudostratified ciliated columnar + goblet cells) → submucosa (sero-mucous glands) → hyaline cartilage (C-ring) → trachealis smooth muscle → adventitia", highYield: true),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Mucosa (Trachea)", aliases: ["Tracheal mucosa", "Pseudostratified ciliated columnar epithelium (trachea)"],
                     function: "Inner lining of the trachea: pseudostratified ciliated columnar epithelium with goblet cells (respiratory epithelium)", examTips: ["Pseudostratified ciliated columnar + goblet cells"], histology: "Pseudostratified ciliated columnar epithelium with goblet cells on lamina propria"),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Submucosa (Trachea)", aliases: [],
