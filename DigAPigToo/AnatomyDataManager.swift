@@ -3009,6 +3009,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Capillary network"],
                     function: "Filters blood to produce filtrate",
                     examTips: ["Site of ultrafiltration"],
+                    images: [
+                        ImageCDN.slide("glomerulus_histo_1.jpeg", magnification: 10, caption: "Glomerulus — 10×"),
+                    ],
                     histology: "Network of capillaries in Bowman's capsule"
                 ),
                 AnatomyStructure(
@@ -3017,6 +3020,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Glomerular capsule"],
                     function: "Receives glomerular filtrate",
                     examTips: ["Forms start of nephron"],
+                    images: [
+                        ImageCDN.slide("bowmans-capsule_histo_1.jpeg", magnification: 10, caption: "Bowman's Capsule — 10×"),
+                    ],
                     histology: "Double-walled epithelium surrounding glomerulus"
                 ),
                 AnatomyStructure(
@@ -3025,6 +3031,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["PCT"],
                     function: "Reabsorbs useful substances",
                     examTips: ["First part of renal tubule"],
+                    images: [
+                        ImageCDN.slide("proximal-convoluted-tubule_histo_1.jpg", magnification: 40, caption: "Proximal Convoluted Tubule — 40×"),
+                    ],
                     histology: "Simple cuboidal epithelium with microvilli"
                 ),
                 AnatomyStructure(
@@ -3033,6 +3042,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["DCT"],
                     function: "Fine-tunes reabsorption and secretion",
                     examTips: ["Regulated by hormones"],
+                    images: [
+                        ImageCDN.slide("distal-convoluted-tubule_histo_1.jpg", magnification: 40, caption: "Distal Convoluted Tubule — 40×"),
+                    ],
                     histology: "Simple cuboidal epithelium; shorter than PCT"
                 ),
                 AnatomyStructure(
@@ -3042,6 +3054,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Outer region of the kidney containing all glomeruli, Bowman's capsules, proximal convoluted tubules, and distal convoluted tubules; site of filtration and most tubular reabsorption",
                     commonConfusions: ["Renal cortex vs medulla on slides: cortex has glomeruli (round dark clusters) and lots of tubule cross-sections; medulla has NO glomeruli — only parallel tubules and collecting ducts", "The cortex appears more cellular/dense on low-power because it contains the packed nephron components (glomeruli + tubules)"],
                     examTips: ["KEY ID: if you see glomeruli = you are in the cortex; if no glomeruli = medulla", "On low power: cortex is the outer, darker-staining zone with visible round glomerular tufts; medulla is the inner zone with striped parallel tubules", "Renal columns (columns of Bertin) = cortical tissue that dips between medullary pyramids — still cortex histologically even though it's deeper"],
+                    images: [
+                        ImageCDN.slide("renal-cortex_histo_1.jpg", magnification: 4, caption: "Renal Cortex — 4×"),
+                    ],
                     histology: "Glomeruli (capillary tufts) within Bowman's capsules; proximal convoluted tubules (simple cuboidal with prominent brush border microvilli); distal convoluted tubules (simple cuboidal, no brush border, smaller lumen); peritubular capillaries; interstitial connective tissue",
                     connections: "Outer region of kidney; receives blood from afferent arterioles → glomeruli → efferent arterioles → peritubular capillaries; filtrate flows: glomerulus → Bowman's capsule → PCT → loop of Henle (into medulla) → DCT → collecting duct",
                     highYield: true
@@ -3052,6 +3067,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Inner kidney"],
                     function: "Contains loops of Henle and collecting ducts",
                     examTips: ["Sites of concentration and dilution"],
+                    images: [
+                        ImageCDN.slide("renal-medulla_histo_1.jpg", magnification: 4, caption: "Renal Medulla — 4×"),
+                    ],
                     histology: "Pyramidal arrangement"
                 ),
             ])
