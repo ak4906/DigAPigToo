@@ -4252,7 +4252,9 @@ class AnatomyDataManager: ObservableObject {
         if let giHistologyCat = categories.first(where: { $0.name == "Gastrointestinal Histology" }) {
             structures.append(contentsOf: [
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Esophagus)", aliases: ["Esophageal mucosa", "Stratified squamous epithelium (esophagus)"],
-                    function: "Inner lining of the esophagus: non-keratinized stratified squamous epithelium protecting against food abrasion", examTips: ["Stratified squamous — the key esophagus feature"], histology: "Non-keratinized stratified squamous epithelium on lamina propria"),
+                    function: "Inner lining of the esophagus: non-keratinized stratified squamous epithelium protecting against food abrasion", examTips: ["Stratified squamous — the key esophagus feature"],
+                    images: [ImageCDN.slide("mucosa-esophagus_histo_1.jpeg", magnification: 4, caption: "Mucosa (Esophagus) — 4×")],
+                    histology: "Non-keratinized stratified squamous epithelium on lamina propria"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Esophagus)", aliases: [],
                     function: "Thin smooth muscle at the base of the esophageal mucosa (longitudinal only in esophagus)", examTips: ["Base of mucosa"], histology: "Thin smooth muscle (longitudinal) layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Esophagus)", aliases: [],
@@ -4469,7 +4471,17 @@ class AnatomyDataManager: ObservableObject {
         ]
         return atlasOrder.compactMap { name in
             categories.first { $0.name == name }
-        }.flatMap { structures(in: $0) }
+        }.flatMap { orderedStructures(in: $0) }
+    }
+
+    /// Structures for one category in DISPLAY order. Histology categories are ordered by
+    /// slide (matching the slide-grouped list), so left/right swiping in the pager follows
+    /// the same top-to-bottom order the user sees. Other categories keep insertion order.
+    func orderedStructures(in category: AnatomyCategory) -> [AnatomyStructure] {
+        if isHistologyCategory(category) {
+            return structuresBySlide(in: category).flatMap { $0.structures }
+        }
+        return structures(in: category)
     }
     
     func structure(named name: String) -> AnatomyStructure? {
