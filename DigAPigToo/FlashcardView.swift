@@ -65,18 +65,17 @@ struct FlashcardView: View {
                 }
             }
             .navigationTitle("Flashcards")
-            .safeAreaInset(edge: .top) {
-                Picker("Mode", selection: $mode) {
-                    ForEach(FlashcardMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(.bar)
-            }
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { showingStats = true } label: { Image(systemName: "chart.bar.fill") }
+                }
+                ToolbarItem(placement: .principal) {
+                    Picker("Mode", selection: $mode) {
+                        ForEach(FlashcardMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 200)
                 }
                 if mode == .categories {
                     ToolbarItem(placement: .topBarTrailing) {

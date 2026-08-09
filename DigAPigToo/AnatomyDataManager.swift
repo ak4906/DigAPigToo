@@ -562,6 +562,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Dual-function gland: EXOCRINE — secretes digestive enzymes (trypsinogen, chymotrypsinogen, lipase, amylase) via pancreatic duct into duodenum; ENDOCRINE — secretes insulin (from β cells) and glucagon (from α cells) into blood via islets of Langerhans",
                     commonConfusions: ["CRITICAL TRACE: the ACCESSORY pancreatic duct empties DIRECTLY into the duodenum — students commonly forget this and only trace via the common bile duct", "Exocrine (acinar cells → ducts → duodenum) vs endocrine (islets of Langerhans → bloodstream) — two completely separate secretion routes"],
                     examTips: ["Practical ID: diffuse, lobulated glandular tissue adherent to the duodenal loop and near the stomach", "EXAM-CRITICAL: accessory pancreatic duct → duodenum directly (in addition to main pancreatic duct via common bile duct area)", "Acinar cells = exocrine enzyme producers; islets of Langerhans = endocrine hormone producers"],
+                    images: [
+                        ImageCDN.image("pancreas_gross_1.jpg", caption: "Pancreas"),
+                    ],
                     histology: "Acinar cells (enzyme-secreting, zymogen granules) arranged around central ducts; islets of Langerhans scattered throughout (lighter staining endocrine clusters with α and β cells)",
                     connections: "Exocrine: acini → pancreatic ducts → duodenum; endocrine: islets → blood; sits adjacent to duodenum and caudal to stomach",
                     highYield: true
@@ -2603,6 +2606,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Alveolar sacs"],
                     function: "Gas exchange sites",
                     examTips: ["Site of O2/CO2 exchange"],
+                    images: [
+                        ImageCDN.slide("alveoli_histo_1.jpeg", magnification: 10, caption: "Alveoli — 10×"),
+                    ],
                     histology: "Simple squamous epithelium"
                 ),
                 AnatomyStructure(
@@ -2611,6 +2617,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Terminal air pouches"],
                     function: "Clusters of alveoli",
                     examTips: ["Multiple alveoli per sac"],
+                    images: [
+                        ImageCDN.slide("alveolar-sac_histo_1.jpeg", magnification: 10, caption: "Alveolar Sacs — 10×"),
+                    ],
                     histology: "Multiple alveoli opening into common chamber"
                 ),
                 AnatomyStructure(
@@ -2627,6 +2636,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Small bronchus"],
                     function: "Smallest bronchial branch",
                     examTips: ["Connects to alveolar ducts"],
+                    images: [
+                        ImageCDN.slide("bronchiole_histo_1.jpg", magnification: 4, caption: "Bronchiole — 4×"),
+                    ],
                     histology: "Pseudostratified ciliated columnar; no cartilage"
                 ),
                 AnatomyStructure(
@@ -2675,6 +2687,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Muscular tube propelling food via peristalsis; lined with stratified squamous epithelium for protection against abrasion from swallowed food boluses — one of the MOST important IDs in the entire GI tract",
                     commonConfusions: ["Esophagus is the ONLY GI organ lined by stratified squamous epithelium — all others (stomach, intestines) are simple columnar; this is the single most important diagnostic feature", "Trachea vs Esophagus on Slide #02: TRACHEA = cartilage rings + pseudostratified ciliated columnar epithelium; ESOPHAGUS = NO cartilage + stratified squamous epithelium — VERY important distinction", "Esophagus has submucosal mucous glands (like Brunner's in duodenum) — but context is always stratified squamous, never simple columnar"],
                     examTips: ["KEY ID: thick stratified squamous lining + NO villi + NO gastric pits + often collapsed/muscular tube appearance = ESOPHAGUS", "On the trachea/esophagus slide: find the cartilage → that side is trachea; the other tube with layered thick epithelium and no cartilage = esophagus", "Layers: mucosa (stratified squamous) → muscularis mucosae → submucosa (with mucous glands) → muscularis externa → adventitia (NOT serosa)"],
+                    images: [
+                        ImageCDN.slide("esophagus_histo_1.jpeg", magnification: 4, caption: "Esophagus — 4×"),
+                    ],
                     histology: "Mucosa: non-keratinized stratified squamous epithelium (multiple cell layers, protective); muscularis mucosae (longitudinal only); submucosa: loose CT with esophageal mucous glands; muscularis: upper = skeletal, middle = mixed, lower = smooth muscle; adventitia (fixed organ, no serosa)",
                     connections: "Pharynx → upper esophageal sphincter → esophagus → lower esophageal sphincter → stomach cardia",
                     highYield: true
@@ -2959,6 +2974,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Pancreatic acinus"],
                     function: "Secretes digestive enzymes",
                     examTips: ["Functional unit of exocrine pancreas"],
+                    images: [
+                        ImageCDN.slide("acinus_histo_1.jpg", magnification: 40, caption: "Acinus — 40×"),
+                    ],
                     histology: "Cluster of secretory acinar cells surrounding a small lumen"
                 ),
                 AnatomyStructure(
@@ -2967,6 +2985,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Pancreatic acinar cells"],
                     function: "Produces digestive secretions",
                     examTips: ["Zymogen granules for enzyme storage"],
+                    images: [
+                        ImageCDN.slide("acinar-cell_histo_1.jpg", magnification: 40, caption: "Acinar Cells — 40×"),
+                    ],
                     histology: "Cuboidal cells with basophilic cytoplasm and apical zymogen granules"
                 ),
                 AnatomyStructure(
@@ -3006,46 +3027,58 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: kidneyHistologyCat.id,
                     name: "Glomerulus",
-                    aliases: ["Capillary network"],
-                    function: "Filters blood to produce filtrate",
-                    examTips: ["Site of ultrafiltration"],
+                    aliases: ["Capillary network", "Glomerular tuft"],
+                    function: "Spherical tuft of highly permeable capillaries that performs the INITIAL filtration of blood. Blood enters via the afferent arteriole → glomerular capillaries → filtration into Bowman's space → efferent arteriole leaves. Together with Bowman's capsule it forms the renal corpuscle.",
+                    commonConfusions: ["Glomerulus = a solid-looking BALL/tuft of tangled capillaries, NOT a hollow tubule with a lumen — this is the fastest way to tell it apart from tubules", "'Ball in a cup': the ball = glomerulus; the cup = Bowman's capsule; the gap between = Bowman's space", "Seeing spherical glomeruli means you are in the CORTEX (the medulla has none)"],
+                    examTips: ["KEY ID: round, dark-staining spherical capillary tuft sitting inside a clear capsular space", "If the arrow points at the dark ball itself → glomerulus; if it points at the thin boundary around it → Bowman's capsule", "Afferent arteriole IN, efferent arteriole OUT — both at the vascular pole"],
                     images: [
                         ImageCDN.slide("glomerulus_histo_1.jpeg", magnification: 10, caption: "Glomerulus — 10×"),
                     ],
-                    histology: "Network of capillaries in Bowman's capsule"
+                    histology: "Tuft of fenestrated glomerular capillaries (endothelium = filtration barrier) wrapped by podocytes; appears as a rounded, dark, crowded ball of capillary loops within the renal corpuscle",
+                    connections: "Afferent arteriole → glomerulus → efferent arteriole; filtrate → Bowman's space → PCT",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: kidneyHistologyCat.id,
                     name: "Bowman's Capsule",
                     aliases: ["Glomerular capsule"],
-                    function: "Receives glomerular filtrate",
-                    examTips: ["Forms start of nephron"],
+                    function: "Double-walled cup surrounding the glomerulus; collects the filtrate produced by glomerular filtration and funnels it into the renal tubule. Glomerulus + Bowman's capsule = the renal corpuscle.",
+                    commonConfusions: ["TWO layers (a course-specific epithelial point): OUTER (parietal) layer = simple squamous epithelium; INNER (visceral) layer = podocytes wrapping the capillaries", "Between the two layers is Bowman's SPACE, where filtrate collects — don't confuse the space (gap) with the capsule (boundary)", "'Ball in a cup': ball = glomerulus, cup = Bowman's capsule, gap = Bowman's space"],
+                    examTips: ["KEY ID: the thin cellular boundary + clear space encircling the glomerular tuft", "If the arrow points at the tuft → glomerulus; at the thin rim around it → Bowman's capsule (parietal layer); at the empty gap → Bowman's space", "Epithelium to memorize: parietal = simple squamous; visceral = podocytes"],
                     images: [
                         ImageCDN.slide("bowmans-capsule_histo_1.jpeg", magnification: 10, caption: "Bowman's Capsule — 10×"),
                     ],
-                    histology: "Double-walled epithelium surrounding glomerulus"
+                    histology: "Parietal (outer) layer: simple squamous epithelium; visceral (inner) layer: podocytes investing the glomerular capillaries; Bowman's space lies between the two layers",
+                    connections: "Glomerular filtration → Bowman's space → PCT (the tubule begins here)",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: kidneyHistologyCat.id,
                     name: "Proximal Convoluted Tubule",
                     aliases: ["PCT"],
-                    function: "Reabsorbs useful substances",
-                    examTips: ["First part of renal tubule"],
+                    function: "First section of the renal tubule after Bowman's capsule; the major site of reabsorption — recovers water, electrolytes, and useful solutes from the filtrate back into the blood. Located in the renal CORTEX.",
+                    commonConfusions: ["PCT vs DCT — the key exam distinction (both are in the cortex, NOT the medulla): PCT = DARKER pink, IRREGULAR/stellate (star-shaped) lumen, brush border may blur the lumen edge; DCT = lighter pink, flatter cells, clearer well-defined lumen", "PCTs are ~7× MORE COMMON than DCTs — if a cortical field is full of dark-pink messy-lumen tubules, they're almost all PCTs", "Do NOT place the PCT in the medulla — it is restricted to the cortex"],
+                    examTips: ["KEY ID: darker-pink tubule + irregular/stellate lumen + very abundant = PCT", "Brush border (microvilli) gives the luminal edge a fuzzy, indistinct look", "Handout epithelium wording: simple cuboidal to columnar (don't reduce to just 'squamous')", "Association for A–E questions: PCT → reabsorption; location → renal cortex"],
                     images: [
                         ImageCDN.slide("proximal-convoluted-tubule_histo_1.jpg", magnification: 40, caption: "Proximal Convoluted Tubule — 40×"),
                     ],
-                    histology: "Simple cuboidal epithelium with microvilli"
+                    histology: "Simple cuboidal to columnar epithelium with a prominent brush border (apical microvilli); darker eosinophilic (pink) cytoplasm; narrow, irregular/stellate lumen; much more numerous than DCT in the cortex",
+                    connections: "Bowman's capsule → PCT → loop of Henle → DCT → collecting duct",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: kidneyHistologyCat.id,
                     name: "Distal Convoluted Tubule",
                     aliases: ["DCT"],
-                    function: "Fine-tunes reabsorption and secretion",
-                    examTips: ["Regulated by hormones"],
+                    function: "Third/last tubular section of the nephron before the collecting duct; fine-tunes ion and water balance (regulated reabsorption and secretion). Located in the renal CORTEX — NOT the medulla.",
+                    commonConfusions: ["DCT vs PCT: DCT = LIGHTER pink, flatter cells, CLEARER well-defined lumen (no brush border); PCT = darker pink, irregular/stellate lumen, fuzzy edge from the brush border", "DCT is LESS common than PCT (~1/7 as many) — fewer, cleaner-lumen tubules among a sea of PCTs", "IMPORTANT COURSE CORRECTION: the DCT is restricted to the renal CORTEX. In an A–E question pairing 'DCT → ion/water regulation', the location answer is renal cortex, NOT renal medulla"],
+                    examTips: ["KEY ID: lighter-pink tubule + flat cells + sharp, empty, well-defined lumen (no brush border) = DCT", "Fewer of them than PCTs in the same field", "Association for A–E questions: DCT → ion/water regulation; location → renal cortex"],
                     images: [
                         ImageCDN.slide("distal-convoluted-tubule_histo_1.jpg", magnification: 40, caption: "Distal Convoluted Tubule — 40×"),
                     ],
-                    histology: "Simple cuboidal epithelium; shorter than PCT"
+                    histology: "Simple cuboidal epithelium, NO brush border; lighter-staining, flatter cells with a clear, well-defined lumen; less numerous than PCT; both confined to the renal cortex",
+                    connections: "PCT → loop of Henle → DCT → collecting duct (DCT returns to the cortex before draining to collecting ducts)",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: kidneyHistologyCat.id,

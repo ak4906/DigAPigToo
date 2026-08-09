@@ -162,7 +162,7 @@ struct AtlasView: View {
             (
                 title: "Terminology",
                 systemImage: "character.book.closed.fill",
-                categories: ["Anatomical Planes", "Directional Terminology"].compactMap { find($0) }
+                categories: ["Anatomical Planes", "Directional Te`rminology"].compactMap { find($0) }
             ),
             (
                 title: "Gross Anatomy",
@@ -980,6 +980,8 @@ struct FullscreenImageSheet: View {
                     if !hideTitle, let mag = currentEntry?.image?.magnification {
                         Text("\(mag)×")
                             .font(.caption.bold())
+                            .lineLimit(1)
+                            .fixedSize()
                             .padding(.horizontal, 8).padding(.vertical, 4)
                             .background(.white.opacity(0.2))
                             .foregroundStyle(.white)
@@ -3664,14 +3666,15 @@ struct StatsView: View {
                 }
             }
             .navigationTitle("My Stats")
-            .safeAreaInset(edge: .top) {
-                Picker("Stats", selection: $mode) {
-                    ForEach(StatsMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Picker("Stats", selection: $mode) {
+                        ForEach(StatsMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 220)
                 }
-                .pickerStyle(.segmented)
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(.bar)
             }
         }
     }
