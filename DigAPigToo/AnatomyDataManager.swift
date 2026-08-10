@@ -60,6 +60,14 @@ class AnatomyDataManager: ObservableObject {
                     ImageCDN.image("ref_caudal-vena-cava_1.jpeg", caption: "Caudal Vena Cava & Tributaries"),
                 ]
             ),
+            DiagramGroup(
+                title: "Epithelial Types",
+                description: "Overview of the epithelial tissue types and where each is found",
+                systemImage: "square.grid.2x2.fill",
+                images: [
+                    ImageCDN.image("ref_epithelial-types_1.png", caption: "Epithelial Types Overview"),
+                ]
+            ),
             // ── Add more groups below as you gather photos ──────────────────
         ]
     }
@@ -1964,6 +1972,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Semen delivery and urine transport",
                     commonConfusions: [],
                     examTips: ["Practical ID: external elongated reproductive structure", "Contains erectile vascular tissue supporting reproductive function"],
+                    images: [
+                        ImageCDN.image("penis_gross_1.png", caption: "Penis"),
+                    ],
                     histology: "Contains erectile vascular tissue, connective tissue, urethral epithelium, and smooth muscle; external surfaces: stratified squamous epithelium; internal urethral epithelium varies regionally",
                     connections: "Urethra → penis → preputial orifice",
                     highYield: true
@@ -4037,6 +4048,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Secretion and absorption in glands and tubules; forms much of the kidney tubule system",
                     commonConfusions: [],
                     examTips: ["Key locations: kidney tubules (proximal and distal convoluted tubules), thyroid follicles, small ducts of glands", "Cube-shaped cells with round central nuclei — height ≈ width"],
+                    images: [
+                        ImageCDN.slide("simple-cuboidal-epithelium_histo_1.jpg", magnification: 40, caption: "Simple Cuboidal Epithelium — 40×"),
+                    ],
                     histology: "Single layer of roughly cube-shaped cells; round central nucleus; moderate cytoplasm for metabolic activity",
                     connections: "Kidney tubules (PCT, DCT), thyroid follicles, small exocrine gland ducts, ovarian surface",
                     highYield: true
