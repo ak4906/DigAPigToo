@@ -1130,6 +1130,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Continuation of aorta running caudally; supplies thoracic, abdominal, pelvic, and hindlimb regions",
                     commonConfusions: ["At cross-section ID stations: the aorta is always just to the LEFT of the spine — use this to orient yourself and distinguish it from the vena cava (which is to the right)"],
                     examTips: ["Flow: ascending aorta → arch → descending aorta → systemic branches (celiac, mesenteric, renal, iliac)", "ORIENTATION TIP: aorta = just LEFT of spine in cross-section; vena cava = just RIGHT of spine — use this to identify both vessels and orient the specimen"],
+                    images: [
+                        ImageCDN.image("descending-aorta_gross_1.jpeg", caption: "Descending Aorta"),
+                    ],
                     histology: "Elastic/muscular artery depending on segment; simple squamous endothelium",
                     connections: "Arch of aorta → descending aorta → celiac trunk, cranial mesenteric artery, renal arteries, iliac arteries",
                     highYield: true
@@ -1200,6 +1203,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Carries deoxygenated blood from right ventricle toward the lungs; a 'trunk' because it gives rise to left and right pulmonary arteries",
                     commonConfusions: ["Pulmonary trunk/arteries carry deoxygenated blood — exception to the rule that arteries carry oxygenated blood"],
                     examTips: ["Emerges from right ventricle", "Flow: right ventricle → pulmonary valve → pulmonary trunk → right/left pulmonary arteries", "In fetal pig, ductus arteriosus connects pulmonary trunk to aorta"],
+                    images: [
+                        ImageCDN.image("pulmonary-trunk_gross_1.png", caption: "Pulmonary Trunk"),
+                    ],
                     histology: "Elastic artery: thick wall with elastic fibers; simple squamous endothelium",
                     connections: "Right ventricle → pulmonary trunk → (ductus arteriosus fetal) + right/left pulmonary arteries",
                     highYield: true
@@ -1766,6 +1772,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Opening in fetal interatrial septum allowing blood to pass directly from right atrium to left atrium, bypassing pulmonary circuit",
                     commonConfusions: [],
                     examTips: ["Fetal bypass #2: right atrium → left atrium, bypassing pulmonary circuit", "Flow: caudal vena cava → right atrium → foramen ovale → left atrium", "Review notes emphasize close relationship between caudal vena cava entrance and foramen ovale", "Closes after birth when pulmonary pressure changes; becomes fossa ovalis"],
+                    images: [
+                        ImageCDN.image("foramen-ovale_gross_1.png", caption: "Foramen Ovale"),
+                    ],
                     histology: "Opening in fibromuscular interatrial septum; closes postnatally",
                     connections: "Caudal vena cava → right atrium → foramen ovale → left atrium → left ventricle → aorta",
                     highYield: true
@@ -1777,6 +1786,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Temporary fetal vessel connecting pulmonary trunk to aorta, bypassing fetal lungs",
                     commonConfusions: [],
                     examTips: ["Fetal bypass #3: pulmonary trunk → aorta, bypassing lungs", "Flow: right ventricle → pulmonary trunk → ductus arteriosus → aorta", "Closes after birth when lungs expand; becomes ligamentum arteriosum"],
+                    images: [
+                        ImageCDN.image("ductus-arteriosus_gross_1.png", caption: "Ductus Arteriosus"),
+                    ],
                     histology: "Muscular fetal vessel; closes and becomes fibrous ligamentum arteriosum postnatally",
                     connections: "Pulmonary trunk → ductus arteriosus → descending aorta",
                     highYield: true
@@ -1788,6 +1800,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Fibrous adult remnant of the fetal ductus arteriosus; no longer a functional blood shunt",
                     commonConfusions: [],
                     examTips: ["Ductus arteriosus (fetus) → closes after birth → ligamentum arteriosum (adult)", "Practical ID: fibrous cord between pulmonary trunk and aorta in adults"],
+                    images: [
+                        ImageCDN.image("ligamentum-arteriosum_gross_1.jpg", caption: "Ligamentum Arteriosum"),
+                    ],
                     histology: "Fibrous connective tissue (closed vessel remnant)",
                     connections: "Between pulmonary trunk and aortic arch (remnant of fetal shunt)",
                     highYield: false
@@ -2776,6 +2791,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Major site of gastric digestion; produces HCl (parietal cells), pepsinogen (chief cells), and intrinsic factor (parietal cells); the most extensively glandular region of the stomach",
                     commonConfusions: ["Fundic stomach vs cardiac stomach: fundic is MUCH more glandular, deeper glands, visible parietal cells (large pink cells) and chief cells (basophilic)", "Fundic stomach vs pyloric stomach: fundic has deeper glands extending almost full mucosal thickness; pyloric glands are more coiled/tortuous and more mucus-heavy", "Parietal cells are ONLY in fundic (and some cardiac) glands — NOT in pyloric glands"],
                     examTips: ["KEY ID: thick, dense glandular mucosa + gastric pits + fundic glands + parietal cells (large eosinophilic/pink) + chief cells (basophilic) = fundic stomach", "Compared with cardiac: much more intensely glandular, deeper glands", "Compared with pyloric: fundic glands are straighter; pyloric glands are coiled and more mucus-heavy with deeper pits"],
+                    images: [
+                        ImageCDN.slide("fundic-stomach_histo_1.png", magnification: 4, caption: "Fundic Stomach — 4×"),
+                    ],
                     histology: "Mucosa: simple columnar surface epithelium; gastric pits (shallow); fundic glands occupying most of mucosal thickness — contain: mucous neck cells (top), parietal cells (middle, large pink oxyphilic), chief cells (bottom, basophilic, zymogen granules); muscularis mucosae; submucosa; muscularis (3 layers in stomach); serosa",
                     connections: "Main body of stomach; receives food from cardiac region; transitions to pyloric antrum; glands drain via gastric pits to lumen",
                     highYield: true
@@ -2867,6 +2885,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "First and shortest segment of the small intestine; primary site of chemical digestion (receives pancreatic enzymes and bile); neutralizes acidic chyme; begins nutrient absorption",
                     commonConfusions: ["Duodenum vs jejunum: BRUNNER'S GLANDS in submucosa = duodenum — this is the single best way to identify it; jejunum has NO Brunner's glands", "Duodenum vs stomach: duodenum has VILLI (stomach does not) — once you see villi, you are in small intestine", "Duodenum vs ileum: ileum has Peyer's patches; duodenum has Brunner's glands — never both"],
                     examTips: ["KEY ID: villi + simple columnar epithelium + BRUNNER'S GLANDS in submucosa = duodenum (VERY important slide)", "Brunner's glands are SUBMUCOSAL — they sit below the muscularis mucosae; crypts of Lieberkühn are mucosal", "Look for the pale-staining glandular tissue BELOW the muscularis mucosae band — that's Brunner's glands"],
+                    images: [
+                        ImageCDN.slide("duodenum_histo_1.png", magnification: 10, caption: "Duodenum — 10×"),
+                    ],
                     histology: "Mucosa: simple columnar epithelium with villi (shorter than jejunum), goblet cells, crypts of Lieberkühn; muscularis mucosae; submucosa: Brunner's glands (key ID feature); muscularis: inner circular + outer longitudinal; adventitia (partially retroperitoneal)",
                     connections: "Pyloric sphincter → duodenum → jejunum; receives common bile duct and pancreatic duct at ampulla of Vater/hepatopancreatic ampulla; C-shaped loop around head of pancreas",
                     highYield: true
@@ -4037,6 +4058,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Allows rapid diffusion and filtration; reduces friction in body cavities; minimal barrier to exchange",
                     commonConfusions: ["Do not confuse with stratified squamous — 'simple' means single layer only"],
                     examTips: ["Found wherever diffusion/filtration/lubrication is the priority", "Key locations: alveoli (gas exchange), blood/lymph vessel endothelium, Bowman's capsule, mesothelium of pleura/peritoneum/pericardium", "Single flat layer — like floor tiles viewed from above"],
+                    images: [
+                        ImageCDN.slide("simple-squamous-epithelium_histo_1.png", magnification: 40, caption: "Simple Squamous Epithelium — 40×"),
+                    ],
                     histology: "Single layer of flat, scale-like cells; nucleus bulges into lumen; very thin for rapid exchange",
                     connections: "Alveoli, endothelium (all vessels), Bowman's capsule, mesothelium of pleura/peritoneum/pericardium, loop of Henle thin segment",
                     highYield: true
@@ -4152,7 +4176,9 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Duodenum)", aliases: [],
                     function: "Connective tissue layer of the duodenum; contains Brunner's glands (defining duodenal feature)", examTips: ["Look for Brunner's glands here"], histology: "Loose connective tissue containing Brunner's glands"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Duodenum)", aliases: ["Muscularis externa (duodenum)"],
-                    function: "Inner circular + outer longitudinal smooth muscle driving peristalsis", examTips: ["Two layers: inner circular, outer longitudinal"], histology: "Inner circular + outer longitudinal smooth muscle"),
+                    function: "Inner circular + outer longitudinal smooth muscle driving peristalsis", examTips: ["Two layers: inner circular, outer longitudinal"],
+                    images: [ImageCDN.slide("muscularis-duodenum_histo_1.png", magnification: 10, caption: "Muscularis (Duodenum) — 10×")],
+                    histology: "Inner circular + outer longitudinal smooth muscle"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Duodenum)", aliases: [],
                     function: "Outer covering of the intraperitoneal duodenum (proximal portion); adventitia where retroperitoneal", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
 
