@@ -1168,6 +1168,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Large superficial veins along the lateroventral neck draining head/neck blood toward brachiocephalic veins",
                     commonConfusions: [],
                     examTips: ["Practical ID: large superficial veins along lateroventral neck — the most prominent veins in the neck region", "Flow: external jugular veins → brachiocephalic veins → cranial vena cava"],
+                    images: [
+                        ImageCDN.image("external-jugular-veins_gross_1.jpeg", caption: "External Jugular Veins"),
+                    ],
                     histology: "Vein: thin wall, large lumen; simple squamous endothelium",
                     connections: "Head/neck → external jugular veins → brachiocephalic veins → cranial vena cava",
                     highYield: true
@@ -1954,6 +1957,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Produce lubricating mucus-like secretions contributing to semen and urethral lubrication",
                     commonConfusions: [],
                     examTips: ["Among the tested reproductive structures", "Practical ID: small paired glands near posterior urethral region", "Exocrine glands — secretions travel through ducts into urethra"],
+                    images: [
+                        ImageCDN.image("bulbourethral-gland_gross_1.png", caption: "Bulbourethral Glands"),
+                    ],
                     histology: "Exocrine glands: secretory portions lined by cuboidal/columnar secretory epithelium; ducts lined by cuboidal epithelium",
                     connections: "Glands → ducts → urethra",
                     highYield: true
@@ -2298,6 +2304,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Sheet of peritoneum that suspends the uterus, oviducts, and ovaries from the dorsal body wall; contains blood vessels, lymphatics, and nerves traveling to the reproductive organs",
                     commonConfusions: ["The broad ligament is NOT a true ligament (not dense collagenous tissue) — it is a double fold of peritoneum", "Contains three named parts: mesovarium (suspends ovary), mesosalpinx (suspends oviduct), mesometrium (suspends uterus)"],
                     examTips: ["Practical ID at adult station: large fan-like sheet of tissue suspending the entire reproductive tract from the dorsal abdominal wall", "The uterine artery and ovarian vessels run within the broad ligament to reach the uterus/ovary", "Tearing the broad ligament during dissection reveals its layers and the vessels contained within"],
+                    images: [
+                        ImageCDN.image("broad-ligament_gross_1.png", caption: "Broad Ligament"),
+                    ],
                     histology: "Double layer of simple squamous peritoneal epithelium (mesothelium) with loose connective tissue, smooth muscle, blood vessels, lymphatics between the layers",
                     connections: "Attaches reproductive tract to dorsal pelvic/abdominal wall; mesovarium → ovary; mesosalpinx → oviduct; mesometrium → uterine horn and body",
                     highYield: false
@@ -3281,13 +3290,19 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: microscopeCat.id,
                     name: "Coarse Focus Knob",
                     aliases: ["Large focus dial"],
-                    function: "Makes large adjustments to focus"
+                    function: "Makes large adjustments to focus",
+                    images: [
+                        ImageCDN.image("coarse-focus-knob_microscope_1.png", caption: "Coarse Focus Knob"),
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
                     name: "Fine Focus Knob",
                     aliases: ["Small focus dial"],
-                    function: "Makes fine adjustments to focus"
+                    function: "Makes fine adjustments to focus",
+                    images: [
+                        ImageCDN.image("fine-focus-knob_microscope_1.png", caption: "Fine Focus Knob"),
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
@@ -4504,10 +4519,11 @@ class AnatomyDataManager: ObservableObject {
             "Blood Histology", "Vessel Histology", "Respiratory Histology",
             "Gastrointestinal Histology", "Liver Histology", "Pancreas Histology",
             "Kidney Histology", "Reproductive Histology",
-            // Microscope
-            "Microscope",
-            // Epithelial Types
-            "Epithelial Types"
+            // Epithelial Types, then Microscope — MUST match the IDs page group order
+            // (AtlasView.groups / StructureListView.buildOrderedCategories) so swiping
+            // right past the last structure doesn't jump to an earlier category.
+            "Epithelial Types",
+            "Microscope"
         ]
         return atlasOrder.compactMap { name in
             categories.first { $0.name == name }
