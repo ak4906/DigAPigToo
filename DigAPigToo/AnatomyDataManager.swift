@@ -1244,6 +1244,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Returns deoxygenated blood from head, neck, and forelimbs to the right atrium (enters cranially)",
                     commonConfusions: [],
                     examTips: ["Enters right atrium cranially", "Flow: brachiocephalic veins → cranial vena cava → right atrium"],
+                    images: [
+                        ImageCDN.image("cranial-vena-cava_gross_1.jpg", caption: "Cranial Vena Cava"),
+                    ],
                     histology: "Large vein: thin wall, very large lumen; simple squamous endothelium",
                     connections: "Brachiocephalic veins → cranial vena cava → right atrium",
                     highYield: true
@@ -1255,6 +1258,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Returns deoxygenated blood from caudal body regions and visceral organs to the right atrium (enters caudally); in fetus also receives blood from ductus venosus",
                     commonConfusions: [],
                     examTips: ["Enters right atrium caudally", "Fetal: ductus venosus carries umbilical vein blood into caudal vena cava — review notes emphasize close relationship with foramen ovale"],
+                    images: [
+                        ImageCDN.image("caudal-vena-cava_gross_1.jpg", caption: "Caudal Vena Cava"),
+                    ],
                     histology: "Large vein: thin wall, very large lumen; simple squamous endothelium",
                     connections: "Caudal body/viscera + ductus venosus (fetal) → caudal vena cava → right atrium",
                     highYield: true
@@ -1694,6 +1700,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies oxygenated blood supporting spermatogenesis and endocrine activity; runs within spermatic cord",
                     commonConfusions: [],
                     examTips: ["Practical ID: vessel running within spermatic cord", "Rich vascular supply supports metabolically active sperm production", "Contributes to vascular heat exchange maintaining lower testicular temperature"],
+                    images: [
+                        ImageCDN.image("testicular-artery_gross_1.jpeg", caption: "Testicular Artery"),
+                    ],
                     histology: "Artery with thick tunica media containing smooth muscle; lined by simple squamous endothelium",
                     connections: "Abdominal aorta → testicular artery → testis (via spermatic cord)",
                     highYield: false
@@ -1770,6 +1779,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Temporary fetal vessel connecting umbilical vein directly to caudal vena cava, bypassing most of the liver",
                     commonConfusions: [],
                     examTips: ["Fetal bypass #1: liver bypass", "Flow: umbilical vein → ductus venosus → caudal vena cava", "Closes after birth; becomes ligamentum venosum"],
+                    images: [
+                        ImageCDN.image("ductus-venosus_gross_1.png", caption: "Ductus Venosus"),
+                    ],
                     histology: "Fetal vessel with endothelial lining; closes and becomes fibrous cord after birth",
                     connections: "Umbilical vein → ductus venosus → caudal vena cava",
                     highYield: true
@@ -2124,6 +2136,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Common chamber that receives both the vagina (reproductive) and the urethra (urinary) before opening to the exterior; unique shared opening in many non-primate mammals",
                     commonConfusions: ["Not present in adult humans — in humans, the urogenital sinus separates completely into distinct vaginal and urethral openings during development", "Do not confuse with the vulva, which is the external opening; the urogenital sinus is internal"],
                     examTips: ["Practical ID: chamber just inside the vulva where the vagina and urethra both open", "The fact that pigs (and many mammals) have a urogenital sinus instead of separate openings is a key species difference from humans", "In dissection, cut open the urogenital sinus to find both urethral and vaginal orifices"],
+                    images: [
+                        ImageCDN.image("urogenital-sinus_gross_1.jpg", caption: "Urogenital Sinus"),
+                    ],
                     histology: "Stratified squamous epithelium lining the common chamber",
                     connections: "Receives vagina (dorsal/cranial) and urethra (ventral); opens to exterior at vulva",
                     highYield: true
@@ -2594,6 +2609,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Largest veins; return deoxygenated blood to the right atrium; cranial (superior) vena cava drains head/neck/arms; caudal (inferior) vena cava drains abdomen/legs",
                     commonConfusions: ["Vena cava vs aorta on slides: both are large vessels, but vena cava has thinner wall relative to its lumen and less elastic tissue in the media", "The vena cava adventitia is proportionally the thickest layer (unlike arteries where media dominates)"],
                     examTips: ["KEY ID: very large lumen, thin wall relative to lumen size, adventitia is the thickest layer = vena cava", "On the slide: the wall looks collapsed or irregular because the low-pressure venous blood doesn't keep it fully distended", "The vena cava has some smooth muscle bundles longitudinally in the adventitia — unusual for veins"],
+                    images: [
+                        ImageCDN.slide("vena-cava_histo_1.jpeg", magnification: 4, caption: "Vena Cava — 4×"),
+                    ],
                     histology: "Tunica intima: simple squamous endothelium; tunica media: thin, sparse smooth muscle and elastic fibers; tunica adventitia: very thick, dense connective tissue with longitudinal smooth muscle bundles; overall wall much thinner relative to lumen than aorta",
                     connections: "Cranial vena cava: drains SVC territory → right atrium; caudal vena cava: drains IVC territory (kidneys, liver, lower limbs) → right atrium",
                     highYield: true
@@ -4112,6 +4130,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Secretion and absorption; lines much of the digestive tract where absorption is the primary role",
                     commonConfusions: ["Ciliated simple columnar found in uterine tube/oviduct — not to be confused with pseudostratified columnar of trachea"],
                     examTips: ["Key locations: stomach, small intestine (with microvilli for absorption), large intestine, gallbladder, uterine tube", "Tall cells taller than wide; oval nucleus near base"],
+                    images: [
+                        ImageCDN.slide("simple-columnar-epithelium_histo_1.jpeg", magnification: 40, caption: "Simple Columnar Epithelium — 40×"),
+                    ],
                     histology: "Single layer of tall rectangular cells; oval nucleus near the base; may have microvilli (brush border) for absorption or goblet cells for mucus",
                     connections: "Stomach, small intestine, large intestine, gallbladder, bile ducts, uterine tube (oviduct)",
                     highYield: true
