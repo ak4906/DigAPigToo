@@ -1740,6 +1740,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Paired fetal vessels carrying relatively deoxygenated blood and fetal wastes from fetus to placenta",
                     commonConfusions: ["WHY 'artery' if deoxygenated? Arteries are named by direction relative to the heart (away from fetal heart), NOT by oxygen content — same rule as pulmonary arteries"],
                     examTips: ["Usually TWO vessels (paired); thicker-walled than the single umbilical vein", "Flow: fetal systemic circulation → internal iliac arteries → umbilical arteries → placenta"],
+                    images: [
+                        ImageCDN.image("umbilical-arteries_gross_1.jpeg", caption: "Umbilical Arteries"),
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Internal iliac arteries → umbilical arteries → placenta",
                     highYield: true
@@ -1751,6 +1754,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Single large vessel carrying oxygenated, nutrient-rich blood from placenta to fetus",
                     commonConfusions: ["Umbilical vein = oxygenated (unusual — veins normally carry deoxygenated blood); umbilical arteries = deoxygenated (unusual — arteries normally carry oxygenated blood)", "Single umbilical vein vs two umbilical arteries — the single larger thin-walled vessel is the vein"],
                     examTips: ["Single large thin-walled vessel — contrast with the two thicker umbilical arteries", "Practical ID inside peritoneal cavity: runs along the ventral abdominal wall from the umbilical cord toward the liver", "Flow: placenta → umbilical vein → ductus venosus → caudal vena cava → right atrium — explicitly emphasized in review notes"],
+                    images: [
+                        ImageCDN.image("umbilical-vein_gross_1.jpeg", caption: "Umbilical Vein"),
+                    ],
                     histology: "Vein: thin wall, large lumen; simple squamous endothelium",
                     connections: "Placenta → umbilical vein → ductus venosus → caudal vena cava → right atrium",
                     highYield: true
@@ -2768,10 +2774,14 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: giHistologyCat.id,
                     name: "Cardiac Stomach",
                     aliases: ["Cardia", "Cardiac region of stomach"],
-                    function: "Transitional zone at the esophagus-stomach junction; primarily mucus secretion to protect the cardia from acid reflux; the point where stratified squamous epithelium transitions to simple columnar",
+                    function: "The narrow region of the stomach surrounding the opening of the esophagus. Its mucosa secretes lubricating mucus (from cardiac glands) to protect the cardia from acid reflux; this is where the esophageal stratified squamous epithelium transitions to the stomach's simple columnar epithelium.",
                     commonConfusions: ["Cardiac stomach vs esophagus: esophagus = stratified squamous; cardiac stomach = simple columnar — the transition between them is abrupt and visible on slides", "Cardiac stomach vs fundic stomach: cardiac has more mucus glands, fewer acid-secreting structures, less intensely glandular appearance", "Cardiac glands are mucus-only — no parietal cells, no chief cells (those are in fundic glands)"],
-                    examTips: ["KEY ID: simple columnar epithelium + gastric pits + cardiac glands (mucus-producing) + NO villi = cardiac stomach", "Compared with esophagus: epithelium switches from stratified squamous → simple columnar at the cardia", "Compared with fundic stomach: less densely glandular, more mucous appearance, shallower glands"],
-                    histology: "Mucosa: simple columnar epithelium; gastric pits opening into cardiac glands (coiled, mucus-secreting tubular glands); lamina propria; muscularis mucosae; submucosa; muscularis; serosa",
+                    examTips: ["KEY ID: simple columnar epithelium + gastric pits + cardiac glands (mucus-producing) + NO villi = cardiac stomach", "Practical context: it is the narrow zone right around the esophageal opening", "Compared with esophagus: epithelium switches from stratified squamous → simple columnar at the cardia", "Compared with fundic stomach: less densely glandular, more mucous appearance, shallower glands", "Muscularis has THREE orientations (oblique + circular + longitudinal) — the oblique layer lets the stomach churn the bolus"],
+                    images: [
+                        ImageCDN.slide("cardiac-stomach_histo_1.png", magnification: 2, caption: "Cardiac Stomach — low power (~1.8×)"),
+                        ImageCDN.slide("cardiac-stomach_histo_2.heic", magnification: 4, caption: "Cardiac Stomach — 4× (cropped)"),
+                    ],
+                    histology: "Mucosa: simple columnar epithelium with gastric pits opening into cardiac glands (coiled, mucus-secreting tubular glands at the base of the mucosa); lamina propria; muscularis mucosae; submucosa (dense irregular connective tissue); muscularis (three orientations: oblique, circular, longitudinal); serosa",
                     connections: "Junction of esophagus and stomach; cardiac sphincter (lower esophageal sphincter) just above; transitions into fundic region",
                     highYield: true
                 ),
@@ -2789,9 +2799,10 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: giHistologyCat.id,
                     name: "Cardiac Glands",
                     aliases: ["Cardia glands"],
-                    function: "Mucus-secreting glands of the cardiac stomach; protect the cardia from acid and mechanical damage",
-                    examTips: ["Mucus-only glands — distinguish from fundic glands which have parietal + chief cells", "Located near the esophagogastric junction"],
-                    histology: "Coiled, branched tubular mucous glands; pale-staining cells with basal nuclei and apical mucin"
+                    function: "Mucus-secreting glands of the cardiac stomach, associated with the gastric pits; produce lubricating mucus that protects the cardia from acid and mechanical damage",
+                    commonConfusions: ["Cardiac glands are MUCUS-ONLY — no parietal cells and no chief cells (those belong to the fundic glands)"],
+                    examTips: ["Practical ID: at the BASE of the mucosa, appearing as tubular epithelial structures lined with columnar cells around a central duct", "Mucus-only glands — distinguish from fundic glands which have parietal + chief cells", "The gastric pits are associated with these cardiac glands"],
+                    histology: "Coiled, branched tubular mucous glands at the base of the mucosa; columnar epithelial cells surrounding a central duct; pale-staining cells with basal nuclei and apical mucin"
                 ),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
@@ -4254,14 +4265,16 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Cardiac Stomach)", aliases: [],
                     function: "Thin smooth muscle at the base of the cardiac gastric mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Thin muscle at the base of the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Cardiac Stomach)", aliases: [],
-                    function: "Connective tissue layer of the cardiac stomach", examTips: ["Loose connective tissue with vessels"], histology: "Loose connective tissue with blood vessels"),
+                    function: "Connective tissue layer beneath the mucosa of the cardiac stomach; as in other regions of the digestive tract, it appears as dense, irregular connective tissue carrying blood vessels and nerves", examTips: ["Dense, irregular connective tissue with vessels"], histology: "Dense irregular connective tissue with blood vessels and nerves"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Cardiac Stomach)", aliases: ["Muscularis externa (cardiac stomach)", "Muscularis propria (cardiac stomach)"],
                     function: "The thick outer muscle coat of the stomach wall — the stomach has THREE layers (inner oblique, middle circular, outer longitudinal) rather than the usual two, for churning. Also called the muscularis externa or muscularis propria (same layer, three names).",
                     commonConfusions: ["MUSCULARIS (= muscularis externa = muscularis propria): thick, deep in the wall, drives churning/peristalsis — NOT the thin muscularis MUCOSAE inside the mucosa", "Stomach adds a third (oblique) layer to the usual inner-circular/outer-longitudinal pair"],
                     examTips: ["Stomach has THREE muscle layers (oblique added)", "Names to know: muscularis = muscularis externa = muscularis propria (all the same thick layer)"],
                     histology: "Three smooth muscle layers: inner oblique, middle circular, outer longitudinal"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Cardiac Stomach)", aliases: [],
-                    function: "Outer serous covering of the cardiac stomach", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
+                    function: "Outer serous covering of the cardiac stomach (visceral peritoneum over loose connective tissue); the stomach is an abdominal organ, so its outermost layer is serosa, not adventitia", examTips: ["Outermost thin layer", "Serosa (abdominal organs) vs adventitia (thoracic organs like the esophagus)"],
+                    images: [ImageCDN.slide("serosa-cardiac-stomach_histo_1.png", magnification: 2, caption: "Serosa (Cardiac Stomach) — low power (~1.8×)")],
+                    histology: "Simple squamous mesothelium (visceral peritoneum) over thin loose connective tissue"),
 
                 // ----- Slide 8: Fundic Stomach layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Fundic Stomach)", aliases: ["Fundic gastric mucosa"],
