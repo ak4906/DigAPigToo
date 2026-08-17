@@ -1937,11 +1937,14 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: maleRepCat.id,
-                    name: "Epididymus",
-                    aliases: ["Epididymis"],
+                    name: "Epididymis",
+                    aliases: [],
                     function: "Sperm maturation and storage",
                     commonConfusions: ["VERY IMPORTANT: stereocilia on epididymis epithelium are NONMOTILE long projections with absorptive role — NOT true cilia which are motile"],
                     examTips: ["One of the more tested reproductive structures", "Practical ID: coiled structure attached to testis surface", "Lined by pseudostratified columnar epithelium with stereocilia — VERY important histology distinction"],
+                    images: [
+                        ImageCDN.image("epididymis_gross_1.png", caption: "Epididymis"),
+                    ],
                     histology: "Pseudostratified columnar epithelium with stereocilia — supports secretion, absorption, and sperm maturation environment; coiled organization provides long maturation pathway in compact space",
                     connections: "Seminiferous tubules → epididymis → ductus deferens",
                     highYield: true
@@ -2167,6 +2170,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Extraembryonic membrane that collects fetal urine (waste); contributes to formation of the placenta (chorioallantoic placenta); vascularized — carries fetal blood vessels to the placenta",
                     commonConfusions: ["Allantois vs amnion: allantois is the outer membrane involved in gas/waste exchange; amnion is the innermost membrane directly surrounding the fetus", "In pigs, allantois is very large compared to other species because of their diffuse epitheliochorial placenta"],
                     examTips: ["Practical ID: large fluid-filled sac surrounding the amnion; appears bluish or milky in preserved specimens", "In pigs, the allantoic sac can be larger than the amniotic sac", "Contains allantoic fluid (fetal urine) — not to be confused with amniotic fluid which surrounds the fetus directly"],
+                    images: [
+                        ImageCDN.image("allantois_gross_1.png", caption: "Allantois"),
+                    ],
                     histology: "Simple cuboidal to transitional epithelium lining; outer surface is vascularized mesoderm fusing with chorion",
                     connections: "Fuses with chorion to form chorioallantoic membrane; connects to fetal bladder via urachus (allantoic stalk); lines the inside of the chorion",
                     highYield: true
@@ -2407,6 +2413,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Controls how much light enters the eye; light path: cornea → pupil → lens → retina",
                     commonConfusions: ["VERY IMPORTANT: the pupil is NOT tissue — it is simply an opening/aperture in the iris"],
                     examTips: ["Practical ID: dark opening in center of iris", "Pupil size is controlled by iris smooth muscle"],
+                    images: [
+                        ImageCDN.image("pupil_gross_1.png", caption: "Pupil"),
+                    ],
                     histology: "Not a tissue — an opening in the iris",
                     connections: "Opening in center of iris; part of the light pathway to the retina",
                     highYield: true
