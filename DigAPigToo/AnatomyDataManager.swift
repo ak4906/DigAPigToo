@@ -1182,6 +1182,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Deeper jugular veins draining deeper head/neck regions",
                     commonConfusions: ["External jugular = more superficial/lateroventral; internal jugular = deeper"],
                     examTips: ["Flow: internal jugular veins → brachiocephalic veins → cranial vena cava"],
+                    images: [
+                        ImageCDN.image("internal-jugular-veins_gross_1.jpeg", caption: "Internal Jugular Veins"),
+                    ],
                     histology: "Vein: thin wall, large lumen; simple squamous endothelium",
                     connections: "Deep head/neck structures → internal jugular veins → brachiocephalic veins → cranial vena cava",
                     highYield: false
@@ -1193,6 +1196,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Large paired veins formed by jugular and subclavian venous convergence, draining head, neck, and forelimbs into cranial vena cava",
                     commonConfusions: ["Brachiocephalic VEINS = venous return; brachiocephalic TRUNK = arterial — same naming region, opposite flow direction"],
                     examTips: ["Flow: external/internal jugular + subclavian veins → brachiocephalic veins → cranial vena cava"],
+                    images: [
+                        ImageCDN.image("brachiocephalic-veins_gross_1.jpeg", caption: "Brachiocephalic Veins"),
+                    ],
                     histology: "Vein: thin wall, large lumen; simple squamous endothelium",
                     connections: "Jugular veins + subclavian veins → brachiocephalic veins → cranial vena cava",
                     highYield: true
@@ -2630,7 +2636,9 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Vena Cava)", aliases: ["Middle layer (vena cava)"],
                     function: "Thin smooth-muscle middle layer of the vena cava (relatively poorly developed, as in all large veins)", examTips: ["Thin media relative to the large lumen"], histology: "Thin, sparse circular smooth muscle and elastic fibers"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Vena Cava)", aliases: ["Outer layer (vena cava)"],
-                    function: "Very thick outer layer of the vena cava containing prominent longitudinal smooth muscle bundles — the thickest layer of the wall", examTips: ["Thickest layer; longitudinal smooth muscle bundles"], histology: "Very thick dense connective tissue with longitudinal smooth muscle bundles"),
+                    function: "Very thick outer layer of the vena cava containing prominent longitudinal smooth muscle bundles — the thickest layer of the wall", examTips: ["Thickest layer; longitudinal smooth muscle bundles"],
+                    images: [ImageCDN.slide("tunica-adventitia-vena-cava_histo_1.jpeg", magnification: 4, caption: "Tunica Adventitia (Vena Cava) — 4×")],
+                    histology: "Very thick dense connective tissue with longitudinal smooth muscle bundles"),
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
                     name: "Nerve Fibers",
@@ -2666,6 +2674,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Hyaline cartilage rings"],
                     function: "Maintains airway patency",
                     examTips: ["Incomplete dorsally to allow esophageal expansion"],
+                    images: [
+                        ImageCDN.slide("tracheal-cartilage_histo_1.jpg", magnification: 4, caption: "Tracheal Cartilage — 4×"),
+                    ],
                     histology: "Hyaline cartilage; C-shaped rings"
                 ),
                 AnatomyStructure(
@@ -2793,6 +2804,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Stores and concentrates bile produced by the liver; releases bile into the duodenum via the common bile duct in response to cholecystokinin (CCK) when fat enters the small intestine",
                     commonConfusions: ["Gall bladder has NO muscularis mucosae — this is the key distinguishing histological feature (all other GI organs have it)", "Gall bladder has NO submucosa — another unique feature; the mucosa sits directly on the muscularis", "The highly folded mucosa resembles villi but these are mucosal FOLDS (rugae), not true villi — they flatten when the gallbladder is distended"],
                     examTips: ["KEY ID: highly folded simple columnar mucosa + NO muscularis mucosae + NO submucosa = gall bladder", "The epithelium is simple columnar with apical modifications for water absorption (concentrates bile 10×)", "Rokitansky-Aschoff sinuses: invaginations of epithelium into the muscularis — may be visible on slides and are a normal variant"],
+                    images: [
+                        ImageCDN.slide("gallbladder_histo_1.jpeg", magnification: 10, caption: "Gallbladder — 10×"),
+                    ],
                     histology: "Mucosa: simple columnar epithelium (tall, with apical microvilli) on lamina propria; NO muscularis mucosae; NO submucosa; muscularis: interlacing smooth muscle bundles (not distinct layers); perimuscular connective tissue; serosa (on free surface) or adventitia (hepatic surface)",
                     connections: "Receives bile from liver via cystic duct ← hepatic duct; releases bile via cystic duct → common bile duct → sphincter of Oddi → duodenum; sits in gallbladder fossa on visceral liver surface",
                     highYield: true
@@ -2819,6 +2833,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Invaginations of the cardiac gastric surface epithelium leading into the mucus-secreting cardiac glands",
                     commonConfusions: ["Gastric pits are different from glands — the pit is the opening/channel; the gland is the secretory unit at the bottom", "Cardiac pits are relatively shallow"],
                     examTips: ["Gastric pits + simple columnar epithelium + NO villi = stomach", "Cardiac region: shallow pits opening into mucous cardiac glands"],
+                    images: [
+                        ImageCDN.slide("gastric-pits-cardiac-stomach_histo_1.heic", magnification: 4, caption: "Gastric Pits (Cardiac Stomach) — 4× (cropped)"),
+                    ],
                     histology: "Simple columnar epithelium lining; surface mucous cells (tall columnar with apical mucin granules) line the pit walls; gland openings at the pit base",
                     highYield: true
                 ),
