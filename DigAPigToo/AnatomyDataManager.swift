@@ -498,6 +498,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "A ring of smooth muscle at the base of the stomach between the pyloric antrum and the duodenum; acts as a valve regulating the passage of partially digested food (chyme) into the small intestine, preventing premature entry and ensuring proper digestion while controlling gastric emptying. Note: the GI tract has four key sphincters/valves — UES (upper esophageal sphincter, top of esophagus), LES (lower esophageal sphincter, esophagus–stomach junction), Pyloric sphincter (stomach–duodenum), and Ileocecal valve (ileum–caecum junction).",
                     commonConfusions: ["Pyloric sphincter vs pyloric antrum: the antrum is the stomach region just before the sphincter; the sphincter is the muscular valve itself", "Pyloric sphincter vs LES (cardiac sphincter): LES is at the esophagus–stomach junction; pyloric is at stomach–duodenum — two completely different valves"],
                     examTips: ["Practical ID: narrow thickened muscular ring at the exit of the stomach where it meets the duodenum", "Smooth muscle — involuntary control", "KEY FUNCTION: controlled valve preventing uncontrolled chyme passage"],
+                    images: [
+                        ImageCDN.image("pyloric-sphincter_gross_1.jpg", caption: "Pyloric Sphincter"),
+                    ],
                     histology: "Greatly thickened circular smooth muscle layer; mucosa continues as simple columnar epithelium; pyloric glands on gastric side",
                     connections: "Stomach (pyloric antrum) → pyloric sphincter → duodenum",
                     highYield: true
@@ -1046,6 +1049,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Prevent AV valve cusps from flipping backward into atria during ventricular contraction",
                     commonConfusions: [],
                     examTips: ["Associated with: tricuspid valve (right) and bicuspid/mitral valve (left)", "Practical ID: string-like cords inside ventricular chambers attached to valve cusps and papillary muscles"],
+                    images: [
+                        ImageCDN.image("chordae-tendineae_gross_1.jpg", caption: "Chordae Tendineae"),
+                    ],
                     histology: "Dense fibrous connective tissue (collagen)",
                     connections: "Papillary muscles → chordae tendineae → AV valve cusps",
                     highYield: false
@@ -1108,6 +1114,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "First segment of aorta leaving the left ventricle; gives rise to coronary arteries",
                     commonConfusions: [],
                     examTips: ["Closest aortic segment to the heart", "Flow: left ventricle → aortic valve → ascending aorta"],
+                    images: [
+                        ImageCDN.image("ascending-aorta_gross_1.png", caption: "Ascending Aorta"),
+                    ],
                     histology: "Elastic artery: thick wall with abundant elastic fibers in tunica media; simple squamous endothelium",
                     connections: "Left ventricle → ascending aorta → arch of aorta",
                     highYield: true
@@ -1119,6 +1128,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Curved aortic segment giving rise to major branches supplying cranial/forelimb regions; curves to the left in fetal pig",
                     commonConfusions: [],
                     examTips: ["Practical ID: curved portion of aorta after ascending segment", "Gives rise to brachiocephalic trunk and other cranial branches"],
+                    images: [
+                        ImageCDN.image("arch-of-the-aorta_gross_1.png", caption: "Arch of the Aorta"),
+                    ],
                     histology: "Elastic artery; thick wall with elastic fibers",
                     connections: "Ascending aorta → aortic arch → brachiocephalic trunk → descending aorta",
                     highYield: true
@@ -2528,10 +2540,11 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: bloodHistologyCat.id,
                     name: "Monocyte",
                     aliases: ["Agranulocyte"],
-                    function: "Precursor to macrophages",
-                    examTips: ["Becomes macrophage in tissues"],
+                    function: "Precursor to macrophages; the LARGEST of the white blood cells. Agranular (no granules). Makes up ~2–6% of total WBCs.",
+                    commonConfusions: ["Monocyte vs lymphocyte: monocyte is LARGER, its cytoplasm often stains a LIGHTER blue, and its nucleus usually looks more porous/less dense; the lymphocyte is smaller with a rounder, darker, denser nucleus", "Agranulocyte (no visible cytoplasmic granules) — unlike the granulocytes (neutrophil, eosinophil, basophil)"],
+                    examTips: ["KEY ID: largest WBC + kidney-shaped (indented) nucleus + abundant pale/agranular cytoplasm", "Nucleus often appears more porous than a lymphocyte's", "~2–6% of total WBCs", "Becomes a macrophage in tissues"],
                     images: [ImageCDN.slide("monocyte_histo_1.jpg", magnification: 40, caption: "Monocyte — 40×")],
-                    histology: "Largest white blood cell; kidney-shaped nucleus"
+                    histology: "Largest white blood cell; kidney/bean-shaped nucleus; abundant agranular cytoplasm that stains lighter blue than a lymphocyte's; nucleus appears comparatively porous"
                 ),
                 AnatomyStructure(
                     categoryId: bloodHistologyCat.id,
@@ -2846,6 +2859,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Mucus-secreting glands of the cardiac stomach, associated with the gastric pits; produce lubricating mucus that protects the cardia from acid and mechanical damage",
                     commonConfusions: ["Cardiac glands are MUCUS-ONLY — no parietal cells and no chief cells (those belong to the fundic glands)"],
                     examTips: ["Practical ID: at the BASE of the mucosa, appearing as tubular epithelial structures lined with columnar cells around a central duct", "Mucus-only glands — distinguish from fundic glands which have parietal + chief cells", "The gastric pits are associated with these cardiac glands"],
+                    images: [
+                        ImageCDN.slide("cardiac-glands_histo_1.png", magnification: 3, caption: "Cardiac Glands — ~2.7×"),
+                    ],
                     histology: "Coiled, branched tubular mucous glands at the base of the mucosa; columnar epithelial cells surrounding a central duct; pale-staining cells with basal nuclei and apical mucin"
                 ),
                 AnatomyStructure(
