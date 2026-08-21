@@ -1904,6 +1904,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Conducts urine from the bladder to the exterior; in males it also serves as the passage for semen during ejaculation (shared urinary pathway, but the urethra itself is a urinary structure)",
                     commonConfusions: ["Male urethra is long — it runs through the pelvis, perineum, and the entire length of the penis", "Although semen passes through it, the urethra is classified here as a urinary structure (it has no reproductive secretory function)"],
                     examTips: ["Practical ID: long tube running from the bladder neck through the penis to the tip (urogenital orifice)", "Much longer than the female urethra"],
+                    images: [
+                        ImageCDN.image("urethra-male_gross_1.jpg", caption: "Urethra (Male)"),
+                    ],
                     histology: "Transitional epithelium near bladder, transitioning to stratified squamous near the external opening",
                     connections: "Urinary bladder → (through prostate region) → pelvic urethra → penile urethra → urogenital orifice at penis tip",
                     highYield: false
@@ -2291,6 +2294,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Houses and nourishes multiple fetuses simultaneously; the enormously enlarged bicornuate uterus of a pregnant sow shows the extreme capacity of the pig reproductive system — a sow can carry 8–14+ piglets",
                     commonConfusions: ["The adult sow uterus dwarfs the fetal pig uterus — the horns can be 1–1.5 m long and filled with fetuses", "Different from a human uterus: pig uterus is bicornuate (two horns) vs human simplex (no horns)"],
                     examTips: ["At the adult station, identify: the two long uterine horns (cornu uteri), the short uterine body, and the cervix", "The fetuses seen through the uterine wall are in the horns — count how many fit per horn", "The diffuse epitheliochorial pig placenta means fetuses attach all along the horn interior via chorionic villi"],
+                    images: [
+                        ImageCDN.image("uterus-adult-maternal_gross_1.jpg", caption: "Uterus (Adult Maternal)"),
+                    ],
                     histology: "Endometrium expanded during pregnancy: tall columnar epithelium with enlarged uterine glands (areolae) secreting uterine milk (histotroph) to nourish fetuses at the epitheliochorial interface",
                     connections: "Horns connect to oviducts cranially; body connects to cervix caudally; supplied by uterine artery (from internal iliac); broad ligament suspends it",
                     highYield: true
@@ -2489,6 +2495,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Enhances night vision by reflecting light back through the retina — gives photoreceptors a second chance to detect photons",
                     commonConfusions: ["Humans have NO tapetum lucidum; it is present in many other mammals — important comparative concept"],
                     examTips: ["WAS tested — one of the more recognizable cow-eye structures", "Practical ID: shiny blue-green reflective layer inside posterior eye", "Located within/specialized from choroid region"],
+                    images: [
+                        ImageCDN.image("tapetum-lucidum_gross_1.jpg", caption: "Tapetum Lucidum"),
+                    ],
                     histology: "Specialized reflective connective tissue within the choroid; contains crystalline reflective structures",
                     connections: "Within choroid layer; posterior eye",
                     highYield: true
@@ -3394,7 +3403,10 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: microscopeCat.id,
                     name: "Arm",
                     aliases: ["Microscope body"],
-                    function: "Supports objective lenses and stage"
+                    function: "Supports objective lenses and stage",
+                    images: [
+                        ImageCDN.image("arm_microscope_1.jpg", caption: "Arm")
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
@@ -4186,6 +4198,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Secretes mucus (goblet cells) and moves it via cilia — classic 'mucociliary escalator' that traps and removes particles/pathogens; air conditioning of inspired air",
                     commonConfusions: ["NOT truly stratified — all cells contact the basement membrane; nuclei at different heights create the false appearance of layers", "Ciliated pseudostratified = respiratory epithelium; non-ciliated pseudostratified = epididymis (with stereocilia)"],
                     examTips: ["VERY HIGH YIELD — appears on almost every practical", "Key locations: trachea, bronchi, nasal cavity, nasal pharynx, conchae/turbinates", "Has goblet cells (mucus) + cilia (movement) — the mucociliary escalator", "All cells touch basement membrane; only some reach the lumen — that's why nuclei look layered"],
+                    images: [
+                        ImageCDN.slide("pseudostratified-columnar-epithelium_histo_1.jpg", magnification: 40, caption: "Pseudostratified Columnar Epithelium — 40×"),
+                    ],
                     histology: "Single layer but nuclei at varying heights giving false multilayer appearance; ciliated (motile) + goblet cells (mucus secreting); all cells on basement membrane",
                     connections: "Trachea, bronchi, nasal cavity, nasal pharynx, nasopharynx, conchae (turbinates), Eustachian tube",
                     highYield: true
@@ -4305,26 +4320,43 @@ class AnatomyDataManager: ObservableObject {
 
                 // ----- Slide 16: Large Intestine layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Large Intestine)", aliases: ["Colonic mucosa"],
-                    function: "Inner lining of the large intestine: flat surface (NO villi), abundant goblet cells", examTips: ["No villi + many goblet cells"], histology: "Simple columnar epithelium, no villi, abundant goblet cells, straight crypts of Lieberkühn"),
+                    function: "Inner lining of the large intestine: flat surface (NO villi), abundant goblet cells", examTips: ["No villi + many goblet cells"],
+                    images: [ImageCDN.slide("mucosa-large-intestine_histo_1.jpeg", magnification: 4, caption: "Mucosa (Large Intestine) — 4×")],
+                    histology: "Simple columnar epithelium, no villi, abundant goblet cells, straight crypts of Lieberkühn"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Large Intestine)", aliases: ["Crypts of Lieberkühn (large intestine)", "Colonic crypts"],
-                    function: "Straight tubular glands extending down from the flat colonic surface; produce mucus and replacement epithelial cells", examTips: ["Deep, straight crypts opening at a flat (villus-free) surface"], histology: "Straight tubular crypts of Lieberkühn lined by goblet-cell-rich simple columnar epithelium"),
+                    function: "Straight tubular glands extending down from the flat colonic surface; produce mucus and replacement epithelial cells", examTips: ["Deep, straight crypts opening at a flat (villus-free) surface"],
+                    images: [ImageCDN.slide("intestinal-glands-large-intestine_histo_1.jpeg", magnification: 4, caption: "Intestinal Glands (Large Intestine) — 4×")],
+                    histology: "Straight tubular crypts of Lieberkühn lined by goblet-cell-rich simple columnar epithelium"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Large Intestine)", aliases: ["Colonic goblet cells"],
-                    function: "Mucus-secreting cells, especially abundant in the large intestine, lubricating the passage of feces", examTips: ["Goblet cells are MOST abundant in the large intestine"], histology: "Goblet-shaped mucous cells (PAS-positive) packed throughout the surface and crypt epithelium"),
+                    function: "Mucus-secreting cells, especially abundant in the large intestine, lubricating the passage of feces", examTips: ["Goblet cells are MOST abundant in the large intestine"],
+                    images: [ImageCDN.slide("goblet-cells-large-intestine_histo_1.jpg", magnification: 40, caption: "Goblet Cells (Large Intestine) — 40×")],
+                    histology: "Goblet-shaped mucous cells (PAS-positive) packed throughout the surface and crypt epithelium"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Large Intestine)", aliases: [],
-                    function: "Thin smooth muscle at the base of the colonic mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Boundary between mucosa and submucosa", "Thin muscle INSIDE the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
+                    function: "Thin smooth muscle at the base of the colonic mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Boundary between mucosa and submucosa", "Thin muscle INSIDE the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"],
+                    images: [ImageCDN.slide("muscularis-mucosae-large-intestine_histo_1.jpeg", magnification: 4, caption: "Muscularis Mucosae (Large Intestine) — 4×")],
+                    histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Large Intestine)", aliases: [],
-                    function: "Connective tissue layer of the large intestine", examTips: ["Loose connective tissue with vessels"], histology: "Loose connective tissue with blood vessels and lymphatics"),
+                    function: "Connective tissue layer of the large intestine", examTips: ["Loose connective tissue with vessels"],
+                    images: [ImageCDN.slide("submucosa-large-intestine_histo_1.jpeg", magnification: 4, caption: "Submucosa (Large Intestine) — 4×")],
+                    histology: "Loose connective tissue with blood vessels and lymphatics"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Large Intestine)", aliases: ["Muscularis externa (large intestine)", "Muscularis propria (large intestine)"],
                     function: "The thick outer muscle coat — inner circular + outer longitudinal smooth muscle (in pigs the longitudinal layer is continuous, not divided into taeniae). Also called the muscularis externa or muscularis propria (same layer, three names).",
                     commonConfusions: ["MUSCULARIS (= muscularis externa = muscularis propria): thick, two layers, deep in the wall, drives peristalsis — NOT the thin muscularis MUCOSAE inside the mucosa"],
                     examTips: ["Two layers: inner circular, outer longitudinal", "Names to know: muscularis = muscularis externa = muscularis propria (all the same thick layer)"],
+                    images: [ImageCDN.slide("muscularis-large-intestine_histo_1.jpeg", magnification: 4, caption: "Muscularis (Large Intestine) — 4×")],
                     histology: "Inner circular + outer longitudinal smooth muscle"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Large Intestine)", aliases: [],
-                    function: "Outer serous covering of the large intestine (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"], histology: "Simple squamous mesothelium over thin connective tissue"),
+                    function: "Outer serous covering of the large intestine (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"],
+                    images: [ImageCDN.slide("serosa-large-intestine_histo_1.jpeg", magnification: 3, caption: "Serosa (Large Intestine) — low power (~2–3×)")],
+                    histology: "Simple squamous mesothelium over thin connective tissue"),
 
                 // ----- Slide 7: Cardiac Stomach layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Cardiac Stomach)", aliases: ["Cardiac gastric mucosa"],
-                    function: "Inner lining of the cardiac stomach: simple columnar epithelium with gastric pits leading to mucus-secreting cardiac glands", examTips: ["Simple columnar + gastric pits, NO villi"], histology: "Simple columnar epithelium; gastric pits; cardiac (mucous) glands"),
+                    function: "Inner lining of the cardiac stomach. Like all mucosa it has three sublayers (epithelium + lamina propria + muscularis mucosae). The surface epithelium is simple columnar, pitted by frequent invaginations (gastric pits) that lead down to the mucus-secreting cardiac glands at the base of the mucosa.",
+                    commonConfusions: ["Mucosa = the three sublayers together (epithelium + lamina propria + muscularis mucosae), not just the epithelium", "Gastric pits are the invaginations/pores AMONG the columnar surface cells — the pit is the opening, the cardiac gland is the secretory unit at its base"],
+                    examTips: ["Simple columnar epithelium + gastric pits + cardiac glands + NO villi", "Gastric pits appear as frequent pores/invaginations among the columnar lining cells"],
+                    images: [ImageCDN.slide("mucosa-cardiac-stomach_histo_1.heic", magnification: 4, caption: "Mucosa (Cardiac Stomach) — 4× (cropped)")],
+                    histology: "Simple columnar surface epithelium with gastric pits; lamina propria containing the mucus-secreting cardiac glands; muscularis mucosae at the base"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Cardiac Stomach)", aliases: [],
                     function: "Thin smooth muscle at the base of the cardiac gastric mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Thin muscle at the base of the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Cardiac Stomach)", aliases: [],
