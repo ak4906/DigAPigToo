@@ -255,14 +255,33 @@ extension AnatomyStructure {
             }
         }
 
+        let typedCore = normalizedForMatching(typed)
         for target in candidates {
             if typed == target { return true }
             let maxLen = max(typed.count, target.count)
             let threshold = maxLen <= 5 ? 1 : maxLen <= 10 ? 2 : 3
             if levenshteinDistance(typed, target) <= threshold { return true }
+            // Also compare with filler words (the/of/a/and/…) stripped, so e.g.
+            // "arch of aorta" matches "arch of the aorta".
+            let targetCore = normalizedForMatching(target)
+            if !typedCore.isEmpty && typedCore == targetCore { return true }
+            let coreMax = max(typedCore.count, targetCore.count)
+            let coreThreshold = coreMax <= 5 ? 1 : coreMax <= 10 ? 2 : 3
+            if !typedCore.isEmpty && levenshteinDistance(typedCore, targetCore) <= coreThreshold { return true }
         }
         return false
     }
+}
+
+/// Lowercases and removes common filler words + extra spaces so minor phrasing
+/// differences ("arch of the aorta" vs "arch of aorta") still match.
+func normalizedForMatching(_ s: String) -> String {
+    let fillers: Set<String> = ["the", "of", "a", "an", "and"]
+    return s.lowercased()
+        .split(whereSeparator: { $0 == " " || $0 == "-" })
+        .map(String.init)
+        .filter { !fillers.contains($0) }
+        .joined(separator: " ")
 }
 
 private func levenshteinDistance(_ s: String, _ t: String) -> Int {
@@ -331,11 +350,17 @@ struct ExamItem: Identifiable {
             .split(separator: "/")
             .map { String($0).trimmingCharacters(in: .whitespaces) }
         candidates.append(contentsOf: parts)
+        let tCore = normalizedForMatching(t)
         for target in candidates {
             if t == target { return true }
             let maxLen = max(t.count, target.count)
             let threshold = maxLen <= 5 ? 1 : maxLen <= 10 ? 2 : 3
             if levenshteinDistance(t, target) <= threshold { return true }
+            let targetCore = normalizedForMatching(target)
+            if !tCore.isEmpty && tCore == targetCore { return true }
+            let coreMax = max(tCore.count, targetCore.count)
+            let coreThreshold = coreMax <= 5 ? 1 : coreMax <= 10 ? 2 : 3
+            if !tCore.isEmpty && levenshteinDistance(tCore, targetCore) <= coreThreshold { return true }
         }
         return false
     }

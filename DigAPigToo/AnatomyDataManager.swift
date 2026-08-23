@@ -693,6 +693,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Connects the gallbladder to the bile duct system; allows bile to flow in (storage) or out (release into common bile duct) of the gallbladder",
                     commonConfusions: ["Cystic duct ≠ common bile duct; the cystic duct is the short duct specifically from the gallbladder that joins the hepatic duct to FORM the common bile duct"],
                     examTips: ["Practical ID: short duct attached directly to the gallbladder, joining the hepatic duct", "Removal of the gallbladder (cholecystectomy) includes removal of the cystic duct"],
+                    images: [
+                        ImageCDN.image("cystic-duct_gross_1.jpg", caption: "Cystic Duct")
+                    ],
                     histology: "Simple columnar epithelium with spiral folds (valves of Heister) that regulate bile flow",
                     connections: "Gallbladder → cystic duct → joins hepatic duct → common bile duct → duodenum",
                     highYield: false
