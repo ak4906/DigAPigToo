@@ -1593,6 +1593,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supply blood to kidneys for filtration; branch directly from abdominal aorta",
                     commonConfusions: [],
                     examTips: ["Flow: aorta → renal artery → kidney → renal vein → caudal vena cava", "Practical ID: vessels entering kidney hilum"],
+                    images: [
+                        ImageCDN.image("renal-arteries_gross_1.jpg", caption: "Renal Arteries"),
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Descending aorta → renal arteries → kidney",
                     highYield: true
@@ -1604,6 +1607,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Return filtered blood from kidneys to caudal vena cava",
                     commonConfusions: [],
                     examTips: ["Flow: kidney → renal vein → caudal vena cava"],
+                    images: [
+                        ImageCDN.image("renal-veins_gross_1.jpg", caption: "Renal Veins"),
+                    ],
                     histology: "Vein: thin wall, large lumen; simple squamous endothelium",
                     connections: "Kidney → renal veins → caudal vena cava",
                     highYield: true
@@ -2656,7 +2662,9 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Vena Cava)", aliases: ["Inner lining (vena cava)"],
                     function: "Innermost layer of the vena cava: thin endothelial lining", examTips: ["Thin endothelial lining"], histology: "Simple squamous endothelium on a thin connective tissue layer"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Vena Cava)", aliases: ["Middle layer (vena cava)"],
-                    function: "Thin smooth-muscle middle layer of the vena cava (relatively poorly developed, as in all large veins)", examTips: ["Thin media relative to the large lumen"], histology: "Thin, sparse circular smooth muscle and elastic fibers"),
+                    function: "Thin smooth-muscle middle layer of the vena cava (relatively poorly developed, as in all large veins)", examTips: ["Thin media relative to the large lumen"],
+                    images: [ImageCDN.slide("tunica-media-vena-cava_histo_1.jpeg", magnification: 4, caption: "Tunica Media (Vena Cava) — 4×")],
+                    histology: "Thin, sparse circular smooth muscle and elastic fibers"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Vena Cava)", aliases: ["Outer layer (vena cava)"],
                     function: "Very thick outer layer of the vena cava containing prominent longitudinal smooth muscle bundles — the thickest layer of the wall", examTips: ["Thickest layer; longitudinal smooth muscle bundles"],
                     images: [ImageCDN.slide("tunica-adventitia-vena-cava_histo_1.jpeg", magnification: 4, caption: "Tunica Adventitia (Vena Cava) — 4×")],
@@ -2686,6 +2694,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Mixed exocrine glands in the tracheal submucosa that produce both watery serous secretions and viscous mucus; together they humidify inhaled air, trap particulate matter and pathogens, and provide the fluid layer that the mucociliary escalator moves upward",
                     commonConfusions: ["Sero-mucous glands are in the SUBMUCOSA of the trachea, below the mucosa — not the same as goblet cells which are in the epithelium itself", "Sero-mucous = MIXED glands (both serous + mucous cells) — contrast with purely mucous glands or purely serous glands"],
                     examTips: ["Practical ID on trachea/esophagus slide: look DEEP to the tracheal epithelium, below the cartilage rings, for clusters of glandular tissue in the submucosa — these are the sero-mucous glands", "On the slide, the trachea shows (inside to out): pseudostratified columnar epithelium → submucosa WITH sero-mucous glands → tracheal cartilage → smooth muscle → adventitia", "The glands appear as clusters of pale (mucous) and darker (serous) secretory cells with small ducts"],
+                    images: [
+                        ImageCDN.slide("sero-mucous-glands-trachea_histo_1.jpeg", magnification: 10, caption: "Sero-Mucous Glands (Trachea) — 10×"),
+                    ],
                     histology: "Mixed gland: serous acini (darker, small cells with dense granules) + mucous acini (pale, large vacuolated cells with mucin); surrounded by myoepithelial cells; ducts lined by cuboidal epithelium opening through the mucosa into the airway",
                     connections: "Located in tracheal submucosa; ducts open through the mucosa into the airway lumen; work with goblet cells (in epithelium) and cilia (on epithelial surface) to form the mucociliary defense system",
                     highYield: true
@@ -2698,6 +2709,7 @@ class AnatomyDataManager: ObservableObject {
                     examTips: ["Incomplete dorsally to allow esophageal expansion"],
                     images: [
                         ImageCDN.slide("tracheal-cartilage_histo_1.jpg", magnification: 4, caption: "Tracheal Cartilage — 4×"),
+                        ImageCDN.slide("tracheal-cartilage_histo_2.jpeg", magnification: 10, caption: "Tracheal Cartilage — 10×"),
                     ],
                     histology: "Hyaline cartilage; C-shaped rings"
                 ),
@@ -4419,7 +4431,9 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("trachea_histo_1.jpg", magnification: 4, caption: "Trachea (whole slice) — 4×")],
                     histology: "Mucosa (pseudostratified ciliated columnar + goblet cells) → submucosa (sero-mucous glands) → hyaline cartilage (C-ring) → trachealis smooth muscle → adventitia", highYield: true),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Mucosa (Trachea)", aliases: ["Tracheal mucosa", "Pseudostratified ciliated columnar epithelium (trachea)"],
-                    function: "Inner lining of the trachea: pseudostratified ciliated columnar epithelium with goblet cells (respiratory epithelium)", examTips: ["Pseudostratified ciliated columnar + goblet cells"], histology: "Pseudostratified ciliated columnar epithelium with goblet cells on lamina propria"),
+                    function: "Inner lining of the trachea: pseudostratified ciliated columnar epithelium with goblet cells (respiratory epithelium)", examTips: ["Pseudostratified ciliated columnar + goblet cells"],
+                    images: [ImageCDN.slide("mucosa-trachea_histo_1.jpeg", magnification: 10, caption: "Mucosa (Trachea) — 10×")],
+                    histology: "Pseudostratified ciliated columnar epithelium with goblet cells on lamina propria"),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Submucosa (Trachea)", aliases: [],
                     function: "Connective tissue layer of the trachea housing the sero-mucous glands", examTips: ["Contains sero-mucous glands"], histology: "Loose connective tissue with sero-mucous glands"),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Smooth Muscle (Trachea)", aliases: ["Trachealis muscle"],
