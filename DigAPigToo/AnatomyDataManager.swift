@@ -1736,6 +1736,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies the lateral abdominal wall and iliac-associated tissues",
                     commonConfusions: [],
                     examTips: ["Flow: external iliac artery → deep circumflex iliac artery → lateral abdominal wall", "Associated with lateral abdominal wall near iliac region"],
+                    images: [
+                        ImageCDN.image("deep-circumflex-iliac-artery_gross_1.jpg", caption: "Deep Circumflex Iliac Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "External iliac artery → deep circumflex iliac artery → lateral abdominal wall",
                     highYield: false
@@ -2253,12 +2256,12 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Allantoic membrane", "Allantoic sac"],
                     function: "Extraembryonic membrane that collects fetal urine (waste); contributes to formation of the placenta (chorioallantoic placenta); vascularized — carries fetal blood vessels to the placenta",
                     commonConfusions: ["Allantois vs amnion: allantois is the outer membrane involved in gas/waste exchange; amnion is the innermost membrane directly surrounding the fetus", "In pigs, allantois is very large compared to other species because of their diffuse epitheliochorial placenta"],
-                    examTips: ["Practical ID: large fluid-filled sac surrounding the amnion; appears bluish or milky in preserved specimens", "In pigs, the allantoic sac can be larger than the amniotic sac", "Contains allantoic fluid (fetal urine) — not to be confused with amniotic fluid which surrounds the fetus directly"],
+                    examTips: ["Practical ID: large fluid-filled sac surrounding the amnion; appears bluish or milky in preserved specimens", "In pigs, the allantoic sac can be larger than the amniotic sac", "Contains allantoic fluid (fetal urine) — not to be confused with amniotic fluid which surrounds the fetus directly", "Handout ID: the umbilical vessels (branches of the umbilical vein and arteries) run WITHIN the allantoic membrane and enter the umbilical cord — the allantois is the vascular half of the chorioallantoic membrane", "At each END of the chorionic vesicle the allantois is absent — those tips are chorion only"],
                     images: [
                         ImageCDN.image("allantois_gross_1.png", caption: "Allantois"),
                     ],
                     histology: "Simple cuboidal to transitional epithelium lining; outer surface is vascularized mesoderm fusing with chorion",
-                    connections: "Fuses with chorion to form chorioallantoic membrane; connects to fetal bladder via urachus (allantoic stalk); lines the inside of the chorion",
+                    connections: "Fuses with chorion to form the chorioallantoic membrane (the chorionic vesicle wall); carries the umbilical vessels; connects to fetal bladder via urachus (allantoic stalk); lines the inside of the chorion",
                     highYield: true
                 ),
                 AnatomyStructure(
@@ -2281,7 +2284,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Chorionic membrane", "Outer fetal membrane"],
                     function: "Outermost extraembryonic membrane; in pigs it fuses with the allantois to form the chorioallantoic membrane that interfaces with the maternal uterine lining for gas/nutrient exchange",
                     commonConfusions: ["Chorion vs amnion: chorion is the outermost fetal membrane; amnion is innermost", "In pigs, the chorion does NOT penetrate the uterine wall (diffuse epitheliochorial placenta) — contrast with humans where chorionic villi invade maternal tissue (hemochorial placenta)"],
-                    examTips: ["Practical ID: outermost membranous sac when the fetal membranes are intact; surrounds all other membranes", "Pig placenta type: diffuse epitheliochorial — chorionic villi interdigitate with uterine folds but do NOT invade maternal blood vessels", "This explains why sows can reabsorb fetuses without hemorrhage"],
+                    examTips: ["Practical ID: outermost membranous sac when the fetal membranes are intact; surrounds all other membranes", "Pig placenta type: diffuse epitheliochorial — chorionic villi interdigitate with uterine folds but do NOT invade maternal blood vessels", "This explains why sows can reabsorb fetuses without hemorrhage", "The chorion itself is NOT vascularized — its blood supply comes from the fused allantois (together = the chorioallantoic membrane); the chorion's surface carries the villi and the areolae"],
                     images: [
                         ImageCDN.image("chorion_gross_1.png", caption: "Chorion")
                     ],
@@ -2304,13 +2307,16 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: fetalCat.id,
                     name: "Chorionic Vesicle",
-                    aliases: ["Gestational sac", "Chorionic sac"],
-                    function: "The earliest embryonic structure visible by ultrasound; represents the fluid-filled cavity of the chorion in early pregnancy before placental development is complete",
-                    commonConfusions: ["Not a permanent structure — the chorionic vesicle is an early embryonic stage that develops into the more organized chorioallantoic membrane system"],
-                    examTips: ["Early embryonic landmark; in very young fetal pig specimens you may see small chorionic vesicles before the fetal membranes are fully differentiated", "In pigs multiple chorionic vesicles line up in each uterine horn, one per fetus"],
-                    histology: "Chorionic trophoblast epithelium surrounding fluid-filled extraembryonic cavity (exocoelom)",
-                    connections: "Contains embryo + yolk sac early on; later the allantois grows out to fuse with it; located within uterine horn",
-                    highYield: false
+                    aliases: ["Placenta", "Pig placenta", "Diffuse placenta", "Diffuse epitheliochorial placenta", "Chorioallantoic placenta", "Gestational sac", "Chorionic sac"],
+                    function: "The elongated, sausage-shaped sac that encloses each fetus throughout gestation. Its wall is the chorioallantoic membrane (outer chorion fused with inner allantois); at either end is an undilated region of chorion only, with no allantois. Its folded surface interdigitates with folds of the uterine lining — and THIS interdigitation is the pig's placenta.",
+                    commonConfusions: ["This IS the pig 'placenta' — but not the version taught in human biology/sex-ed: the pig placenta is DIFFUSE (chorionic villi scattered over almost the whole vesicle surface), NOT a discrete disk. There is no separate placental organ to point to — the vesicle surface + uterine lining together ARE the placenta", "In humans a DISCOID placenta forms from a disk-shaped structure equivalent to the whole chorionic vesicle, and exchange is restricted to that single locus", "One vesicle per fetus; multiple vesicles line up along each uterine horn"],
+                    examTips: ["Handout ID: know the vesicle from BOTH sides — the chorionic side (outer) and the allantoic side (inner)", "Wall = chorioallantoic membrane (chorion outside + allantois inside); surface bears areolae; umbilical vessels run within the allantois; the amnion + fetus sit inside", "Placenta type = DIFFUSE + EPITHELIOCHORIAL: least invasive, maternal and fetal blood separated by 6 layers and never mixing (contrast humans: hemochorial, 3 layers)", "Four placenta types by villus distribution: diffuse (pig, horse), cotyledonary (ruminants), zonary (carnivores), discoid (primates, rodents)"],
+                    images: [
+                        ImageCDN.image("chorionic-vesicle_gross_1.png", caption: "Chorionic Vesicle")
+                    ],
+                    histology: "Wall built from the chorioallantoic membrane: outer chorionic trophoblast epithelium (bearing villi + areolae, itself non-vascular) fused with inner vascularized allantoic mesoderm (carrying the umbilical vessels); interdigitates with the uterine endometrium to form the diffuse epitheliochorial placenta (6-layer barrier)",
+                    connections: "Wall = chorion (outer) + allantois (inner); encloses the amnion, which directly surrounds the fetus; surface interdigitates with uterine lining (= diffuse placenta); umbilical cord passes through the wall to the fetus; sits within the uterine horn",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: fetalCat.id,
@@ -2344,13 +2350,27 @@ class AnatomyDataManager: ObservableObject {
                     function: "Round bumps on the surface of the chorion adjacent to uterine glands; absorb 'histotroph' (uterine milk) — a nutrient-rich secretion of proteins, sugars, lipids, ions, and growth factors from the uterine glands that provides fetal nutrition at the epitheliochorial placental interface",
                     commonConfusions: ["Areolae (chorionic bumps absorbing uterine milk) vs the nipple areola — these are completely different structures with only a naming similarity", "Areolae are visible on the chorion as small, rounded projections adjacent to uterine gland openings"],
                     examTips: ["KEY CONCEPT for pig placenta: pig fetuses receive nutrition two ways — 1) hemotrophic (via chorioallantoic blood vessels) and 2) histotrophic (areolae absorbing uterine gland secretions)", "Practical ID: look for small round bumps on the chorionic surface of the placenta — these are the areolae", "The fact that pigs use both hemotrophic + histotrophic nutrition is unusual and reflects their non-invasive epitheliochorial placenta type"],
+                    images: [
+                        ImageCDN.image("areolae_gross_1.png", caption: "Areolae")
+                    ],
                     histology: "Areolae are specialized trophoblast cells overlying the uterine gland openings; cuboidal/columnar cells with absorptive microvilli for uptake of histotroph",
                     connections: "Located on chorion surface opposite uterine gland openings; adjacent to the chorioallantoic vascular network",
                     highYield: true
                 ),
+                AnatomyStructure(
+                    categoryId: fetalCat.id,
+                    name: "Chorioallantoic Membrane",
+                    aliases: ["Chorioallantois", "Chorio-allantoic membrane", "CAM"],
+                    function: "The fused outer chorion + inner allantois that together form the wall of the chorionic vesicle. This combined, vascularized membrane interdigitates with the uterine lining to create the diffuse epitheliochorial placenta.",
+                    commonConfusions: ["This entry is intentionally a little redundant — it is simply the chorion and allantois fused. For the individual layers, see the separate Chorion and Allantois entries", "Chorion = outer trophoblast layer (bears villi + areolae, not vascularized itself); allantois = inner vascularized layer (carries the umbilical vessels). Fused, they are the chorioallantoic membrane"],
+                    examTips: ["Frequently identified by TAs and used in circulatory traces as the fetal side of the placental exchange surface", "Vascularized via the allantois: umbilical vessels → chorioallantoic vessels → exchange at the villi/areolae", "Forms the wall of the chorionic vesicle; the amnion + fetus sit inside it"],
+                    histology: "Outer chorionic trophoblast epithelium (with villi and areolae) fused to inner allantoic mesoderm carrying fetal blood vessels — the vascular, absorptive fetal interface of the diffuse placenta",
+                    connections: "Chorion (outer) + allantois (inner) fused → forms the chorionic vesicle wall; interdigitates with uterine endometrium (diffuse placenta); carries umbilical vessels to the exchange surface",
+                    highYield: true
+                ),
             ])
         }
-        
+
         // MARK: Adult Maternal Pig
         if let maternalCat = categories.first(where: { $0.name == "Adult Maternal Pig" }) {
             structures.append(contentsOf: [
@@ -2366,17 +2386,6 @@ class AnatomyDataManager: ObservableObject {
                     ],
                     histology: "Endometrium expanded during pregnancy: tall columnar epithelium with enlarged uterine glands (areolae) secreting uterine milk (histotroph) to nourish fetuses at the epitheliochorial interface",
                     connections: "Horns connect to oviducts cranially; body connects to cervix caudally; supplied by uterine artery (from internal iliac); broad ligament suspends it",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: maternalCat.id,
-                    name: "Placenta",
-                    aliases: ["Pig placenta", "Diffuse epitheliochorial placenta", "Chorioallantoic placenta"],
-                    function: "Organ of exchange between fetal and maternal circulation for O2, CO2, nutrients, and waste products; in pigs it is diffuse epitheliochorial — the least invasive placental type among mammals",
-                    commonConfusions: ["Pig placenta type: DIFFUSE (covers entire chorion surface, not a discrete disc) and EPITHELIOCHORIAL (6 tissue layers between fetal and maternal blood — chorion | connective tissue | fetal blood | maternal blood | connective tissue | uterine epithelium)", "Human placenta is hemochorial (3 layers) — chorionic villi invade all the way to maternal blood; pig placenta keeps all 6 layers intact"],
-                    examTips: ["KEY EXAM CONCEPT: pig placenta classification = diffuse epitheliochorial", "Diffuse = spread over whole uterine horn interior, not localized (contrast: humans = discoid, cows = cotyledonary)", "Epitheliochorial = least invasive; maternal and fetal epithelia remain intact and just interdigitate", "Because of this, pigs must compensate with enormous chorion surface area (long horns) and specialized uterine gland secretions (histotroph/uterine milk)"],
-                    histology: "Six-layer barrier (from fetal to maternal side): fetal capillary endothelium → fetal connective tissue → chorionic trophoblast epithelium → uterine epithelium → maternal connective tissue → maternal capillary endothelium",
-                    connections: "Fetal side: chorioallantoic membrane; maternal side: uterine endometrium; umbilical cord connects fetus to placenta",
                     highYield: true
                 ),
                 AnatomyStructure(
@@ -2551,6 +2560,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Protects eye; maintains eyeball shape; provides muscle attachment",
                     commonConfusions: [],
                     examTips: ["WAS tested on the practical", "Practical ID: tough white outer wall of eyeball"],
+                    images: [
+                        ImageCDN.image("sclera_gross_1.png", caption: "Sclera")
+                    ],
                     histology: "Dense fibrous connective tissue rich in collagen fibers — dense collagen provides strength and rigidity",
                     connections: "Outer coat of eyeball; transitions to cornea anteriorly",
                     highYield: true
@@ -3471,7 +3483,10 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: microscopeCat.id,
                     name: "Objective Lenses",
                     aliases: ["Turret lenses"],
-                    function: "Primary magnification of specimen"
+                    function: "Primary magnification of specimen",
+                    images: [
+                        ImageCDN.image("objective-lenses_microscope_1.png", caption: "Objective Lenses")
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
@@ -4527,7 +4542,9 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("mucosa-trachea_histo_1.jpeg", magnification: 10, caption: "Mucosa (Trachea) — 10×")],
                     histology: "Pseudostratified ciliated columnar epithelium with goblet cells on lamina propria"),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Submucosa (Trachea)", aliases: [],
-                    function: "Connective tissue layer of the trachea housing the sero-mucous glands", examTips: ["Contains sero-mucous glands"], histology: "Loose connective tissue with sero-mucous glands"),
+                    function: "Connective tissue layer of the trachea housing the sero-mucous glands", examTips: ["Contains sero-mucous glands"],
+                    images: [ImageCDN.slide("submucosa-trachea_histo_1.jpeg", magnification: 10, caption: "Submucosa (Trachea) — 10×")],
+                    histology: "Loose connective tissue with sero-mucous glands"),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Smooth Muscle (Trachea)", aliases: ["Trachealis muscle"],
                     function: "The trachealis muscle bridging the open dorsal ends of the C-shaped cartilage rings; allows the esophagus to expand", examTips: ["Bridges the gap of the C-ring dorsally"], histology: "Bundle of smooth muscle connecting the free ends of the tracheal cartilage"),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Adventitia (Trachea)", aliases: [],
