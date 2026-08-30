@@ -537,6 +537,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Blind-ended pouch marking the start of the large intestine; connected to the ileum via the ileocecal valve (a one-way sphincter that prevents backflow of bacteria-laden large intestinal contents into the small intestine); in pigs, site of microbial fermentation, water absorption, and transitional digestive processing",
                     commonConfusions: ["Cecum is LARGE INTESTINE — no villi, increasing goblet cells", "The ileocecal valve is at the junction between the ileum and cecum — it is a separate structure from the cecum itself", "Human appendix is a vestigial outgrowth of the cecum; pigs do not have a distinct appendix"],
                     examTips: ["Practical ID: blind pouch where jejuno-ileum meets the large intestine via the ileocecal valve", "Larger diameter than small intestine; no villi"],
+                    images: [
+                        ImageCDN.image("cecum_gross_1.jpg", caption: "Cecum")
+                    ],
                     histology: "Simple columnar epithelium, reduced villi (transitional) → absent, increasing goblet cells; crypts of Lieberkühn; large intestine pattern",
                     connections: "Jejuno-ileum → ileocecal valve → cecum → spiral colon",
                     highYield: false
@@ -562,6 +565,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Terminal portion of the large intestine within the pelvic cavity; stores feces and forms the defecation pathway; transitions from simple columnar to stratified squamous epithelium approaching the anus",
                     commonConfusions: ["Rectum is INSIDE the pelvis — it is the pelvic portion of the large intestine", "The rectum transitions to stratified squamous near the anal canal — this epithelial shift is testable"],
                     examTips: ["Practical ID: terminal segment of large intestine running into the pelvis", "Proximally: simple columnar + goblet cells; distally: transitions to stratified squamous near anus", "The transition from columnar to squamous protects against abrasion"],
+                    images: [
+                        ImageCDN.image("rectum_gross_1.jpg", caption: "Rectum")
+                    ],
                     histology: "Proximal: simple columnar epithelium with goblet cells, crypts; distal: gradual transition to stratified squamous epithelium approaching anal canal",
                     connections: "Descending colon → rectum (enters pelvis) → anal canal → anus",
                     highYield: false
@@ -1067,7 +1073,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Coronary artery", "Cardiac artery"],
                     function: "Supplies oxygenated blood to myocardium — heart muscle cannot be nourished by blood inside the chambers",
                     commonConfusions: [],
-                    examTips: ["Branches from ascending aorta just above aortic valve", "Practical ID: vessel visible on ventral heart surface"],
+                    examTips: ["Branches from ascending aorta just above aortic valve", "Practical ID: vessel visible on ventral heart surface", "The paired coronary arteries are the VERY FIRST branches off the aorta: the left coronary runs on the ventral heart surface (alongside the great cardiac vein), the right coronary on the dorsal surface"],
                     images: [
                         ImageCDN.image("left-coronary-artery_gross_1.jpeg", caption: "Left Coronary Artery"),
                     ],
@@ -1081,7 +1087,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Cardiac vein"],
                     function: "Drains myocardium and delivers venous blood toward the coronary sinus",
                     commonConfusions: [],
-                    examTips: ["Practical ID: vein running alongside coronary artery on heart surface"],
+                    examTips: ["Practical ID: vein running alongside coronary artery on heart surface", "Runs along the VENTRAL surface of the heart next to the left coronary artery"],
                     histology: "Vein: thinner wall, larger lumen; lined by simple squamous endothelium",
                     connections: "Myocardial capillaries → cardiac veins → coronary sinus → right atrium",
                     highYield: false
@@ -1092,20 +1098,23 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Cardiac sinus"],
                     function: "Collects venous blood from cardiac veins and drains it into the right atrium",
                     commonConfusions: [],
-                    examTips: ["Practical ID: sac-like venous structure on dorsal heart surface — may need to lift heart to see it"],
+                    examTips: ["Practical ID: sac-like venous structure on dorsal heart surface — may need to lift heart to see it", "Formed where the left azygos vein crosses the dorsal side of the heart; after it receives the cardiac veins, it empties into the right atrium near the caudal vena cava"],
                     histology: "Venous structure; endothelial lining",
-                    connections: "Cardiac veins → coronary sinus → right atrium",
+                    connections: "Left azygos vein + cardiac veins → coronary sinus → right atrium (near caudal vena cava)",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Left Azygos Vein",
                     aliases: ["Azygos vein"],
-                    function: "Drains intercostal and thoracic wall blood; associated with coronary sinus drainage in fetal pig",
-                    commonConfusions: [],
-                    examTips: ["Practical ID: vein lateral to pulmonary arteries, draining thoracic wall"],
+                    function: "Drains the intercostal spaces and thoracic wall; runs cranially along the descending aorta and forms the coronary sinus on the dorsal surface of the heart",
+                    commonConfusions: ["Pigs have only a LEFT azygos vein; humans have both a left and a right azygos vein"],
+                    examTips: ["Practical ID: vein lateral to pulmonary arteries, draining thoracic wall", "Formed by the intercostal veins of both sides collecting together; runs cranially along the descending aorta, turns ventrally across the left pulmonary vein, then crosses the dorsal heart to form the coronary sinus"],
+                    images: [
+                        ImageCDN.image("left-azygos-vein_gross_1.jpg", caption: "Left Azygos Vein")
+                    ],
                     histology: "Vein: thin wall, large lumen; simple squamous endothelium",
-                    connections: "Thoracic wall/intercostal spaces → azygos vein → coronary sinus or caudal vena cava",
+                    connections: "Intercostal veins (both sides) → left azygos vein → cranially along descending aorta → across left pulmonary vein → dorsal heart → forms coronary sinus → right atrium (near caudal vena cava)",
                     highYield: false
                 ),
 
@@ -1115,8 +1124,8 @@ class AnatomyDataManager: ObservableObject {
                     name: "Ascending Aorta",
                     aliases: ["Proximal aorta"],
                     function: "First segment of aorta leaving the left ventricle; gives rise to coronary arteries",
-                    commonConfusions: [],
-                    examTips: ["Closest aortic segment to the heart", "Flow: left ventricle → aortic valve → ascending aorta"],
+                    commonConfusions: ["The aorta is ONE continuous vessel renamed along its route: ascending aorta (emerges from the heart) → arch of the aorta (arches to the left) → descending / dorsal aorta (turns caudally). Same vessel, three regional names"],
+                    examTips: ["Closest aortic segment to the heart", "Flow: left ventricle → aortic valve → ascending aorta", "The ascending aorta is the portion emerging cranially from the left ventricle, before the arch"],
                     images: [
                         ImageCDN.image("ascending-aorta_gross_1.png", caption: "Ascending Aorta"),
                     ],
@@ -1130,7 +1139,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Aortic arch"],
                     function: "Curved aortic segment giving rise to major branches supplying cranial/forelimb regions; curves to the left in fetal pig",
                     commonConfusions: [],
-                    examTips: ["Practical ID: curved portion of aorta after ascending segment", "Gives rise to brachiocephalic trunk and other cranial branches"],
+                    examTips: ["Practical ID: curved portion of aorta after ascending segment", "Gives rise to brachiocephalic trunk and other cranial branches", "Branch order off the arch: first the paired coronary arteries, then the brachiocephalic trunk (first major branch), then the left subclavian artery — after which the aorta turns caudally as the descending aorta", "The ductus arteriosus (fetal) connects the arch to the pulmonary trunk"],
                     images: [
                         ImageCDN.image("arch-of-the-aorta_gross_1.png", caption: "Arch of the Aorta"),
                     ],
@@ -1144,12 +1153,12 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Thoracic aorta", "Abdominal aorta"],
                     function: "Continuation of aorta running caudally; supplies thoracic, abdominal, pelvic, and hindlimb regions",
                     commonConfusions: ["At cross-section ID stations: the aorta is always just to the LEFT of the spine — use this to orient yourself and distinguish it from the vena cava (which is to the right)"],
-                    examTips: ["Flow: ascending aorta → arch → descending aorta → systemic branches (celiac, mesenteric, renal, iliac)", "ORIENTATION TIP: aorta = just LEFT of spine in cross-section; vena cava = just RIGHT of spine — use this to identify both vessels and orient the specimen"],
+                    examTips: ["Flow: ascending aorta → arch → descending aorta → systemic branches (celiac, mesenteric, renal, iliac)", "ORIENTATION TIP: aorta = just LEFT of spine in cross-section; vena cava = just RIGHT of spine — use this to identify both vessels and orient the specimen", "Begins where the arch turns caudally; runs along the dorsal body wall and passes through the diaphragm into the abdominal cavity (where it is also called the dorsal aorta)"],
                     images: [
                         ImageCDN.image("descending-aorta_gross_1.jpeg", caption: "Descending Aorta"),
                     ],
                     histology: "Elastic/muscular artery depending on segment; simple squamous endothelium",
-                    connections: "Arch of aorta → descending aorta → celiac trunk, cranial mesenteric artery, renal arteries, iliac arteries",
+                    connections: "Arch of aorta → descending aorta (along dorsal body wall, through diaphragm into abdomen) → celiac trunk, cranial mesenteric artery, renal arteries, iliac arteries",
                     highYield: true
                 ),
                 AnatomyStructure(
@@ -1157,10 +1166,13 @@ class AnatomyDataManager: ObservableObject {
                     name: "Brachiocephalic Trunk",
                     aliases: ["Brachiocephalic artery", "Innominate artery"],
                     function: "Large arterial trunk from aortic arch routing oxygenated blood toward head, neck, and forelimb circulation",
-                    commonConfusions: ["Do NOT confuse with brachiocephalic VEINS, which are venous return pathways — same region but opposite direction"],
-                    examTips: ["Practical ID: major arterial trunk branching from aortic arch", "'Trunk' means it gives rise to smaller arteries"],
+                    commonConfusions: ["Do NOT confuse with brachiocephalic VEINS, which are venous return pathways — same region but opposite direction", "In the PIG, the brachiocephalic trunk gives off the right subclavian artery AND both common carotid arteries; the LEFT subclavian artery branches separately, directly off the aorta. (In humans the trunk gives only the right subclavian + right common carotid, and the left common carotid arises separately from the arch.)"],
+                    examTips: ["Practical ID: first major branch off the aorta", "'Trunk' means it gives rise to smaller arteries", "It splits into the right subclavian artery (right forelimb + upper body) and a pair of common carotid arteries (head and neck)"],
+                    images: [
+                        ImageCDN.image("brachiocephalic-trunk_gross_1.jpeg", caption: "Brachiocephalic Trunk")
+                    ],
                     histology: "Artery: thick tunica media with smooth muscle and elastic fibers",
-                    connections: "Aortic arch → brachiocephalic trunk → common carotid arteries + subclavian arteries",
+                    connections: "Aortic arch → brachiocephalic trunk → right subclavian artery + pair of common carotid arteries (left subclavian branches separately off the aorta)",
                     highYield: true
                 ),
 
@@ -1171,9 +1183,9 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Left/right common carotid", "Carotid arteries"],
                     function: "Paired arteries supplying oxygenated blood to head and brain regions",
                     commonConfusions: ["Arteries (carotids) are red-injected, thicker-walled; jugular veins are larger, more superficial, and blue-injected — important practical distinction"],
-                    examTips: ["Practical ID: ascending arterial pair in neck region", "Arteries usually round in cross-section; veins more irregular/collapsed"],
+                    examTips: ["Practical ID: ascending arterial pair in neck region", "Arteries usually round in cross-section; veins more irregular/collapsed", "In the pig, BOTH common carotids branch together off the brachiocephalic trunk and carry blood to the head and neck; the internal jugular veins run just lateral to them near the trachea"],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
-                    connections: "Brachiocephalic trunk → common carotid arteries → head/brain",
+                    connections: "Brachiocephalic trunk → pair of common carotid arteries → head/neck/brain",
                     highYield: true
                 ),
                 AnatomyStructure(
@@ -1182,7 +1194,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Jugular veins", "External jugulars"],
                     function: "Large superficial veins along the lateroventral neck draining head/neck blood toward brachiocephalic veins",
                     commonConfusions: [],
-                    examTips: ["Practical ID: large superficial veins along lateroventral neck — the most prominent veins in the neck region", "Flow: external jugular veins → brachiocephalic veins → cranial vena cava"],
+                    examTips: ["Practical ID: large superficial veins along lateroventral neck — the most prominent veins in the neck region (blue latex was injected into the venous system via one of the jugulars)", "The cephalic vein (superficial, on the side of the arm) joins the external jugular at its base; together the external jugular + cephalic drain most of the head, neck, and part of the shoulder", "Merges with the internal jugular, then the subclavian, to form the brachiocephalic vein → cranial vena cava"],
                     images: [
                         ImageCDN.image("external-jugular-veins_gross_1.jpeg", caption: "External Jugular Veins"),
                     ],
@@ -1194,9 +1206,9 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "Internal Jugular Veins",
                     aliases: ["Internal jugulars"],
-                    function: "Deeper jugular veins draining deeper head/neck regions",
-                    commonConfusions: ["External jugular = more superficial/lateroventral; internal jugular = deeper"],
-                    examTips: ["Flow: internal jugular veins → brachiocephalic veins → cranial vena cava"],
+                    function: "Drain the skull, brain, and parts of the face and neck; return this blood toward the brachiocephalic veins",
+                    commonConfusions: ["External jugular = more superficial/lateroventral; internal jugular = deeper and more medial"],
+                    examTips: ["Located medially, near the trachea and just lateral to the common carotid arteries", "Merge with the external jugular, then the subclavian vein, to form the brachiocephalic vein", "Flow: internal jugular veins → brachiocephalic veins → cranial vena cava"],
                     images: [
                         ImageCDN.image("internal-jugular-veins_gross_1.jpeg", caption: "Internal Jugular Veins"),
                     ],
@@ -1210,7 +1222,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Left/right brachiocephalic veins", "Innominate veins"],
                     function: "Large paired veins formed by jugular and subclavian venous convergence, draining head, neck, and forelimbs into cranial vena cava",
                     commonConfusions: ["Brachiocephalic VEINS = venous return; brachiocephalic TRUNK = arterial — same naming region, opposite flow direction"],
-                    examTips: ["Flow: external/internal jugular + subclavian veins → brachiocephalic veins → cranial vena cava"],
+                    examTips: ["Four veins enter each brachiocephalic vein: the external jugular, internal jugular, cephalic, and subclavian", "The subclavian + internal jugular + external jugular merge to form each brachiocephalic vein (one per side); the two brachiocephalics then unite to form the cranial vena cava", "Flow: external/internal jugular + cephalic + subclavian veins → brachiocephalic veins → cranial vena cava"],
                     images: [
                         ImageCDN.image("brachiocephalic-veins_gross_1.jpeg", caption: "Brachiocephalic Veins"),
                     ],
@@ -1226,7 +1238,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Pulmonary artery trunk", "Main pulmonary artery"],
                     function: "Carries deoxygenated blood from right ventricle toward the lungs; a 'trunk' because it gives rise to left and right pulmonary arteries",
                     commonConfusions: ["Pulmonary trunk/arteries carry deoxygenated blood — exception to the rule that arteries carry oxygenated blood"],
-                    examTips: ["Emerges from right ventricle", "Flow: right ventricle → pulmonary valve → pulmonary trunk → right/left pulmonary arteries", "In fetal pig, ductus arteriosus connects pulmonary trunk to aorta"],
+                    examTips: ["Emerges from right ventricle", "Flow: right ventricle → pulmonary valve → pulmonary trunk → right/left pulmonary arteries", "Follow it BEHIND the heart to where it divides into the right and left pulmonary arteries", "In fetal pig, ductus arteriosus connects pulmonary trunk to aorta"],
                     images: [
                         ImageCDN.image("pulmonary-trunk_gross_1.png", caption: "Pulmonary Trunk"),
                     ],
@@ -1240,7 +1252,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Right/left pulmonary arteries"],
                     function: "Carry deoxygenated blood to pulmonary capillaries in right and left lungs",
                     commonConfusions: ["IMPORTANT EXCEPTION: pulmonary arteries are arteries but carry low-oxygen blood — named by direction (away from heart), not oxygen content"],
-                    examTips: ["Branch from pulmonary trunk", "Pulmonary trunk bifurcates into right and left pulmonary arteries at dorsal heart region; pulmonary veins lie nearby entering left atrium"],
+                    examTips: ["Branch from pulmonary trunk", "Pulmonary trunk bifurcates into right and left pulmonary arteries at dorsal heart region; pulmonary veins lie nearby entering left atrium", "The left azygos vein runs lateral to the pulmonary arteries; the pulmonary veins lie adjacent to them"],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Pulmonary trunk → right/left pulmonary arteries → pulmonary capillaries",
                     highYield: true
@@ -1251,7 +1263,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Right/left pulmonary veins"],
                     function: "Return oxygenated blood from lungs to the left atrium; usually four veins total",
                     commonConfusions: ["IMPORTANT EXCEPTION: pulmonary veins are veins but carry oxygen-rich blood — named by direction (toward heart), not oxygen content"],
-                    examTips: ["Flow: pulmonary capillaries → pulmonary veins → left atrium", "Usually four veins total (two per lung)"],
+                    examTips: ["Flow: pulmonary capillaries → pulmonary veins → left atrium", "Usually four veins total (two per lung)", "Lie adjacent to the pulmonary arteries and enter the left atrium"],
                     histology: "Vein: thinner wall than pulmonary arteries; simple squamous endothelium",
                     connections: "Lung capillaries → pulmonary veins → left atrium",
                     highYield: true
@@ -1264,7 +1276,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Superior vena cava", "Anterior vena cava"],
                     function: "Returns deoxygenated blood from head, neck, and forelimbs to the right atrium (enters cranially)",
                     commonConfusions: [],
-                    examTips: ["Enters right atrium cranially", "Flow: brachiocephalic veins → cranial vena cava → right atrium"],
+                    examTips: ["Enters right atrium cranially", "Flow: brachiocephalic veins → cranial vena cava → right atrium", "Formed by the union of the right and left brachiocephalic veins; the internal thoracic veins join it just below the brachiocephalics, and the costocervical veins join it dorsally"],
                     images: [
                         ImageCDN.image("cranial-vena-cava_gross_1.jpg", caption: "Cranial Vena Cava"),
                     ],
@@ -1292,55 +1304,61 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "Subclavian Arteries",
                     aliases: ["Subclavian artery"],
-                    function: "Supply forelimbs and cervical regions with oxygenated blood; branch from brachiocephalic trunk",
-                    commonConfusions: [],
-                    examTips: ["Located near thoracic inlet/forelimb root", "Branch: brachiocephalic trunk → subclavian arteries → axillary arteries"],
+                    function: "Supply forelimbs and cervical regions with oxygenated blood; the axillary artery is their continuation into the forelimb",
+                    commonConfusions: ["Different origins for the two sides: the RIGHT subclavian branches off the brachiocephalic trunk, while the LEFT subclavian is a separate branch directly off the aorta (the next branch after the brachiocephalic trunk)"],
+                    examTips: ["Located near thoracic inlet/forelimb root", "Branch: brachiocephalic trunk (right) or aorta (left) → subclavian artery → axillary artery → forelimb", "Branches arising from the subclavian arteries: internal thoracic artery (ventral rib cage), external thoracic artery (dorsal rib cage), costocervical trunk (deep neck muscles), thyrocervical trunk (thyroid + neck), and axillary artery (forelimb)"],
+                    images: [
+                        ImageCDN.image("subclavian-arteries_gross_1.jpeg", caption: "Subclavian Arteries")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
-                    connections: "Brachiocephalic trunk → subclavian arteries → axillary arteries → forelimb",
+                    connections: "Right: brachiocephalic trunk → right subclavian; Left: aorta → left subclavian. Each gives off internal/external thoracic arteries, costocervical + thyrocervical trunks, and continues as the axillary artery → forelimb",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Subclavian Veins",
                     aliases: ["Subclavian vein"],
-                    function: "Drain forelimb venous blood into brachiocephalic veins and ultimately cranial vena cava",
-                    commonConfusions: [],
-                    examTips: ["Subclavian veins → brachiocephalic veins → cranial vena cava"],
+                    function: "Drain oxygen-poor blood from the shoulder and arm; merge with the jugular veins to form the brachiocephalic veins",
+                    commonConfusions: ["Pig quirk: a pig may have TWO subclavian veins on each side — one dorsal and one ventral to the subclavian artery. The second (when present) merges with either the jugulars or the brachiocephalic vein"],
+                    examTips: ["Arises from the shoulder and arm; merges with the internal + external jugular veins to form the brachiocephalic vein", "Tributaries draining into it: the axillary vein (from the arm, via the axilla), the subscapular vein (medial scapula), and the external thoracic vein (pectoral muscles / ventral thoracic wall)"],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Axillary veins → subclavian veins → brachiocephalic veins → cranial vena cava",
+                    connections: "Axillary + subscapular + external thoracic veins → subclavian vein → brachiocephalic vein → cranial vena cava",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Axillary Arteries",
                     aliases: ["Axillary artery"],
-                    function: "Major forelimb arteries continuing from subclavian; supply forelimb and shoulder musculature",
+                    function: "Named branch of the subclavian artery that supplies the forelimb (its continuation into the limb)",
                     commonConfusions: [],
-                    examTips: ["Practical ID: located in shoulder/forelimb root region"],
+                    examTips: ["Practical ID: located in shoulder/forelimb root region", "One of the named branches of the subclavian artery (with the internal/external thoracic arteries, costocervical trunk, and thyrocervical trunk) — this is the one that supplies the forelimb", "Arterial companion of the axillary vein at the axilla (armpit) / forelimb root"],
+                    images: [
+                        ImageCDN.image("axillary-arteries_gross_1.jpeg", caption: "Axillary Arteries")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
-                    connections: "Subclavian arteries → axillary arteries → forelimb",
+                    connections: "Subclavian artery → axillary artery → forelimb",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Axillary Veins",
                     aliases: ["Axillary vein"],
-                    function: "Major forelimb veins draining shoulder and forelimb musculature back to subclavian veins",
+                    function: "Pass through the axilla (armpit) and drain the arm, returning blood to the subclavian veins",
                     commonConfusions: [],
-                    examTips: ["Practical ID: located in shoulder/forelimb root region"],
+                    examTips: ["Practical ID: located in shoulder/forelimb root region", "Named for the axilla (armpit) it passes through; drains the arm into the subclavian vein"],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Forelimb → axillary veins → subclavian veins",
+                    connections: "Arm → axillary vein (through the axilla) → subclavian vein",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Thyrocervical Trunk",
                     aliases: ["Thoracocervical artery"],
-                    function: "Arterial branch supplying cervical and thoracic-associated tissues (thyroid/cervical or thoracic/cervical supply territory)",
+                    function: "Branch of the subclavian artery that feeds the thyroid gland and parts of the neck",
                     commonConfusions: [],
-                    examTips: ["Name describes region: thyro = thyroid, cervical = neck/cervical area"],
+                    examTips: ["Name describes region: thyro = thyroid, cervical = neck/cervical area", "One of the named branches of the subclavian artery (alongside the internal/external thoracic arteries and the costocervical trunk)"],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
-                    connections: "Subclavian artery or aortic arch → thyrocervical trunk → cervical/thoracic tissues",
+                    connections: "Subclavian artery → thyrocervical trunk → thyroid gland + parts of the neck",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -1349,53 +1367,53 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Internal mammary arteries"],
                     function: "Supply the internal thoracic wall and anterior chest structures",
                     commonConfusions: [],
-                    examTips: ["Practical ID: vessels running along internal thoracic wall", "Flow: subclavian arteries → internal thoracic arteries → thoracic wall"],
+                    examTips: ["Practical ID: run along the VENTRAL side of the rib cage (inner surface)", "Flow: subclavian arteries → internal thoracic arteries → thoracic wall", "Pair with the external thoracic arteries, which run along the DORSAL side of the rib cage"],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
-                    connections: "Subclavian arteries → internal thoracic arteries → thoracic wall",
+                    connections: "Subclavian arteries → internal thoracic arteries (ventral rib cage) → thoracic wall",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Internal Thoracic Veins",
                     aliases: ["Internal mammary veins"],
-                    function: "Drain the internal thoracic wall into the brachiocephalic veins",
+                    function: "Drain the thoracic body wall; run along the inside (ventral) surface of the rib cage and join the cranial vena cava just below the brachiocephalic veins",
                     commonConfusions: [],
-                    examTips: ["Practical ID: vessels running along internal thoracic wall", "Flow: thoracic wall → internal thoracic veins → brachiocephalic veins → cranial vena cava"],
+                    examTips: ["Practical ID: run along the inside (ventral) surface of the rib cage", "Join the CRANIAL VENA CAVA just below the brachiocephalic veins (not the brachiocephalics themselves)"],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Thoracic wall → internal thoracic veins → brachiocephalic veins",
+                    connections: "Thoracic wall → internal thoracic veins (ventral rib cage) → cranial vena cava (just below the brachiocephalic veins)",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "External Thoracic Arteries",
                     aliases: ["External thoracic artery"],
-                    function: "Arterial branches supplying superficial thoracic/pectoral regions",
-                    commonConfusions: [],
-                    examTips: ["Supply thoracic wall and pectoral muscle region"],
+                    function: "Branches of the subclavian artery supplying the thoracic wall; run along the dorsal side of the rib cage",
+                    commonConfusions: ["Handout pairing: internal thoracic arteries run along the VENTRAL rib cage, external thoracic arteries along the DORSAL rib cage — both arise from the subclavian artery"],
+                    examTips: ["Run along the DORSAL side of the rib cage", "One of the named subclavian-artery branches (with the internal thoracic, costocervical trunk, thyrocervical trunk, and axillary artery)"],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
-                    connections: "Axillary artery → external thoracic arteries → pectoral/thoracic wall",
+                    connections: "Subclavian artery → external thoracic arteries (dorsal rib cage) → thoracic wall",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Subscapular Veins",
                     aliases: ["Left/right subscapular veins"],
-                    function: "Drain scapular/shoulder tissues into larger venous return pathways",
-                    commonConfusions: [],
-                    examTips: ["Associated with shoulder/scapular region"],
+                    function: "Drain the medial side of the scapula, then empty into the subclavian or axillary vein (sometimes the brachiocephalic vein directly)",
+                    commonConfusions: ["Variable drainage — this region is a known source of specimen-to-specimen variation in vein connections"],
+                    examTips: ["Drains the medial side of the scapula", "Enters the subclavian OR axillary vein — or sometimes the brachiocephalic vein directly"],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Shoulder/scapular tissues → subscapular veins → axillary veins",
+                    connections: "Medial scapula → subscapular vein → subclavian or axillary vein (occasionally brachiocephalic vein directly)",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Costocervical Veins",
                     aliases: ["Left/right costocervical veins"],
-                    function: "Return blood from neck and thoracic wall regions into larger venous pathways",
+                    function: "Drain the neck, back, and cranial intercostal (between-rib) spaces, joining the cranial vena cava dorsally",
                     commonConfusions: [],
-                    examTips: ["Associated with cervical and thoracic wall drainage"],
+                    examTips: ["Situated more deeply, closer to the heart", "Join the CRANIAL VENA CAVA dorsally; drain the neck, back, and cranial intercostal spaces"],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Neck/thoracic wall → costocervical veins → subclavian or brachiocephalic veins",
+                    connections: "Neck + back + cranial intercostal spaces → costocervical veins → cranial vena cava (dorsally)",
                     highYield: false
                 ),
 
@@ -1626,6 +1644,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Large pelvic vein collecting venous return from internal and external iliac veins; contributes to caudal vena cava",
                     commonConfusions: ["IMPORTANT PIG-SPECIFIC: pigs have a COMMON ILIAC VEIN but NO common iliac artery — the arterial side divides directly into internal and external iliac arteries"],
                     examTips: ["Pig-specific: common iliac vein exists; common iliac artery does NOT — important exam distinction"],
+                    images: [
+                        ImageCDN.image("common-iliac-vein_gross_1.jpg", caption: "Common Iliac Vein")
+                    ],
                     histology: "Vein: thin wall, large lumen; simple squamous endothelium",
                     connections: "Internal iliac vein + external iliac vein → common iliac vein → caudal vena cava",
                     highYield: true
@@ -1648,6 +1669,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drains pelvic and reproductive organs into the common iliac vein",
                     commonConfusions: [],
                     examTips: ["Drains pelvic organs → internal iliac vein → common iliac vein → caudal vena cava"],
+                    images: [
+                        ImageCDN.image("internal-iliac-vein_gross_1.jpg", caption: "Internal Iliac Vein")
+                    ],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Pelvic/reproductive organs → internal iliac vein → common iliac vein → caudal vena cava",
                     highYield: false
@@ -1659,6 +1683,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Major artery continuing from descending aorta toward hindlimb; becomes femoral artery at hindlimb",
                     commonConfusions: [],
                     examTips: ["Continuation becomes deep femoral and femoral arteries in hindlimb"],
+                    images: [
+                        ImageCDN.image("external-iliac-artery_gross_1.jpg", caption: "External Iliac Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Descending aorta → external iliac artery → deep femoral artery / femoral artery",
                     highYield: false
@@ -1670,6 +1697,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drains hindlimb venous blood back toward the common iliac vein",
                     commonConfusions: [],
                     examTips: ["Femoral veins → external iliac vein → common iliac vein → caudal vena cava"],
+                    images: [
+                        ImageCDN.image("external-iliac-vein_gross_1.jpg", caption: "External Iliac Vein")
+                    ],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Femoral vein → external iliac vein → common iliac vein → caudal vena cava",
                     highYield: false
@@ -1681,6 +1711,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies deep thigh and hindlimb musculature; major branch of the femoral artery",
                     commonConfusions: [],
                     examTips: ["Branches off femoral artery toward deeper thigh musculature", "Flow: external iliac artery → femoral artery → deep femoral artery → deep thigh muscles"],
+                    images: [
+                        ImageCDN.image("deep-femoral-artery_gross_1.jpg", caption: "Deep Femoral Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "External iliac artery → femoral artery → deep femoral artery → deep thigh muscles",
                     highYield: false
@@ -1752,6 +1785,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies oxygenated blood to the ovary; branches from the descending aorta",
                     commonConfusions: [],
                     examTips: ["Practical ID: vessel associated with ovary and uterine horn region"],
+                    images: [
+                        ImageCDN.image("ovarian-artery_gross_1.jpg", caption: "Ovarian Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Descending aorta → ovarian artery → ovary",
                     highYield: false
@@ -1833,7 +1869,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Fetal arterial shunt", "Arterial duct"],
                     function: "Temporary fetal vessel connecting pulmonary trunk to aorta, bypassing fetal lungs",
                     commonConfusions: [],
-                    examTips: ["Fetal bypass #3: pulmonary trunk → aorta, bypassing lungs", "Flow: right ventricle → pulmonary trunk → ductus arteriosus → aorta", "Closes after birth when lungs expand; becomes ligamentum arteriosum"],
+                    examTips: ["Fetal bypass #3: pulmonary trunk → aorta, bypassing lungs", "Flow: right ventricle → pulmonary trunk → ductus arteriosus → aorta", "Because the fetal lungs are non-functional, MOST of the blood from the right ventricle bypasses the lungs through this vessel", "Closes after birth when lungs expand; the site of contact remains and is re-named the ligamentum arteriosum"],
                     images: [
                         ImageCDN.image("ductus-arteriosus_gross_1.png", caption: "Ductus Arteriosus"),
                     ],
@@ -1927,6 +1963,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Conducts urine from the bladder to the exterior in females; carries urine only (no reproductive role)",
                     commonConfusions: ["Female urethra is much SHORTER than the male urethra", "Opens into the urogenital sinus, separate from the reproductive tract opening"],
                     examTips: ["Practical ID: short tube running from the bladder neck to open on the floor of the urogenital sinus"],
+                    images: [
+                        ImageCDN.image("urethra-female_gross_1.jpg", caption: "Urethra (Female)")
+                    ],
                     histology: "Transitional epithelium near bladder, transitioning to stratified squamous near the external opening",
                     connections: "Urinary bladder → short female urethra → opens into the urogenital sinus floor",
                     highYield: false
@@ -1997,6 +2036,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Narrow tube at the cranial end of the cremasteric pouch; contains the ductus deferens, a testicular artery and vein, lymphatic vessels, and numerous nerves. It is the route sperm travel from the testis toward the urethra.",
                     commonConfusions: ["Contents to know: ductus deferens + testicular artery & vein + lymphatics + nerves", "Runs within the cremasteric pouch, whose serosa-lined cavity (the vaginal cavity) is an extension of the peritoneal cavity"],
                     examTips: ["Practical ID: narrow cord at the cranial end of the cremasteric pouch, running through the inguinal canal", "Contains: ductus deferens, testicular vessels, lymphatics, nerves"],
+                    images: [
+                        ImageCDN.image("spermatic-cord_gross_1.png", caption: "Spermatic Cord")
+                    ],
                     histology: "Mixed tissues: connective tissue, smooth muscle, vessels, duct epithelium — bundled organization allows protected passage through inguinal canal",
                     connections: "Testis → spermatic cord → inguinal canal → abdominal cavity",
                     highYield: true
@@ -2139,6 +2181,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Joins the two uterine horns; connects to the cervix; short in pigs compared to the long horns",
                     commonConfusions: ["In pigs the uterine body is relatively short compared to the long horns — don't confuse with the human simplex uterus where the body is the main structure"],
                     examTips: ["Practical ID: short, thick tubular structure where the two uterine horns merge before narrowing into the cervix", "Much shorter than each uterine horn in pigs"],
+                    images: [
+                        ImageCDN.image("body-of-uterus_gross_1.jpg", caption: "Body of Uterus")
+                    ],
                     histology: "Same three layers as horns: endometrium (simple columnar + glands), myometrium (smooth muscle), perimetrium (serosa)",
                     connections: "Cranial: two uterine horns join here; caudal: narrows into cervix",
                     highYield: false
@@ -2150,6 +2195,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Muscular gateway between uterus and vagina; produces mucus plug to seal the uterus during pregnancy; dilates during labor for parturition",
                     commonConfusions: ["Pig cervix has a distinctive interlocking ridge pattern on the inner wall (annular folds) — different from most other species", "Do not confuse with the firm-walled vagina; the cervix is thicker-walled with obvious ridges"],
                     examTips: ["Practical ID: firm, ridged (annular ridged) tubular structure between uterine body and vagina", "The annular folds in pigs interdigitate to lock sperm-depositing semen — pigs are intrauterine depositors", "Acts as a barrier to infection during pregnancy"],
+                    images: [
+                        ImageCDN.image("cervix_gross_1.jpg", caption: "Cervix")
+                    ],
                     histology: "Dense fibromuscular connective tissue with simple columnar (mucus-secreting) epithelium in the endocervix; stratified squamous epithelium at the ectocervix",
                     connections: "Cranial end: uterine body; caudal end: vagina",
                     highYield: true
@@ -2161,6 +2209,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Receives the penis during copulation (though in pigs semen is deposited directly into the uterus through the cervix); serves as the birth canal during parturition",
                     commonConfusions: ["In pigs, the vagina is shorter than in humans relative to the cervix", "The vagina opens into the urogenital sinus, not directly to the exterior in the fetal pig"],
                     examTips: ["Practical ID: large-diameter, thin-walled tube caudal to the cervix, leading toward the urogenital sinus", "Distinguished from rectum by its more ventral position and connection to urogenital sinus", "In pigs, sperm are deposited past the vagina into the cervix/uterus — the vagina is mainly a birth canal"],
+                    images: [
+                        ImageCDN.image("vagina_gross_1.jpg", caption: "Vagina")
+                    ],
                     histology: "Stratified squamous epithelium (nonkeratinized) — resistant to friction and abrasion; no glands in vaginal wall itself",
                     connections: "Cranial: cervix; caudal: urogenital sinus; dorsal to urethra",
                     highYield: true
@@ -2231,6 +2282,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Outermost extraembryonic membrane; in pigs it fuses with the allantois to form the chorioallantoic membrane that interfaces with the maternal uterine lining for gas/nutrient exchange",
                     commonConfusions: ["Chorion vs amnion: chorion is the outermost fetal membrane; amnion is innermost", "In pigs, the chorion does NOT penetrate the uterine wall (diffuse epitheliochorial placenta) — contrast with humans where chorionic villi invade maternal tissue (hemochorial placenta)"],
                     examTips: ["Practical ID: outermost membranous sac when the fetal membranes are intact; surrounds all other membranes", "Pig placenta type: diffuse epitheliochorial — chorionic villi interdigitate with uterine folds but do NOT invade maternal blood vessels", "This explains why sows can reabsorb fetuses without hemorrhage"],
+                    images: [
+                        ImageCDN.image("chorion_gross_1.png", caption: "Chorion")
+                    ],
                     histology: "Trophoblast-derived epithelium covering fetal mesoderm; in pigs it forms chorionic villi that interdigitate with endometrial folds (areolae)",
                     connections: "Outermost layer; fuses with allantois on inner side; outer surface contacts uterine endometrium",
                     highYield: true
@@ -2242,6 +2296,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Innermost extraembryonic membrane; encloses the fetus in amniotic fluid which cushions, protects from desiccation, allows movement, and maintains temperature",
                     commonConfusions: ["Amnion (inner, surrounds fetus in amniotic fluid) vs allantois (outer, collects waste) vs chorion (outermost)", "Amniotic fluid is produced by the fetus (fetal urine + lung secretions later) — not the same as allantoic fluid"],
                     examTips: ["Practical ID: thin, clear innermost membrane directly touching/surrounding the fetal pig body", "Amniotic fluid serves as a shock absorber — important for fetal movement and lung development", "The 'water bag' that breaks at birth is the amnion releasing amniotic fluid"],
+                    images: [ImageCDN.image("amnion_gross_1.png", caption: "Amnion")],
                     histology: "Simple squamous to simple cuboidal amniotic epithelium overlying avascular mesoderm (no blood vessels in amnion itself)",
                     connections: "Directly surrounds fetus; inner to allantois; contains amniotic fluid; continuous with fetal skin at umbilicus",
                     highYield: true
@@ -2521,6 +2576,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Carries visual information from retina to brain",
                     commonConfusions: [],
                     examTips: ["NOT tested on this practical according to exam breakdown, but was on study list", "Practical ID: cord-like structure exiting posterior eyeball", "Signal path: retina → optic nerve → optic chiasm → brain visual cortex"],
+                    images: [
+                        ImageCDN.image("optic-nerve_gross_1.jpeg", caption: "Optic Nerve")
+                    ],
                     histology: "Nervous tissue containing axons, glial support tissue (oligodendrocytes, astrocytes), and connective tissue sheaths (meninges)",
                     connections: "Retina → optic nerve → optic chiasm → brain",
                     highYield: false
@@ -2612,7 +2670,9 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Artery)", aliases: ["Middle layer (artery)"],
                     function: "Thick smooth-muscle middle layer — the defining feature of a muscular artery; controls vessel diameter", examTips: ["Thick smooth muscle = muscular artery"], histology: "Multiple layers of circular smooth muscle with some elastic fibers"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Artery)", aliases: ["Outer layer (artery)"],
-                    function: "Outer connective tissue layer anchoring the artery", examTips: ["Connective tissue; thinner than the media in muscular arteries"], histology: "Dense connective tissue (collagen and elastic fibers)"),
+                    function: "Outer connective tissue layer anchoring the artery", examTips: ["Connective tissue; thinner than the media in muscular arteries"],
+                    images: [ImageCDN.slide("tunica-adventitia-artery_histo_1.png", magnification: 30, caption: "Tunica Adventitia (Artery) — ~30×")],
+                    histology: "Dense connective tissue (collagen and elastic fibers)"),
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
                     name: "Vein",
@@ -2666,7 +2726,9 @@ class AnatomyDataManager: ObservableObject {
                     highYield: true
                 ),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Vena Cava)", aliases: ["Inner lining (vena cava)"],
-                    function: "Innermost layer of the vena cava: thin endothelial lining", examTips: ["Thin endothelial lining"], histology: "Simple squamous endothelium on a thin connective tissue layer"),
+                    function: "Innermost layer of the vena cava: thin endothelial lining", examTips: ["Thin endothelial lining"],
+                    images: [ImageCDN.slide("tunica-intima-vena-cava_histo_1.jpeg", magnification: 4, caption: "Tunica Intima (Vena Cava) — 4×")],
+                    histology: "Simple squamous endothelium on a thin connective tissue layer"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Vena Cava)", aliases: ["Middle layer (vena cava)"],
                     function: "Thin smooth-muscle middle layer of the vena cava (relatively poorly developed, as in all large veins)", examTips: ["Thin media relative to the large lumen"],
                     images: [ImageCDN.slide("tunica-media-vena-cava_histo_1.jpeg", magnification: 4, caption: "Tunica Media (Vena Cava) — 4×")],
@@ -3009,7 +3071,10 @@ class AnatomyDataManager: ObservableObject {
                     function: "Mucus-secreting cells scattered in the duodenal epithelium (fewest of the small-intestine segments)", examTips: ["Goblet cells increase duodenum → jejunum → ileum"], histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
 
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Villi (Jejunum)", aliases: ["Jejunal villi"],
-                    function: "The tallest villi of the small intestine, maximizing the jejunum's absorptive surface", examTips: ["Tallest villi + NO Brunner's + NO Peyer's patches = jejunum"], histology: "Tall simple columnar epithelium with microvilli over a lamina propria core"),
+                    function: "The tallest villi of the small intestine, maximizing the jejunum's absorptive surface",
+                    examTips: ["Tallest villi + NO Brunner's + NO Peyer's patches = jejunum"],
+                    images: [ImageCDN.slide("villi-jejunum_histo_1.jpeg", magnification: 10, caption: "Villi — Jejunum 10×")],
+                    histology: "Tall simple columnar epithelium with microvilli over a lamina propria core"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Jejunum)", aliases: ["Crypts of Lieberkühn (jejunum)", "Jejunal crypts"],
                     function: "Mucosal tubular glands (crypts of Lieberkühn) of the jejunum that renew the epithelium", examTips: ["Mucosal crypts at the bases of the tall villi"], histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Jejunum)", aliases: ["Jejunal goblet cells"],
@@ -3430,7 +3495,10 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: microscopeCat.id,
                     name: "Base",
                     aliases: ["Foot"],
-                    function: "Provides stability and support"
+                    function: "Provides stability and support",
+                    images: [
+                        ImageCDN.image("base_microscope_1.jpg", caption: "Base")
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
@@ -3476,6 +3544,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The body cavity containing the major digestive organs (stomach, liver, intestines, spleen, pancreas, gallbladder); allows organ movement with minimal friction; lined by peritoneum which secretes serous fluid for lubrication",
                     commonConfusions: ["Peritoneal cavity vs thoracic cavity: diaphragm separates them — the peritoneal cavity is caudal/inferior to the diaphragm", "Intraperitoneal vs retroperitoneal: most digestive organs are intraperitoneal (within the peritoneal cavity); kidneys are retroperitoneal (behind the peritoneum)"],
                     examTips: ["Practical ID: the large abdominal space opened when the ventral abdominal wall is reflected", "HISTOLOGY KEY: peritoneal lining = mesothelium = simple squamous epithelium — optimized for low-friction lubrication, NOT abrasion protection", "Serous fluid in the cavity reduces friction between moving organs"],
+                    images: [
+                        ImageCDN.image("peritoneal-cavity_gross_1.jpeg", caption: "Peritoneal Cavity")
+                    ],
                     histology: "Lined by mesothelium (simple squamous epithelium); serous fluid produced for lubrication and friction reduction between organs",
                     connections: "Surrounded by: diaphragm (cranial), pelvic inlet (caudal), abdominal wall (ventral/lateral), dorsal body wall (dorsal); contains stomach, liver, spleen, intestines, pancreas, gallbladder",
                     highYield: true
@@ -3557,7 +3628,7 @@ class AnatomyDataManager: ObservableObject {
                     name: "Peritoneum",
                     aliases: ["Serous membrane (abdominal)", "Peritoneal lining"],
                     function: "Serous membrane lining the abdominal cavity and covering many abdominal organs; reduces friction between organs, allows organ mobility, forms folds (mesenteries, omenta) that carry vessels/nerves/lymphatics, and compartmentalizes the abdomen",
-                    commonConfusions: ["Peritoneum vs pleura: peritoneum = abdomen; pleura = lungs/thorax — both are serous membranes lined by simple squamous mesothelium", "Parietal peritoneum (body wall) vs visceral peritoneum (organ surface) — same tissue but different layers with different locations"],
+                    commonConfusions: ["Peritoneum vs pleura: peritoneum = abdomen; pleura = lungs/thorax — both are serous membranes lined by simple squamous mesothelium", "Parietal peritoneum (body wall) vs visceral peritoneum (organ surface) — same tissue but different layers with different locations", "Do NOT confuse peritoneum with PERINEUM (sound-alike, unrelated): the peritoneum is the internal serous membrane lining the abdominal cavity, while the perineum is the external body region at the floor of the pelvis — the area between the thighs bearing the anus and the external genital openings"],
                     examTips: ["MASTER CONCEPT: all serous membranes (peritoneum, pleura, pericardium) are lined by simple squamous mesothelium — this is VERY HIGH YIELD", "Thin shiny membrane visible on abdominal wall surfaces and organ surfaces", "Peritoneum forms folds: mesentery (suspends intestines), greater omentum (stomach apron), lesser omentum (liver-stomach)"],
                     histology: "Simple squamous mesothelium (mesothelial cells); underlying connective tissue; serous fluid secreted into peritoneal cavity for lubrication",
                     connections: "Parietal layer lines body wall; visceral layer covers organs (stomach, intestines, liver, spleen); forms mesentery, greater omentum, lesser omentum",
@@ -4230,6 +4301,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Protection against abrasion in moist internal surfaces; maintains barrier without sacrificing flexibility or transparency",
                     commonConfusions: ["Nonkeratinized = moist, flexible, transparent; Keratinized = dry, tough, waterproof (like skin)"],
                     examTips: ["Key locations: oral cavity, esophagus, vagina, cornea (transparent variant)", "Esophagus is VERY HIGH YIELD — always stratified squamous, contrasts with pseudostratified columnar of trachea", "Cornea: nonkeratinized to maintain transparency"],
+                    images: [
+                        ImageCDN.slide("stratified-squamous-epithelium-nonkeratinized_histo_1.png", magnification: 40, caption: "Stratified Squamous Epithelium (Nonkeratinized) — 40×"),
+                    ],
                     histology: "Multiple layers; surface cells are flat (squamous); basal layer cuboidal/columnar; no keratin (surface cells remain nucleated and moist)",
                     connections: "Oral cavity, esophagus (entire length), vagina, cornea, anal canal (upper portion)",
                     highYield: true
@@ -4323,18 +4397,30 @@ class AnatomyDataManager: ObservableObject {
 
                 // ----- Slide 15: Ileum layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Ileum)", aliases: ["Ileal mucosa"],
-                    function: "Inner lining of the ileum: villi (shorter than jejunum), many goblet cells", examTips: ["Villi + Peyer's patches nearby"], histology: "Simple columnar epithelium with villi, abundant goblet cells, crypts of Lieberkühn"),
+                    function: "Inner lining of the ileum. Like all mucosa it has three sublayers (epithelium + lamina propria + muscularis mucosae). The surface epithelium is simple columnar with villi (shorter than the jejunum's) and abundant goblet cells; crypts of Lieberkühn dip into the lamina propria, which also carries the aggregated lymphoid nodules (Peyer's patches) that define the ileum.",
+                    commonConfusions: ["Mucosa = the three sublayers together (epithelium + lamina propria + muscularis mucosae), not just the epithelium", "Peyer's patches are the defining ileal feature — they sit mostly in the submucosa but bulge up into the mucosa"],
+                    examTips: ["Simple columnar epithelium + villi (shorter than jejunum) + abundant goblet cells + Peyer's patches", "Goblet cells grow more numerous moving distally along the small intestine — most abundant in the ileum"],
+                    images: [ImageCDN.slide("mucosa-ileum_histo_1.jpeg", magnification: 4, caption: "Mucosa (Ileum) — 4×")],
+                    histology: "Simple columnar epithelium with villi, abundant goblet cells, crypts of Lieberkühn; lamina propria with Peyer's patches; muscularis mucosae at the base"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Ileum)", aliases: [],
-                    function: "Thin smooth muscle at the base of the ileal mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Boundary between mucosa and submucosa", "Thin muscle INSIDE the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
+                    function: "Thin smooth muscle at the base of the ileal mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Boundary between mucosa and submucosa", "Thin muscle INSIDE the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"],
+                    images: [ImageCDN.slide("muscularis-mucosae-ileum_histo_1.jpeg", magnification: 4, caption: "Muscularis Mucosae (Ileum) — 4×")],
+                    histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Ileum)", aliases: [],
-                    function: "Connective tissue layer of the ileum; Peyer's patches extend into it (defining ileal feature)", examTips: ["Peyer's patches extend into submucosa"], histology: "Loose connective tissue with aggregated lymphoid nodules (Peyer's patches)"),
+                    function: "Connective tissue layer of the ileum; Peyer's patches extend into it (defining ileal feature)", examTips: ["Peyer's patches extend into submucosa"],
+                    images: [ImageCDN.slide("submucosa-ileum_histo_1.jpeg", magnification: 4, caption: "Submucosa (Ileum) — 4×")],
+                    histology: "Loose connective tissue with aggregated lymphoid nodules (Peyer's patches)"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Ileum)", aliases: ["Muscularis externa (ileum)", "Muscularis propria (ileum)"],
                     function: "The thick outer muscle coat — inner circular + outer longitudinal smooth muscle driving peristalsis. Also called the muscularis externa or muscularis propria (same layer, three names).",
                     commonConfusions: ["MUSCULARIS (= muscularis externa = muscularis propria): thick, two layers, deep in the wall, drives peristalsis — NOT the thin muscularis MUCOSAE inside the mucosa"],
                     examTips: ["Two layers: inner circular, outer longitudinal", "Names to know: muscularis = muscularis externa = muscularis propria (all the same thick layer)"],
+                    images: [ImageCDN.slide("muscularis-ileum_histo_1.jpeg", magnification: 4, caption: "Muscularis (Ileum) — 4×")],
                     histology: "Inner circular + outer longitudinal smooth muscle"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Ileum)", aliases: [],
-                    function: "Outer serous covering of the ileum (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"], histology: "Simple squamous mesothelium over thin connective tissue"),
+                    function: "Outer serous covering of the ileum (may be absent on slide if trimmed)",
+                    examTips: ["May not be present on your slide"],
+                    images: [ImageCDN.slide("serosa-ileum_histo_1.jpeg", magnification: 20, caption: "Serosa (Ileum) — 20×")],
+                    histology: "Simple squamous mesothelium over thin connective tissue"),
 
                 // ----- Slide 16: Large Intestine layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Large Intestine)", aliases: ["Colonic mucosa"],
