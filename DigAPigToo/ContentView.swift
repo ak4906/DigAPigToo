@@ -516,6 +516,23 @@ struct StructureListView: View {
                             }
                         }
                     }
+                } else if dataManager.hasSubcategories(category) {
+                    List {
+                        ForEach(dataManager.structuresBySubcategory(in: category), id: \.subcategory) { group in
+                            Section {
+                                ForEach(group.structures) { structure in
+                                    NavigationLink(value: structure) {
+                                        Text(structure.name)
+                                    }
+                                    .id(structure.id)
+                                }
+                            } header: {
+                                Text(group.subcategory)
+                                    .font(.subheadline.weight(.semibold))
+                                    .textCase(nil)
+                            }
+                        }
+                    }
                 } else {
                     List(structures) { structure in
                         NavigationLink(value: structure) {

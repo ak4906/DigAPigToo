@@ -526,6 +526,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Long coiled small intestine; primary site of nutrient absorption (amino acids, fatty acids, sugars, vitamins, minerals); ileum specifically absorbs vitamin B12, bile salts, and hosts Peyer's patches for immune surveillance. The terminal ileum ends at the ileocecal valve — a sphincter muscle at the junction of ileum and caecum that acts as a one-way valve regulating flow of digestive contents into the large intestine while preventing bacteria-laden waste from backflowing into the small intestine.",
                     commonConfusions: ["In pigs, the jejunum and ileum are not clearly demarcated and are called 'jejuno-ileum' as a unit", "Jejuno-ileum vs large intestine: small intestine has VILLI; large intestine does NOT — this is the #1 histological distinguishing feature", "Ileum vs jejunum histology: ileum has Peyer's patches in submucosa; jejunum does not"],
                     examTips: ["Practical ID: long coiled loops of intestine; narrower diameter than large intestine", "Villi present — this is small intestine", "Ileum portion: Peyer's patches = lymphoid aggregates visible in submucosa", "Ileum ends at the ileocecal valve before entering the caecum"],
+                    images: [
+                        ImageCDN.image("jejuno-ileum_gross_1.jpg", caption: "Jejuno-ileum")
+                    ],
                     histology: "Simple columnar epithelium with enterocytes (microvilli brush border), goblet cells, and villi; ileum portion has Peyer's patches (lymphoid aggregates in submucosa/mucosa)",
                     connections: "Duodenum → jejuno-ileum → ileocecal valve → caecum; suspended by intestinal mesentery",
                     highYield: true
@@ -1680,14 +1683,14 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "External Iliac Artery",
                     aliases: ["External iliac"],
-                    function: "Major artery continuing from descending aorta toward hindlimb; becomes femoral artery at hindlimb",
-                    commonConfusions: [],
-                    examTips: ["Continuation becomes deep femoral and femoral arteries in hindlimb"],
+                    function: "Major artery from the descending aorta toward the hindlimb; gives off the deep circumflex iliac artery as an early lateral branch, then continues into the leg as the femoral artery",
+                    commonConfusions: ["The external iliac continues as the FEMORAL artery; the DEEP femoral is not a separate branch of the external iliac — it branches off the medial side of the femoral farther down"],
+                    examTips: ["Continues as the femoral artery once it enters the leg", "Early lateral branch off the external iliac: the deep circumflex iliac artery (to pelvic muscles)"],
                     images: [
                         ImageCDN.image("external-iliac-artery_gross_1.jpg", caption: "External Iliac Artery")
                     ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
-                    connections: "Descending aorta → external iliac artery → deep femoral artery / femoral artery",
+                    connections: "Descending aorta → external iliac artery → femoral artery → hindlimb (early branch: deep circumflex iliac artery)",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -1702,6 +1705,28 @@ class AnatomyDataManager: ObservableObject {
                     ],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Femoral vein → external iliac vein → common iliac vein → caudal vena cava",
+                    highYield: false
+                ),
+                AnatomyStructure(
+                    categoryId: circulatoryCat.id,
+                    name: "Femoral Artery",
+                    aliases: ["Femoral"],
+                    function: "The continuation of the external iliac artery once it enters the leg; the main arterial supply to the hindlimb. The deep femoral artery leaves its medial side.",
+                    commonConfusions: ["Femoral artery (main vessel continuing into the leg) vs deep femoral artery (a branch leaving the femoral's MEDIAL side to the deep thigh) — the deep femoral comes OFF the femoral, they are not siblings"],
+                    examTips: ["Practical ID: the vessel branching from the external iliac artery to enter the leg — separate the caudal abdominal-wall muscle from the skin over the thigh to see it clearly", "Flow: external iliac artery → femoral artery → (gives off deep femoral artery) → hindlimb"],
+                    histology: "Artery: thick tunica media; simple squamous endothelium",
+                    connections: "External iliac artery → femoral artery → hindlimb; gives off the deep femoral artery from its medial side",
+                    highYield: false
+                ),
+                AnatomyStructure(
+                    categoryId: circulatoryCat.id,
+                    name: "Femoral Vein",
+                    aliases: ["Femoral"],
+                    function: "Accompanies the femoral artery; drains the hindlimb and continues as the external iliac vein. It receives the deep femoral vein on its medial side.",
+                    commonConfusions: ["Venous flow runs the opposite way to the artery: the deep femoral vein drains INTO the femoral vein, which drains into the external iliac vein"],
+                    examTips: ["Practical ID: runs alongside the femoral artery into the leg", "Flow: hindlimb → femoral vein → external iliac vein → common iliac vein → caudal vena cava"],
+                    histology: "Vein: thin wall; simple squamous endothelium",
+                    connections: "Hindlimb → femoral vein → external iliac vein; receives the deep femoral vein from its medial side",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -1725,6 +1750,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drains deep thigh muscles back into the femoral vein",
                     commonConfusions: [],
                     examTips: ["Flow: deep thigh muscles → deep femoral vein → femoral vein → external iliac vein"],
+                    images: [
+                        ImageCDN.image("deep-femoral-vein_gross_1.jpg", caption: "Deep Femoral Vein")
+                    ],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Deep thigh muscles → deep femoral vein → femoral vein → external iliac vein",
                     highYield: false
@@ -4397,9 +4425,15 @@ class AnatomyDataManager: ObservableObject {
 
                 // ----- Slide 14: Jejunum layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Jejunum)", aliases: ["Jejunal mucosa"],
-                    function: "Inner lining of the jejunum: tall villi and goblet cells; the most absorptive small-intestine mucosa", examTips: ["Tallest villi of the small intestine"], histology: "Simple columnar epithelium with tall villi, goblet cells, crypts of Lieberkühn"),
+                    function: "Inner lining of the jejunum. Like all mucosa it has three sublayers (epithelium + lamina propria + muscularis mucosae). The surface epithelium is simple columnar with the TALLEST villi of the small intestine (maximizing absorption) plus goblet cells; crypts of Lieberkühn dip into the lamina propria.",
+                    commonConfusions: ["Mucosa = the three sublayers together (epithelium + lamina propria + muscularis mucosae), not just the epithelium", "Jejunum is the 'plain' small-intestine segment: NO Brunner's glands (those are duodenum) and NO Peyer's patches (those are ileum) — ID it by the tallest villi and the absence of both"],
+                    examTips: ["Simple columnar epithelium + tallest villi + goblet cells + crypts of Lieberkühn", "Tallest villi + NO Brunner's + NO Peyer's patches = jejunum"],
+                    images: [ImageCDN.slide("mucosa-jejunum_histo_1.jpeg", magnification: 10, caption: "Mucosa (Jejunum) — 10×")],
+                    histology: "Simple columnar epithelium with tall villi, goblet cells, crypts of Lieberkühn; lamina propria; muscularis mucosae at the base"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Jejunum)", aliases: [],
-                    function: "Thin smooth muscle at the base of the jejunal mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Boundary between mucosa and submucosa", "Thin muscle INSIDE the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
+                    function: "Thin smooth muscle at the base of the jejunal mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Boundary between mucosa and submucosa", "Thin muscle INSIDE the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"],
+                    images: [ImageCDN.slide("muscularis-mucosae-jejunum_histo_1.jpeg", magnification: 10, caption: "Muscularis Mucosae (Jejunum) — 10×")],
+                    histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Jejunum)", aliases: [],
                     function: "Connective tissue layer of the jejunum; NO Brunner's glands and NO Peyer's patches (distinguishes from duodenum and ileum)", examTips: ["No Brunner's glands, no Peyer's patches"], histology: "Loose connective tissue, no special glands"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Jejunum)", aliases: ["Muscularis externa (jejunum)", "Muscularis propria (jejunum)"],
@@ -4776,6 +4810,87 @@ class AnatomyDataManager: ObservableObject {
         return result
     }
 
+    // MARK: - Circulatory Subcategories
+
+    /// The Circulatory System is large (76 structures), so the IDs tab groups it into
+    /// handout-inspired sections. This ordered list of (section title, member names) defines
+    /// BOTH the on-screen section order and the left/right swipe order. Edit here to re-group.
+    static let circulatorySubcategories: [(name: String, members: [String])] = [
+        ("Heart Structures", [
+            "Heart", "Right Atrium", "Left Atrium", "Right Ventricle", "Left Ventricle",
+            "Auricles", "Tricuspid Valve", "Bicuspid Valve", "Pulmonary Valve",
+            "Aortic Valve", "Chordae Tendineae",
+        ]),
+        ("Coronary & Cardiac Vessels", [
+            "Left Coronary Artery", "Great Cardiac Vein", "Coronary Sinus", "Left Azygos Vein",
+        ]),
+        ("Great Vessels & Pulmonary Circuit", [
+            "Ascending Aorta", "Arch of the Aorta", "Descending Aorta", "Brachiocephalic Trunk",
+            "Cranial Vena Cava", "Caudal Vena Cava",
+            "Pulmonary Trunk", "Pulmonary Arteries", "Pulmonary Veins",
+        ]),
+        ("Head, Neck & Thoracic Vessels", [
+            "Common Carotid Arteries", "External Jugular Veins", "Internal Jugular Veins",
+            "Brachiocephalic Veins", "Subclavian Arteries", "Subclavian Veins",
+            "Axillary Arteries", "Axillary Veins", "Thyrocervical Trunk",
+            "Internal Thoracic Arteries", "Internal Thoracic Veins", "External Thoracic Arteries",
+            "Subscapular Veins", "Costocervical Veins",
+        ]),
+        ("Hepatic Portal & Digestive Vessels", [
+            "Celiac Artery", "Hepatic Artery", "Hepatic Portal Vein", "Liver Sinusoids", "Hepatic Vein",
+            "Cranial Mesenteric Artery", "Caudal Mesenteric Artery", "Mesenteric Vein",
+            "Jejunal Arteries", "Jejunal Veins", "Gastric Artery", "Gastric Vein",
+            "Gastroepiploic Artery", "Gastroepiploic Vein", "Splenic Artery", "Splenic Vein",
+            "Splenogastric Vein",
+        ]),
+        ("Abdominal Vessels", [
+            "Renal Arteries", "Renal Veins",
+            "Testicular Artery", "Testicular Vein", "Ovarian Artery", "Ovarian Vein",
+        ]),
+        ("Pelvic & Hindlimb Vessels", [
+            "Common Iliac Vein", "Internal Iliac Artery", "Internal Iliac Vein",
+            "External Iliac Artery", "External Iliac Vein", "Femoral Artery", "Femoral Vein",
+            "Deep Femoral Artery", "Deep Femoral Vein", "Deep Circumflex Iliac Artery",
+            "Deep Circumflex Iliac Vein",
+        ]),
+        ("Fetal Circulation & Remnants", [
+            "Umbilical Arteries", "Umbilical Vein", "Ductus Venosus", "Foramen Ovale",
+            "Ductus Arteriosus", "Ligamentum Arteriosum",
+        ]),
+    ]
+
+    /// Category names that render as subcategory sections in the IDs tab.
+    static let subcategorizedCategoryNames: Set<String> = ["Circulatory System"]
+
+    func hasSubcategories(_ category: AnatomyCategory) -> Bool {
+        Self.subcategorizedCategoryNames.contains(category.name)
+    }
+
+    /// Structures in a subcategorized category grouped into their sections, in the order
+    /// defined by `circulatorySubcategories`. Any structure not listed in the mapping is
+    /// collected under a trailing "Other" section (so nothing is ever hidden).
+    func structuresBySubcategory(in category: AnatomyCategory) -> [(subcategory: String, structures: [AnatomyStructure])] {
+        let items = structures(in: category)
+        let byName = Dictionary(items.map { ($0.name, $0) }, uniquingKeysWith: { a, _ in a })
+        var used = Set<String>()
+        var result: [(subcategory: String, structures: [AnatomyStructure])] = []
+        for section in Self.circulatorySubcategories {
+            let members = section.members.compactMap { name -> AnatomyStructure? in
+                guard let s = byName[name] else { return nil }
+                used.insert(name)
+                return s
+            }
+            if !members.isEmpty {
+                result.append((subcategory: section.name, structures: members))
+            }
+        }
+        let leftover = items.filter { !used.contains($0.name) }
+        if !leftover.isEmpty {
+            result.append((subcategory: "Other", structures: leftover))
+        }
+        return result
+    }
+
     /// All structures in the same order they appear in the Atlas
     /// (Terminology → Gross Anatomy → Histology → Microscope → Epithelial Types,
     ///  categories in atlas order, structures in their original insertion order).
@@ -4809,6 +4924,9 @@ class AnatomyDataManager: ObservableObject {
     func orderedStructures(in category: AnatomyCategory) -> [AnatomyStructure] {
         if isHistologyCategory(category) {
             return structuresBySlide(in: category).flatMap { $0.structures }
+        }
+        if hasSubcategories(category) {
+            return structuresBySubcategory(in: category).flatMap { $0.structures }
         }
         return structures(in: category)
     }
