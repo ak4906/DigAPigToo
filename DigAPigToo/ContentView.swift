@@ -162,7 +162,7 @@ struct AtlasView: View {
             (
                 title: "Terminology",
                 systemImage: "character.book.closed.fill",
-                categories: ["Anatomical Planes", "Directional Te`rminology"].compactMap { find($0) }
+                categories: ["Anatomical Planes", "Directional Terminology"].compactMap { find($0) }
             ),
             (
                 title: "Gross Anatomy",
