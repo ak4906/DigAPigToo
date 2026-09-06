@@ -1073,7 +1073,7 @@ private struct FullscreenPageView: View {
 
     private var noPhotoPlaceholder: some View {
         VStack(spacing: 16) {
-            Image(systemName: "photo.slash")
+            Image(systemName: "photo")
                 .font(.system(size: 52))
                 .foregroundStyle(.white.opacity(0.4))
             Text("No photo yet for")

@@ -420,7 +420,7 @@ class AnatomyDataManager: ObservableObject {
                     name: "Scrotum",
                     aliases: ["Scrotal sac"],
                     function: "In mature males, houses testes; participates in temperature regulation for spermatogenesis",
-                    commonConfusions: [],
+                    commonConfusions: ["Scrotum = the OUTER pouch of SKIN ('ballsack'). Inside it, the deeper connective-tissue + cremaster-muscle sac that directly wraps each testis is the cremasteric pouch — skin vs muscular/CT sac"],
                     examTips: ["Sac-like structure caudal to hind limbs, ventral to tail"],
                     images: [
                         ImageCDN.image("scrotum_gross_1.jpeg", caption: "Scrotum"),
@@ -862,6 +862,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Entry/exit point of lung where the main bronchus, pulmonary artery, pulmonary veins, lymphatics, and nerves enter and exit the lung",
                     commonConfusions: ["Root of lung = the stalk of structures at the hilum; not the base of the lung"],
                     examTips: ["Practical ID: cluster of structures (bronchus + vessels) at the medial surface of the lung where they enter", "The pulmonary ligament extends below the root"],
+                    images: [
+                        ImageCDN.image("root-of-lung_gross_1.jpg", caption: "Root of Lung")
+                    ],
                     histology: "Contains bronchial wall (cartilage, smooth muscle, respiratory epithelium), pulmonary artery (elastic wall), pulmonary veins",
                     connections: "Main bronchus → lung; pulmonary artery (from right ventricle/trunk) → lung; pulmonary veins (from lung) → left atrium",
                     highYield: false
@@ -1091,6 +1094,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drains myocardium and delivers venous blood toward the coronary sinus",
                     commonConfusions: [],
                     examTips: ["Practical ID: vein running alongside coronary artery on heart surface", "Runs along the VENTRAL surface of the heart next to the left coronary artery"],
+                    images: [
+                        ImageCDN.image("great-cardiac-vein_gross_1.jpg", caption: "Great Cardiac Vein")
+                    ],
                     histology: "Vein: thinner wall, larger lumen; lined by simple squamous endothelium",
                     connections: "Myocardial capillaries → cardiac veins → coronary sinus → right atrium",
                     highYield: false
@@ -1187,6 +1193,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Paired arteries supplying oxygenated blood to head and brain regions",
                     commonConfusions: ["Arteries (carotids) are red-injected, thicker-walled; jugular veins are larger, more superficial, and blue-injected — important practical distinction"],
                     examTips: ["Practical ID: ascending arterial pair in neck region", "Arteries usually round in cross-section; veins more irregular/collapsed", "In the pig, BOTH common carotids branch together off the brachiocephalic trunk and carry blood to the head and neck; the internal jugular veins run just lateral to them near the trachea"],
+                    images: [
+                        ImageCDN.image("common-carotid-arteries_gross_1.jpg", caption: "Common Carotid Arteries")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Brachiocephalic trunk → pair of common carotid arteries → head/neck/brain",
                     highYield: true
@@ -1661,6 +1670,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies pelvic and reproductive organs; CRITICAL vessel in maternal-to-fetal circulation — often forgotten on trace questions",
                     commonConfusions: [],
                     examTips: ["VERY HIGH YIELD: often forgotten in maternal-to-fetal circulatory trace", "Maternal path: descending aorta → internal iliac artery → uterine artery → placenta"],
+                    images: [
+                        ImageCDN.image("internal-iliac-artery_gross_1.jpg", caption: "Internal Iliac Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Descending aorta → internal iliac artery → pelvic/reproductive organs and uterine artery",
                     highYield: true
@@ -2142,11 +2154,14 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: maleRepCat.id,
                     name: "Cremasteric Pouch",
                     aliases: ["Cremaster pouch"],
-                    function: "Supports testicular positioning and thermoregulation; muscular contraction can raise/lower testes to regulate temperature",
-                    commonConfusions: [],
-                    examTips: ["Practical ID: muscular tissue surrounding testicular structures"],
-                    histology: "Associated with skeletal muscle (cremaster muscle) plus connective tissue and vessels",
-                    connections: "Surrounds testis and spermatic cord",
+                    function: "A thin-walled, elongated pouch (one per testis) that directly encloses the testis and epididymis; its wall is connective tissue plus cremaster muscle, whose contraction raises/lowers the testis for thermoregulation. Its serosa-lined internal cavity — the vaginal cavity — is an extension of the peritoneal cavity.",
+                    commonConfusions: ["Cremasteric pouch vs SCROTUM ('ballsack'): the SCROTUM is the OUTER pouch of SKIN; the CREMASTERIC POUCH is the deeper connective-tissue + cremaster-muscle sac INSIDE it that actually wraps each testis. Skin = scrotum; muscular/CT sac within = cremasteric pouch", "Its internal cavity (the vaginal cavity) is serosa-lined and continuous with the abdominal (peritoneal) cavity through the inguinal canal — so the pouch is not a sealed sac"],
+                    examTips: ["Practical ID: pass a probe through the inguinal canal and it enters the cremasteric pouch", "The spermatic cord emerges from the CRANIAL end of the pouch", "In dissection you free the pouches, then slit one open — leaving the testis + epididymis attached to the spermatic cord"],
+                    images: [
+                        ImageCDN.image("cremasteric-pouch_gross_1.png", caption: "Cremasteric Pouch")
+                    ],
+                    histology: "Wall: cremaster (skeletal) muscle + connective tissue with vessels; internal surface lined by serosa (the vaginal cavity, continuous with the peritoneum)",
+                    connections: "Encloses testis + epididymis; spermatic cord exits cranially; vaginal cavity continuous with the peritoneal cavity via the inguinal canal; lies deep to the scrotal skin",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -2739,14 +2754,17 @@ class AnatomyDataManager: ObservableObject {
                     commonConfusions: ["Aorta is an elastic artery — its tunica media is dominated by elastic laminae (not just smooth muscle like muscular arteries)", "On the slide: the aorta wall appears thick with wavy pink elastic lamellae in the media — very different from the muscular artery on the artery/vein/nerve slide"],
                     examTips: ["KEY ID: thick wall with abundant wavy elastic lamellae in tunica media = elastic artery (aorta)", "The aorta wall is so thick it has its own blood vessels (vasa vasorum) within the adventitia to nourish the outer wall layers", "Compare: aorta (elastic) vs. smaller artery (muscular) — aorta has more elastic tissue, muscular artery has more smooth muscle in media"],
                     images: [
-                        ImageCDN.slide("aorta_histo_1.jpg", magnification: 4, caption: "Aorta — 4×"),
+                        ImageCDN.slide("aorta_histo_1.jpg", magnification: 2, caption: "Aorta — ~2× (whole slide)"),
+                        ImageCDN.slide("aorta_histo_2.jpeg", magnification: 4, caption: "Aorta — 4×"),
                     ],
                     histology: "Tunica intima: endothelium + subendothelial connective tissue + internal elastic lamina; tunica media: many layers of elastic lamellae alternating with smooth muscle (elastic artery type); tunica adventitia: dense irregular connective tissue with vasa vasorum",
                     connections: "Ascends from left ventricle → aortic arch (gives off brachiocephalic, left common carotid, left subclavian) → descending thoracic aorta → abdominal aorta → bifurcates into common iliac arteries",
                     highYield: true
                 ),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Aorta)", aliases: ["Inner lining (aorta)"],
-                    function: "Innermost layer of the aorta: endothelium over subendothelial connective tissue with an internal elastic lamina", examTips: ["Endothelium + subendothelial tissue + internal elastic lamina"], histology: "Simple squamous endothelium + subendothelial connective tissue + internal elastic lamina"),
+                    function: "Innermost layer of the aorta: endothelium over subendothelial connective tissue with an internal elastic lamina", examTips: ["Endothelium + subendothelial tissue + internal elastic lamina"],
+                    images: [ImageCDN.slide("tunica-intima-aorta_histo_1.png", magnification: 4, caption: "Tunica Intima (Aorta) — 4×")],
+                    histology: "Simple squamous endothelium + subendothelial connective tissue + internal elastic lamina"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Aorta)", aliases: ["Middle layer (aorta)"],
                     function: "Thick middle layer dominated by concentric elastic lamellae — the defining feature of an elastic artery; stretches in systole and recoils in diastole", examTips: ["Wavy elastic lamellae = elastic artery (aorta)"], histology: "Many concentric elastic lamellae alternating with smooth muscle"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Aorta)", aliases: ["Outer layer (aorta)"],
@@ -2849,6 +2867,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Bronchial passage"],
                     function: "Conducts air to lungs",
                     examTips: ["Cartilage present in bronchi"],
+                    images: [ImageCDN.slide("bronchus_histo_1.jpg", magnification: 4, caption: "Bronchus — 4×")],
                     histology: "Pseudostratified ciliated columnar; cartilage rings"
                 ),
                 AnatomyStructure(
@@ -2869,6 +2888,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "The respiratory epithelial lining of the conducting airways within the lung (bronchi and larger bronchioles): pseudostratified ciliated columnar epithelium with goblet cells that conditions air and traps particles",
                     commonConfusions: ["Mucosa of the conducting airways (pseudostratified ciliated columnar) is NOT the same as the alveolar lining (simple squamous for gas exchange)", "Epithelium becomes progressively simpler distally: pseudostratified → simple columnar/cuboidal in small bronchioles → simple squamous in alveoli"],
                     examTips: ["Practical ID on lung slide: airway lined by pseudostratified ciliated columnar epithelium with goblet cells = respiratory mucosa", "Mucosa lined with pseudostratified respiratory epithelial cells is the handout ID phrase"],
+                    images: [ImageCDN.slide("mucosa-lung_histo_1.jpg", magnification: 4, caption: "Mucosa (Lung) — 4×")],
                     histology: "Pseudostratified ciliated columnar epithelium with goblet cells over a thin lamina propria",
                     connections: "Lines bronchi and larger bronchioles within the lung; transitions to simpler epithelium distally toward alveoli",
                     highYield: true
@@ -3717,6 +3737,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Smaller peritoneal fold connecting the liver to the lesser curvature of the stomach (hepatogastric portion) and to the duodenum (hepatoduodenal portion); carries the portal triad structures (portal vein, hepatic artery, common bile duct) in its free edge",
                     commonConfusions: ["Lesser omentum carries the portal triad in its free (hepatoduodenal) edge — the hepatic portal vein, hepatic artery, and common bile duct all run through this", "Lesser vs greater omentum: lesser connects liver to stomach/duodenum; greater hangs from stomach over intestines"],
                     examTips: ["Practical ID: thin membrane between the liver and stomach/duodenum", "KEY: the free edge of the lesser omentum contains the portal vein + hepatic artery + common bile duct — a testable relationship"],
+                    images: [
+                        ImageCDN.image("lesser-omentum_gross_1.jpg", caption: "Lesser Omentum")
+                    ],
                     histology: "Double layer of peritoneum (simple squamous mesothelium) with connective tissue; contains the hepatoduodenal ligament carrying major vessels",
                     connections: "Liver → lesser omentum (hepatogastric) → lesser curvature of stomach; liver → lesser omentum (hepatoduodenal) → duodenum; free edge contains portal vein, hepatic artery, common bile duct",
                     highYield: false
@@ -4059,6 +4082,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Opening leading into larynx/trachea; controls airflow into lower respiratory tract",
                     commonConfusions: ["VERY IMPORTANT: glottis (opening) ≠ epiglottis (flap covering)"],
                     examTips: ["Opening immediately inferior/posterior to epiglottis"],
+                    images: [
+                        ImageCDN.image("glottis_gross_1.png", caption: "Glottis")
+                    ],
                     histology: "Associated with respiratory mucosa",
                     connections: "Pharynx → glottis → larynx → trachea",
                     highYield: true
@@ -4511,7 +4537,9 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("mucosa-cardiac-stomach_histo_1.heic", magnification: 4, caption: "Mucosa (Cardiac Stomach) — 4× (cropped)")],
                     histology: "Simple columnar surface epithelium with gastric pits; lamina propria containing the mucus-secreting cardiac glands; muscularis mucosae at the base"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Cardiac Stomach)", aliases: [],
-                    function: "Thin smooth muscle at the base of the cardiac gastric mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Thin muscle at the base of the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
+                    function: "Thin smooth muscle at the base of the cardiac gastric mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Thin muscle at the base of the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"],
+                    images: [ImageCDN.slide("muscularis-mucosae-cardiac-stomach_histo_1.heic", magnification: 4, caption: "Muscularis Mucosae (Cardiac Stomach) — 4×")],
+                    histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Cardiac Stomach)", aliases: [],
                     function: "Connective tissue layer beneath the mucosa of the cardiac stomach; as in other regions of the digestive tract, it appears as dense, irregular connective tissue carrying blood vessels and nerves", examTips: ["Dense, irregular connective tissue with vessels"], histology: "Dense irregular connective tissue with blood vessels and nerves"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Cardiac Stomach)", aliases: ["Muscularis externa (cardiac stomach)", "Muscularis propria (cardiac stomach)"],
