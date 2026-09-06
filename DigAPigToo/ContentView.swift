@@ -3886,7 +3886,7 @@ struct AboutView: View {
                             .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                         Text("Dig a Pig Too")
                             .font(.title).fontWeight(.bold)
-                        Text("Version 1.2  •  2026")
+                        Text("Version 1.3  •  2026")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
@@ -3912,7 +3912,20 @@ struct AboutView: View {
                         Divider()
 
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("What's New in 1.2").font(.headline)
+                            Text("What's New in 1.3").font(.headline)
+                            Group {
+                                Label("Many more real dissection and histology photos across the anatomy categories", systemImage: "photo.stack.fill")
+                                Label("Circulatory System organized into browsable sections for faster navigation", systemImage: "square.grid.2x2.fill")
+                                Label("Expanded content from the lab handout — fetal membranes & placenta, femoral vessels, and vessel relationships", systemImage: "checkmark.seal.fill")
+                                Label("Write-Answer mode now accepts small wording differences", systemImage: "checkmark.circle.fill")
+                            }
+                            .font(.subheadline)
+                        }
+
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("What's New in 1.2").font(.headline).foregroundStyle(.secondary)
                             Group {
                                 Label("Launch screen with app icon", systemImage: "iphone")
                                 Label("iOS 18 compatibility and Mac availability", systemImage: "checkmark.seal.fill")
@@ -3924,6 +3937,7 @@ struct AboutView: View {
                                 Label("Umbilical vessels and Allantoic Stalk moved to their correct categories", systemImage: "folder.fill")
                             }
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                         }
 
                         Divider()
