@@ -3914,7 +3914,7 @@ struct AboutView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("What's New in 1.3").font(.headline)
                             Group {
-                                Label("Many more real dissection and histology photos across the anatomy categories", systemImage: "photo.stack.fill")
+                                Label("Many more real dissection and histology photos — over 65% of structures now have images, with more added throughout the semester", systemImage: "photo.stack.fill")
                                 Label("Circulatory System organized into browsable sections for faster navigation", systemImage: "square.grid.2x2.fill")
                                 Label("Expanded content from the lab handout — fetal membranes & placenta, femoral vessels, and vessel relationships", systemImage: "checkmark.seal.fill")
                                 Label("Write-Answer mode now accepts small wording differences", systemImage: "checkmark.circle.fill")
