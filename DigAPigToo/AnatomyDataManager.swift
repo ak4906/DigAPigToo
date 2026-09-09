@@ -610,6 +610,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "One of the four major liver lobes (right medial, left medial, right lateral, left lateral); performs all liver functions — metabolism, detoxification, bile production, glycogen storage, plasma protein synthesis, urea production",
                     commonConfusions: ["Pig liver has FIVE lobes: right medial, left medial, right lateral, left lateral, and caudate — not two like in simplified diagrams", "Right medial lobe is one of the central lobes visible ventrally on the liver"],
                     examTips: ["Practical ID: central liver lobe visible from the ventral surface, on the right side of midline", "The two medial lobes are the most prominently visible from the ventral aspect"],
+                    images: [
+                        ImageCDN.image("right-medial-lobe-of-liver_gross_1.jpg", caption: "Right Medial Lobe of Liver")
+                    ],
                     histology: "Hepatocytes in lobules, liver sinusoids, portal triads at lobule periphery, central veins at lobule centers — same as all liver",
                     connections: "Part of liver mass; shares portal blood supply and hepatic venous drainage with other lobes; bile flows to hepatic ducts → common bile duct → duodenum",
                     highYield: true
@@ -621,6 +624,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "One of the four major liver lobes; performs all standard liver functions in the same manner as the right medial lobe",
                     commonConfusions: ["Left medial vs left lateral: medial lobes are the more central/midline lobes; lateral lobes are the more peripheral/body-wall lobes", "Both medial lobes are visible ventrally and are histologically identical"],
                     examTips: ["Practical ID: central liver lobe visible from the ventral surface, on the left side of midline", "Mirror image of right medial lobe anatomically; identical histologically"],
+                    images: [
+                        ImageCDN.image("left-medial-lobe-of-liver_gross_1.jpeg", caption: "Left Medial Lobe of Liver")
+                    ],
                     histology: "Same as all liver: hepatocytes, sinusoids, portal triads, central veins",
                     connections: "Part of liver mass; drains to hepatic ducts and ultimately common bile duct",
                     highYield: true
@@ -632,6 +638,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "More lateral lobe of the right liver; participates in all liver metabolic and secretory functions",
                     commonConfusions: ["Right lateral lobe is positioned more toward the right body wall compared to the right medial lobe", "May be partially obscured by right medial lobe when viewing from ventral surface"],
                     examTips: ["Practical ID: outer right liver lobe, positioned laterally toward the right body wall", "Histologically identical to all other liver lobes"],
+                    images: [
+                        ImageCDN.image("right-lateral-lobe-of-liver_gross_1.jpg", caption: "Right Lateral Lobe of Liver")
+                    ],
                     histology: "Hepatocytes in lobules, liver sinusoids, portal triads, central veins — same as all liver",
                     connections: "Part of liver mass; portal blood supply shared with other lobes; bile drains to hepatic duct system",
                     highYield: true
@@ -668,6 +677,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The caudate lobe is the distinct fifth lobe of the fetal pig liver, located on the dorsal/caudal surface, partially wrapping around the caudal vena cava; participates in all standard liver functions — metabolism, detoxification, bile production, glycogen storage, plasma protein synthesis, and urea production",
                     commonConfusions: ["The fetal pig liver has FIVE named lobes: right medial, left medial, right lateral, left lateral, and caudate — the caudate is separately named and testable, not just part of 'liver lobes'", "The caudate lobe is smaller and positioned differently (caudodorsal) compared to the other four lobes"],
                     examTips: ["Practical ID: look on the dorsal/posterior surface of the liver — the caudate lobe is the distinct smaller lobe wrapping around/near the caudal vena cava", "On the practical, the five liver lobes may each be separately labeled — don't lump the caudate with 'liver lobes'", "The caudate lobe is histologically identical to other lobes (hepatocytes, sinusoids, portal triads, central veins) — it's distinguished anatomically, not histologically"],
+                    images: [
+                        ImageCDN.image("caudate-lobe-of-liver_gross_1.jpg", caption: "Caudate Lobe of Liver")
+                    ],
                     histology: "Same as all liver: hepatocytes arranged in lobules, liver sinusoids (discontinuous capillaries), portal triads at lobule periphery (portal vein branch + hepatic artery branch + bile duct), central vein at lobule center",
                     connections: "Located on dorsal/caudal liver surface; closely associated with caudal vena cava and portal vein; shares blood supply and bile drainage with other liver lobes via the common hepatic duct system",
                     highYield: true
@@ -1105,9 +1117,12 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "Coronary Sinus",
                     aliases: ["Cardiac sinus"],
-                    function: "Collects venous blood from cardiac veins and drains it into the right atrium",
-                    commonConfusions: [],
-                    examTips: ["Practical ID: sac-like venous structure on dorsal heart surface — may need to lift heart to see it", "Formed where the left azygos vein crosses the dorsal side of the heart; after it receives the cardiac veins, it empties into the right atrium near the caudal vena cava"],
+                    function: "A large VEIN on the back of the heart that collects venous blood from the cardiac veins and drains it into the right atrium",
+                    commonConfusions: ["Despite the name 'sinus,' it is a large VEIN — the heart's main venous drainage channel", "Found ONLY on the dorsal (back) side of the heart — you must flip or lift the heart to see it; it is NOT visible from the front (ventral) view"],
+                    examTips: ["Practical ID: sac-like vein on the DORSAL (back) surface of the heart — lift or turn the heart over to find it", "Formed where the left azygos vein crosses the back of the heart; after it receives the cardiac veins, it empties into the right atrium near the caudal vena cava"],
+                    images: [
+                        ImageCDN.image("coronary-sinus_gross_1.jpg", caption: "Coronary Sinus")
+                    ],
                     histology: "Venous structure; endothelial lining",
                     connections: "Left azygos vein + cardiac veins → coronary sinus → right atrium (near caudal vena cava)",
                     highYield: false
@@ -1492,6 +1507,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Major artery supplying much of the intestine with oxygenated blood; travels in/near mesentery with intestinal loops",
                     commonConfusions: [],
                     examTips: ["Practical ID: large artery visible in mesentery among intestinal loops"],
+                    images: [
+                        ImageCDN.image("cranial-mesenteric-artery_gross_1.jpg", caption: "Cranial Mesenteric Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Descending aorta → cranial mesenteric artery → jejunal arteries → intestinal capillaries",
                     highYield: false
@@ -1726,6 +1744,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The continuation of the external iliac artery once it enters the leg; the main arterial supply to the hindlimb. The deep femoral artery leaves its medial side.",
                     commonConfusions: ["Femoral artery (main vessel continuing into the leg) vs deep femoral artery (a branch leaving the femoral's MEDIAL side to the deep thigh) — the deep femoral comes OFF the femoral, they are not siblings"],
                     examTips: ["Practical ID: the vessel branching from the external iliac artery to enter the leg — separate the caudal abdominal-wall muscle from the skin over the thigh to see it clearly", "Flow: external iliac artery → femoral artery → (gives off deep femoral artery) → hindlimb"],
+                    images: [
+                        ImageCDN.image("femoral-artery_gross_1.jpg", caption: "Femoral Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "External iliac artery → femoral artery → hindlimb; gives off the deep femoral artery from its medial side",
                     highYield: false
@@ -1948,6 +1969,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Outer kidney region containing glomeruli, Bowman's capsules, and convoluted tubules; primary site of filtration initiation and tubular reabsorption/secretion",
                     commonConfusions: [],
                     examTips: ["Practical ID: outer kidney zone — identifiable histologically by the high density of glomeruli (absent in medulla)", "KEY histology logic: Bowman's capsule = simple squamous (filtration); renal tubules = simple cuboidal (active transport/reabsorption)", "Glomeruli are the easiest histological landmark to distinguish cortex from medulla"],
+                    images: [
+                        ImageCDN.image("renal-cortex_gross_1.jpg", caption: "Renal Cortex")
+                    ],
                     histology: "Glomeruli (capillary tufts with simple squamous endothelium), Bowman's capsules (simple squamous), proximal and distal convoluted tubules (simple cuboidal with brush border on proximal tubule)",
                     connections: "Outer zone of kidney; afferent arterioles → glomerulus → efferent arterioles → peritubular capillaries; filtrate flows cortex → medulla → renal pelvis",
                     highYield: true
@@ -1959,6 +1983,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Central urine-collecting chamber of the kidney; receives urine from renal calyces and funnels it into the ureter",
                     commonConfusions: [],
                     examTips: ["Flow: renal calyces → renal pelvis → ureter → urinary bladder", "Expandable lining accommodates variable urine volume"],
+                    images: [
+                        ImageCDN.image("renal-pelvis_gross_1.jpg", caption: "Renal Pelvis")
+                    ],
                     histology: "Transitional epithelium (urothelium) — allows distension while maintaining a watertight barrier against urine",
                     connections: "Renal calyces → renal pelvis → ureter",
                     highYield: false
@@ -1970,6 +1997,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Cup-shaped structures that collect urine draining from individual renal pyramid tips (papillae) and funnel it toward the renal pelvis",
                     commonConfusions: [],
                     examTips: ["Flow: renal pyramid papilla → renal calyx → renal pelvis → ureter", "Cup shape directs urine centrally — funnel geometry", "Transitional epithelium lines the calyx — same urine-tolerant pattern as ureter and bladder"],
+                    images: [
+                        ImageCDN.image("renal-calyx_gross_1.jpg", caption: "Renal Calyx")
+                    ],
                     histology: "Transitional epithelium (urothelium) — allows distension while resisting urine toxicity",
                     connections: "Renal pyramid tip (papilla) → renal calyx → renal pelvis",
                     highYield: false
@@ -1981,6 +2011,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Triangular medullary structures containing loops of Henle and collecting ducts; responsible for osmotic gradient formation that enables urine concentration via countercurrent mechanisms",
                     commonConfusions: [],
                     examTips: ["Practical ID: triangular striped structures pointing inward toward the renal pelvis", "Contain loops of Henle + collecting ducts — NO glomeruli (glomeruli are cortex only)", "Parallel tubule arrangement supports countercurrent concentration gradient — key to water conservation and concentrated urine"],
+                    images: [
+                        ImageCDN.image("renal-pyramid_gross_1.jpg", caption: "Renal Pyramid")
+                    ],
                     histology: "Parallel arrays of collecting ducts and loops of Henle; simple cuboidal to simple squamous epithelium along loop segments; striated gross appearance due to tubule alignment",
                     connections: "Receives filtrate from cortical tubules → loop of Henle → collecting ducts → renal papilla → renal calyx",
                     highYield: false
@@ -2507,7 +2540,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Choroidal layer", "Choroid layer"],
                     function: "Supplies blood to the retina; absorbs stray light; supports photoreceptor metabolism — rich vascular supply is critical for highly metabolically active retina",
                     commonConfusions: [],
-                    examTips: ["Practical ID: dark pigmented layer deep to sclera", "Tapetum lucidum is associated with the choroid layer — very important for practical ID"],
+                    examTips: ["Practical ID: dark pigmented layer deep to sclera", "Tapetum lucidum is associated with the choroid layer — very important for practical ID", "Color cue: the choroid is BLACKISH — a dark contrast against the shiny, light-blue tapetum lucidum; the retina lying over it looks more whitish"],
+                    images: [
+                        ImageCDN.image("choroid_gross_1.jpg", caption: "Choroid")
+                    ],
                     histology: "Vascular connective tissue containing blood vessels, connective tissue, and pigment cells",
                     connections: "Between sclera and retina; associated with tapetum lucidum",
                     highYield: true
@@ -2530,7 +2566,10 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Neural retina", "Retinal layer"],
                     function: "Converts light into neural signals — the actual sensory layer of the eye",
                     commonConfusions: [],
-                    examTips: ["WAS tested on the practical", "Practical ID: thin delicate layer peeling from inside posterior eye", "Contains rods and cones (photoreceptors) that detect light", "Signal path: retina → optic nerve → brain"],
+                    examTips: ["WAS tested on the practical", "Practical ID: thin delicate layer peeling from inside posterior eye", "Contains rods and cones (photoreceptors) that detect light", "Signal path: retina → optic nerve → brain", "Color cue: the retina looks more WHITISH, while the choroid behind it is more BLACKISH — and that dark choroid stands out against the shiny, light-blue tapetum lucidum"],
+                    images: [
+                        ImageCDN.image("retina_gross_1.jpg", caption: "Retina")
+                    ],
                     histology: "Nervous tissue (NOT epithelial) — contains photoreceptors (rods and cones), bipolar neurons, ganglion cells, and glial support cells",
                     connections: "Receives light from lens/vitreous; connects to optic nerve at optic disk",
                     highYield: true
@@ -2570,6 +2609,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Controls pupil diameter via constriction and dilation to regulate light entry",
                     commonConfusions: [],
                     examTips: ["Practical ID: colored ring surrounding pupil", "Contains circular muscles (constrict pupil) and radial muscles (dilate pupil)"],
+                    images: [
+                        ImageCDN.image("iris_gross_1.jpg", caption: "Iris")
+                    ],
                     histology: "Contains smooth muscle, pigment cells, connective tissue, and vessels — pigmentation reduces stray light scattering",
                     connections: "Surrounds pupil; anterior to lens",
                     highYield: true
@@ -2581,6 +2623,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Controls lens shape for accommodation; produces aqueous humor",
                     commonConfusions: [],
                     examTips: ["WAS tested on the practical", "Practical ID: thickened structure surrounding lens", "Smooth muscle alters lens tension through suspensory ligaments"],
+                    images: [
+                        ImageCDN.image("ciliary-body_gross_1.jpg", caption: "Ciliary Body")
+                    ],
                     histology: "Contains smooth muscle, connective tissue, vascular tissue, and secretory epithelium — muscular organization allows accommodation; secretory tissue produces aqueous humor",
                     connections: "Near lens attachment; connected to lens via suspensory ligaments",
                     highYield: true
@@ -2592,6 +2637,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Point where optic nerve exits the retina; transmits retinal ganglion cell axons into optic nerve",
                     commonConfusions: ["VERY IMPORTANT: this region lacks photoreceptors — it is the blind spot"],
                     examTips: ["Practical ID: small circular region where optic nerve attaches internally"],
+                    images: [
+                        ImageCDN.image("optic-disk_gross_1.jpg", caption: "Optic Disk")
+                    ],
                     histology: "Nerve fiber convergence point; no photoreceptors present",
                     connections: "Where retina connects to optic nerve",
                     highYield: true
@@ -2703,6 +2751,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Mast cell"],
                     function: "Releases histamine in allergic responses",
                     examTips: ["Least common white blood cell"],
+                    images: [ImageCDN.slide("basophil_histo_1.webp", magnification: 100, caption: "Basophil — 100×")],
                     histology: "Basophilic granules; obscure nucleus"
                 ),
             ])
@@ -3567,31 +3616,46 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: microscopeCat.id,
                     name: "Stage",
                     aliases: ["Specimen platform"],
-                    function: "Holds specimen slide"
+                    function: "Holds specimen slide",
+                    images: [
+                        ImageCDN.image("stage_microscope_1.png", caption: "Stage")
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
                     name: "Slide Holder",
                     aliases: ["Slide clip"],
-                    function: "Secures slide on stage"
+                    function: "Secures slide on stage",
+                    images: [
+                        ImageCDN.image("slide-holder_microscope_1.png", caption: "Slide Holder")
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
                     name: "Aperture/Iris Diaphragm",
                     aliases: ["Diaphragm"],
-                    function: "Controls amount of light passing through"
+                    function: "Controls amount of light passing through",
+                    images: [
+                        ImageCDN.image("diaphragm_microscope_1.png", caption: "Aperture/Iris Diaphragm")
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
                     name: "Revolving Nosepiece",
                     aliases: ["Turret"],
-                    function: "Rotates objective lenses for selection"
+                    function: "Rotates objective lenses for selection",
+                    images: [
+                        ImageCDN.image("revolving-nosepiece_microscope_1.png", caption: "Revolving Nosepiece")
+                    ]
                 ),
                 AnatomyStructure(
                     categoryId: microscopeCat.id,
                     name: "Condenser",
                     aliases: ["Illumination system"],
-                    function: "Focuses light onto specimen"
+                    function: "Focuses light onto specimen",
+                    images: [
+                        ImageCDN.image("condenser_microscope_1.jpg", caption: "Condenser")
+                    ]
                 ),
             ])
         }
@@ -4313,7 +4377,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Squamous simple"],
                     function: "Allows rapid diffusion and filtration; reduces friction in body cavities; minimal barrier to exchange",
                     commonConfusions: ["Do not confuse with stratified squamous — 'simple' means single layer only"],
-                    examTips: ["Found wherever diffusion/filtration/lubrication is the priority", "Key locations: alveoli (gas exchange), blood/lymph vessel endothelium, Bowman's capsule, mesothelium of pleura/peritoneum/pericardium", "Single flat layer — like floor tiles viewed from above"],
+                    examTips: ["Found wherever diffusion/filtration/lubrication is the priority", "Key locations: alveoli (gas exchange), blood/lymph vessel endothelium, Bowman's capsule, mesothelium of pleura/peritoneum/pericardium", "Single flat layer — like floor tiles viewed from above", "Handout: flat, scale-like cells with a small central nucleus; in blood vessels they are specifically called endothelial cells; the single layer enables diffusion of gas, nutrients, and waste"],
                     images: [
                         ImageCDN.slide("simple-squamous-epithelium_histo_1.png", magnification: 40, caption: "Simple Squamous Epithelium — 40×"),
                     ],
@@ -4327,7 +4391,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Cuboidal simple"],
                     function: "Secretion and absorption in glands and tubules; forms much of the kidney tubule system",
                     commonConfusions: [],
-                    examTips: ["Key locations: kidney tubules (proximal and distal convoluted tubules), thyroid follicles, small ducts of glands", "Cube-shaped cells with round central nuclei — height ≈ width"],
+                    examTips: ["Key locations: kidney tubules (proximal and distal convoluted tubules), thyroid follicles, small ducts of glands", "Cube-shaped cells with round central nuclei — height ≈ width", "Handout course examples: pancreatic exocrine glands, kidney tubules & ducts, and the bile-duct branches within the liver lobules — single layers in glands (secretion) and in tubule/duct walls (secretion + reabsorption)"],
                     images: [
                         ImageCDN.slide("simple-cuboidal-epithelium_histo_1.jpg", magnification: 40, caption: "Simple Cuboidal Epithelium — 40×"),
                     ],
@@ -4341,7 +4405,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Columnar simple"],
                     function: "Secretion and absorption; lines much of the digestive tract where absorption is the primary role",
                     commonConfusions: ["Ciliated simple columnar found in uterine tube/oviduct — not to be confused with pseudostratified columnar of trachea"],
-                    examTips: ["Key locations: stomach, small intestine (with microvilli for absorption), large intestine, gallbladder, uterine tube", "Tall cells taller than wide; oval nucleus near base"],
+                    examTips: ["Key locations: stomach, small intestine (with microvilli for absorption), large intestine, gallbladder, uterine tube", "Tall cells taller than wide; oval nucleus near base", "Handout: cells are ~4× taller than wide, with elongated nuclei lined up uniformly at the base; small-intestine cells bear apical microvilli that boost absorptive surface area"],
                     images: [
                         ImageCDN.slide("simple-columnar-epithelium_histo_1.jpeg", magnification: 40, caption: "Simple Columnar Epithelium — 40×"),
                     ],
@@ -4354,7 +4418,7 @@ class AnatomyDataManager: ObservableObject {
                     name: "Pseudostratified Columnar Epithelium",
                     aliases: ["Pseudostratified ciliated columnar", "Respiratory epithelium"],
                     function: "Secretes mucus (goblet cells) and moves it via cilia — classic 'mucociliary escalator' that traps and removes particles/pathogens; air conditioning of inspired air",
-                    commonConfusions: ["NOT truly stratified — all cells contact the basement membrane; nuclei at different heights create the false appearance of layers", "Ciliated pseudostratified = respiratory epithelium; non-ciliated pseudostratified = epididymis (with stereocilia)"],
+                    commonConfusions: ["NOT truly stratified — all cells contact the basement membrane; nuclei at different heights create the false appearance of layers"],
                     examTips: ["VERY HIGH YIELD — appears on almost every practical", "Key locations: trachea, bronchi, nasal cavity, nasal pharynx, conchae/turbinates", "Has goblet cells (mucus) + cilia (movement) — the mucociliary escalator", "All cells touch basement membrane; only some reach the lumen — that's why nuclei look layered"],
                     images: [
                         ImageCDN.slide("pseudostratified-columnar-epithelium_histo_1.jpg", magnification: 40, caption: "Pseudostratified Columnar Epithelium — 40×"),
@@ -4365,61 +4429,28 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: epithelialCat.id,
-                    name: "Stratified Squamous Epithelium (Nonkeratinized)",
-                    aliases: ["Stratified squamous non-keratinized", "Moist stratified squamous"],
-                    function: "Protection against abrasion in moist internal surfaces; maintains barrier without sacrificing flexibility or transparency",
-                    commonConfusions: ["Nonkeratinized = moist, flexible, transparent; Keratinized = dry, tough, waterproof (like skin)"],
-                    examTips: ["Key locations: oral cavity, esophagus, vagina, cornea (transparent variant)", "Esophagus is VERY HIGH YIELD — always stratified squamous, contrasts with pseudostratified columnar of trachea", "Cornea: nonkeratinized to maintain transparency"],
+                    name: "Stratified Squamous Epithelium",
+                    aliases: ["Stratified squamous", "Skin epithelium", "Esophageal lining"],
+                    function: "Multiple layers with flat (squamous) surface cells; provides protection from abrasion and damage. Handout examples: the skin and the inner lining of the esophagus.",
+                    commonConfusions: ["Simple vs stratified squamous: SIMPLE (one layer) is for diffusion — alveoli, blood vessels, Bowman's capsule; STRATIFIED (many layers) is for protection — skin, esophagus"],
+                    examTips: ["Handout examples: skin and the inner lining of the esophagus", "Esophagus is VERY HIGH YIELD — stratified squamous, contrasts with the pseudostratified columnar of the trachea", "Many layers: flat squamous cells at the surface, cuboidal/columnar basal layer"],
                     images: [
-                        ImageCDN.slide("stratified-squamous-epithelium-nonkeratinized_histo_1.png", magnification: 40, caption: "Stratified Squamous Epithelium (Nonkeratinized) — 40×"),
+                        ImageCDN.slide("stratified-squamous-epithelium-nonkeratinized_histo_1.png", magnification: 40, caption: "Stratified Squamous Epithelium — 40×"),
                     ],
-                    histology: "Multiple layers; surface cells are flat (squamous); basal layer cuboidal/columnar; no keratin (surface cells remain nucleated and moist)",
-                    connections: "Oral cavity, esophagus (entire length), vagina, cornea, anal canal (upper portion)",
+                    histology: "Multiple layers; surface cells are flat (squamous); basal layer cuboidal to columnar",
+                    connections: "Skin (epidermis) and esophagus; also oral cavity, vagina, cornea, anal canal",
                     highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: epithelialCat.id,
-                    name: "Stratified Squamous Epithelium (Keratinized)",
-                    aliases: ["Keratinized stratified squamous", "Skin epithelium", "Epidermis"],
-                    function: "Provides tough, waterproof, abrasion-resistant barrier against the external environment; prevents desiccation",
-                    commonConfusions: ["Keratinized = dry surface cells are dead and filled with keratin; found on EXTERNAL dry surfaces only"],
-                    examTips: ["Key locations: skin (epidermis), external surface of lips, hard palate, gingiva", "Surface cells are dead, anucleate, and filled with keratin protein"],
-                    histology: "Multiple layers; surface cells are dead, anucleate, filled with keratin (waterproof protein); thick and tough",
-                    connections: "Epidermis (all external skin), external lip surface, hard palate, gingiva (gums)",
+                    name: "Stratified Columnar Epithelium",
+                    aliases: ["Columnar stratified"],
+                    function: "Multiple layers with columnar surface cells; lines some larger ducts. In this course, the larger pancreatic ducts (intra-/interlobular ducts and the pancreatic duct) are lined with simple-to-stratified columnar epithelium depending on duct size.",
+                    commonConfusions: ["Pancreatic ducts vs blood vessels: ducts are lined with CUBOIDAL/COLUMNAR epithelium, while arteries and veins are lined with simple flat SQUAMOUS (endothelium) — check the lining to tell them apart (clear at 40×)"],
+                    examTips: ["Handout context (pancreas): intercalated ducts (cuboidal) → intralobular → interlobular → pancreatic duct; the larger ducts are lined with simple-to-stratified columnar epithelium", "Rule of thumb: the larger the duct, the more likely it is stratified columnar"],
+                    histology: "Two or more layers with tall columnar cells at the surface; basal layers may be cuboidal",
+                    connections: "Larger excretory ducts — e.g., the larger pancreatic ducts (interlobular ducts, pancreatic duct)",
                     highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: epithelialCat.id,
-                    name: "Stratified Cuboidal Epithelium",
-                    aliases: ["Cuboidal stratified"],
-                    function: "Lines larger ducts of sweat glands and some other exocrine glands; provides protection with modest secretory capacity",
-                    commonConfusions: [],
-                    examTips: ["Relatively rare — mainly large sweat gland ducts and some salivary gland ducts", "Two or more layers of cuboidal cells"],
-                    histology: "Two or more layers of cube-shaped cells; less common than simple or stratified squamous",
-                    connections: "Large excretory ducts of sweat glands, some salivary gland ducts",
-                    highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: epithelialCat.id,
-                    name: "Transitional Epithelium",
-                    aliases: ["Urothelium", "Transitional urothelium"],
-                    function: "Lines the urinary tract; can stretch enormously as the bladder fills and return to thicker appearance when empty",
-                    commonConfusions: ["Only found in urinary tract — its stretchability is unique to this epithelium type"],
-                    examTips: ["Key locations: bladder (entire), ureters, urethra (proximal portion), renal pelvis", "Dome-shaped surface cells (umbrella cells) when relaxed; flattened when distended", "Stretchability is its defining functional feature"],
-                    histology: "Multiple layers; surface cells are large, dome-shaped 'umbrella cells' that flatten when bladder stretches; intermediate layers allow sliding movement",
-                    connections: "Renal pelvis, ureters, urinary bladder, proximal urethra",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: epithelialCat.id,
-                    name: "Pseudostratified Columnar Epithelium (Non-Ciliated)",
-                    aliases: ["Epididymal epithelium", "Pseudostratified with stereocilia"],
-                    function: "Lines epididymis; stereocilia support sperm maturation and absorption — NOT for movement",
-                    commonConfusions: ["VERY IMPORTANT DISTINCTION: stereocilia are NONMOTILE long microvilli (absorptive); true cilia are MOTILE (respiratory epithelium). Both called 'cilia' but function completely differently", "Non-ciliated pseudostratified (epididymis) vs ciliated pseudostratified (trachea) — do not confuse"],
-                    examTips: ["Found in epididymis and vas deferens (proximal portion)", "Stereocilia = long, nonmotile microvilli; absorptive, not motility-related", "This is the ONLY main location of pseudostratified non-ciliated columnar in the body"],
-                    histology: "Pseudostratified columnar with stereocilia (long nonmotile microvilli); all cells contact basement membrane; principal cells and basal cells present",
-                    connections: "Epididymis, proximal vas deferens",
-                    highYield: true
                 ),
             ])
         }
@@ -4461,11 +4492,14 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("muscularis-mucosae-jejunum_histo_1.jpeg", magnification: 10, caption: "Muscularis Mucosae (Jejunum) — 10×")],
                     histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Jejunum)", aliases: [],
-                    function: "Connective tissue layer of the jejunum; NO Brunner's glands and NO Peyer's patches (distinguishes from duodenum and ileum)", examTips: ["No Brunner's glands, no Peyer's patches"], histology: "Loose connective tissue, no special glands"),
+                    function: "Connective tissue layer of the jejunum; NO Brunner's glands and NO Peyer's patches (distinguishes from duodenum and ileum)", examTips: ["No Brunner's glands, no Peyer's patches"],
+                    images: [ImageCDN.slide("submucosa-jejunum_histo_1.jpeg", magnification: 10, caption: "Submucosa (Jejunum) — 10×")],
+                    histology: "Loose connective tissue, no special glands"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Jejunum)", aliases: ["Muscularis externa (jejunum)", "Muscularis propria (jejunum)"],
                     function: "The thick outer muscle coat — inner circular + outer longitudinal smooth muscle driving peristalsis. Also called the muscularis externa or muscularis propria (same layer, three names).",
                     commonConfusions: ["MUSCULARIS (= muscularis externa = muscularis propria): thick, two layers, deep in the wall, drives peristalsis — NOT the thin muscularis MUCOSAE inside the mucosa"],
                     examTips: ["Two layers: inner circular, outer longitudinal", "Names to know: muscularis = muscularis externa = muscularis propria (all the same thick layer)"],
+                    images: [ImageCDN.slide("muscularis-jejunum_histo_1.jpeg", magnification: 10, caption: "Muscularis (Jejunum) — 10×")],
                     histology: "Inner circular + outer longitudinal smooth muscle"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Jejunum)", aliases: [],
                     function: "Outer serous covering of the jejunum (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"], histology: "Simple squamous mesothelium over thin connective tissue"),
@@ -4494,7 +4528,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Ileum)", aliases: [],
                     function: "Outer serous covering of the ileum (may be absent on slide if trimmed)",
                     examTips: ["May not be present on your slide"],
-                    images: [ImageCDN.slide("serosa-ileum_histo_1.jpeg", magnification: 20, caption: "Serosa (Ileum) — 20×")],
+                    images: [ImageCDN.slide("serosa-ileum_histo_1.png", magnification: 20, caption: "Serosa (Ileum) — 20×")],
                     histology: "Simple squamous mesothelium over thin connective tissue"),
 
                 // ----- Slide 16: Large Intestine layers -----
@@ -4584,11 +4618,17 @@ class AnatomyDataManager: ObservableObject {
 
                 // ----- Slide 11: Gallbladder layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Gallbladder)", aliases: ["Gallbladder mucosa"],
-                    function: "Highly folded inner lining of the gallbladder: simple columnar epithelium specialized to concentrate bile", examTips: ["Highly folded simple columnar; NO muscularis mucosae, NO submucosa"], histology: "Simple columnar epithelium (tall, microvilli) on lamina propria; highly folded"),
+                    function: "Highly folded inner lining of the gallbladder: simple columnar epithelium specialized to concentrate bile", examTips: ["Highly folded simple columnar; NO muscularis mucosae, NO submucosa"],
+                    images: [ImageCDN.slide("mucosa-gallbladder_histo_1.jpeg", magnification: 10, caption: "Mucosa (Gallbladder) — 10×")],
+                    histology: "Simple columnar epithelium (tall, microvilli) on lamina propria; highly folded"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Smooth Muscle Bundles in Muscularis (Gallbladder)", aliases: ["Gallbladder muscularis"],
-                    function: "Interlacing smooth muscle that contracts to expel bile into the cystic duct", examTips: ["Interlacing bundles, not distinct layers"], histology: "Interlacing smooth muscle bundles (no distinct circular/longitudinal layers)"),
+                    function: "Interlacing smooth muscle that contracts to expel bile into the cystic duct", examTips: ["Interlacing bundles, not distinct layers"],
+                    images: [ImageCDN.slide("smooth-muscle-bundles-in-muscularis-gallbladder_histo_1.jpeg", magnification: 10, caption: "Smooth Muscle Bundles in Muscularis (Gallbladder) — 10×")],
+                    histology: "Interlacing smooth muscle bundles (no distinct circular/longitudinal layers)"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Gallbladder)", aliases: [],
-                    function: "Outer serous covering on the free surface of the gallbladder (adventitia on the hepatic surface)", examTips: ["Serosa on free surface; adventitia where attached to liver"], histology: "Simple squamous mesothelium over connective tissue (serosa) / connective tissue only (adventitia)"),
+                    function: "Outer serous covering on the free surface of the gallbladder (adventitia on the hepatic surface)", examTips: ["Serosa on free surface; adventitia where attached to liver"],
+                    images: [ImageCDN.slide("serosa-gallbladder_histo_1.jpeg", magnification: 10, caption: "Serosa (Gallbladder) — 10×")],
+                    histology: "Simple squamous mesothelium over connective tissue (serosa) / connective tissue only (adventitia)"),
             ])
         }
 
