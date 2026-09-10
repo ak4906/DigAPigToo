@@ -854,6 +854,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The right main-stem bronchus; branches off the trachea at the carina and enters the root of the right lung, supplying air to all four right lung lobes",
                     commonConfusions: ["The right bronchus is wider and more vertical than the left — foreign bodies tend to lodge on the right", "Do not confuse with the left bronchus; look for which side of the tracheal bifurcation each branch goes to"],
                     examTips: ["Gross ID: follow the trachea to its Y-shaped bifurcation (carina); right branch → right bronchus", "Right bronchus = shorter, wider, more vertical than left", "Part of the Root of Lung structures at the hilum"],
+                    images: [
+                        ImageCDN.image("right-bronchus_gross_1.jpg", caption: "Right Bronchus")
+                    ],
                     connections: "Trachea → right bronchus → right lung lobar bronchi (cranial, middle, caudal, accessory)",
                     highYield: true
                 ),
@@ -864,6 +867,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The left main-stem bronchus; branches off the trachea at the carina and enters the root of the left lung, supplying air to the two left lung lobes",
                     commonConfusions: ["Left bronchus is narrower and more oblique than the right", "Both bronchi arise at the carina — identify left vs right by which lung they enter"],
                     examTips: ["Gross ID: follow trachea to bifurcation; left branch → left bronchus → left lung", "Left bronchus = longer, narrower, more angled than right", "Part of the Root of Lung structures"],
+                    images: [
+                        ImageCDN.image("left-bronchus_gross_1.jpg", caption: "Left Bronchus")
+                    ],
                     connections: "Trachea → left bronchus → left lung lobar bronchi (cranial, caudal)",
                     highYield: true
                 ),
@@ -888,20 +894,12 @@ class AnatomyDataManager: ObservableObject {
                     function: "Vibrate as air passes between them to produce sound; also help close the airway (glottic closure) during swallowing to protect the lower airways",
                     commonConfusions: ["Vocal folds (true cords) vs vestibular folds (false cords) — only the true vocal folds produce sound", "The glottis is the opening BETWEEN the vocal folds; the folds themselves are the tissue structures flanking it"],
                     examTips: ["Practical ID: look inside larynx near the glottic opening — paired whitish ridges flanking the glottic slit", "The gap between the vocal folds = glottis; folds themselves are on either side", "Vibration of vocal folds = phonation (sound production)"],
+                    images: [
+                        ImageCDN.image("vocal-folds_gross_1.jpg", caption: "Vocal Folds")
+                    ],
                     histology: "Stratified squamous epithelium covering the true vocal folds (resistant to vibration/mechanical stress); underlying lamina propria contains the vocal ligament (elastic tissue) and vocalis muscle",
                     connections: "Located inside the larynx, flanking the glottis; attached to thyroid cartilage anteriorly and arytenoid cartilages posteriorly",
                     highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: respiratoryCat.id,
-                    name: "Pleura",
-                    aliases: ["Pleural membrane", "Serous membrane (thoracic)"],
-                    function: "Serous membrane associated with the lungs and thoracic cavity; thoracic equivalent of the peritoneum in the abdomen; reduces friction during breathing, allows smooth lung expansion/contraction, and compartmentalizes the pleural cavities",
-                    commonConfusions: ["Pleura (thorax/lungs) vs peritoneum (abdomen) vs pericardium (heart) — all three are serous membranes lined by simple squamous mesothelium; location distinguishes them", "Pleural cavity vs peritoneal cavity: pleural = around lungs in thorax; peritoneal = around digestive organs in abdomen"],
-                    examTips: ["MASTER CONCEPT: pleura = peritoneum = pericardium = all simple squamous mesothelium — this is the unifying concept of serous membranes", "Parietal pleura lines the thoracic wall; visceral pleura covers the lungs — same mesothelium, different location", "Pleural fluid between the layers reduces friction during breathing"],
-                    histology: "Simple squamous mesothelium (mesothelial cells); thin underlying connective tissue; pleural fluid fills the potential pleural cavity space",
-                    connections: "Parietal pleura lines thoracic wall; visceral pleura adheres to lung surface; pleural cavity (potential space) between the two layers contains serous fluid",
-                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: respiratoryCat.id,
@@ -910,6 +908,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The layer of pleura lining the inner thoracic body wall (and diaphragm); forms the outer boundary of the pleural cavity; moves with the chest wall during breathing",
                     commonConfusions: ["Parietal (wall) vs visceral (lung surface) — parietal pleura is attached to the thoracic wall, not to the lung", "Parietal pleura also covers the diaphragm (diaphragmatic pleura) and mediastinum (mediastinal pleura)"],
                     examTips: ["Practical ID: thin shiny membrane lining the inside of the thoracic wall — peels away from the wall when lungs/pleura are reflected", "Parietal pleura → visceral pleura transition occurs at the lung hilum (root of lung)"],
+                    images: [
+                        ImageCDN.image("parietal-pleura_gross_1.png", caption: "Parietal Pleura")
+                    ],
                     histology: "Simple squamous mesothelium with underlying connective tissue; continuous with visceral pleura at the hilum",
                     connections: "Lines thoracic body wall, diaphragm (superior surface), and mediastinum; continuous with visceral pleura at lung root/hilum",
                     highYield: true
@@ -921,6 +922,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The layer of pleura directly adhering to and covering the lung surface; provides a smooth serous interface between the lung and thoracic wall during respiratory movements",
                     commonConfusions: ["Visceral pleura vs visceral peritoneum: same concept — both are the organ-covering layer of their respective serous membrane systems, both are simple squamous mesothelium", "The visceral pleura cannot be easily separated from the lung surface (it is adherent)"],
                     examTips: ["Practical ID: thin glistening membrane tightly coating the outer lung surface — visible as a thin layer between lung lobes in fissures", "COMPARISON: visceral pleura (lungs) = visceral peritoneum (abdominal organs) = visceral pericardium (heart) — all simple squamous mesothelium"],
+                    images: [
+                        ImageCDN.image("visceral-pleura_gross_1.png", caption: "Visceral Pleura")
+                    ],
                     histology: "Simple squamous mesothelium adhering to the outer surface of the lung; continuous with the parietal pleura at the hilum",
                     connections: "Adheres tightly to lung surface; continuous with parietal pleura at lung root; visceral pleura dips into interlobar fissures",
                     highYield: true
@@ -1280,6 +1284,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Carry deoxygenated blood to pulmonary capillaries in right and left lungs",
                     commonConfusions: ["IMPORTANT EXCEPTION: pulmonary arteries are arteries but carry low-oxygen blood — named by direction (away from heart), not oxygen content"],
                     examTips: ["Branch from pulmonary trunk", "Pulmonary trunk bifurcates into right and left pulmonary arteries at dorsal heart region; pulmonary veins lie nearby entering left atrium", "The left azygos vein runs lateral to the pulmonary arteries; the pulmonary veins lie adjacent to them"],
+                    images: [
+                        ImageCDN.image("pulmonary-arteries_gross_1.jpg", caption: "Pulmonary Arteries")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Pulmonary trunk → right/left pulmonary arteries → pulmonary capillaries",
                     highYield: true
@@ -1291,6 +1298,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Return oxygenated blood from lungs to the left atrium; usually four veins total",
                     commonConfusions: ["IMPORTANT EXCEPTION: pulmonary veins are veins but carry oxygen-rich blood — named by direction (toward heart), not oxygen content"],
                     examTips: ["Flow: pulmonary capillaries → pulmonary veins → left atrium", "Usually four veins total (two per lung)", "Lie adjacent to the pulmonary arteries and enter the left atrium"],
+                    images: [
+                        ImageCDN.image("pulmonary-veins_gross_1.jpg", caption: "Pulmonary Veins")
+                    ],
                     histology: "Vein: thinner wall than pulmonary arteries; simple squamous endothelium",
                     connections: "Lung capillaries → pulmonary veins → left atrium",
                     highYield: true
@@ -1452,6 +1462,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Major arterial trunk from descending aorta supplying foregut organs (stomach, liver, spleen, pancreas); a 'trunk' because it gives off branches",
                     commonConfusions: [],
                     examTips: ["Practical ID: first major abdominal branch from descending aorta", "Branches into hepatic artery, splenic/lienic artery, and gastric artery"],
+                    images: [
+                        ImageCDN.image("celiac-artery_gross_1.jpg", caption: "Celiac Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Descending aorta → celiac trunk → hepatic artery + splenic artery + gastric artery",
                     highYield: true
@@ -1508,7 +1521,8 @@ class AnatomyDataManager: ObservableObject {
                     commonConfusions: [],
                     examTips: ["Practical ID: large artery visible in mesentery among intestinal loops"],
                     images: [
-                        ImageCDN.image("cranial-mesenteric-artery_gross_1.jpg", caption: "Cranial Mesenteric Artery")
+                        ImageCDN.image("cranial-mesenteric-artery_gross_1.jpg", caption: "Cranial Mesenteric Artery"),
+                        ImageCDN.image("cranial-mesenteric-artery_gross_2.jpg", caption: "Cranial Mesenteric Artery")
                     ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Descending aorta → cranial mesenteric artery → jejunal arteries → intestinal capillaries",
@@ -1521,6 +1535,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies distal large intestine and caudal GI region with oxygenated blood",
                     commonConfusions: [],
                     examTips: ["Supplies distal colon and rectal regions"],
+                    images: [
+                        ImageCDN.image("caudal-mesenteric-artery_gross_1.jpg", caption: "Caudal Mesenteric Artery")
+                    ],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Descending aorta → caudal mesenteric artery → distal large intestine",
                     highYield: false
@@ -2466,22 +2483,14 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: maternalCat.id,
-                    name: "Fetal Membranes",
-                    aliases: ["Afterbirth", "Extraembryonic membranes", "Placental membranes"],
-                    function: "The three layered extraembryonic membranes (amnion, allantois, chorion) that surround each fetus and mediate fetal-maternal exchange; expelled after birth as the afterbirth",
-                    commonConfusions: ["Each piglet in the litter is surrounded by its own set of fetal membranes, though the allantoic cavities of adjacent fetuses may fuse in pigs", "The fetal membranes are NOT the placenta — they form the fetal side; the maternal side is the uterine endometrium"],
-                    examTips: ["At the adult station you may see intact fetal membrane packets around individual fetuses within the uterine horn", "Order from inside to outside around the fetus: amnion (innermost) → allantois → chorion (outermost)", "After birth, failure to expel fetal membranes (retained placenta) is a veterinary emergency in sows"],
-                    histology: "Amnion: avascular simple epithelium; Allantois: cuboidal epithelium + vascularized mesoderm; Chorion: trophoblast epithelium with chorionic villi",
-                    connections: "Amnion surrounds fetus directly; allantois connects to fetal bladder via urachus; chorion contacts uterine wall; all three connect at umbilicus",
-                    highYield: false
-                ),
-                AnatomyStructure(
-                    categoryId: maternalCat.id,
                     name: "Uterine Artery",
                     aliases: ["Uterine arteries", "Arteria uterina"],
                     function: "Major blood supply to the pregnant uterus; dramatically enlarges during pregnancy to deliver massive blood flow to support all the fetuses simultaneously",
                     commonConfusions: ["In pigs, the uterine artery is a branch of the internal iliac artery (not the aorta directly)", "The uterine artery travels in the broad ligament to reach the uterus"],
-                    examTips: ["At the adult station, identify the large, highly coiled uterine arteries running along the sides of the gravid uterine horns within the broad ligament", "The dramatic enlargement and coiling of the uterine artery during pregnancy (vs non-pregnant state) is visually striking", "Supplies the myometrium and endometrium via arcuate → radial → spiral arteries"],
+                    examTips: ["Hard to appreciate in the fetal pig itself — this is a MATERNAL (adult sow) vessel. It matters most for the maternal→fetal blood-flow trace: maternal aorta → internal iliac artery → uterine artery → uterine-lining (placental) capillaries → across the placental interface → fetal umbilical vein"],
+                    images: [
+                        ImageCDN.image("uterine-artery_gross_1.jpg", caption: "Uterine Artery")
+                    ],
                     histology: "Thick-walled muscular artery (tunica intima, media with smooth muscle, adventitia); enlarges significantly during pregnancy under estrogen/progesterone influence",
                     connections: "Origin: internal iliac artery; travels in mesometrium (part of broad ligament); branches to supply uterine horn wall; anastomoses with ovarian artery at cranial horn",
                     highYield: false
@@ -2815,9 +2824,13 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("tunica-intima-aorta_histo_1.png", magnification: 4, caption: "Tunica Intima (Aorta) — 4×")],
                     histology: "Simple squamous endothelium + subendothelial connective tissue + internal elastic lamina"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Aorta)", aliases: ["Middle layer (aorta)"],
-                    function: "Thick middle layer dominated by concentric elastic lamellae — the defining feature of an elastic artery; stretches in systole and recoils in diastole", examTips: ["Wavy elastic lamellae = elastic artery (aorta)"], histology: "Many concentric elastic lamellae alternating with smooth muscle"),
+                    function: "Thick middle layer dominated by concentric elastic lamellae — the defining feature of an elastic artery; stretches in systole and recoils in diastole", examTips: ["Wavy elastic lamellae = elastic artery (aorta)"],
+                    images: [ImageCDN.slide("tunica-media-aorta_histo_1.jpg", magnification: 4, caption: "Tunica Media (Aorta) — 4×")],
+                    histology: "Many concentric elastic lamellae alternating with smooth muscle"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Aorta)", aliases: ["Outer layer (aorta)"],
-                    function: "Outer connective tissue layer of the aorta; contains vasa vasorum that nourish the thick wall", examTips: ["Contains vasa vasorum"], histology: "Dense irregular connective tissue with vasa vasorum and nerves"),
+                    function: "Outer connective tissue layer of the aorta; contains vasa vasorum that nourish the thick wall", examTips: ["Contains vasa vasorum"],
+                    images: [ImageCDN.slide("tunica-adventitia-aorta_histo_1.jpg", magnification: 4, caption: "Tunica Adventitia (Aorta) — 4×")],
+                    histology: "Dense irregular connective tissue with vasa vasorum and nerves"),
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
                     name: "Vena Cava",
@@ -3752,21 +3765,10 @@ class AnatomyDataManager: ObservableObject {
                 ),
                 AnatomyStructure(
                     categoryId: peritonealCat.id,
-                    name: "Peritoneum",
-                    aliases: ["Serous membrane (abdominal)", "Peritoneal lining"],
-                    function: "Serous membrane lining the abdominal cavity and covering many abdominal organs; reduces friction between organs, allows organ mobility, forms folds (mesenteries, omenta) that carry vessels/nerves/lymphatics, and compartmentalizes the abdomen",
-                    commonConfusions: ["Peritoneum vs pleura: peritoneum = abdomen; pleura = lungs/thorax — both are serous membranes lined by simple squamous mesothelium", "Parietal peritoneum (body wall) vs visceral peritoneum (organ surface) — same tissue but different layers with different locations", "Do NOT confuse peritoneum with PERINEUM (sound-alike, unrelated): the peritoneum is the internal serous membrane lining the abdominal cavity, while the perineum is the external body region at the floor of the pelvis — the area between the thighs bearing the anus and the external genital openings"],
-                    examTips: ["MASTER CONCEPT: all serous membranes (peritoneum, pleura, pericardium) are lined by simple squamous mesothelium — this is VERY HIGH YIELD", "Thin shiny membrane visible on abdominal wall surfaces and organ surfaces", "Peritoneum forms folds: mesentery (suspends intestines), greater omentum (stomach apron), lesser omentum (liver-stomach)"],
-                    histology: "Simple squamous mesothelium (mesothelial cells); underlying connective tissue; serous fluid secreted into peritoneal cavity for lubrication",
-                    connections: "Parietal layer lines body wall; visceral layer covers organs (stomach, intestines, liver, spleen); forms mesentery, greater omentum, lesser omentum",
-                    highYield: true
-                ),
-                AnatomyStructure(
-                    categoryId: peritonealCat.id,
                     name: "Parietal Peritoneum",
                     aliases: ["Peritoneum parietale", "Abdominal wall lining"],
                     function: "The layer of peritoneum lining the inner surface of the abdominal body wall; forms the outer boundary of the peritoneal cavity; separates the peritoneal cavity from the retroperitoneal space",
-                    commonConfusions: ["Parietal (wall lining) vs visceral (organ covering) — parietal is attached to the body wall, not to any organ", "Retroperitoneal organs (kidneys, most of duodenum) lie BEHIND the parietal peritoneum — they are not inside the peritoneal cavity"],
+                    commonConfusions: ["Parietal (wall lining) vs visceral (organ covering) — parietal is attached to the body wall, not to any organ", "Retroperitoneal organs (kidneys, most of duodenum) lie BEHIND the parietal peritoneum — they are not inside the peritoneal cavity", "Do NOT confuse peritoneum with PERINEUM (sound-alike, unrelated): the peritoneum is the internal serous membrane lining the abdominal cavity, while the perineum is the external body region at the floor of the pelvis — between the thighs, bearing the anus and external genital openings"],
                     examTips: ["Practical ID: thin shiny membrane lining the inner abdominal wall, not directly on an organ", "KEY: kidneys are retroperitoneal = located behind the parietal peritoneum — this is a very testable relationship", "Parietal peritoneum → visceral peritoneum transition occurs at organ attachment points"],
                     histology: "Simple squamous mesothelium with underlying connective tissue; continuous with visceral peritoneum at organ attachment points",
                     connections: "Lines abdominal body wall; continuous with visceral peritoneum; forms peritoneal cavity between itself and visceral peritoneum",
@@ -4269,6 +4271,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Right and left spaces within the thorax containing the lungs; pleural fluid provides a low-friction surface allowing lung expansion and contraction while maintaining the negative pressure that keeps lungs inflated",
                     commonConfusions: ["Pleural cavity (contains lungs) vs pericardial cavity (contains heart) — both are thoracic serous cavities but entirely separate", "The pleural cavities are separated from each other by the mediastinum; they do not communicate with each other"],
                     examTips: ["Practical ID: open the thorax — the spaces on either side of the mediastinum (heart/trachea region) are the pleural cavities containing the lungs", "Right and left pleural cavities are separated by the mediastinal septum", "Pneumothorax = air in the pleural cavity → lung collapses because negative pressure is lost"],
+                    images: [
+                        ImageCDN.image("pleural-cavities_gross_1.png", caption: "Pleural Cavities")
+                    ],
                     histology: "Lined by pleura = simple squamous mesothelium; visceral pleura covers lung surface; parietal pleura lines thoracic wall; pleural fluid between them reduces friction",
                     connections: "Right pleural cavity: right lung + surrounding space; left pleural cavity: left lung + pericardial sac medially; bounded by diaphragm (floor), ribs (wall), mediastinum (medial)",
                     highYield: true
@@ -4280,6 +4285,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The space between the visceral and parietal layers of the pericardium surrounding the heart; contains a small amount of pericardial fluid that lubricates the beating heart and reduces friction during each heartbeat",
                     commonConfusions: ["Pericardial cavity (around heart) vs pleural cavities (around lungs) — both are serous-lined spaces but separate", "Pericardial effusion = excess fluid in pericardial cavity → can compress heart (cardiac tamponade)"],
                     examTips: ["Practical ID: the space immediately around the heart, inside the pericardial sac/wall", "The heart is described as lying behind the transparent pericardial wall — look through or open the pericardial sac to see the heart in the pericardial cavity"],
+                    images: [
+                        ImageCDN.image("pericardial-cavity_gross_1.png", caption: "Pericardial Cavity")
+                    ],
                     histology: "Lined by pericardium = simple squamous mesothelium; visceral pericardium = epicardium on heart surface; parietal pericardium = inner surface of pericardial sac",
                     connections: "Surrounds heart; pericardial sac anchored to great vessels above and diaphragm below; lies within mediastinum between the two pleural cavities",
                     highYield: true
@@ -4298,26 +4306,29 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: upperThoracicCat.id,
                     name: "Pericardial Wall",
-                    aliases: ["Pericardial sac", "Pericardium", "Parietal pericardium"],
-                    function: "Tough fibroserous sac surrounding the heart; protects the heart from infection and overdistension; anchors it in the mediastinum; the transparent membrane visible in dissection before you reach the heart",
-                    commonConfusions: ["Pericardial wall = pericardial sac = the covering of the heart; different from the pericardial CAVITY (the space inside it)", "Two layers: fibrous pericardium (tough outer) + serous pericardium (smooth inner lining = visceral layer, epicardium, on heart)"],
-                    examTips: ["Practical ID: in thoracic dissection, the transparent/translucent membrane you see before reaching the heart is the pericardial wall/sac", "The handout describes 'the heart lying behind the transparent pericardial wall'", "Open/cut the pericardial sac to enter the pericardial cavity and access the heart"],
+                    aliases: ["Pericardial sac", "Pericardium", "Fibrous pericardium"],
+                    function: "The tough sac enclosing the heart. Its structural wall is the FIBROUS pericardium — a tough connective-tissue layer lying outside the parietal (serous) pericardium (handout). It protects the heart, prevents overdistension, and anchors it in the mediastinum; it is the transparent-looking membrane you meet in dissection before reaching the heart.",
+                    commonConfusions: ["Pericardial wall / sac (the covering) ≠ pericardial CAVITY (the fluid space inside it)", "Sac wall from inside out = parietal SEROUS pericardium (smooth inner lining) backed by the FIBROUS pericardium (tough outer CT). The inner lining is the PARIETAL layer — NOT the visceral layer (visceral = epicardium, which is on the heart itself, across the cavity)"],
+                    examTips: ["Practical ID: in thoracic dissection, the transparent/translucent membrane you see before reaching the heart is the pericardial wall/sac", "Handout: the fibrous pericardium is continuous with the connective tissue of the mediastinum and lies adjacent to the medial parietal pleura of the pleural cavities", "Open/cut the sac to enter the pericardial cavity and reach the heart"],
                     images: [
                         ImageCDN.image("pericardial-wall_gross_1.jpg", caption: "Pericardial Wall"),
                     ],
-                    histology: "Outer fibrous pericardium: dense irregular connective tissue; Inner serous pericardium: simple squamous mesothelium with underlying connective tissue; pericardial fluid in cavity",
-                    connections: "Surrounds heart and proximal great vessels; fused with central tendon of diaphragm; fibrous layer fuses with adventitia of ascending aorta and pulmonary trunk",
+                    histology: "Fibrous pericardium: dense irregular connective tissue (the structural wall); parietal serous pericardium: simple squamous mesothelium lining its inner surface; pericardial fluid fills the cavity",
+                    connections: "Surrounds heart and proximal great vessels; the fibrous layer is continuous with mediastinal connective tissue, fused with the central tendon of the diaphragm, adjacent to the medial parietal pleura, and fused with the adventitia of the ascending aorta and pulmonary trunk",
                     highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: upperThoracicCat.id,
                     name: "Parietal Pericardium",
-                    aliases: ["Fibroserous pericardium", "Outer pericardial layer"],
-                    function: "The outer layer of the pericardium; forms the inner lining of the pericardial sac; consists of an outer tough fibrous layer (fibrous pericardium) and an inner serous layer; together they create the pericardial cavity",
-                    commonConfusions: ["Parietal pericardium is the sac wall; visceral pericardium (epicardium) is on the heart surface — same pattern as parietal/visceral peritoneum and pleura", "The inner surface of the pericardial sac = parietal serous pericardium (simple squamous mesothelium)"],
-                    examTips: ["COMPARISON: Parietal pericardium (heart sac) = parietal pleura (thoracic wall) = parietal peritoneum (abdominal wall) — all line the body cavity wall around their respective organ", "All lined by simple squamous mesothelium"],
-                    histology: "Inner surface: simple squamous mesothelium (serous pericardium); outer layer: dense irregular connective tissue (fibrous pericardium)",
-                    connections: "Forms pericardial sac; inner surface faces pericardial cavity; continuous with visceral pericardium (epicardium) at great vessel reflections",
+                    aliases: ["Parietal serous pericardium", "Outer serous pericardial layer"],
+                    function: "The SEROUS membrane forming the outer lining of the pericardial cavity; it reflects off the great vessels to become the visceral pericardium (epicardium) on the heart. Handout: 'the parietal pericardium forms the outer lining of the cavity.'",
+                    commonConfusions: ["Parietal pericardium (serous, lines the cavity's outer wall) vs visceral pericardium / epicardium (serous, on the heart surface) — same parietal/visceral pattern as pleura and peritoneum", "Do NOT confuse the parietal pericardium (a SEROUS layer) with the FIBROUS pericardium — the tough connective-tissue layer that lies OUTSIDE it and forms the structural wall of the sac"],
+                    examTips: ["Layer order from the heart outward: visceral pericardium (epicardium) → [pericardial cavity + fluid] → parietal pericardium (serous) → fibrous pericardium (tough CT wall)", "COMPARISON: parietal pericardium = parietal pleura = parietal peritoneum — all serous, all simple squamous mesothelium lining the cavity wall"],
+                    images: [
+                        ImageCDN.image("parietal-pericardium_gross_1.png", caption: "Parietal Pericardium")
+                    ],
+                    histology: "Simple squamous mesothelium (serous) over a thin connective-tissue layer; the fibrous pericardium lies external to it",
+                    connections: "Serous lining of the pericardial cavity's outer wall; continuous with the visceral pericardium (epicardium) at the great-vessel reflections; backed externally by the fibrous pericardium",
                     highYield: true
                 ),
                 AnatomyStructure(
@@ -4327,6 +4338,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "The inner layer of the pericardium that directly covers the heart surface (epicardium); serous membrane allowing the heart to beat smoothly within the pericardial sac; the outermost of the three heart layers (epicardium, myocardium, endocardium)",
                     commonConfusions: ["Visceral pericardium = epicardium — these are the same structure (two names for the serous layer on the heart surface)", "Epicardium vs endocardium: epicardium = outer (serous membrane); endocardium = inner (lines the heart chambers)", "Three heart wall layers: epicardium (outer, serous) → myocardium (middle, cardiac muscle) → endocardium (inner, simple squamous)"],
                     examTips: ["MASTER TABLE: visceral pericardium (heart) = visceral pleura (lungs) = visceral peritoneum (abdominal organs) — all are simple squamous mesothelium covering the organ directly", "On histology slides of the heart wall: outermost layer = epicardium/visceral pericardium (simple squamous); middle = myocardium (cardiac muscle); innermost = endocardium (simple squamous endothelium)"],
+                    images: [
+                        ImageCDN.image("visceral-pericardium_gross_1.png", caption: "Visceral Pericardium")
+                    ],
                     histology: "Simple squamous mesothelium (serous pericardium); directly adheres to underlying myocardium; may contain adipose tissue in the subepicardial space",
                     connections: "Directly covers heart surface; continuous with parietal pericardium at great vessel reflections; lies over myocardium; pericardial cavity between visceral and parietal layers",
                     highYield: true
@@ -4588,18 +4602,29 @@ class AnatomyDataManager: ObservableObject {
 
                 // ----- Slide 8: Fundic Stomach layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Fundic Stomach)", aliases: ["Fundic gastric mucosa"],
-                    function: "Inner lining of the fundic stomach: thick, densely glandular; gastric pits leading to fundic glands with parietal and chief cells", examTips: ["Thick glandular mucosa + parietal & chief cells"], histology: "Simple columnar epithelium; gastric pits; fundic glands (parietal + chief cells)"),
+                    function: "Inner lining of the fundic stomach. Like all mucosa it has three sublayers (epithelium + lamina propria + muscularis mucosae). The surface is simple columnar epithelium pitted by gastric pits that lead down to the fundic (gastric) glands in the lamina propria — rich in parietal cells (HCl + intrinsic factor) and chief cells (pepsinogen).",
+                    commonConfusions: ["Mucosa = the three sublayers together (epithelium + lamina propria + muscularis mucosae), not just the epithelium", "Fundic gland cells: PARIETAL cells (large, pale/eosinophilic — HCl + intrinsic factor) vs CHIEF cells (basophilic, deeper — pepsinogen)"],
+                    examTips: ["Thick, densely glandular mucosa — the defining fundic feature", "Simple columnar surface + gastric pits + fundic glands (parietal + chief cells); NO villi"],
+                    images: [ImageCDN.slide("mucosa-fundic-stomach_histo_1.png", magnification: 4, caption: "Mucosa (Fundic Stomach) — 4×")],
+                    histology: "Simple columnar surface epithelium with gastric pits; lamina propria packed with fundic glands (parietal cells: HCl/intrinsic factor; chief cells: pepsinogen); muscularis mucosae at the base"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Fundic Stomach)", aliases: [],
-                    function: "Thin smooth muscle at the base of the fundic gastric mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Thin muscle at the base of the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
+                    function: "Thin smooth muscle at the base of the fundic gastric mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Thin muscle at the base of the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"],
+                    images: [ImageCDN.slide("muscularis-mucosae-fundic-stomach_histo_1.png", magnification: 4, caption: "Muscularis Mucosae (Fundic Stomach) — 4×")],
+                    histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Fundic Stomach)", aliases: [],
-                    function: "Connective tissue layer of the fundic stomach", examTips: ["Loose connective tissue with vessels"], histology: "Loose connective tissue with blood vessels"),
+                    function: "Connective tissue layer of the fundic stomach", examTips: ["Loose connective tissue with vessels"],
+                    images: [ImageCDN.slide("submucosa-fundic-stomach_histo_1.png", magnification: 4, caption: "Submucosa (Fundic Stomach) — 4×")],
+                    histology: "Loose connective tissue with blood vessels"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Fundic Stomach)", aliases: ["Muscularis externa (fundic stomach)", "Muscularis propria (fundic stomach)"],
                     function: "The thick outer muscle coat of the stomach wall — the stomach has THREE layers (inner oblique, middle circular, outer longitudinal) rather than the usual two, for churning. Also called the muscularis externa or muscularis propria (same layer, three names).",
                     commonConfusions: ["MUSCULARIS (= muscularis externa = muscularis propria): thick, deep in the wall, drives churning/peristalsis — NOT the thin muscularis MUCOSAE inside the mucosa", "Stomach adds a third (oblique) layer to the usual inner-circular/outer-longitudinal pair"],
                     examTips: ["Stomach has THREE muscle layers (oblique added)", "Names to know: muscularis = muscularis externa = muscularis propria (all the same thick layer)"],
+                    images: [ImageCDN.slide("muscularis-fundic-stomach_histo_1.png", magnification: 4, caption: "Muscularis (Fundic Stomach) — 4×")],
                     histology: "Three smooth muscle layers: inner oblique, middle circular, outer longitudinal"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Fundic Stomach)", aliases: [],
-                    function: "Outer serous covering of the fundic stomach", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
+                    function: "Outer serous covering of the fundic stomach", examTips: ["Outermost thin layer"],
+                    images: [ImageCDN.slide("serosa-fundic-stomach_histo_1.png", magnification: 4, caption: "Serosa (Fundic Stomach) — 4×")],
+                    histology: "Simple squamous mesothelium over thin connective tissue"),
 
                 // ----- Slide 9: Pyloric Stomach layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Pyloric Stomach)", aliases: ["Pyloric gastric mucosa"],
