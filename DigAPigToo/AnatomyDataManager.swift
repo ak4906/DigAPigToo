@@ -1476,6 +1476,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Brings oxygenated systemic blood to liver tissue",
                     commonConfusions: ["Hepatic artery ≠ hepatic portal vein — hepatic artery brings oxygenated blood; portal vein brings nutrient-rich venous blood from GI organs"],
                     examTips: ["Practical ID: artery entering liver alongside portal vein"],
+                    images: [ImageCDN.image("hepatic-artery_gross_1.jpg", caption: "Hepatic Artery")],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Celiac trunk → hepatic artery → liver",
                     highYield: true
@@ -1486,9 +1487,12 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Portal vein", "Portal circulation"],
                     function: "Carries nutrient-rich blood from stomach/intestines to liver sinusoids before systemic return — unique venous connection",
                     commonConfusions: ["Portal vein connects two capillary beds (GI and liver) — this is called a portal system"],
-                    examTips: ["Flow: digestive organs → mesenteric/gastric/splenic veins → hepatic portal vein → liver sinusoids → hepatic veins → caudal vena cava", "High yield portal circulation concept"],
+                    examTips: ["Flow: digestive organs → mesenteric/gastric/splenic veins → hepatic portal vein → liver sinusoids → hepatic veins → caudal vena cava", "High yield portal circulation concept", "BEGINS where the splenogastric vein joins the mesenteric vein; further cranially the gastroduodenal vein (draining duodenum, pylorus, pancreas) also joins it", "In the FETUS, branches of the umbilical vein join it, adding oxygenated placental blood before it reaches the liver"],
+                    images: [
+                        ImageCDN.image("hepatic-portal-vein_gross_1.jpg", caption: "Hepatic Portal Vein")
+                    ],
                     histology: "Vein: relatively thicker wall than typical veins due to portal pressure; simple squamous endothelium",
-                    connections: "GI capillaries → mesenteric/gastric/splenic veins → hepatic portal vein → liver sinusoids",
+                    connections: "Splenogastric vein + mesenteric vein unite → hepatic portal vein → liver sinusoids (fetus: umbilical vein branches also join)",
                     highYield: true
                 ),
                 AnatomyStructure(
@@ -1498,6 +1502,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Highly permeable capillary-like vascular spaces in liver allowing exchange between blood and hepatocytes for processing",
                     commonConfusions: [],
                     examTips: ["Sinusoids are discontinuous/highly permeable capillaries — suitable for liver metabolism", "Receive both portal vein blood and hepatic artery blood"],
+                    images: [ImageCDN.image("liver-sinusoids_gross_1.jpg", caption: "Liver Sinusoids")],
                     histology: "Discontinuous sinusoidal endothelium (highly permeable); Kupffer cells (liver macrophages) present",
                     connections: "Hepatic portal vein + hepatic artery → liver sinusoids → hepatic veins",
                     highYield: false
@@ -1509,6 +1514,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Carries processed blood away from liver into caudal vena cava",
                     commonConfusions: [],
                     examTips: ["Flow: liver sinusoids → hepatic vein → caudal vena cava"],
+                    images: [ImageCDN.image("hepatic-vein_gross_1.jpg", caption: "Hepatic Vein")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Liver sinusoids → hepatic vein → caudal vena cava",
                     highYield: true
@@ -1546,11 +1552,14 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "Mesenteric Vein",
                     aliases: ["Mesenteric veins"],
-                    function: "Drains intestines and carries nutrient-rich venous blood toward the hepatic portal vein",
+                    function: "Formed by the convergence of the jejunal veins; carries nutrient-rich blood from the small AND large intestines. Its union with the splenogastric vein marks the beginning of the hepatic portal vein.",
                     commonConfusions: [],
-                    examTips: ["Flow: intestinal capillaries → mesenteric vein → hepatic portal vein → liver"],
+                    examTips: ["The jejunal veins converge to form it; it drains both small and large intestines", "Mesenteric vein + splenogastric vein unite = the START of the hepatic portal vein"],
+                    images: [
+                        ImageCDN.image("mesenteric-vein_gross_1.jpg", caption: "Mesenteric Vein")
+                    ],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Intestinal capillaries → mesenteric vein → hepatic portal vein",
+                    connections: "Jejunal veins → mesenteric vein → (joins splenogastric vein) → hepatic portal vein",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -1560,6 +1569,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supply oxygenated blood to jejunum loops; branch from cranial mesenteric artery into mesentery",
                     commonConfusions: [],
                     examTips: ["Practical ID: vessels visible in mesentery associated with jejunum loops"],
+                    images: [ImageCDN.image("jejunal-arteries_gross_1.jpg", caption: "Jejunal Arteries")],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Cranial mesenteric artery → jejunal arteries → jejunum",
                     highYield: false
@@ -1568,11 +1578,11 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "Jejunal Veins",
                     aliases: ["Jejunal venous branches"],
-                    function: "Drain absorbed nutrients from jejunum into mesenteric vein and portal circulation",
+                    function: "Drain the capillary beds within the villi of the small intestine; located in the intestinal mesentery, they converge cranially to form the mesenteric vein.",
                     commonConfusions: [],
-                    examTips: ["Practical ID: vessels visible in mesentery associated with jejunum loops"],
+                    examTips: ["Practical ID: vessels visible in the mesentery associated with jejunum loops", "Drain the capillary beds within the VILLI of the small intestine", "Converge cranially to form the mesenteric vein"],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Jejunum → jejunal veins → mesenteric vein → hepatic portal vein",
+                    connections: "Villus capillaries → jejunal veins → mesenteric vein → hepatic portal vein",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -1590,11 +1600,14 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "Gastric Vein",
                     aliases: ["Gastric venous drainage"],
-                    function: "Drains venous blood from stomach toward the hepatic portal vein",
-                    commonConfusions: [],
-                    examTips: ["Associated with stomach curvature/wall"],
+                    function: "Drains venous blood from the stomach; the left and right gastric veins run along the LESSER curvature and merge with the splenic vein to form the splenogastric vein.",
+                    commonConfusions: ["Gastric veins run along the LESSER curvature; gastroepiploic veins run along the GREATER curvature"],
+                    examTips: ["Left + right gastric veins along the lesser curvature", "Gastric veins + splenic vein → splenogastric vein → (joins mesenteric) → hepatic portal vein"],
+                    images: [
+                        ImageCDN.image("gastric-vein_gross_1.jpg", caption: "Gastric Vein")
+                    ],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Stomach → gastric vein → hepatic portal vein",
+                    connections: "Stomach (lesser curvature) → gastric veins → splenogastric vein → hepatic portal vein",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -1612,11 +1625,11 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "Gastroepiploic Vein",
                     aliases: ["Gastroepiploic venous drainage"],
-                    function: "Drains the greater curvature of stomach and omental tissue into portal circulation",
-                    commonConfusions: [],
-                    examTips: ["Associated with stomach's greater curvature and greater omentum region"],
+                    function: "Drains the greater curvature of the stomach and omental tissue into the portal circulation; the left and right gastroepiploic veins run along the GREATER curvature.",
+                    commonConfusions: ["Gastroepiploic veins = GREATER curvature; gastric veins = LESSER curvature"],
+                    examTips: ["Left + right gastroepiploic veins along the greater curvature and greater omentum"],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Stomach curvature/omentum → gastroepiploic vein → portal circulation",
+                    connections: "Stomach greater curvature/omentum → gastroepiploic vein → portal circulation",
                     highYield: false
                 ),
                 AnatomyStructure(
@@ -1634,22 +1647,28 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: circulatoryCat.id,
                     name: "Splenic Vein",
                     aliases: ["Lienic vein", "Splenic/lienic vein"],
-                    function: "Drains the spleen into the hepatic portal vein; major contributor to portal circulation",
+                    function: "Drains the spleen; merges with the gastric veins to form the splenogastric vein, a major tributary of the hepatic portal system.",
                     commonConfusions: [],
-                    examTips: ["Splenic vein contributes to hepatic portal vein formation"],
+                    examTips: ["Splenic (lienic) vein + gastric veins → splenogastric vein → (joins mesenteric) → hepatic portal vein", "Splenic = lienic — same vessel, two names"],
+                    images: [
+                        ImageCDN.image("splenic-vein_gross_1.jpg", caption: "Splenic Vein")
+                    ],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Spleen → splenic vein → hepatic portal vein",
+                    connections: "Spleen → splenic vein → (joins gastric veins) → splenogastric vein → hepatic portal vein",
                     highYield: false
                 ),
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Splenogastric Vein",
                     aliases: ["Lienogastric vein"],
-                    function: "Drains venous blood from spleen and stomach-associated region toward larger portal venous routes",
-                    commonConfusions: [],
-                    examTips: ["Splenogastric = lienogastric — same vessel, different naming convention"],
+                    function: "Formed by the union of the gastric veins and the splenic vein; it then joins the mesenteric vein, and that union marks the beginning of the hepatic portal vein.",
+                    commonConfusions: ["Splenogastric = lienogastric — same vessel, different naming convention"],
+                    examTips: ["Formation: gastric veins + splenic vein → splenogastric vein", "Splenogastric vein + mesenteric vein = the START of the hepatic portal vein"],
+                    images: [
+                        ImageCDN.image("splenogastric-vein_gross_1.jpg", caption: "Splenogastric Vein")
+                    ],
                     histology: "Vein: thin wall; simple squamous endothelium",
-                    connections: "Spleen/stomach region → splenogastric vein → hepatic portal vein",
+                    connections: "Gastric + splenic veins → splenogastric vein → (joins mesenteric vein) → hepatic portal vein",
                     highYield: false
                 ),
 
@@ -2118,6 +2137,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Transports sperm from epididymis toward urethra, especially during ejaculation",
                     commonConfusions: [],
                     examTips: ["Practical ID: firm whitish tube within spermatic cord", "WHY thick smooth muscle: sperm transport requires powerful peristaltic contractions — one of the most muscular ducts in the body"],
+                    images: [
+                        ImageCDN.image("ductus-deferens_gross_1.png", caption: "Ductus Deferens")
+                    ],
                     histology: "Lined by pseudostratified columnar epithelium with surrounding thick smooth muscle — thick muscle enables rapid sperm propulsion; folded mucosa allows flexibility while maintaining lumen integrity",
                     connections: "Epididymis → ductus deferens → urethral region",
                     highYield: true
@@ -2171,6 +2193,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Exocrine gland (located between the seminal vesicles) whose secretion is a component of seminal fluid supporting sperm production and survival. It also acts as a muscle-driven mechanical SWITCH, regulating whether the urethra is used for urination or ejaculation.",
                     commonConfusions: ["Dual role: secretory (seminal fluid) AND a mechanical switch between urination and ejaculation", "One of the >60%-of-seminal-fluid contributors (with seminal vesicles, bulbourethral, and preputial glands)"],
                     examTips: ["Practical ID: glandular tissue surrounding the proximal urethra, between the seminal vesicles", "Position around urethra allows direct contribution to semen pathway"],
+                    images: [
+                        ImageCDN.image("prostate_gross_1.png", caption: "Prostate")
+                    ],
                     histology: "Exocrine gland with glandular epithelium (cuboidal/columnar secretory cells) and ducts lined by cuboidal epithelium",
                     connections: "Surrounds proximal urethra; ducts open into urethra",
                     highYield: false
@@ -2196,6 +2221,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Passageway allowing transit of spermatic cord, vessels, and nerves between abdominal cavity and scrotal region; supports testicular descent",
                     commonConfusions: [],
                     examTips: ["Practical ID: canal region superior to scrotal structures"],
+                    images: [
+                        ImageCDN.image("inguinal-canal_gross_1.png", caption: "Inguinal Canal")
+                    ],
                     histology: "Contains connective tissue, muscular boundaries, and neurovascular structures — tunnel-like organization allows protected transit between abdomen and scrotum",
                     connections: "Abdominal cavity → inguinal canal → spermatic cord → scrotal region",
                     highYield: false
@@ -2221,6 +2249,9 @@ class AnatomyDataManager: ObservableObject {
                     function: "Fibrous developmental structure that guides descent of testes during development",
                     commonConfusions: [],
                     examTips: ["Practical ID: cord-like structure associated with testis/scrotal pathway"],
+                    images: [
+                        ImageCDN.image("gubernaculum_gross_1.png", caption: "Gubernaculum")
+                    ],
                     histology: "Primarily connective tissue rich in collagen fibers — fibrous organization provides mechanical guidance for testicular positioning",
                     connections: "Associated with testis and scrotal pathway",
                     highYield: false
@@ -2252,6 +2283,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Transports ova from ovary to uterine horn; site of fertilization; cilia and peristalsis move the egg/embryo toward the uterus",
                     commonConfusions: ["NO physical connection exists between the oviduct opening and the ovary — small finger-like projections (the ovarian bursa) sweep the released egg into the oviduct", "Much shorter and more coiled in pigs than humans", "In humans the oviducts are called the fallopian tubes"],
                     examTips: ["Practical ID: thin, highly coiled tube leading from ovary to horn of uterus; the most coiled structure in the female reproductive tract", "Fertilization occurs in the UPPER THIRD of the oviduct, not in the uterus", "Ciliated epithelial lining propels the egg toward the uterine horn", "Ovarian bursa = finger-like projections that catch the ovum at ovulation"],
+                    images: [ImageCDN.image("oviduct_gross_1.jpg", caption: "Oviduct")],
                     histology: "Simple columnar epithelium with ciliated and secretory (peg) cells; cilia beat toward the uterus to propel the ovum",
                     connections: "Proximal: infundibulum opens near ovary; distal: connects to horn of uterus; suspended by mesosalpinx",
                     highYield: true
@@ -2333,6 +2365,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "External opening of the female urogenital system; includes the labia and the external opening of the urogenital sinus",
                     commonConfusions: ["The vulva is the external visible opening; it opens into the urogenital sinus internally", "Do not confuse vulva (external) with vagina (internal canal)"],
                     examTips: ["Practical ID: visible external slit-like opening on the ventral surface caudal to the anus", "In fetal pigs, the vulva is located ventral to the anus — opposite of males where the scrotal sac/penis is located", "The genital papilla (small projection) is sometimes visible near the vulva"],
+                    images: [ImageCDN.image("vulva_gross_1.png", caption: "Vulva")],
                     histology: "Stratified squamous epithelium (keratinized on outer skin surface, nonkeratinized internally)",
                     connections: "External opening of urogenital sinus; located caudal to anus on the perineum",
                     highYield: true
@@ -2716,7 +2749,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Thrombocyte"],
                     function: "Initiates blood clotting",
                     examTips: ["Involved in hemostasis"],
-                    images: [ImageCDN.slide("erythrocyte_histo_1.jpeg", magnification: 10, caption: "Blood Smear — Platelets visible among erythrocytes 10×")],
+                    images: [ImageCDN.slide("platelet_histo_1.jpeg", magnification: 40, caption: "Platelet — 40×")],
                     histology: "Small cell fragment"
                 ),
                 AnatomyStructure(
@@ -2725,6 +2758,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Agranular WBC"],
                     function: "Immune response; produces antibodies",
                     examTips: ["T cells and B cells"],
+                    images: [ImageCDN.slide("lymphocyte_histo_1.jpg", magnification: 40, caption: "Lymphocyte — 40×")],
                     histology: "Large nucleus; minimal cytoplasm"
                 ),
                 AnatomyStructure(
@@ -2752,6 +2786,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Acidophil"],
                     function: "Responds to parasites and allergies",
                     examTips: ["Pink-staining granules"],
+                    images: [ImageCDN.slide("eosinophil_histo_1.png", magnification: 40, caption: "Eosinophil — 40×")],
                     histology: "Bilobed nucleus; acidophilic granules"
                 ),
                 AnatomyStructure(
@@ -2760,7 +2795,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Mast cell"],
                     function: "Releases histamine in allergic responses",
                     examTips: ["Least common white blood cell"],
-                    images: [ImageCDN.slide("basophil_histo_1.webp", magnification: 100, caption: "Basophil — 100×")],
+                    images: [ImageCDN.slide("basophil_histo_1.png", magnification: 100, caption: "Basophil — 100×")],
                     histology: "Basophilic granules; obscure nucleus"
                 ),
             ])
@@ -2779,9 +2814,13 @@ class AnatomyDataManager: ObservableObject {
                     histology: "Thick muscular wall; small lumen"
                 ),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Artery)", aliases: ["Inner lining (artery)"],
-                    function: "Innermost layer of the artery: smooth endothelial surface plus a prominent internal elastic lamina", examTips: ["Endothelium + internal elastic lamina"], histology: "Simple squamous endothelium + thin subendothelial connective tissue + internal elastic lamina"),
+                    function: "Innermost layer of the artery: smooth endothelial surface plus a prominent internal elastic lamina", examTips: ["Endothelium + internal elastic lamina"],
+                    images: [ImageCDN.slide("tunica-intima-artery_histo_1.png", magnification: 30, caption: "Tunica Intima (Artery) — ~30×")],
+                    histology: "Simple squamous endothelium + thin subendothelial connective tissue + internal elastic lamina"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Artery)", aliases: ["Middle layer (artery)"],
-                    function: "Thick smooth-muscle middle layer — the defining feature of a muscular artery; controls vessel diameter", examTips: ["Thick smooth muscle = muscular artery"], histology: "Multiple layers of circular smooth muscle with some elastic fibers"),
+                    function: "Thick smooth-muscle middle layer — the defining feature of a muscular artery; controls vessel diameter", examTips: ["Thick smooth muscle = muscular artery"],
+                    images: [ImageCDN.slide("tunica-media-artery_histo_1.png", magnification: 30, caption: "Tunica Media (Artery) — ~30×")],
+                    histology: "Multiple layers of circular smooth muscle with some elastic fibers"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Artery)", aliases: ["Outer layer (artery)"],
                     function: "Outer connective tissue layer anchoring the artery", examTips: ["Connective tissue; thinner than the media in muscular arteries"],
                     images: [ImageCDN.slide("tunica-adventitia-artery_histo_1.png", magnification: 30, caption: "Tunica Adventitia (Artery) — ~30×")],
@@ -2799,11 +2838,17 @@ class AnatomyDataManager: ObservableObject {
                     highYield: true
                 ),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Intima (Vein)", aliases: ["Inner lining (vein)"],
-                    function: "Innermost layer of the vein: thin endothelial lining with little subendothelial tissue and no prominent elastic lamina", examTips: ["Thin; no prominent internal elastic lamina (unlike artery)"], histology: "Simple squamous endothelium on a thin layer of connective tissue"),
+                    function: "Innermost layer of the vein: thin endothelial lining with little subendothelial tissue and no prominent elastic lamina", examTips: ["Thin; no prominent internal elastic lamina (unlike artery)"],
+                    images: [ImageCDN.slide("tunica-intima-vein_histo_1.png", magnification: 30, caption: "Tunica Intima (Vein) — ~30×")],
+                    histology: "Simple squamous endothelium on a thin layer of connective tissue"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Media (Vein)", aliases: ["Middle layer (vein)"],
-                    function: "Thin smooth-muscle middle layer — much thinner than in arteries because venous pressure is low", examTips: ["Thin media = vein (vs thick media in artery)"], histology: "Sparse circular smooth muscle with connective tissue"),
+                    function: "Thin smooth-muscle middle layer — much thinner than in arteries because venous pressure is low", examTips: ["Thin media = vein (vs thick media in artery)"],
+                    images: [ImageCDN.slide("tunica-media-vein_histo_1.png", magnification: 30, caption: "Tunica Media (Vein) — ~30×")],
+                    histology: "Sparse circular smooth muscle with connective tissue"),
                 AnatomyStructure(categoryId: vesselHistologyCat.id, name: "Tunica Adventitia (Vein)", aliases: ["Outer layer (vein)"],
-                    function: "Outer connective tissue layer — the thickest layer of the vein wall", examTips: ["Thickest layer of the vein (opposite of artery)"], histology: "Dense connective tissue, the predominant layer of the vein wall"),
+                    function: "Outer connective tissue layer — the thickest layer of the vein wall", examTips: ["Thickest layer of the vein (opposite of artery)"],
+                    images: [ImageCDN.slide("tunica-adventitia-vein_histo_1.png", magnification: 30, caption: "Tunica Adventitia (Vein) — ~30×")],
+                    histology: "Dense connective tissue, the predominant layer of the vein wall"),
                 AnatomyStructure(
                     categoryId: vesselHistologyCat.id,
                     name: "Aorta",
@@ -3186,11 +3231,17 @@ class AnatomyDataManager: ObservableObject {
                 // Villi / goblet cells / crypts appear on duodenum, jejunum AND ileum slides —
                 // one slide-specific entry each so every small-intestine slide is self-contained.
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Villi (Duodenum)", aliases: ["Duodenal villi"],
-                    function: "Finger-like mucosal projections of the duodenum that increase absorptive surface area", examTips: ["Villi present (shorter than jejunum) + Brunner's glands = duodenum"], histology: "Simple columnar epithelium with microvilli over a lamina propria core"),
+                    function: "Finger-like mucosal projections of the duodenum that increase absorptive surface area", examTips: ["Villi present (shorter than jejunum) + Brunner's glands = duodenum"],
+                    images: [ImageCDN.slide("villi-duodenum_histo_1.jpg", magnification: 10, caption: "Villi (Duodenum) — 10×")],
+                    histology: "Simple columnar epithelium with microvilli over a lamina propria core"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Duodenum)", aliases: ["Crypts of Lieberkühn (duodenum)", "Duodenal crypts"],
-                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the duodenum that renew the epithelium", examTips: ["Mucosal crypts — distinct from the SUBMUCOSAL Brunner's glands"], histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
+                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the duodenum that renew the epithelium", examTips: ["Mucosal crypts — distinct from the SUBMUCOSAL Brunner's glands"],
+                    images: [ImageCDN.slide("intestinal-glands-duodenum_histo_1.jpg", magnification: 10, caption: "Intestinal Glands (Duodenum) — 10×")],
+                    histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Duodenum)", aliases: ["Duodenal goblet cells"],
-                    function: "Mucus-secreting cells scattered in the duodenal epithelium (fewest of the small-intestine segments)", examTips: ["Goblet cells increase duodenum → jejunum → ileum"], histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
+                    function: "Mucus-secreting cells scattered in the duodenal epithelium (fewest of the small-intestine segments)", examTips: ["Goblet cells increase duodenum → jejunum → ileum"],
+                    images: [ImageCDN.slide("goblet-cells-duodenum_histo_1.png", magnification: 40, caption: "Goblet Cells (Duodenum) — 40×")],
+                    histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
 
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Villi (Jejunum)", aliases: ["Jejunal villi"],
                     function: "The tallest villi of the small intestine, maximizing the jejunum's absorptive surface",
@@ -3224,6 +3275,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Produces alkaline, mucus-rich secretion that neutralizes acidic chyme from the stomach, protects the duodenal mucosa, and provides an optimal pH for pancreatic enzyme activity",
                     commonConfusions: ["Brunner's glands are found ONLY in the duodenum — their presence in the SUBMUCOSA is the definitive histological marker that distinguishes duodenum from jejunum and ileum", "Most intestinal glands (crypts of Lieberkühn) are in the mucosa; Brunner's glands are SUBMUCOSAL"],
                     examTips: ["KEY ID: Brunner's glands in the submucosa = duodenum (not jejunum or ileum)", "On the duodenum slide, look for glands that dip down into the submucosa layer beneath the muscularis mucosae — those are Brunner's glands", "Both duodenum AND esophagus have submucosal glands — but esophageal glands are in stratified squamous epithelium context, duodenum is simple columnar"],
+                    images: [ImageCDN.slide("brunners-glands_histo_1.png", magnification: 10, caption: "Brunner's Glands — 10×")],
                     histology: "Compound tubular mucous glands located in the submucosa; cells are pale-staining (mucin-rich), cuboidal to columnar",
                     connections: "Located in submucosa of duodenum only; their secretory ducts open up through muscularis mucosae into base of crypts; activated by gastric acid and secretin",
                     highYield: true
@@ -3441,55 +3493,62 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: reproHistologyCat.id,
                     name: "Primary Oocyte",
                     aliases: ["Arrested meiosis I"],
-                    function: "Immature egg in prophase I",
-                    examTips: ["Remains arrested until ovulation"],
-                    histology: "Large cell with large nucleus"
+                    function: "The immature egg cell, arrested in prophase I. In its resting stage it sits near the ovary's outer (cortical) edge as an oocyte with few supporting cells; in response to hormones it develops into a primary follicle.",
+                    commonConfusions: ["Oocyte maturation sequence: primary oocyte → primary → secondary → tertiary follicle → ovulation — and ALL stages are present in the ovary at the same time"],
+                    examTips: ["Resting stage — arrested in prophase I until ovulation", "ID: an oocyte largely alone (few supporting cells), near the ovary's exterior edge"],
+                    images: [ImageCDN.slide("primary-oocyte_histo_1.jpg", magnification: 40, caption: "Primary Oocyte — 40×")],
+                    histology: "Large cell with a large nucleus; few surrounding cells"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,
                     name: "Primary Follicle",
-                    aliases: ["Primordial follicle"],
-                    function: "Early stage oocyte with surrounding cells",
-                    examTips: ["Surrounds primary oocyte"],
-                    histology: "Single layer of follicle cells"
+                    aliases: ["Unilaminar follicle"],
+                    function: "An oocyte surrounded by a SINGLE layer of granulosa cells — the first hormone-responsive follicle stage. Granulosa cells help produce estrogen.",
+                    commonConfusions: ["ID by the SINGLE granulosa layer (vs the multiple layers of a secondary follicle)"],
+                    examTips: ["Oocyte + one layer of granulosa cells", "As follicles mature, the granulosa cells change from flat/squamous to rounded/cuboidal and multiply", "Granulosa cells → estrogen"],
+                    images: [ImageCDN.slide("primary-follicle_histo_1.jpg", magnification: 40, caption: "Primary Follicle — 40×")],
+                    histology: "Oocyte surrounded by a single layer of granulosa cells (squamous, becoming cuboidal as it matures)"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,
                     name: "Secondary Follicle",
                     aliases: ["Growing follicle"],
-                    function: "Developing oocyte with multiple cell layers",
-                    examTips: ["Begins estrogen production"],
+                    function: "A larger, growing follicle: a centrally placed oocyte surrounded by MULTIPLE layers of granulosa cells, with follicular fluid beginning to form between the granulosa cells.",
+                    commonConfusions: ["Secondary (multiple granulosa layers + scattered fluid, no single antrum yet) vs tertiary (one large pooled antrum, oocyte pushed to one side)"],
+                    examTips: ["Larger than a primary follicle; multiple granulosa layers with the oocyte central", "Follicular fluid starts to appear BETWEEN granulosa cells (not yet a single antrum)", "Granulosa cells → estrogen"],
                     images: [
                         ImageCDN.slide("secondary-follicle_hist_1.HEIC", magnification: 10, caption: "Secondary Follicle"),
                     ],
-                    histology: "Multiple layers of granulosa cells"
+                    histology: "Oocyte central; multiple layers of granulosa cells; small fluid-filled spaces beginning between them"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,
                     name: "Tertiary Follicle",
                     aliases: ["Mature Graafian follicle"],
-                    function: "Ready for ovulation",
-                    examTips: ["Largest ovarian follicle"],
-                    histology: "Large with antrum containing fluid"
+                    function: "A mature (Graafian) follicle: the follicular fluid has pooled into one large cavity (the antrum), pushing the oocyte to one side where it attaches to the follicle wall. Ready for ovulation.",
+                    commonConfusions: ["Placement of the oocyte doesn't always track antrum size, so telling the stages apart can be tricky", "~99% of follicles undergo ATRESIA (degeneration) — can happen at any stage; only the surviving follicle ovulates"],
+                    examTips: ["Largest follicle; defined by a single large ANTRUM (pooled follicular fluid)", "Oocyte sits to ONE SIDE, attached to the follicle wall by granulosa cells", "After ovulation the collapsed follicle becomes the corpus luteum (via LH)"],
+                    histology: "Large follicle with a single fluid-filled antrum; oocyte eccentric, attached to the wall"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,
                     name: "Antrum",
                     aliases: ["Follicular cavity"],
-                    function: "Fluid-filled space in tertiary follicle",
-                    examTips: ["Expands as follicle matures"],
-                    histology: "Contains follicular fluid"
+                    function: "The single large fluid-filled cavity within a tertiary (Graafian) follicle, formed when scattered follicular fluid coalesces into one pool.",
+                    examTips: ["Defining feature of the tertiary follicle", "Forms when the follicular fluid between granulosa cells pools into one cavity", "The oocyte sits to one side of the antrum, attached to the follicle wall"],
+                    histology: "Fluid-filled cavity containing follicular fluid; bordered by granulosa cells"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,
                     name: "Corpus Luteum",
                     aliases: ["Yellow body"],
-                    function: "Produces progesterone after ovulation",
-                    examTips: ["Temporary endocrine gland"],
+                    function: "A temporary endocrine gland formed from the collapsed tertiary follicle after ovulation (in response to luteinizing hormone); secretes progesterone.",
+                    commonConfusions: ["Forms AFTER ovulation from the leftover follicle — driven by LH; the follicle stages come BEFORE ovulation", "Degenerates within a few days UNLESS pregnancy begins — in pigs it then persists throughout gestation (corpus-luteum-dependent)"],
+                    examTips: ["Secretes progesterone; can grow 1–5 cm", "Large folded mass of luteinized cells — much bigger than a follicle"],
                     images: [
                         ImageCDN.image("corpus-luteum_gross_1.HEIC", caption: "Corpus Luteum"),
                     ],
-                    histology: "Lutein cells from granulosa cells"
+                    histology: "Large, folded mass of luteinized granulosa (and theca) cells with abundant cytoplasm; highly vascular"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,
@@ -3754,7 +3813,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Splenic organ", "Lien"],
                     function: "Largest lymphoid organ; filters blood by removing old, damaged, or abnormal red blood cells; performs immune surveillance; stores blood and platelets; produces lymphocytes for immune defense",
                     commonConfusions: ["Spleen vs liver: spleen is smaller, elongated/flattened, dark red-purple, on the LEFT; liver is large, multi-lobed, fills much of the cranial abdomen", "The spleen is ALWAYS on the animal's LEFT side — this is a navigation landmark for laterality during the practical"],
-                    examTips: ["Practical ID: dark elongated flattened organ on the left side of the peritoneal cavity, near the stomach", "ORIENTATION TIP: spleen = always animal's LEFT side — if you find the spleen, you know which side you're on", "Histology: sinusoidal capillaries allow extensive blood-cell interaction and filtration"],
+                    examTips: ["Practical ID: dark elongated flattened organ on the left side of the peritoneal cavity, near the stomach", "ORIENTATION TIP: spleen = always animal's LEFT side — if you find the spleen, you know which side you're on", "Histology: sinusoidal capillaries allow extensive blood-cell interaction and filtration", "Handout's three roles: (1) blood FILTER — removes/recycles senescent or damaged RBCs and platelets; (2) blood RESERVOIR — stores RBCs/platelets and releases them when needed (e.g., hemorrhage); (3) IMMUNE organ — houses lymphocytes for blood-borne pathogen surveillance"],
                     images: [
                         ImageCDN.image("spleen_gross_1.jpeg", caption: "Spleen"),
                         ImageCDN.image("spleen_gross_2.jpeg", caption: "Spleen"),
@@ -3770,6 +3829,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "The layer of peritoneum lining the inner surface of the abdominal body wall; forms the outer boundary of the peritoneal cavity; separates the peritoneal cavity from the retroperitoneal space",
                     commonConfusions: ["Parietal (wall lining) vs visceral (organ covering) — parietal is attached to the body wall, not to any organ", "Retroperitoneal organs (kidneys, most of duodenum) lie BEHIND the parietal peritoneum — they are not inside the peritoneal cavity", "Do NOT confuse peritoneum with PERINEUM (sound-alike, unrelated): the peritoneum is the internal serous membrane lining the abdominal cavity, while the perineum is the external body region at the floor of the pelvis — between the thighs, bearing the anus and external genital openings"],
                     examTips: ["Practical ID: thin shiny membrane lining the inner abdominal wall, not directly on an organ", "KEY: kidneys are retroperitoneal = located behind the parietal peritoneum — this is a very testable relationship", "Parietal peritoneum → visceral peritoneum transition occurs at organ attachment points"],
+                    images: [ImageCDN.image("parietal-peritoneum_gross_1.png", caption: "Parietal Peritoneum")],
                     histology: "Simple squamous mesothelium with underlying connective tissue; continuous with visceral peritoneum at organ attachment points",
                     connections: "Lines abdominal body wall; continuous with visceral peritoneum; forms peritoneal cavity between itself and visceral peritoneum",
                     highYield: true
@@ -3781,6 +3841,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "The layer of peritoneum directly covering abdominal organs; provides a smooth low-friction serous surface; equivalent to the serosa layer seen on the outer surface of GI histology slides",
                     commonConfusions: ["Visceral peritoneum = SEROSA — on GI histology slides, the outermost layer labeled 'serosa' IS the visceral peritoneum", "Not all organs have visceral peritoneum: retroperitoneal organs (kidneys, most of duodenum, esophagus) have ADVENTITIA instead of serosa/visceral peritoneum"],
                     examTips: ["EXAM TIP: visceral peritoneum = serosa of intraperitoneal organs — this connection is extremely testable in GI histology", "Organs WITH visceral peritoneum/serosa: stomach, most small intestine, most colon, liver, spleen", "Organs WITHOUT (have adventitia instead): esophagus, duodenum, kidneys, rectum"],
+                    images: [ImageCDN.image("visceral-peritoneum_gross_1.png", caption: "Visceral Peritoneum")],
                     histology: "Simple squamous mesothelium; this is the outermost 'serosa' layer seen on GI tract histology slides for intraperitoneal organs",
                     connections: "Covers intraperitoneal organs; continuous with parietal peritoneum via mesenteric attachments; forms outer serosa layer of GI tract",
                     highYield: true
@@ -4480,11 +4541,17 @@ class AnatomyDataManager: ObservableObject {
                 // ----- Slide 13: Duodenum layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Duodenum)", aliases: ["Duodenal mucosa"],
                     function: "Inner lining of the duodenum: simple columnar epithelium with villi and goblet cells for absorption",
-                    examTips: ["Simple columnar + villi + goblet cells"], histology: "Simple columnar epithelium with villi, goblet cells, crypts of Lieberkühn"),
+                    examTips: ["Simple columnar + villi + goblet cells"],
+                    images: [ImageCDN.slide("mucosa-duodenum_histo_1.jpg", magnification: 10, caption: "Mucosa (Duodenum) — 10×")],
+                    histology: "Simple columnar epithelium with villi, goblet cells, crypts of Lieberkühn"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Duodenum)", aliases: [],
-                    function: "Thin smooth muscle at the base of the duodenal mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Boundary between mucosa and submucosa", "Thin muscle INSIDE the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
+                    function: "Thin smooth muscle at the base of the duodenal mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Boundary between mucosa and submucosa", "Thin muscle INSIDE the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"],
+                    images: [ImageCDN.slide("muscularis-mucosae-duodenum_histo_1.jpg", magnification: 10, caption: "Muscularis Mucosae (Duodenum) — 10×")],
+                    histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Duodenum)", aliases: [],
-                    function: "Connective tissue layer of the duodenum; contains Brunner's glands (defining duodenal feature)", examTips: ["Look for Brunner's glands here"], histology: "Loose connective tissue containing Brunner's glands"),
+                    function: "Connective tissue layer of the duodenum; contains Brunner's glands (defining duodenal feature)", examTips: ["Look for Brunner's glands here"],
+                    images: [ImageCDN.slide("submucosa-duodenum_histo_1.png", magnification: 10, caption: "Submucosa (Duodenum) — 10×")],
+                    histology: "Loose connective tissue containing Brunner's glands"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Duodenum)", aliases: ["Muscularis externa (duodenum)", "Muscularis propria (duodenum)"],
                     function: "The thick outer muscle coat — inner circular + outer longitudinal smooth muscle whose contractions drive peristalsis. Also called the muscularis externa or muscularis propria (same layer, three names).",
                     commonConfusions: ["MUSCULARIS (= muscularis externa = muscularis propria): thick, two layers, DEEP in the wall, drives peristalsis — NOT the same as the muscularis MUCOSAE, which is a thin muscle layer inside the mucosa"],
@@ -4492,7 +4559,9 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("muscularis-duodenum_histo_1.png", magnification: 10, caption: "Muscularis (Duodenum) — 10×")],
                     histology: "Inner circular + outer longitudinal smooth muscle"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Duodenum)", aliases: [],
-                    function: "Outer covering of the intraperitoneal duodenum (proximal portion); adventitia where retroperitoneal", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
+                    function: "Outer covering of the intraperitoneal duodenum (proximal portion); adventitia where retroperitoneal", examTips: ["Outermost thin layer"],
+                    images: [ImageCDN.slide("serosa-duodenum_histo_1.png", magnification: 10, caption: "Serosa (Duodenum) — 10×")],
+                    histology: "Simple squamous mesothelium over thin connective tissue"),
 
                 // ----- Slide 14: Jejunum layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Jejunum)", aliases: ["Jejunal mucosa"],
@@ -4516,7 +4585,9 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("muscularis-jejunum_histo_1.jpeg", magnification: 10, caption: "Muscularis (Jejunum) — 10×")],
                     histology: "Inner circular + outer longitudinal smooth muscle"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Jejunum)", aliases: [],
-                    function: "Outer serous covering of the jejunum (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"], histology: "Simple squamous mesothelium over thin connective tissue"),
+                    function: "Outer serous covering of the jejunum (may be absent on slide if trimmed)", examTips: ["May not be present on your slide"],
+                    images: [ImageCDN.slide("serosa-jejunum_histo_1.png", magnification: 10, caption: "Serosa (Jejunum) — 10×")],
+                    histology: "Simple squamous mesothelium over thin connective tissue"),
 
                 // ----- Slide 15: Ileum layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Ileum)", aliases: ["Ileal mucosa"],
@@ -4673,9 +4744,13 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("submucosa-trachea_histo_1.jpeg", magnification: 10, caption: "Submucosa (Trachea) — 10×")],
                     histology: "Loose connective tissue with sero-mucous glands"),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Smooth Muscle (Trachea)", aliases: ["Trachealis muscle"],
-                    function: "The trachealis muscle bridging the open dorsal ends of the C-shaped cartilage rings; allows the esophagus to expand", examTips: ["Bridges the gap of the C-ring dorsally"], histology: "Bundle of smooth muscle connecting the free ends of the tracheal cartilage"),
+                    function: "The trachealis muscle bridging the open dorsal ends of the C-shaped cartilage rings; allows the esophagus to expand", examTips: ["Bridges the gap of the C-ring dorsally"],
+                    images: [ImageCDN.slide("smooth-muscle-trachea_histo_1.jpeg", magnification: 10, caption: "Smooth Muscle (Trachea) — 10×")],
+                    histology: "Bundle of smooth muscle connecting the free ends of the tracheal cartilage"),
                 AnatomyStructure(categoryId: respHistologyCat.id, name: "Adventitia (Trachea)", aliases: [],
-                    function: "Outer connective tissue anchoring the trachea to surrounding structures", examTips: ["Outermost layer; adventitia, NOT serosa"], histology: "Loose connective tissue blending into surrounding tissue"),
+                    function: "Outer connective tissue anchoring the trachea to surrounding structures", examTips: ["Outermost layer; adventitia, NOT serosa"],
+                    images: [ImageCDN.slide("adventitia-trachea_histo_1.jpeg", magnification: 10, caption: "Adventitia (Trachea) — 10×")],
+                    histology: "Loose connective tissue blending into surrounding tissue"),
             ])
         }
 
