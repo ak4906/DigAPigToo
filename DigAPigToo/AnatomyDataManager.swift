@@ -666,6 +666,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Carries bile from the liver toward the gallbladder and duodenum; the right and left hepatic ducts merge into the common hepatic duct, which then joins the cystic duct to form the common bile duct",
                     commonConfusions: ["Hepatic duct (from liver) + cystic duct (from gallbladder) = common bile duct; students often blur these three duct names", "Hepatic ducts carry bile FROM the liver; they are part of the bile OUTFLOW pathway"],
                     examTips: ["Trace: liver → hepatic duct → (joins cystic duct) → common bile duct → duodenum", "Or: liver → hepatic duct → cystic duct → gallbladder (for storage), then gallbladder → cystic duct → common bile duct → duodenum when needed"],
+                    images: [ImageCDN.image("hepatic-ducts_gross_1.JPG", caption: "Hepatic Ducts")],
                     histology: "Simple columnar to cuboidal epithelium lining; surrounded by connective tissue; bile ducts are components of the portal triad in liver lobules",
                     connections: "Originates from bile canaliculi in liver lobules → bile ductules → hepatic ducts → common bile duct → ampulla of Vater → duodenum",
                     highYield: false
@@ -703,6 +704,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Carries bile from the hepatic and cystic duct junction into the duodenum; bile emulsifies dietary fats for lipase digestion",
                     commonConfusions: ["Common bile duct = hepatic duct + cystic duct combined; the cystic duct connects specifically from the gallbladder", "Bile flows from liver → hepatic duct → common bile duct → duodenum; or liver → hepatic duct → cystic duct → gallbladder (stored), then gallbladder → cystic duct → common bile duct → duodenum when needed"],
                     examTips: ["Practical ID: duct running from liver/gallbladder region toward the duodenum", "Opens into the duodenum at the hepatopancreatic ampulla (ampulla of Vater)", "On the practical, look for a duct associated with the gallbladder and hepatic ducts leading toward the small intestine"],
+                    images: [ImageCDN.image("common-bile-duct_gross_1.JPG", caption: "Common Bile Duct")],
                     histology: "Simple columnar epithelium lining; surrounded by fibromuscular wall",
                     connections: "Hepatic duct (from liver) + cystic duct (from gallbladder) → common bile duct → duodenum",
                     highYield: true
@@ -728,6 +730,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Segment of large intestine running transversely across the abdomen after the spiral colon; continues water absorption and movement of fecal material toward the descending colon",
                     commonConfusions: ["In pigs, the large intestine coil arrangement differs from humans; the spiral colon is a pig-specific coiling before the transverse and descending segments", "The transverse colon is caudal to the spiral colon in pigs"],
                     examTips: ["Practical ID: colon segment running transversely across the mid-abdomen, leading from the spiral colon toward the descending colon", "No villi + abundant goblet cells = all large intestine histology, including transverse colon"],
+                    images: [ImageCDN.image("transverse-colon_gross_1.jpg", caption: "Transverse Colon")],
                     histology: "Simple columnar epithelium, abundant goblet cells, no villi; crypts of Lieberkühn present; three-layered muscularis",
                     connections: "Receives from spiral colon; leads into descending colon; lies along dorsal transverse abdomen",
                     highYield: false
@@ -739,6 +742,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Caudal segment of the colon carrying fecal material from the transverse colon toward the rectum; final water absorption and fecal compaction",
                     commonConfusions: ["Descending colon leads into the rectum; the rectum is the terminal segment inside the pelvic cavity"],
                     examTips: ["Practical ID: colon running caudally from the transverse colon toward the pelvis/rectum", "Along with transverse colon, histologically identical to other large intestine — no villi, high goblet cell density"],
+                    images: [ImageCDN.image("descending-colon_gross_1.jpg", caption: "Descending Colon")],
                     histology: "Same as all large intestine: simple columnar epithelium, abundant goblet cells, crypts of Lieberkühn, no villi, smooth muscle layers",
                     connections: "Receives from transverse colon; leads into rectum within the pelvic cavity",
                     highYield: false
@@ -1058,6 +1062,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Prevents backflow from pulmonary trunk into right ventricle after ventricular contraction",
                     commonConfusions: [],
                     examTips: ["Between right ventricle and pulmonary trunk", "Semilunar (half-moon shaped) cusps"],
+                    images: [ImageCDN.image("pulmonary-valve_gross_1.jpg", caption: "Pulmonary Valve")],
                     histology: "Fibrous connective tissue semilunar cusps; no chordae tendineae",
                     connections: "Right ventricle → pulmonary valve → pulmonary trunk",
                     highYield: true
@@ -1069,6 +1074,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Prevents backflow from aorta into left ventricle after ventricular contraction",
                     commonConfusions: [],
                     examTips: ["Between left ventricle and ascending aorta", "Semilunar cusps — same design as pulmonary valve"],
+                    images: [ImageCDN.image("aortic-valve_gross_1.jpg", caption: "Aortic Valve")],
                     histology: "Fibrous connective tissue semilunar cusps; no chordae tendineae",
                     connections: "Left ventricle → aortic valve → ascending aorta",
                     highYield: true
@@ -1358,6 +1364,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drain oxygen-poor blood from the shoulder and arm; merge with the jugular veins to form the brachiocephalic veins",
                     commonConfusions: ["Pig quirk: a pig may have TWO subclavian veins on each side — one dorsal and one ventral to the subclavian artery. The second (when present) merges with either the jugulars or the brachiocephalic vein"],
                     examTips: ["Arises from the shoulder and arm; merges with the internal + external jugular veins to form the brachiocephalic vein", "Tributaries draining into it: the axillary vein (from the arm, via the axilla), the subscapular vein (medial scapula), and the external thoracic vein (pectoral muscles / ventral thoracic wall)"],
+                    images: [ImageCDN.image("subclavian-veins_gross_1.jpeg", caption: "Subclavian Veins")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Axillary + subscapular + external thoracic veins → subclavian vein → brachiocephalic vein → cranial vena cava",
                     highYield: false
@@ -1383,6 +1390,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Pass through the axilla (armpit) and drain the arm, returning blood to the subclavian veins",
                     commonConfusions: [],
                     examTips: ["Practical ID: located in shoulder/forelimb root region", "Named for the axilla (armpit) it passes through; drains the arm into the subclavian vein"],
+                    images: [ImageCDN.image("axillary-veins_gross_1.jpeg", caption: "Axillary Veins")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Arm → axillary vein (through the axilla) → subclavian vein",
                     highYield: false
@@ -1394,6 +1402,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Branch of the subclavian artery that feeds the thyroid gland and parts of the neck",
                     commonConfusions: [],
                     examTips: ["Name describes region: thyro = thyroid, cervical = neck/cervical area", "One of the named branches of the subclavian artery (alongside the internal/external thoracic arteries and the costocervical trunk)"],
+                    images: [ImageCDN.image("thyrocervical-trunk_gross_1.jpg", caption: "Thyrocervical Trunk")],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Subclavian artery → thyrocervical trunk → thyroid gland + parts of the neck",
                     highYield: false
@@ -1405,6 +1414,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supply the internal thoracic wall and anterior chest structures",
                     commonConfusions: [],
                     examTips: ["Practical ID: run along the VENTRAL side of the rib cage (inner surface)", "Flow: subclavian arteries → internal thoracic arteries → thoracic wall", "Pair with the external thoracic arteries, which run along the DORSAL side of the rib cage"],
+                    images: [ImageCDN.image("internal-thoracic-arteries_gross_1.jpeg", caption: "Internal Thoracic Arteries")],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Subclavian arteries → internal thoracic arteries (ventral rib cage) → thoracic wall",
                     highYield: false
@@ -1416,6 +1426,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drain the thoracic body wall; run along the inside (ventral) surface of the rib cage and join the cranial vena cava just below the brachiocephalic veins",
                     commonConfusions: [],
                     examTips: ["Practical ID: run along the inside (ventral) surface of the rib cage", "Join the CRANIAL VENA CAVA just below the brachiocephalic veins (not the brachiocephalics themselves)"],
+                    images: [ImageCDN.image("internal-thoracic-veins_gross_1.jpeg", caption: "Internal Thoracic Veins")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Thoracic wall → internal thoracic veins (ventral rib cage) → cranial vena cava (just below the brachiocephalic veins)",
                     highYield: false
@@ -1427,6 +1438,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Branches of the subclavian artery supplying the thoracic wall; run along the dorsal side of the rib cage",
                     commonConfusions: ["Handout pairing: internal thoracic arteries run along the VENTRAL rib cage, external thoracic arteries along the DORSAL rib cage — both arise from the subclavian artery"],
                     examTips: ["Run along the DORSAL side of the rib cage", "One of the named subclavian-artery branches (with the internal thoracic, costocervical trunk, thyrocervical trunk, and axillary artery)"],
+                    images: [ImageCDN.image("external-thoracic-arteries_gross_1.jpeg", caption: "External Thoracic Arteries")],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Subclavian artery → external thoracic arteries (dorsal rib cage) → thoracic wall",
                     highYield: false
@@ -1438,6 +1450,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drain the medial side of the scapula, then empty into the subclavian or axillary vein (sometimes the brachiocephalic vein directly)",
                     commonConfusions: ["Variable drainage — this region is a known source of specimen-to-specimen variation in vein connections"],
                     examTips: ["Drains the medial side of the scapula", "Enters the subclavian OR axillary vein — or sometimes the brachiocephalic vein directly"],
+                    images: [ImageCDN.image("subscapular-veins_gross_1.jpeg", caption: "Subscapular Veins")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Medial scapula → subscapular vein → subclavian or axillary vein (occasionally brachiocephalic vein directly)",
                     highYield: false
@@ -1449,6 +1462,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drain the neck, back, and cranial intercostal (between-rib) spaces, joining the cranial vena cava dorsally",
                     commonConfusions: [],
                     examTips: ["Situated more deeply, closer to the heart", "Join the CRANIAL VENA CAVA dorsally; drain the neck, back, and cranial intercostal spaces"],
+                    images: [ImageCDN.image("costocervical-veins_gross_1.jpeg", caption: "Costocervical Veins")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Neck + back + cranial intercostal spaces → costocervical veins → cranial vena cava (dorsally)",
                     highYield: false
@@ -1794,6 +1808,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Accompanies the femoral artery; drains the hindlimb and continues as the external iliac vein. It receives the deep femoral vein on its medial side.",
                     commonConfusions: ["Venous flow runs the opposite way to the artery: the deep femoral vein drains INTO the femoral vein, which drains into the external iliac vein"],
                     examTips: ["Practical ID: runs alongside the femoral artery into the leg", "Flow: hindlimb → femoral vein → external iliac vein → common iliac vein → caudal vena cava"],
+                    images: [ImageCDN.image("femoral-vein_gross_1.png", caption: "Femoral Vein")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Hindlimb → femoral vein → external iliac vein; receives the deep femoral vein from its medial side",
                     highYield: false
@@ -1847,6 +1862,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drains the lateral abdominal wall and iliac-associated tissues",
                     commonConfusions: [],
                     examTips: ["Flow: lateral abdominal wall → deep circumflex iliac vein → external iliac vein", "Associated with lateral abdominal wall near iliac region"],
+                    images: [ImageCDN.image("deep-circumflex-iliac-vein_gross_1.jpg", caption: "Deep Circumflex Iliac Vein")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Lateral abdominal wall → deep circumflex iliac vein → external iliac vein",
                     highYield: false
@@ -1874,6 +1890,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drains venous blood from testis; contributes to thermoregulation via vascular heat exchange",
                     commonConfusions: [],
                     examTips: ["Practical ID: vessel running within spermatic cord", "Vascular heat exchange helps maintain lower testicular temperature"],
+                    images: [ImageCDN.image("testicular-vein_gross_1.jpg", caption: "Testicular Vein")],
                     histology: "Vein with thinner wall and larger lumen than artery; lined by simple squamous endothelium",
                     connections: "Testis → testicular vein → caudal vena cava (right) or renal vein (left)",
                     highYield: false
@@ -1899,6 +1916,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drains venous blood from ovary; right drains to caudal vena cava, left may drain to renal vein",
                     commonConfusions: [],
                     examTips: ["Practical ID: vessel associated with ovary and uterine horn region"],
+                    images: [ImageCDN.image("ovarian-vein_gross_1.jpg", caption: "Ovarian Vein")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Ovary → ovarian vein → caudal vena cava (right) or renal vein (left)",
                     highYield: false
@@ -2465,6 +2483,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "The maternal blood vessels (arteries, capillaries, and veins) within the uterine endometrium that deliver oxygenated, nutrient-rich blood to the placental exchange zone and drain deoxygenated, waste-carrying blood away; in pigs, the maternal and fetal blood never mix (epitheliochorial placenta type)",
                     commonConfusions: ["VERY IMPORTANT: in pigs, maternal and fetal blood do NOT mix — exchange occurs across 6 tissue layers (maternal capillary endothelium → maternal CT → uterine epithelium → chorionic epithelium → fetal CT → fetal capillary endothelium)", "Contrast with humans (hemochorial): human chorionic villi are bathed directly in maternal blood; pig chorion stays separated from maternal blood by multiple epithelial barriers"],
                     examTips: ["On the fetal membrane diagram, maternal vessels are labeled in the uterine wall/lining, on the maternal side of the placental interface", "The maternal vessels are the 'other side' of placental exchange from the fetal umbilical vessels within the allantoic membrane", "KEY EXAM CONCEPT: the 6-layer epitheliochorial placental barrier means fetal and maternal blood are separated — this is why pig placenta is called 'non-invasive'"],
+                    images: [ImageCDN.image("maternal-vessels-in-uterine-lining_gross_1.png", caption: "Maternal Vessels in Uterine Lining")],
                     histology: "Maternal vessels are lined by simple squamous endothelium (like all blood vessels); they are embedded in uterine connective tissue (endometrial stroma); the overlying uterine epithelium remains intact and does NOT break down (unlike humans)",
                     connections: "Located in uterine endometrium; supplied by uterine arteries (from internal iliac); drain into uterine veins; adjacent to uterine glands (which open at areolae); on maternal side of placental interface facing chorionic surface",
                     highYield: true
@@ -2490,6 +2509,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "The fused outer chorion + inner allantois that together form the wall of the chorionic vesicle. This combined, vascularized membrane interdigitates with the uterine lining to create the diffuse epitheliochorial placenta.",
                     commonConfusions: ["This entry is intentionally a little redundant — it is simply the chorion and allantois fused. For the individual layers, see the separate Chorion and Allantois entries", "Chorion = outer trophoblast layer (bears villi + areolae, not vascularized itself); allantois = inner vascularized layer (carries the umbilical vessels). Fused, they are the chorioallantoic membrane"],
                     examTips: ["Frequently identified by TAs and used in circulatory traces as the fetal side of the placental exchange surface", "Vascularized via the allantois: umbilical vessels → chorioallantoic vessels → exchange at the villi/areolae", "Forms the wall of the chorionic vesicle; the amnion + fetus sit inside it"],
+                    images: [ImageCDN.image("chorioallantoic-membrane_gross_1.png", caption: "Chorioallantoic Membrane")],
                     histology: "Outer chorionic trophoblast epithelium (with villi and areolae) fused to inner allantoic mesoderm carrying fetal blood vessels — the vascular, absorptive fetal interface of the diffuse placenta",
                     connections: "Chorion (outer) + allantois (inner) fused → forms the chorionic vesicle wall; interdigitates with uterine endometrium (diffuse placenta); carries umbilical vessels to the exchange surface",
                     highYield: true
@@ -3007,6 +3027,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Blood vessels coursing through the lung parenchyma: pulmonary artery branches (carry deoxygenated blood toward the alveoli, travel alongside bronchi/bronchioles) and pulmonary vein branches (carry oxygenated blood away, travel in the connective tissue septa)",
                     commonConfusions: ["Pulmonary ARTERY branches run WITH the airways (bronchovascular bundle); pulmonary VEIN branches run separately in the interlobular septa — a classic lung ID clue", "Pulmonary arteries here carry DEOXYGENATED blood (toward alveoli) — opposite of the systemic naming intuition"],
                     examTips: ["Practical ID on lung slide: vessel next to a bronchiole = pulmonary artery branch; vessel alone in the septa = pulmonary vein branch", "Look for thin-walled vessels with blood among the alveoli"],
+                    images: [ImageCDN.slide("branches-of-pulmonary-arteries-and-veins_histo_1.jpg", magnification: 4, caption: "Branches of Pulmonary Arteries and Veins — 4×")],
                     histology: "Pulmonary artery branch: thinner wall than systemic arteries of the same size (low-pressure circuit); pulmonary vein branch: thin-walled, in connective tissue septa; both lined by simple squamous endothelium",
                     connections: "Pulmonary artery → arterioles → alveolar capillaries (gas exchange) → venules → pulmonary vein branches → pulmonary veins → left atrium",
                     highYield: true
@@ -3018,6 +3039,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Controls airway diameter via bronchoconstriction and bronchodilation; regulated by the autonomic nervous system (sympathetic = dilate; parasympathetic = constrict)",
                     commonConfusions: ["Smooth muscle in bronchioles is what causes asthma attacks (excessive bronchoconstriction)", "Pulmonary smooth muscle is in bronchioles, NOT in alveoli — alveoli have no smooth muscle"],
                     examTips: ["Practical ID on lung slide: smooth muscle appears as pink rings/bundles around bronchioles, inside the cartilage-free small airways", "More prominent in bronchioles (no cartilage) than bronchi (which have cartilage rings)"],
+                    images: [ImageCDN.slide("pulmonary-smooth-muscle_histo_1.jpg", magnification: 4, caption: "Pulmonary Smooth Muscle — 4×")],
                     histology: "Smooth muscle (non-striated, spindle-shaped cells, central nuclei) arranged circumferentially around airway lumen",
                     connections: "Located in bronchiole walls between epithelium and connective tissue; regulated by autonomic nerves and circulating hormones (epinephrine dilates)",
                     highYield: false
@@ -3202,6 +3224,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Invaginations of the pyloric gastric surface epithelium; DEEP pits (occupying about half the mucosal thickness) leading into the coiled pyloric glands",
                     commonConfusions: ["Pyloric pits are DEEP (high pit:gland ratio) — opposite of the shallow fundic pits", "Pit = the opening; gland = the secretory unit below"],
                     examTips: ["DEEP pits + coiled mucus-heavy glands + NO villi = pyloric stomach", "The deep pits are a key way to tell pyloric from fundic stomach"],
+                    images: [ImageCDN.slide("gastric-pits-pyloric-stomach_histo_1.jpeg", magnification: 4, caption: "Gastric Pits (Pyloric Stomach) — 4×")],
                     histology: "Simple columnar surface mucous cells lining deep pits that open into coiled pyloric glands",
                     highYield: true
                 ),
@@ -3249,9 +3272,13 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("villi-jejunum_histo_1.jpeg", magnification: 10, caption: "Villi — Jejunum 10×")],
                     histology: "Tall simple columnar epithelium with microvilli over a lamina propria core"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Jejunum)", aliases: ["Crypts of Lieberkühn (jejunum)", "Jejunal crypts"],
-                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the jejunum that renew the epithelium", examTips: ["Mucosal crypts at the bases of the tall villi"], histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
+                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the jejunum that renew the epithelium", examTips: ["Mucosal crypts at the bases of the tall villi"],
+                    images: [ImageCDN.slide("intestinal-glands-jejunum_histo_1.jpeg", magnification: 10, caption: "Intestinal Glands (Jejunum) — 10×")],
+                    histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Jejunum)", aliases: ["Jejunal goblet cells"],
-                    function: "Mucus-secreting cells in the jejunal epithelium (intermediate number)", examTips: ["More than duodenum, fewer than ileum"], histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
+                    function: "Mucus-secreting cells in the jejunal epithelium (intermediate number)", examTips: ["More than duodenum, fewer than ileum"],
+                    images: [ImageCDN.slide("goblet-cells-jejunum_histo_1.jpeg", magnification: 40, caption: "Goblet Cells (Jejunum) — 40×")],
+                    histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
 
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Villi (Ileum)", aliases: ["Villi", "Intestinal projections", "Ileal villi"],
                     function: "Mucosal projections of the ileum (shorter than jejunum) that increase absorptive surface area", examTips: ["Villi + Peyer's patches = ileum"], images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Villi — Ileum 10×")], histology: "Simple columnar epithelium with microvilli over a lamina propria core"),
@@ -3302,10 +3329,13 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: liverHistoCat.id,
                     name: "Liver Lobule",
                     aliases: ["Hepatic lobule"],
-                    function: "Functional unit of liver",
-                    examTips: ["Portal triads at corners"],
-                    images: [ImageCDN.slide("liver_histo_1.jpeg", magnification: 10, caption: "Liver Lobule — 10×")],
-                    histology: "Hexagonal arrangement of hepatocytes"
+                    function: "The microscopic functional unit of the liver: a roughly hexagonal stack of hepatocyte plates bounded by connective tissue, with the plates radiating outward from a central vein and a portal triad sitting at each of the (up to six) corners. Blood flows inward from the peripheral triads through the sinusoids to the central vein, while bile flows the opposite way, outward toward the triads.",
+                    commonConfusions: ["The lobule's two landmarks are at opposite ends: portal triads at the PERIPHERY (corners) vs the central vein at the CENTER — blood runs periphery → center", "The neat hexagonal organization may NOT be obvious in your own sample — check the demo slide to see the idealized layout", "Pig vs human: a normal PIG liver lobule is neatly outlined and fully enclosed by a distinct envelope of fibrous connective tissue (easy to tell lobules apart); in a normal HUMAN liver this interlobular connective tissue is very sparse or absent between portal areas, so lobule boundaries are much harder to see"],
+                    examTips: ["Low-mag ID: light, roughly hexagonal areas with darker connective-tissue edges, a single central vein in the middle, and up to six portal triads at the corners", "Hepatocyte plates radiate outward from the central vein like spokes of a wheel", "Lymph vessels are also present in the portal (triad) areas"],
+                    images: [ImageCDN.slide("liver-lobule_histo_1.jpg", magnification: 10, caption: "Liver Lobule — 10×")],
+                    histology: "Hexagonal plates of hepatocytes radiating from a central vein; portal triads at the corners; hepatic sinusoids thread between the plates; the whole lobule is bounded by connective tissue",
+                    connections: "Peripheral portal triads (portal vein + hepatic artery + bile duct) → sinusoids → central vein; central vein → sublobular veins → hepatic veins → caudal vena cava",
+                    highYield: true
                 ),
                 AnatomyStructure(
                     categoryId: liverHistoCat.id,
@@ -3314,7 +3344,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "The portal triad is the vascular + ductal unit at the PERIPHERY of each liver lobule; it supplies blood into the lobule and drains bile out; contains three structures: branch of portal vein (nutrient-rich), branch of hepatic artery (oxygenated), and a bile duct (carries bile away from hepatocytes)",
                     commonConfusions: ["Portal triad = PERIPHERY of lobule; central vein = CENTER of lobule — this directionality is the most important liver histology concept", "Three structures in the portal triad: portal vein branch, hepatic artery branch, bile duct — students often forget the bile duct or confuse flow direction (blood flows FROM triad TOWARD central vein; bile flows OPPOSITE, from hepatocytes TOWARD triad)"],
                     examTips: ["CRITICAL DISTINCTION: Portal triad (periphery) → blood flows inward through sinusoids → central vein (center)", "On the liver slide: look for clusters of 3 structures at lobule corners = portal triad; the single large thin-walled vessel in the middle = central vein", "Bile flow is OPPOSITE to blood flow: bile canaliculi → bile ductules → portal triad bile duct → hepatic duct → common bile duct → duodenum"],
-                    images: [ImageCDN.slide("liver_histo_1.jpeg", magnification: 10, caption: "Portal Triad — 10×")],
+                    images: [ImageCDN.slide("portal-triad_histo_1.jpeg", magnification: 10, caption: "Portal Triad — 10×")],
                     histology: "Portal vein branch: large, thin-walled, irregular; hepatic artery branch: smaller, thick-walled, round; bile duct: lined by simple cuboidal/columnar epithelium; all embedded in connective tissue stroma",
                     connections: "Portal vein branch receives nutrient-rich blood from GI tract; hepatic artery branch receives oxygenated blood from celiac artery; bile duct drains toward hepatic ducts; located at periphery of liver lobule",
                     highYield: true
@@ -3326,7 +3356,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Collects blood after it has passed through the liver sinusoids and been processed by hepatocytes; drains into sublobular veins → hepatic veins → caudal vena cava; the central vein is the endpoint of blood flow within one liver lobule",
                     commonConfusions: ["VERY IMPORTANT: portal triad = periphery of lobule; central vein = CENTER of lobule — these are opposite ends of the blood flow direction through the lobule", "Central vein is NOT the portal vein — the portal vein enters at the triad (periphery); the central vein drains blood out at the center after hepatocyte processing"],
                     examTips: ["MOST IMPORTANT liver histology landmark: find the large thin-walled open vessel in the CENTER of the lobule = central vein; find the cluster of 3 vessels/duct at the PERIPHERY = portal triad", "Blood flow direction: portal triad (in) → sinusoids → hepatocytes → central vein (out) → hepatic vein → caudal vena cava", "On the slide: central vein appears as a single large, thin-walled, round/oval vessel with an open lumen at the center of the lobule"],
-                    images: [ImageCDN.slide("liver_histo_1.jpeg", magnification: 10, caption: "Central Vein — 10×")],
+                    images: [ImageCDN.slide("central-vein_histo_1.jpg", magnification: 10, caption: "Central Vein — 10×")],
                     histology: "Simple squamous endothelium lining (like all veins); very thin wall with minimal smooth muscle (low pressure); the lumen is often wide and irregular; surrounded by hepatocyte plates converging toward it",
                     connections: "Receives: blood from liver sinusoids (after hepatocyte processing); drains into: sublobular veins → hepatic veins → caudal vena cava; located at the CENTER of each liver lobule",
                     highYield: true
@@ -3335,10 +3365,13 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: liverHistoCat.id,
                     name: "Hepatocyte",
                     aliases: ["Liver cell"],
-                    function: "Performs liver functions",
-                    examTips: ["Primary liver cell type"],
-                    images: [ImageCDN.slide("liver_histo_1.jpeg", magnification: 10, caption: "Hepatocytes — 10×")],
-                    histology: "Large cuboidal cells with multiple nuclei"
+                    function: "The main liver cell, arranged in hexagonal plates that radiate from the central vein. Hepatocytes process nutrients and detoxify substances carried by the nutrient-rich hepatic portal blood, and secrete bile into the bile canaliculi that drain toward the bile ducts of the portal triads.",
+                    commonConfusions: ["Blood and bile move in OPPOSITE directions at the hepatocyte: blood flows past the cell through the sinusoids toward the central vein, while bile is secreted the other way, toward the peripheral triad", "The sinusoids between hepatocytes have a DISCONTINUOUS endothelium (no basement membrane, wide gaps) — far more permeable than normal capillaries, so portal + arterial blood can bathe every hepatocyte directly"],
+                    examTips: ["Large polygonal cells forming the plates that radiate out from the central vein", "Sinusoids — the mixing site for hepatic-artery and portal-vein blood — thread between the hepatocyte plates", "Two jobs: process blood-borne nutrients/toxins AND secrete bile"],
+                    images: [ImageCDN.slide("hepatocyte_histo_1.jpg", magnification: 10, caption: "Hepatocytes — 10×")],
+                    histology: "Large polygonal cells, often binucleate, with abundant granular cytoplasm; arranged in plates one-to-two cells thick separated by sinusoids",
+                    connections: "Receive mixed blood from the sinusoids (hepatic artery + portal vein); secrete bile into canaliculi → bile ductules → portal-triad bile ducts; their plates channel blood toward the central vein",
+                    highYield: true
                 ),
             ])
         }
@@ -3517,7 +3550,7 @@ class AnatomyDataManager: ObservableObject {
                     commonConfusions: ["Secondary (multiple granulosa layers + scattered fluid, no single antrum yet) vs tertiary (one large pooled antrum, oocyte pushed to one side)"],
                     examTips: ["Larger than a primary follicle; multiple granulosa layers with the oocyte central", "Follicular fluid starts to appear BETWEEN granulosa cells (not yet a single antrum)", "Granulosa cells → estrogen"],
                     images: [
-                        ImageCDN.slide("secondary-follicle_hist_1.HEIC", magnification: 10, caption: "Secondary Follicle"),
+                        ImageCDN.slide("secondary-follicle_histo_1.HEIC", magnification: 10, caption: "Secondary Follicle"),
                     ],
                     histology: "Oocyte central; multiple layers of granulosa cells; small fluid-filled spaces beginning between them"
                 ),
@@ -3528,6 +3561,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "A mature (Graafian) follicle: the follicular fluid has pooled into one large cavity (the antrum), pushing the oocyte to one side where it attaches to the follicle wall. Ready for ovulation.",
                     commonConfusions: ["Placement of the oocyte doesn't always track antrum size, so telling the stages apart can be tricky", "~99% of follicles undergo ATRESIA (degeneration) — can happen at any stage; only the surviving follicle ovulates"],
                     examTips: ["Largest follicle; defined by a single large ANTRUM (pooled follicular fluid)", "Oocyte sits to ONE SIDE, attached to the follicle wall by granulosa cells", "After ovulation the collapsed follicle becomes the corpus luteum (via LH)"],
+                    images: [ImageCDN.slide("tertiary-follicle_histo_1.HEIC", magnification: 10, caption: "Tertiary Follicle — 10×")],
                     histology: "Large follicle with a single fluid-filled antrum; oocyte eccentric, attached to the wall"
                 ),
                 AnatomyStructure(
@@ -3536,6 +3570,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Follicular cavity"],
                     function: "The single large fluid-filled cavity within a tertiary (Graafian) follicle, formed when scattered follicular fluid coalesces into one pool.",
                     examTips: ["Defining feature of the tertiary follicle", "Forms when the follicular fluid between granulosa cells pools into one cavity", "The oocyte sits to one side of the antrum, attached to the follicle wall"],
+                    images: [ImageCDN.slide("antrum_histo_1.HEIC", magnification: 10, caption: "Antrum — 10×")],
                     histology: "Fluid-filled cavity containing follicular fluid; bordered by granulosa cells"
                 ),
                 AnatomyStructure(
@@ -3853,6 +3888,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Large apron-like fold of peritoneum extending from the greater curvature of the stomach and draping over the intestines; carries blood vessels, lymphatics, and nerves; stores adipose tissue; can migrate toward inflamed/infected areas to wall off infection ('policeman of the abdomen')",
                     commonConfusions: ["Greater omentum vs mesentery: mesentery suspends the intestines from the dorsal body wall; greater omentum is the fat-filled apron hanging from the stomach over the intestines", "Greater vs lesser omentum: greater = from stomach to drape over intestines; lesser = from liver to stomach/duodenum"],
                     examTips: ["Practical ID: fatty/lacy membrane hanging like an apron from the stomach over the intestines — may need to be reflected to see intestines beneath", "Simple squamous mesothelium surface (it is derived from peritoneum)", "Contains fat — can look yellow/cream colored in fetal pig"],
+                    images: [ImageCDN.image("greater-omentum_gross_1.jpg", caption: "Greater Omentum")],
                     histology: "Double layer of peritoneum (simple squamous mesothelium) surrounding loose connective tissue with adipose, blood vessels, and lymphatics",
                     connections: "Attaches to greater curvature of stomach and drapes over intestines; connects to transverse colon (gastrocolic ligament portion); contains branches of gastroepiploic vessels",
                     highYield: false
@@ -4251,6 +4287,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Internal opening connecting nasal cavity to nasal pharynx; allows airflow into respiratory pathway",
                     commonConfusions: [],
                     examTips: ["Posterior opening of nasal cavity superior to soft palate"],
+                    images: [ImageCDN.image("internal-nostril_gross_1.jpg", caption: "Internal Nostril")],
                     histology: "Pseudostratified ciliated columnar epithelium with goblet cells",
                     connections: "External nostril → nasal cavity → internal nostril → nasal pharynx",
                     highYield: false
@@ -4360,6 +4397,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "The central compartment of the thoracic cavity situated between the right and left pleural cavities; essentially the space between the lungs; contains and supports the heart, pericardial cavity, thymus, trachea, esophagus, major blood vessels, vagus and phrenic nerves, and lymphatic structures; acts as conduit for vessels, nerves, and lymphatics passing between thorax and neck/abdomen",
                     commonConfusions: ["Mediastinum ≠ a single membrane — it is a thick three-dimensional region of tissue and organs between the lungs, not just a partition", "Mediastinum vs pleural cavities: pleural cavities contain the lungs; the mediastinum contains everything between them (heart, trachea, esophagus, thymus, great vessels)", "The handout refers to the 'mediastinal septum' — this is the same as the mediastinum in the context of fetal pig dissection"],
                     examTips: ["Practical ID: when the thorax is opened and the lungs are spread to each side, the mediastinum is the central mass of tissue between them — you will see the pericardial sac (heart), trachea, and thymus here", "IN FETAL PIG: the thymus is disproportionately LARGE in the mediastinum — a prominent identifying feature", "Mediastinum contains: heart + pericardial cavity, thymus, trachea, esophagus, aortic arch, cranial/caudal vena cava, pulmonary trunk"],
+                    images: [ImageCDN.image("mediastinum_gross_1.jpeg", caption: "Mediastinum")],
                     histology: "Not a single tissue type — a composite region containing cardiac muscle (heart), hyaline cartilage (trachea rings), connective tissue (stroma), serous mesothelium (pericardial and pleural surfaces), smooth muscle (esophagus, vessels), and lymphoid tissue (thymus); pericardial and pleural surfaces = simple squamous mesothelium",
                     connections: "Bounded by: sternum (ventral), vertebral column (dorsal), thoracic inlet (cranial), diaphragm (caudal), right and left parietal pleura (lateral); contains: heart in pericardial sac, trachea bifurcating to bronchi, esophagus, aortic arch and great vessels, thymus",
                     highYield: true
@@ -4523,6 +4561,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Multiple layers with columnar surface cells; lines some larger ducts. In this course, the larger pancreatic ducts (intra-/interlobular ducts and the pancreatic duct) are lined with simple-to-stratified columnar epithelium depending on duct size.",
                     commonConfusions: ["Pancreatic ducts vs blood vessels: ducts are lined with CUBOIDAL/COLUMNAR epithelium, while arteries and veins are lined with simple flat SQUAMOUS (endothelium) — check the lining to tell them apart (clear at 40×)"],
                     examTips: ["Handout context (pancreas): intercalated ducts (cuboidal) → intralobular → interlobular → pancreatic duct; the larger ducts are lined with simple-to-stratified columnar epithelium", "Rule of thumb: the larger the duct, the more likely it is stratified columnar"],
+                    images: [ImageCDN.slide("stratified-columnar-epithelium_histo_1.png", magnification: 40, caption: "Stratified Columnar Epithelium — 40×")],
                     histology: "Two or more layers with tall columnar cells at the surface; basal layers may be cuboidal",
                     connections: "Larger excretory ducts — e.g., the larger pancreatic ducts (interlobular ducts, pancreatic duct)",
                     highYield: false
@@ -4699,15 +4738,22 @@ class AnatomyDataManager: ObservableObject {
 
                 // ----- Slide 9: Pyloric Stomach layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Pyloric Stomach)", aliases: ["Pyloric gastric mucosa"],
-                    function: "Inner lining of the pyloric stomach: deep gastric pits leading to coiled, mucus-heavy pyloric glands with G cells", examTips: ["Deep pits + coiled mucous glands + G cells"], histology: "Simple columnar epithelium; deep gastric pits; pyloric glands (mucous + G cells)"),
+                    function: "Inner lining of the pyloric stomach: deep gastric pits leading to coiled, mucus-heavy pyloric glands with G cells", examTips: ["Deep pits + coiled mucous glands + G cells"],
+                    images: [ImageCDN.slide("mucosa-pyloric-stomach_histo_1.jpeg", magnification: 4, caption: "Mucosa (Pyloric Stomach) — 4×")],
+                    histology: "Simple columnar epithelium; deep gastric pits; pyloric glands (mucous + G cells)"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis Mucosae (Pyloric Stomach)", aliases: [],
-                    function: "Thin smooth muscle at the base of the pyloric gastric mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Thin muscle at the base of the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"], histology: "Thin smooth muscle layer"),
+                    function: "Thin smooth muscle at the base of the pyloric gastric mucosa", commonConfusions: ["Muscularis MUCOSAE (thin, part of the mucosa, its deepest sublayer) vs the MUSCULARIS / muscularis externa / muscularis propria (thick, deep in the wall, drives peristalsis) — similar names, different layers"], examTips: ["Thin muscle at the base of the mucosa — do not confuse with the thick muscularis (externa/propria) deeper in the wall"],
+                    images: [ImageCDN.slide("muscularis-mucosae-pyloric-stomach_histo_1.jpeg", magnification: 4, caption: "Muscularis Mucosae (Pyloric Stomach) — 4×")],
+                    histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Pyloric Stomach)", aliases: [],
-                    function: "Connective tissue layer of the pyloric stomach", examTips: ["Loose connective tissue with vessels"], histology: "Loose connective tissue with blood vessels"),
+                    function: "Connective tissue layer of the pyloric stomach", examTips: ["Loose connective tissue with vessels"],
+                    images: [ImageCDN.slide("submucosa-pyloric-stomach_histo_1.jpeg", magnification: 4, caption: "Submucosa (Pyloric Stomach) — 4×")],
+                    histology: "Loose connective tissue with blood vessels"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Pyloric Stomach)", aliases: ["Muscularis externa (pyloric stomach)", "Muscularis propria (pyloric stomach)"],
                     function: "The thick outer muscle coat of the pyloric stomach; its circular layer thickens distally to form the pyloric sphincter. Also called the muscularis externa or muscularis propria (same layer, three names).",
                     commonConfusions: ["MUSCULARIS (= muscularis externa = muscularis propria): thick, deep in the wall, drives churning/peristalsis — NOT the thin muscularis MUCOSAE inside the mucosa"],
                     examTips: ["Thickened circular layer here forms the pyloric sphincter", "Names to know: muscularis = muscularis externa = muscularis propria (all the same thick layer)"],
+                    images: [ImageCDN.slide("muscularis-pyloric-stomach_histo_1.jpeg", magnification: 4, caption: "Muscularis (Pyloric Stomach) — 4×")],
                     histology: "Smooth muscle layers; thickened circular layer forms the pyloric sphincter"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Pyloric Stomach)", aliases: [],
                     function: "Outer serous covering of the pyloric stomach", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
