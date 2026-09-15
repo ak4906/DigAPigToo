@@ -1595,6 +1595,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drain the capillary beds within the villi of the small intestine; located in the intestinal mesentery, they converge cranially to form the mesenteric vein.",
                     commonConfusions: [],
                     examTips: ["Practical ID: vessels visible in the mesentery associated with jejunum loops", "Drain the capillary beds within the VILLI of the small intestine", "Converge cranially to form the mesenteric vein"],
+                    images: [ImageCDN.image("jejunal-veins_gross_1.jpg", caption: "Jejunal Veins")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Villus capillaries → jejunal veins → mesenteric vein → hepatic portal vein",
                     highYield: false
@@ -1606,6 +1607,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Delivers oxygenated blood to the stomach wall; branch of celiac trunk",
                     commonConfusions: [],
                     examTips: ["Associated with stomach curvature/wall"],
+                    images: [ImageCDN.image("gastric-artery_gross_1.jpg", caption: "Gastric Artery")],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Celiac trunk → gastric artery → stomach",
                     highYield: false
@@ -1631,6 +1633,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies the greater curvature of the stomach and associated omental tissue",
                     commonConfusions: [],
                     examTips: ["Associated with stomach's greater curvature and greater omentum region"],
+                    images: [ImageCDN.image("gastroepiploic-artery_gross_1.jpg", caption: "Gastroepiploic Artery")],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Celiac/gastric branches → gastroepiploic artery → stomach curvature/omentum",
                     highYield: false
@@ -1642,6 +1645,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Drains the greater curvature of the stomach and omental tissue into the portal circulation; the left and right gastroepiploic veins run along the GREATER curvature.",
                     commonConfusions: ["Gastroepiploic veins = GREATER curvature; gastric veins = LESSER curvature"],
                     examTips: ["Left + right gastroepiploic veins along the greater curvature and greater omentum"],
+                    images: [ImageCDN.image("gastroepiploic-vein_gross_1.jpg", caption: "Gastroepiploic Vein")],
                     histology: "Vein: thin wall; simple squamous endothelium",
                     connections: "Stomach greater curvature/omentum → gastroepiploic vein → portal circulation",
                     highYield: false
@@ -1653,6 +1657,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Supplies oxygenated blood to the spleen; branch of the celiac trunk",
                     commonConfusions: [],
                     examTips: ["Splenic = lienic — same vessel, two naming conventions", "Branches: celiac trunk → splenic artery → spleen"],
+                    images: [ImageCDN.image("splenic-artery_gross_1.jpg", caption: "Splenic Artery")],
                     histology: "Artery: thick tunica media; simple squamous endothelium",
                     connections: "Celiac trunk → splenic artery → spleen",
                     highYield: false
@@ -3163,6 +3168,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Main secretory glands of the stomach; produce HCl (parietal cells), pepsinogen (chief cells), intrinsic factor (parietal cells), and mucus (mucous neck cells)",
                     commonConfusions: ["Parietal cells (HCl + intrinsic factor) vs chief cells (pepsinogen) — both are in fundic glands but at different depths: parietal = mid-gland, chief = base of gland", "Fundic glands vs cardiac/pyloric glands: fundic glands are the only ones with parietal AND chief cells"],
                     examTips: ["PARIETAL CELLS: large, triangular/pyramidal, intensely eosinophilic (bright pink) — the most recognizable cell in stomach histology", "CHIEF CELLS: smaller, basophilic (purple-blue), at base of gland — pepsinogen-secreting", "Gland zones from pit to base: isthmus (stem cells) → neck (mucous neck cells) → base (chief cells); parietal cells throughout mid-gland"],
+                    images: [ImageCDN.slide("fundic-glands_histo_1.png", magnification: 10, caption: "Fundic Glands — 10×")],
                     histology: "Parietal cells: large, eosinophilic, with intracellular canaliculi; chief cells: basophilic, pyramidal, zymogen granules; mucous neck cells: pale, mucin-filled",
                     highYield: true
                 ),
@@ -3173,6 +3179,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Invaginations of the fundic gastric surface epithelium leading into the deep fundic glands; relatively shallow (the long glands occupy most of the mucosal depth)",
                     commonConfusions: ["Fundic pits are SHALLOW relative to the deep fundic glands beneath them (pit:gland ratio is low)", "Pit = the opening/channel; gland = the secretory unit below"],
                     examTips: ["Shallow pits + very deep glands packed with parietal & chief cells = fundic stomach"],
+                    images: [ImageCDN.slide("gastric-pits-fundic-stomach_histo_1.png", magnification: 4, caption: "Gastric Pits (Fundic Stomach) — 4×")],
                     histology: "Simple columnar surface mucous cells lining shallow pits that open into fundic glands",
                     highYield: true
                 ),
@@ -3183,6 +3190,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Secrete hydrochloric acid (HCl) and intrinsic factor; the HCl activates pepsinogen and creates the acidic gastric environment, while intrinsic factor is required for vitamin B12 absorption in the ileum",
                     commonConfusions: ["Parietal cells (HCl + intrinsic factor, mid-gland, large & pink) vs chief cells (pepsinogen, base of gland, basophilic)", "Parietal cells are found in FUNDIC glands (and some cardiac) — NOT in pyloric glands"],
                     examTips: ["KEY ID: large, rounded/pyramidal cells with intensely eosinophilic (bright pink) cytoplasm in the middle of the fundic glands — the most recognizable stomach cell", "Located in the upper-middle portion of the fundic gland"],
+                    images: [ImageCDN.slide("parietal-cells_histo_1.png", magnification: 40, caption: "Parietal Cells — 40×")],
                     histology: "Large rounded cells, intensely eosinophilic cytoplasm, central nucleus, intracellular canaliculi (site of HCl secretion)",
                     highYield: true
                 ),
@@ -3193,6 +3201,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Secrete pepsinogen (the inactive precursor of pepsin, a protein-digesting enzyme) and gastric lipase; found at the base of the fundic glands",
                     commonConfusions: ["Chief cells (pepsinogen, basophilic, base of gland) vs parietal cells (HCl, eosinophilic, mid-gland)", "'Chief' cells make the digestive enzyme precursor — remember chief = chef = cooking/digesting"],
                     examTips: ["KEY ID: smaller basophilic (blue-purple) cells clustered at the BASE of the fundic glands", "Basophilic because they are packed with rough ER making pepsinogen"],
+                    images: [ImageCDN.slide("chief-cells_histo_1.png", magnification: 40, caption: "Chief Cells — 40×")],
                     histology: "Cuboidal-to-pyramidal cells with basophilic cytoplasm (abundant rough ER) and apical zymogen (pepsinogen) granules; located at the base of fundic glands",
                     highYield: true
                 ),
@@ -3214,7 +3223,7 @@ class AnatomyDataManager: ObservableObject {
                     aliases: ["Antral glands"],
                     function: "Mucus-secreting glands of the pyloric stomach; also contain G cells which produce gastrin to stimulate acid secretion",
                     examTips: ["Pyloric glands are coiled and mucus-heavy — more tortuous than fundic glands", "Deep gastric pits with relatively shorter glands compared to fundic region"],
-                    images: [ImageCDN.slide("pyloric-stomach_histo_1.jpeg", magnification: 10, caption: "Pyloric Glands — 10×")],
+                    images: [ImageCDN.slide("pyloric-glands_histo_1.png", magnification: 10, caption: "Pyloric Glands — 10×")],
                     histology: "Branched, coiled tubular glands; pale mucous cells with basally located nuclei; G cells scattered among mucous cells (enteroendocrine, not visible without special stains)"
                 ),
                 AnatomyStructure(
@@ -3235,6 +3244,7 @@ class AnatomyDataManager: ObservableObject {
                     function: "Produce and secrete gastrin in response to food, stomach distension, and vagal stimulation; gastrin travels via bloodstream to stimulate parietal cells to produce HCl",
                     commonConfusions: ["G cells are in the PYLORIC region — not fundic or cardiac", "G cells are enteroendocrine cells scattered among mucous cells — not visible as a distinct population without special staining"],
                     examTips: ["G cells are in pyloric glands — their presence defines the pyloric region functionally", "Gastrin → stimulates parietal cells → HCl production — classic feedback loop"],
+                    images: [ImageCDN.slide("G-cells_histo_1.png", magnification: 40, caption: "G Cells — 40×")],
                     histology: "Enteroendocrine cells; triangular with basally located secretory granules; located among pyloric gland cells; not easily distinguished on H&E without immunohistochemistry"
                 ),
                 AnatomyStructure(
@@ -3281,18 +3291,18 @@ class AnatomyDataManager: ObservableObject {
                     histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
 
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Villi (Ileum)", aliases: ["Villi", "Intestinal projections", "Ileal villi"],
-                    function: "Mucosal projections of the ileum (shorter than jejunum) that increase absorptive surface area", examTips: ["Villi + Peyer's patches = ileum"], images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Villi — Ileum 10×")], histology: "Simple columnar epithelium with microvilli over a lamina propria core"),
+                    function: "Mucosal projections of the ileum (shorter than jejunum) that increase absorptive surface area", examTips: ["Villi + Peyer's patches = ileum"], images: [ImageCDN.slide("villi-ileum_histo_1.jpeg", magnification: 10, caption: "Villi (Ileum) — 10×")], histology: "Simple columnar epithelium with microvilli over a lamina propria core"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Intestinal Glands (Ileum)", aliases: ["Crypts of Lieberkühn", "Crypts of Lieberkühn (ileum)", "Intestinal crypts", "Ileal crypts"],
-                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the ileum that renew the epithelium", examTips: ["Mucosal crypts between the villi bases"], images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Crypts of Lieberkühn — Ileum 10×")], histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
+                    function: "Mucosal tubular glands (crypts of Lieberkühn) of the ileum that renew the epithelium", examTips: ["Mucosal crypts between the villi bases"], images: [ImageCDN.slide("intestinal-glands-ileum_histo_1.jpeg", magnification: 10, caption: "Intestinal Glands (Ileum) — 10×")], histology: "Simple tubular crypts of simple columnar epithelium opening between villi bases"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Goblet Cells (Ileum)", aliases: ["Goblet Cells", "Mucus-secreting cells", "Ileal goblet cells"],
-                    function: "Mucus-secreting cells in the ileal epithelium (most numerous of the small-intestine segments)", examTips: ["Goblet cells are most abundant here among the small-intestine segments"], images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Goblet Cells — Ileum 10×")], histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
+                    function: "Mucus-secreting cells in the ileal epithelium (most numerous of the small-intestine segments)", examTips: ["Goblet cells are most abundant here among the small-intestine segments"], images: [ImageCDN.slide("goblet-cells-ileum_histo_1.jpeg", magnification: 40, caption: "Goblet Cells (Ileum) — 40×")], histology: "Goblet-shaped mucous cells (PAS-positive) among the columnar absorptive cells"),
                 AnatomyStructure(
                     categoryId: giHistologyCat.id,
                     name: "Peyer's Patches",
                     aliases: ["Gut-associated lymphoid tissue"],
                     function: "Immune surveillance",
                     examTips: ["Found in small intestine"],
-                    images: [ImageCDN.slide("ileum_histo_1.jpeg", magnification: 10, caption: "Peyer's Patches — Ileum 10×")],
+                    images: [ImageCDN.slide("peyers-patches_histo_1.jpeg", magnification: 4, caption: "Peyer's Patches (Ileum) — 4×")],
                     histology: "Lymphoid tissue in lamina propria"
                 ),
                 AnatomyStructure(
@@ -3589,11 +3599,11 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: reproHistologyCat.id,
                     name: "Seminiferous Tubule",
                     aliases: ["Sperm-producing tubule"],
-                    function: "Site of spermatogenesis",
+                    function: "Site of spermatogenesis. These tightly coiled tubules make up the greater part of the testis. Developing sperm cells sit in layers around a hollow central lumen — least mature (spermatogonia) at the outer rim, maturing inward to fully formed spermatozoa abutting the lumen; mature sperm are released into the lumen, then travel to the testis duct system and eventually the vas deferens.",
                     commonConfusions: ["ORIENTATION: on the slide you are looking at a CROSS-SECTION of the tubules — so each one appears as a round/circular ring, NOT as a long tube. The tubules are actually long and coiled; the slice just cuts across them. (Some may be cut obliquely and look oval.)"],
-                    examTips: ["Packed with developing sperm", "You see the tubules in cross-section: look for circular rings with germ cells layered from the outer edge (spermatogonia) toward the central lumen (spermatozoa)"],
+                    examTips: ["Packed with developing sperm", "You see the tubules in cross-section: look for circular rings with germ cells layered from the outer edge (spermatogonia) toward the central lumen (spermatozoa)", "This testis slide is stained with iron hematoxylin, so it appears DARKER than your other specimens"],
                     images: [
-                        ImageCDN.slide("testis_10x_1.jpeg", magnification: 10, caption: "Seminiferous Tubules (cross-section) — 10×"),
+                        ImageCDN.slide("seminiferous-tubules_histo_1.jpeg", magnification: 10, caption: "Seminiferous Tubules (cross-section) — 10×"),
                     ],
                     histology: "Pseudostratified columnar with spermatogenic cells; on the slide seen as circular cross-sections of the coiled tubules"
                 ),
@@ -3601,32 +3611,32 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: reproHistologyCat.id,
                     name: "Spermatogonia",
                     aliases: ["Sperm stem cells"],
-                    function: "Continuously produce primary spermatocytes",
-                    examTips: ["At outer edge of tubule"],
+                    function: "Diploid (2N) stem cells in the OUTER WALL of the seminiferous tubule that divide to produce primary spermatocytes. Because males make sperm throughout life, spermatogonia keep differentiating in adulthood — so all developmental stages are present in the tubule at once.",
+                    examTips: ["At the outer edge/rim of the tubule, against the wall", "Diploid (2N) stem cells — the least mature stage"],
                     images: [
-                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Spermatogonia (outer edge of tubule) — 40×"),
+                        ImageCDN.slide("spermatogonia_histo_1.jpeg", magnification: 40, caption: "Spermatogonia (outer edge of tubule) — 40×"),
                     ],
-                    histology: "Diploid stem cells"
+                    histology: "Diploid (2N) stem cells at the tubule's outer wall"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,
                     name: "Spermatocytes",
                     aliases: ["Dividing sperm cells"],
-                    function: "Divide to produce spermatids",
-                    examTips: ["Undergo meiosis"],
+                    function: "Arise from dividing spermatogonia: primary spermatocytes (diploid) undergo meiosis to become secondary (haploid) spermatocytes, which then form spermatids. They occupy the middle layers of the tubule wall, between the spermatogonia and the spermatids.",
+                    examTips: ["Undergo meiosis: primary (diploid) → secondary (haploid)", "Middle layers of the tubule wall"],
                     images: [
-                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Spermatocytes — 40×"),
+                        ImageCDN.slide("spermatocytes_histo_1.jpeg", magnification: 40, caption: "Spermatocytes — 40×"),
                     ],
-                    histology: "Primary (diploid) and secondary (haploid)"
+                    histology: "Primary (diploid) and secondary (haploid) spermatocytes"
                 ),
                 AnatomyStructure(
                     categoryId: reproHistologyCat.id,
                     name: "Spermatids",
                     aliases: ["Young sperm"],
-                    function: "Differentiate into spermatozoa",
-                    examTips: ["Final stage before mature sperm"],
+                    function: "Haploid cells produced from secondary spermatocytes; they differentiate (spermiogenesis) into spermatozoa. Found in the inner layers of the tubule wall, close to the lumen.",
+                    examTips: ["Final stage before mature sperm", "Inner layers of the tubule, near the lumen"],
                     images: [
-                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Spermatids — 40×"),
+                        ImageCDN.slide("spermatids_histo_1.jpeg", magnification: 40, caption: "Spermatids — 40×"),
                     ],
                     histology: "Haploid cells undergoing spermiogenesis"
                 ),
@@ -3634,10 +3644,10 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: reproHistologyCat.id,
                     name: "Spermatozoa",
                     aliases: ["Mature sperm"],
-                    function: "Male gamete",
-                    examTips: ["Released into lumen"],
+                    function: "The fully formed male gametes (sperm). Their tails penetrate the central lumen of the seminiferous tubule; from the lumen they pass into the testis duct system and eventually the vas deferens.",
+                    examTips: ["Most mature stage — abutting / released into the lumen", "Tails project into the lumen"],
                     images: [
-                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Spermatozoa (in lumen) — 40×"),
+                        ImageCDN.slide("spermatozoa_histo_1.jpeg", magnification: 40, caption: "Spermatozoa (in lumen) — 40×"),
                     ],
                     histology: "Head, midpiece, tail; very motile"
                 ),
@@ -3645,12 +3655,12 @@ class AnatomyDataManager: ObservableObject {
                     categoryId: reproHistologyCat.id,
                     name: "Leydig Cells",
                     aliases: ["Interstitial cells"],
-                    function: "Produces testosterone",
-                    examTips: ["Endocrine cells of testis"],
+                    function: "Interstitial endocrine cells that secrete testosterone, the male sex hormone. They sit in triangular clusters in the interstitial spaces BETWEEN the seminiferous tubules.",
+                    examTips: ["Between the tubules (interstitial), in triangular clusters", "Endocrine cells — source of testosterone"],
                     images: [
-                        ImageCDN.slide("testis_40x_1.jpeg", magnification: 40, caption: "Leydig Cells (between tubules) — 40×"),
+                        ImageCDN.slide("leydig-cells_histo_1.jpeg", magnification: 40, caption: "Leydig Cells (between tubules) — 40×"),
                     ],
-                    histology: "Located between seminiferous tubules"
+                    histology: "Triangular clusters of interstitial cells in the spaces between seminiferous tubules"
                 ),
             ])
         }
@@ -4699,11 +4709,14 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("muscularis-mucosae-cardiac-stomach_histo_1.heic", magnification: 4, caption: "Muscularis Mucosae (Cardiac Stomach) — 4×")],
                     histology: "Thin smooth muscle layer"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Submucosa (Cardiac Stomach)", aliases: [],
-                    function: "Connective tissue layer beneath the mucosa of the cardiac stomach; as in other regions of the digestive tract, it appears as dense, irregular connective tissue carrying blood vessels and nerves", examTips: ["Dense, irregular connective tissue with vessels"], histology: "Dense irregular connective tissue with blood vessels and nerves"),
+                    function: "Connective tissue layer beneath the mucosa of the cardiac stomach; as in other regions of the digestive tract, it appears as dense, irregular connective tissue carrying blood vessels and nerves", examTips: ["Dense, irregular connective tissue with vessels"],
+                    images: [ImageCDN.slide("submucosa-cardiac-stomach_histo_1.heic", magnification: 4, caption: "Submucosa (Cardiac Stomach) — 4×")],
+                    histology: "Dense irregular connective tissue with blood vessels and nerves"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Muscularis (Cardiac Stomach)", aliases: ["Muscularis externa (cardiac stomach)", "Muscularis propria (cardiac stomach)"],
                     function: "The thick outer muscle coat of the stomach wall — the stomach has THREE layers (inner oblique, middle circular, outer longitudinal) rather than the usual two, for churning. Also called the muscularis externa or muscularis propria (same layer, three names).",
                     commonConfusions: ["MUSCULARIS (= muscularis externa = muscularis propria): thick, deep in the wall, drives churning/peristalsis — NOT the thin muscularis MUCOSAE inside the mucosa", "Stomach adds a third (oblique) layer to the usual inner-circular/outer-longitudinal pair"],
                     examTips: ["Stomach has THREE muscle layers (oblique added)", "Names to know: muscularis = muscularis externa = muscularis propria (all the same thick layer)"],
+                    images: [ImageCDN.slide("muscularis-cardiac-stomach_histo_1.png", magnification: 4, caption: "Muscularis (Cardiac Stomach) — 4×")],
                     histology: "Three smooth muscle layers: inner oblique, middle circular, outer longitudinal"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Cardiac Stomach)", aliases: [],
                     function: "Outer serous covering of the cardiac stomach (visceral peritoneum over loose connective tissue); the stomach is an abdominal organ, so its outermost layer is serosa, not adventitia", examTips: ["Outermost thin layer", "Serosa (abdominal organs) vs adventitia (thoracic organs like the esophagus)"],
@@ -4756,7 +4769,9 @@ class AnatomyDataManager: ObservableObject {
                     images: [ImageCDN.slide("muscularis-pyloric-stomach_histo_1.jpeg", magnification: 4, caption: "Muscularis (Pyloric Stomach) — 4×")],
                     histology: "Smooth muscle layers; thickened circular layer forms the pyloric sphincter"),
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Serosa (Pyloric Stomach)", aliases: [],
-                    function: "Outer serous covering of the pyloric stomach", examTips: ["Outermost thin layer"], histology: "Simple squamous mesothelium over thin connective tissue"),
+                    function: "Outer serous covering of the pyloric stomach", examTips: ["Outermost thin layer"],
+                    images: [ImageCDN.slide("serosa-pyloric-stomach_histo_1.png", magnification: 2, caption: "Serosa (Pyloric Stomach) — 2×")],
+                    histology: "Simple squamous mesothelium over thin connective tissue"),
 
                 // ----- Slide 11: Gallbladder layers -----
                 AnatomyStructure(categoryId: giHistologyCat.id, name: "Mucosa (Gallbladder)", aliases: ["Gallbladder mucosa"],
