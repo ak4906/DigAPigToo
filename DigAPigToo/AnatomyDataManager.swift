@@ -2080,7 +2080,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: urinaryCat.id,
                     name: "Urethra (Male)",
-                    aliases: ["Male urethra", "Male urinary passage"],
+                    aliases: ["Urethra", "Male urethra", "Male urinary passage"],
                     function: "Conducts urine from the bladder to the exterior; in males it also serves as the passage for semen during ejaculation (shared urinary pathway, but the urethra itself is a urinary structure)",
                     commonConfusions: ["Male urethra is long — it runs through the pelvis, perineum, and the entire length of the penis", "Although semen passes through it, the urethra is classified here as a urinary structure (it has no reproductive secretory function)"],
                     examTips: ["Practical ID: long tube running from the bladder neck through the penis to the tip (urogenital orifice)", "Much longer than the female urethra"],
@@ -2094,7 +2094,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: urinaryCat.id,
                     name: "Urethra (Female)",
-                    aliases: ["Female urethra", "Female urinary passage"],
+                    aliases: ["Urethra", "Female urethra", "Female urinary passage"],
                     function: "Conducts urine from the bladder to the exterior in females; carries urine only (no reproductive role)",
                     commonConfusions: ["Female urethra is much SHORTER than the male urethra", "Opens into the urogenital sinus, separate from the reproductive tract opening"],
                     examTips: ["Practical ID: short tube running from the bladder neck to open on the floor of the urogenital sinus"],
@@ -2528,7 +2528,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: maternalCat.id,
                     name: "Uterus (Adult Maternal)",
-                    aliases: ["Sow uterus", "Gravid uterus", "Adult pig uterus"],
+                    aliases: ["Uterus", "Sow uterus", "Gravid uterus", "Adult pig uterus"],
                     function: "Houses and nourishes multiple fetuses simultaneously; the enormously enlarged bicornuate uterus of a pregnant sow shows the extreme capacity of the pig reproductive system — a sow can carry 8–14+ piglets",
                     commonConfusions: ["The adult sow uterus dwarfs the fetal pig uterus — the horns can be 1–1.5 m long and filled with fetuses", "Different from a human uterus: pig uterus is bicornuate (two horns) vs human simplex (no horns)"],
                     examTips: ["At the adult station, identify: the two long uterine horns (cornu uteri), the short uterine body, and the cervix", "The fetuses seen through the uterine wall are in the horns — count how many fit per horn", "The diffuse epitheliochorial pig placenta means fetuses attach all along the horn interior via chorionic villi"],
@@ -2556,7 +2556,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: maternalCat.id,
                     name: "Ovary (Adult)",
-                    aliases: ["Adult sow ovary", "Mature ovary"],
+                    aliases: ["Ovary", "Adult sow ovary", "Mature ovary"],
                     function: "In non-pregnant adult sows: site of follicle development, ovulation, and corpus luteum formation for progesterone secretion; in pregnant sows: the corpora lutea remain active throughout pregnancy maintaining progesterone levels (unlike humans where the placenta takes over)",
                     commonConfusions: ["Adult pig ovary looks very different from fetal pig ovary: adult ovaries have large visible follicles and/or corpora lutea (bumpy surface), while fetal ovaries are small and smooth", "Pig corpora lutea persist throughout pregnancy — the pig is corpus luteum-dependent for progesterone for the entire 114-day gestation"],
                     examTips: ["At the adult station: look for large, bumpy ovaries with visible follicles (fluid-filled spheres) or corpora lutea (solid yellowish structures)", "Corpora lutea = 'yellow bodies' — remnants of follicles after ovulation; appear as solid, yellowish nodules on ovary surface", "If you see multiple large corpora lutea, the sow likely had a recent pregnancy or was recently cycling"],

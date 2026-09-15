@@ -2541,8 +2541,11 @@ struct ExamHostView: View {
         func station(from pool: [AnatomyStructure]) -> ExamStation {
             let shuffled = pool.shuffled()
             guard !shuffled.isEmpty else { return ExamStation(items: [], timeLimit: tl) }
-            let items = (0..<5).map { ExamItem(structure: shuffled[$0 % shuffled.count]) }
-            return ExamStation(items: items, timeLimit: tl)
+            // Take up to 5 DISTINCT structures — never repeat an ID within a station.
+            // (Pools are sized ≥5; if one is ever smaller the station just shows fewer IDs
+            // rather than duplicating a structure.)
+            let items = shuffled.prefix(5).map { ExamItem(structure: $0) }
+            return ExamStation(items: Array(items), timeLimit: tl)
         }
 
         // Build one gross station: applies isPinnable, then optional name exclusions.
@@ -2635,11 +2638,21 @@ struct ExamHostView: View {
         //
         // 1) Intact fetal pig dissection: kidney exterior + urinary tract (external view).
         //    "Kidney" lives in Peritoneal Cavity in our data, so pull it explicitly.
-        let urinaryIntactNames: Set<String> = [
-            "Adrenal Gland", "Ureter", "Urinary Bladder", "Urethra"
-        ]
-        let urinaryIntact = structs(in: ["Urinary System"]).filter { urinaryIntactNames.contains($0.name) }
-                          + structs(in: ["Peritoneal Cavity"]).filter { $0.name == "Kidney" }
+        // Sex-neutral structures visible on the intact dissection WITHOUT sectioning the
+        // kidney: kidney exterior, ureter, bladder, adrenal gland, and the renal vessels
+        // at the hilum. ("Kidney" lives in Peritoneal Cavity; the renal vessels in Circulatory.)
+        let urinaryIntactNeutralNames: Set<String> = ["Adrenal Gland", "Ureter", "Urinary Bladder"]
+        let urinaryIntactNeutral =
+              structs(in: ["Urinary System"]).filter { urinaryIntactNeutralNames.contains($0.name) }
+            + structs(in: ["Peritoneal Cavity"]).filter { $0.name == "Kidney" }
+            + structs(in: ["Circulatory System"]).filter { ["Renal Arteries", "Renal Veins"].contains($0.name) }
+        // Urethra is sex-specific — one specimen is one sex, so pick one at build time
+        // (mirrors the pelvic gonadal-vessel handling).
+        let urethraMale   = structs(in: ["Urinary System"]).filter { $0.name == "Urethra (Male)" }
+        let urethraFemale = structs(in: ["Urinary System"]).filter { $0.name == "Urethra (Female)" }
+        let makeUrinaryIntactStation: () -> ExamStation = {
+            station(from: urinaryIntactNeutral + (Bool.random() ? urethraMale : urethraFemale))
+        }
 
         // 2) Adult/cut kidney cross-section: internal collecting anatomy.
         //    Renal Medulla lives in Kidney Histology; Renal Arteries in Circulatory.
@@ -2719,7 +2732,8 @@ struct ExamHostView: View {
             // External — body, limbs, ventral surface (×1)
             { station(from: extBody) },
             // Urinary — intact fetal pig prep (×1): externally visible urinary tract
-            { station(from: urinaryIntact) },
+            // + renal vessels at the hilum; urethra sex picked per build.
+            { makeUrinaryIntactStation() },
             // Urinary — adult kidney cross-section (×1): internal collecting anatomy
             { station(from: urinarySectioned) },
             // Reproductive (×2)
@@ -3886,7 +3900,7 @@ struct AboutView: View {
                             .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                         Text("Dig a Pig Too")
                             .font(.title).fontWeight(.bold)
-                        Text("Version 1.3  •  2026")
+                        Text("Version 1.3.1  •  2026")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
@@ -3912,7 +3926,20 @@ struct AboutView: View {
                         Divider()
 
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("What's New in 1.3").font(.headline)
+                            Text("What's New in 1.3.1").font(.headline)
+                            Group {
+                                Label("Photo coverage is complete — every structure in the atlas now has a real dissection or histology image, across all organ systems", systemImage: "photo.stack.fill")
+                                Label("Expanded histology detail from the lab handout — the liver lobule, hepatocytes, and the testis (spermatogenesis) slide", systemImage: "checkmark.seal.fill")
+                                Label("Write-Answer & Real Exam now accept the core name — e.g. \"uterus\" counts for the adult maternal uterus", systemImage: "checkmark.circle.fill")
+                                Label("Real Exam stations no longer repeat an ID; the intact-kidney station now includes the renal artery and vein", systemImage: "clock.badge.checkmark")
+                            }
+                            .font(.subheadline)
+                        }
+
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("What's New in 1.3").font(.headline).foregroundStyle(.secondary)
                             Group {
                                 Label("Many more real dissection and histology photos — over 65% of structures now have images, with more added throughout the semester", systemImage: "photo.stack.fill")
                                 Label("Circulatory System organized into browsable sections for faster navigation", systemImage: "square.grid.2x2.fill")
@@ -3920,6 +3947,7 @@ struct AboutView: View {
                                 Label("Write-Answer mode now accepts small wording differences", systemImage: "checkmark.circle.fill")
                             }
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                         }
 
                         Divider()
