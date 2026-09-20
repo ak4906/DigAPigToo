@@ -402,7 +402,7 @@ struct AtlasView: View {
         case "Cow Eye":                     return IconInfo(symbol: "eye.fill",                           color: .green)
         // Histology — all use a consistent deep purple
         case "Blood Histology":             return IconInfo(symbol: "drop.fill",                          color: .purple)
-        case "Vessel Histology":            return IconInfo(symbol: "waveform.path.ecg",                  color: .purple)
+        case "Vessel Histology":            return IconInfo(symbol: "waveform.path.ecg",                  color: .purple, customAsset: "VesselHistology")
         case "Respiratory Histology":       return IconInfo(symbol: "lungs.fill",                         color: .purple)
         case "Gastrointestinal Histology":  return IconInfo(symbol: "fork.knife",                         color: .purple, customAsset: "GIHistology")
         case "Liver Histology":             return IconInfo(symbol: "leaf.fill",                          color: .purple, customAsset: "LiverHistology")
