@@ -391,12 +391,12 @@ struct AtlasView: View {
         case "Buccal Cavity":               return IconInfo(symbol: "mouth.fill",                         color: .pink)
         case "Upper Thoracic":              return IconInfo(symbol: "figure.arms.open",                   color: .indigo)
         case "Peritoneal Cavity":           return IconInfo(symbol: "circle.inset.filled",                color: .orange)
-        case "Digestive System":            return IconInfo(symbol: "fork.knife",                         color: .orange)
+        case "Digestive System":            return IconInfo(symbol: "fork.knife",                         color: .orange, customAsset: "DigestiveSystem")
         case "Respiratory System":          return IconInfo(symbol: "lungs.fill",                         color: .cyan)
         case "Circulatory System":          return IconInfo(symbol: "heart.fill",                         color: .red)
-        case "Urinary System":              return IconInfo(symbol: "drop.fill",                          color: Color(red: 0.9, green: 0.7, blue: 0.1))
-        case "Male Reproductive":           return IconInfo(symbol: "figure.stand",                       color: .blue)
-        case "Female Reproductive":         return IconInfo(symbol: "figure.stand.dress",                 color: .purple)
+        case "Urinary System":              return IconInfo(symbol: "drop.fill",                          color: Color(red: 0.9, green: 0.7, blue: 0.1), customAsset: "UrinarySystem")
+        case "Male Reproductive":           return IconInfo(symbol: "figure.stand",                       color: .blue, customAsset: "MaleReproductive")
+        case "Female Reproductive":         return IconInfo(symbol: "figure.stand.dress",                 color: .purple, customAsset: "FemaleReproductive")
         case "Fetal Structures":            return IconInfo(symbol: "figure.2.and.child.holdinghands",    color: .teal)
         case "Adult Maternal Pig":          return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.5, green: 0.25, blue: 0.05))
         case "Cow Eye":                     return IconInfo(symbol: "eye.fill",                           color: .green)
@@ -404,10 +404,10 @@ struct AtlasView: View {
         case "Blood Histology":             return IconInfo(symbol: "drop.fill",                          color: .purple)
         case "Vessel Histology":            return IconInfo(symbol: "waveform.path.ecg",                  color: .purple)
         case "Respiratory Histology":       return IconInfo(symbol: "lungs.fill",                         color: .purple)
-        case "Gastrointestinal Histology":  return IconInfo(symbol: "fork.knife",                         color: .purple)
-        case "Liver Histology":             return IconInfo(symbol: "leaf.fill",                          color: .purple)
+        case "Gastrointestinal Histology":  return IconInfo(symbol: "fork.knife",                         color: .purple, customAsset: "GIHistology")
+        case "Liver Histology":             return IconInfo(symbol: "leaf.fill",                          color: .purple, customAsset: "LiverHistology")
         case "Pancreas Histology":          return IconInfo(symbol: "cross.case.fill",                    color: .purple)
-        case "Kidney Histology":            return IconInfo(symbol: "drop.circle.fill",                   color: .purple)
+        case "Kidney Histology":            return IconInfo(symbol: "drop.circle.fill",                   color: .purple, customAsset: "KidneyHistology")
         case "Reproductive Histology":      return IconInfo(symbol: "figure.2",                           color: .purple)
         // Other
         case "Epithelial Types":            return IconInfo(symbol: "square.grid.2x2.fill",               color: .indigo)
@@ -3912,7 +3912,7 @@ struct AboutView: View {
 
                         VStack(alignment: .leading, spacing: 8) {
                             Text("About This App").font(.headline)
-                            Text("Dig a Pig Too is the unofficial sequel to the original Dig a Pig app — rebuilt from the ground up for Columbia University's Contemporary Biology Lab (BIOL 2501). It covers identification, histology, circulatory traces, and fill-in-the-blank practice across all major organ systems.")
+                            Text("Dig a Pig Too is the unofficial sequel to the original Dig a Pig app, rebuilt from the ground up for Columbia University's Contemporary Biology Lab (BIOL 2501). It covers identification, histology, circulatory traces, and fill-in-the-blank practice across all major organ systems.")
                         }
 
                         Divider()
@@ -3920,7 +3920,7 @@ struct AboutView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("The Original Dig a Pig").font(.headline)
                             Text("This app pays homage to the original Dig a Pig, first released in 2015 and updated in 2017. That app helped thousands of students prepare for dissection lab practicals and already covered gross anatomy, the cow eye, the adult maternal pig uterus station, and the fetal heart.")
-                            Text("Dig a Pig Too is the 2026 rebuild — designed for modern iOS and the updated BIOL 2501 curriculum.")
+                            Text("Dig a Pig Too is the 2026 rebuild, designed for modern iOS and the updated BIOL 2501 curriculum.")
                         }
 
                         Divider()
@@ -3928,9 +3928,9 @@ struct AboutView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("What's New in 1.3.1").font(.headline)
                             Group {
-                                Label("Photo coverage is complete — every structure in the atlas now has a real dissection or histology image, across all organ systems", systemImage: "photo.stack.fill")
-                                Label("Expanded histology detail from the lab handout — the liver lobule, hepatocytes, and the testis (spermatogenesis) slide", systemImage: "checkmark.seal.fill")
-                                Label("Write-Answer & Real Exam now accept the core name — e.g. \"uterus\" counts for the adult maternal uterus", systemImage: "checkmark.circle.fill")
+                                Label("Photo coverage is complete: every structure in the atlas now has a real dissection or histology image, across all organ systems", systemImage: "photo.stack.fill")
+                                Label("Expanded histology detail from the lab handout, including the liver lobule, hepatocytes, and the testis (spermatogenesis) slide", systemImage: "checkmark.seal.fill")
+                                Label("Write-Answer & Real Exam now accept the core name, so \"uterus\" counts for the adult maternal uterus", systemImage: "checkmark.circle.fill")
                                 Label("Real Exam stations no longer repeat an ID; the intact-kidney station now includes the renal artery and vein", systemImage: "clock.badge.checkmark")
                             }
                             .font(.subheadline)
@@ -3941,9 +3941,9 @@ struct AboutView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("What's New in 1.3").font(.headline).foregroundStyle(.secondary)
                             Group {
-                                Label("Many more real dissection and histology photos — over 65% of structures now have images, with more added throughout the semester", systemImage: "photo.stack.fill")
+                                Label("Many more real dissection and histology photos: over 65% of structures now have images, with more added throughout the semester", systemImage: "photo.stack.fill")
                                 Label("Circulatory System organized into browsable sections for faster navigation", systemImage: "square.grid.2x2.fill")
-                                Label("Expanded content from the lab handout — fetal membranes & placenta, femoral vessels, and vessel relationships", systemImage: "checkmark.seal.fill")
+                                Label("Expanded content from the lab handout: fetal membranes & placenta, femoral vessels, and vessel relationships", systemImage: "checkmark.seal.fill")
                                 Label("Write-Answer mode now accepts small wording differences", systemImage: "checkmark.circle.fill")
                             }
                             .font(.subheadline)
@@ -3973,10 +3973,10 @@ struct AboutView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("What's New in 1.1").font(.headline).foregroundStyle(.secondary)
                             Group {
-                                Label("Real Exam mode — simulate the actual BIOL 2501 lab practical with timed stations, gross anatomy IDs, and 37 curated histology scenarios across all 19 class slides", systemImage: "clock.badge.checkmark")
-                                Label("Swipe between structures — browse every anatomy structure left/right in the IDs tab, even across categories, seamlessly", systemImage: "hand.draw.fill")
-                                Label("Diagrams tab — swipeable arterial, venous, and digestive system reference diagrams", systemImage: "photo.stack.fill")
-                                Label("Improved answer matching — slash-separated terms (e.g. \"Light Source/Illuminator\") accepted as either component individually", systemImage: "checkmark.circle.fill")
+                                Label("Real Exam mode: simulate the actual BIOL 2501 lab practical with timed stations, gross anatomy IDs, and 37 curated histology scenarios across all 19 class slides", systemImage: "clock.badge.checkmark")
+                                Label("Swipe between structures: browse every anatomy structure left/right in the IDs tab, even across categories, seamlessly", systemImage: "hand.draw.fill")
+                                Label("Diagrams tab: swipeable arterial, venous, and digestive system reference diagrams", systemImage: "photo.stack.fill")
+                                Label("Improved answer matching: slash-separated terms (e.g. \"Light Source/Illuminator\") accepted as either component individually", systemImage: "checkmark.circle.fill")
                                 Label("Category icons throughout the IDs page", systemImage: "square.grid.2x2.fill")
                                 Label("Performance and navigation improvements", systemImage: "bolt.fill")
                             }
@@ -3988,7 +3988,7 @@ struct AboutView: View {
 
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Contribute").font(.headline)
-                            Text("Help improve the app by contributing dissection and histology photos. Tap the Contribute tab to upload photos for specific structures — submissions are reviewed before being added.")
+                            Text("Help improve the app by contributing dissection and histology photos. Tap the Contribute tab to upload photos for specific structures; submissions are reviewed before being added.")
                         }
 
                         Divider()
