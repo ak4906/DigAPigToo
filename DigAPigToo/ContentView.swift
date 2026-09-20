@@ -397,8 +397,8 @@ struct AtlasView: View {
         case "Urinary System":              return IconInfo(symbol: "drop.fill",                          color: Color(red: 0.9, green: 0.7, blue: 0.1), customAsset: "UrinarySystem")
         case "Male Reproductive":           return IconInfo(symbol: "figure.stand",                       color: .blue, customAsset: "MaleReproductive")
         case "Female Reproductive":         return IconInfo(symbol: "figure.stand.dress",                 color: .purple, customAsset: "FemaleReproductive")
-        case "Fetal Structures":            return IconInfo(symbol: "figure.2.and.child.holdinghands",    color: .teal)
-        case "Adult Maternal Pig":          return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.5, green: 0.25, blue: 0.05))
+        case "Fetal Structures":            return IconInfo(symbol: "figure.2.and.child.holdinghands",    color: .teal, customAsset: "FetalStructures")
+        case "Adult Maternal Pig":          return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.5, green: 0.25, blue: 0.05), customAsset: "AdultMaternalPig")
         case "Cow Eye":                     return IconInfo(symbol: "eye.fill",                           color: .green)
         // Histology — all use a consistent deep purple
         case "Blood Histology":             return IconInfo(symbol: "drop.fill",                          color: .purple)
