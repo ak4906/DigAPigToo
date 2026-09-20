@@ -406,7 +406,7 @@ struct AtlasView: View {
         case "Respiratory Histology":       return IconInfo(symbol: "lungs.fill",                         color: .purple)
         case "Gastrointestinal Histology":  return IconInfo(symbol: "fork.knife",                         color: .purple, customAsset: "GIHistology")
         case "Liver Histology":             return IconInfo(symbol: "leaf.fill",                          color: .purple, customAsset: "LiverHistology")
-        case "Pancreas Histology":          return IconInfo(symbol: "cross.case.fill",                    color: .purple)
+        case "Pancreas Histology":          return IconInfo(symbol: "cross.case.fill",                    color: .purple, customAsset: "PancreasHistology")
         case "Kidney Histology":            return IconInfo(symbol: "drop.circle.fill",                   color: .purple, customAsset: "KidneyHistology")
         case "Reproductive Histology":      return IconInfo(symbol: "figure.2",                           color: .purple)
         // Other
