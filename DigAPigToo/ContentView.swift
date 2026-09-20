@@ -408,7 +408,7 @@ struct AtlasView: View {
         case "Liver Histology":             return IconInfo(symbol: "leaf.fill",                          color: .purple, customAsset: "LiverHistology")
         case "Pancreas Histology":          return IconInfo(symbol: "cross.case.fill",                    color: .purple, customAsset: "PancreasHistology")
         case "Kidney Histology":            return IconInfo(symbol: "drop.circle.fill",                   color: .purple, customAsset: "KidneyHistology")
-        case "Reproductive Histology":      return IconInfo(symbol: "figure.2",                           color: .purple)
+        case "Reproductive Histology":      return IconInfo(symbol: "figure.2",                           color: .purple, customAsset: "ReproductiveHistology")
         // Other
         case "Epithelial Types":            return IconInfo(symbol: "square.grid.2x2.fill",               color: .indigo)
         case "Microscope":                  return IconInfo(symbol: "magnifyingglass.circle.fill",         color: .gray)
