@@ -411,7 +411,7 @@ struct AtlasView: View {
         case "Reproductive Histology":      return IconInfo(symbol: "figure.2",                           color: .purple, customAsset: "ReproductiveHistology")
         // Other
         case "Epithelial Types":            return IconInfo(symbol: "square.grid.2x2.fill",               color: .indigo)
-        case "Microscope":                  return IconInfo(symbol: "magnifyingglass.circle.fill",         color: .gray)
+        case "Microscope":                  return IconInfo(symbol: "magnifyingglass.circle.fill",         color: .gray, customAsset: "Microscope")
         default:                            return IconInfo(symbol: "circle.fill",                        color: .gray)
         }
     }
