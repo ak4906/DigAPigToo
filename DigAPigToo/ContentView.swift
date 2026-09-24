@@ -390,7 +390,7 @@ struct AtlasView: View {
         case "External":                    return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.6, green: 0.35, blue: 0.1), customAsset: "External")
         case "Buccal Cavity":               return IconInfo(symbol: "mouth.fill",                         color: .pink)
         case "Upper Thoracic":              return IconInfo(symbol: "figure.arms.open",                   color: .indigo, customAsset: "UpperThoracic")
-        case "Peritoneal Cavity":           return IconInfo(symbol: "circle.inset.filled",                color: .orange)
+        case "Peritoneal Cavity":           return IconInfo(symbol: "circle.inset.filled",                color: .orange, customAsset: "PeritonealCavity")
         case "Digestive System":            return IconInfo(symbol: "fork.knife",                         color: .orange, customAsset: "DigestiveSystem")
         case "Respiratory System":          return IconInfo(symbol: "lungs.fill",                         color: .cyan)
         case "Circulatory System":          return IconInfo(symbol: "heart.fill",                         color: .red)
