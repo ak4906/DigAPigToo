@@ -410,7 +410,7 @@ struct AtlasView: View {
         case "Kidney Histology":            return IconInfo(symbol: "drop.circle.fill",                   color: .purple, customAsset: "KidneyHistology")
         case "Reproductive Histology":      return IconInfo(symbol: "figure.2",                           color: .purple, customAsset: "ReproductiveHistology")
         // Other
-        case "Epithelial Types":            return IconInfo(symbol: "square.grid.2x2.fill",               color: .indigo)
+        case "Epithelial Types":            return IconInfo(symbol: "square.grid.2x2.fill",               color: .indigo, customAsset: "EpithelialTypes")
         case "Microscope":                  return IconInfo(symbol: "magnifyingglass.circle.fill",         color: .gray, customAsset: "Microscope")
         default:                            return IconInfo(symbol: "circle.fill",                        color: .gray)
         }
