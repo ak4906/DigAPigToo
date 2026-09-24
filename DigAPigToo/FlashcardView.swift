@@ -252,7 +252,7 @@ struct FlashcardSessionView: View {
                 AnatomyImageView(image: img, fillsFrame: false, title: s.name,
                                  hideFullscreenTitle: !revealed)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 320)
+                    .adaptiveImageHeight(phone: 320, padFraction: 0.50)
                     .background(Color.black.opacity(0.03))
             }
 

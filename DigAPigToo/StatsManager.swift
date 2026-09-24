@@ -42,6 +42,17 @@ class StatsManager: ObservableObject {
         save()
     }
 
+    /// Reclassify one prior incorrect attempt as correct — used by the "I got it right"
+    /// override when the answer matcher misgraded a typed answer. Moves one count from
+    /// incorrect to correct so accuracy isn't unfairly dinged.
+    func overrideLastToCorrect(structureName: String) {
+        guard var s = stats[structureName], s.incorrectCount > 0 else { return }
+        s.incorrectCount -= 1
+        s.correctCount += 1
+        stats[structureName] = s
+        save()
+    }
+
     // MARK: - Aggregates
     var totalAnswered: Int { stats.values.reduce(0) { $0 + $1.totalAttempts } }
 

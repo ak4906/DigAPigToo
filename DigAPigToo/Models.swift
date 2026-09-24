@@ -202,7 +202,7 @@ struct AnswerRecord: Identifiable {
     let structureName: String
     let categoryName: String
     let givenAnswer: String
-    let wasCorrect: Bool   // stored so fuzzy-match wins are counted correctly
+    var wasCorrect: Bool   // stored so fuzzy-match wins are counted correctly; mutable for the "I got it right" override
 }
 
 struct QuizSession: Identifiable {

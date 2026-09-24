@@ -7,6 +7,36 @@
 
 import SwiftUI
 import PhotosUI
+import UIKit
+
+/// iPad-only layout scaling. `isPad` is true on iPad and on iPad apps running on Apple
+/// Silicon Macs; iPhone (any orientation) stays exactly as designed. Used to enlarge
+/// images that otherwise look tiny on the bigger screen.
+extension UIDevice {
+    static var isPad: Bool { current.userInterfaceIdiom == .pad }
+}
+
+/// iPhone: a fixed image height (unchanged). iPad: a fraction of the container's height,
+/// so images scale proportionally across iPad sizes (mini → 12.9") and orientation
+/// instead of a fixed pixel value.
+struct AdaptiveImageHeight: ViewModifier {
+    let phone: CGFloat
+    let padFraction: CGFloat
+    func body(content: Content) -> some View {
+        if UIDevice.isPad {
+            content.containerRelativeFrame(.vertical) { height, _ in height * padFraction }
+        } else {
+            content.frame(height: phone)
+        }
+    }
+}
+
+extension View {
+    /// `phone` = fixed height on iPhone; `padFraction` = share of container height on iPad.
+    func adaptiveImageHeight(phone: CGFloat, padFraction: CGFloat) -> some View {
+        modifier(AdaptiveImageHeight(phone: phone, padFraction: padFraction))
+    }
+}
 
 struct ContentView: View {
     @State private var selectedTab: Int = 0
@@ -580,11 +610,11 @@ struct StructureDetailView: View {
                         }
                     }
                     .tabViewStyle(.page)
-                    .frame(height: 300)
+                    .adaptiveImageHeight(phone: 300, padFraction: 0.50)
                 } else {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(.gray.opacity(0.15))
-                        .frame(height: 220)
+                        .adaptiveImageHeight(phone: 220, padFraction: 0.42)
                         .overlay(
                             VStack(spacing: 8) {
                                 Image(systemName: "photo").font(.system(size: 50)).foregroundStyle(.secondary)
@@ -1814,6 +1844,7 @@ struct QuizQuestionView: View {
     // Free-write state
     @State private var typedAnswer = ""
     @State private var freeWriteCorrect = false
+    @State private var canOverride = false   // true only after a genuinely-submitted wrong answer
     @FocusState private var fieldFocused: Bool
 
     var body: some View {
@@ -1861,7 +1892,7 @@ struct QuizQuestionView: View {
                             )
                     }
                 }
-                .frame(height: 180)
+                .adaptiveImageHeight(phone: 180, padFraction: 0.52)
                 .clipped()
 
                 // Answer area — branches on quiz mode
@@ -1916,26 +1947,43 @@ struct QuizQuestionView: View {
                 .onSubmit { submitFreeWrite(session: session) }
 
             if isAnswered {
-                HStack(spacing: 8) {
-                    Image(systemName: freeWriteCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundStyle(freeWriteCorrect ? .green : .red)
-                        .font(.title3)
-                    if freeWriteCorrect {
-                        Text("Correct!").foregroundStyle(.green).fontWeight(.semibold)
-                    } else {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Incorrect").foregroundStyle(.red).fontWeight(.semibold)
-                            if let q = session.currentQuestion {
-                                Text("Answer: \(q.structure.name)")
-                                    .font(.subheadline).foregroundStyle(.primary)
+                VStack(spacing: 10) {
+                    HStack(spacing: 8) {
+                        Image(systemName: freeWriteCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundStyle(freeWriteCorrect ? .green : .red)
+                            .font(.title3)
+                        if freeWriteCorrect {
+                            Text("Correct!").foregroundStyle(.green).fontWeight(.semibold)
+                        } else {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Incorrect").foregroundStyle(.red).fontWeight(.semibold)
+                                if let q = session.currentQuestion {
+                                    Text("Answer: \(q.structure.name)")
+                                        .font(.subheadline).foregroundStyle(.primary)
+                                }
                             }
                         }
+                        Spacer()
                     }
-                    Spacer()
+                    .padding(10)
+                    .background(freeWriteCorrect ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
+                    .cornerRadius(10)
+
+                    // A submitted wrong answer pauses here so the user can overturn a
+                    // too-strict misgrade ("I got it right") or move on at their own pace.
+                    if canOverride {
+                        HStack(spacing: 10) {
+                            Button { markGotItRight() } label: {
+                                Label("I got it right", systemImage: "checkmark.circle")
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.green)
+                            Spacer()
+                            Button("Next →") { advance() }
+                                .buttonStyle(.borderedProminent)
+                        }
+                    }
                 }
-                .padding(10)
-                .background(freeWriteCorrect ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
-                .cornerRadius(10)
             } else {
                 HStack(spacing: 10) {
                     Button("Don't Know") { dontKnow(session: session) }
@@ -1967,6 +2015,7 @@ struct QuizQuestionView: View {
         selectedAnswer = nil
         typedAnswer = ""
         freeWriteCorrect = false
+        canOverride = false
         questionStartDate = Date()
         if timeRemaining > 0 { startTimer() }
         if session.quizMode == .writeAnswer { fieldFocused = true }
@@ -2044,7 +2093,28 @@ struct QuizQuestionView: View {
         ))
         quizSession = s
         statsManager.record(structureName: q.structure.name, correct: correct)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advance() }
+        if correct {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advance() }
+        } else {
+            // Pause on a wrong answer: let the user override a misgrade or tap Next.
+            canOverride = true
+        }
+    }
+
+    // "I got it right" override — the fuzzy matcher marked a typed answer wrong but the
+    // user knows it was right. Flip it to correct: bump the score, fix the answer record,
+    // and move one stat from incorrect to correct.
+    private func markGotItRight() {
+        guard var s = quizSession, isAnswered, !freeWriteCorrect, let q = s.currentQuestion else { return }
+        freeWriteCorrect = true
+        canOverride = false
+        s.score += 1
+        if let last = s.answerHistory.indices.last {
+            s.answerHistory[last].wasCorrect = true
+        }
+        quizSession = s
+        statsManager.overrideLastToCorrect(structureName: q.structure.name)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { advance() }
     }
 
     private func dontKnow(session: QuizSession) {
@@ -2841,7 +2911,8 @@ struct ExamStationView: View {
                                 index: idx,
                                 item: item,
                                 answer: idx < answers.count ? $answers[idx] : .constant(""),
-                                isSubmitted: isSubmitted
+                                isSubmitted: isSubmitted,
+                                onOverride: { overrideItemCorrect(idx) }
                             )
                         }
                     }
@@ -2925,6 +2996,18 @@ struct ExamStationView: View {
         examSession = session
     }
 
+    // "I got it right" override for a station item the matcher marked wrong.
+    private func overrideItemCorrect(_ idx: Int) {
+        guard var session = examSession, isSubmitted,
+              session.currentStationIndex < session.stations.count else { return }
+        var station = session.stations[session.currentStationIndex]
+        guard idx < station.items.count, !station.items[idx].wasCorrect else { return }
+        station.items[idx].wasCorrect = true
+        session.score += 1
+        session.stations[session.currentStationIndex] = station
+        examSession = session
+    }
+
     private func advance() {
         stopTimer()
         if var session = examSession {
@@ -2939,6 +3022,7 @@ struct ExamItemRow: View {
     let item: ExamItem
     @Binding var answer: String
     let isSubmitted: Bool
+    var onOverride: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 12) {
@@ -2961,19 +3045,30 @@ struct ExamItemRow: View {
                     .font(.caption2).foregroundStyle(.tertiary)
 
                 if isSubmitted {
-                    HStack(spacing: 6) {
-                        Image(systemName: item.wasCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .foregroundStyle(item.wasCorrect ? .green : .red)
-                            .font(.subheadline)
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(item.correctAnswerDisplay)
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 6) {
+                            Image(systemName: item.wasCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                .foregroundStyle(item.wasCorrect ? .green : .red)
                                 .font(.subheadline)
-                                .fontWeight(item.wasCorrect ? .regular : .semibold)
-                                .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
-                            if !item.wasCorrect && item.givenAnswer != "(blank)" {
-                                Text("You wrote: \(item.givenAnswer)")
-                                    .font(.caption2).foregroundStyle(.secondary)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(item.correctAnswerDisplay)
+                                    .font(.subheadline)
+                                    .fontWeight(item.wasCorrect ? .regular : .semibold)
+                                    .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
+                                if !item.wasCorrect && item.givenAnswer != "(blank)" {
+                                    Text("You wrote: \(item.givenAnswer)")
+                                        .font(.caption2).foregroundStyle(.secondary)
+                                }
                             }
+                        }
+                        if !item.wasCorrect {
+                            Button { onOverride?() } label: {
+                                Label("I got it right", systemImage: "checkmark.circle")
+                                    .font(.caption2)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.green)
+                            .controlSize(.small)
                         }
                     }
                 } else {
