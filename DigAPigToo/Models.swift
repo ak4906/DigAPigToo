@@ -199,6 +199,7 @@ struct FillBlankQuestion: Identifiable {
 // Records one answered question for the results screen
 struct AnswerRecord: Identifiable {
     let id = UUID()
+    let structureID: UUID          // the quizzed structure, so results can link to its detail
     let structureName: String
     let categoryName: String
     let givenAnswer: String
@@ -301,6 +302,28 @@ private func levenshteinDistance(_ s: String, _ t: String) -> Int {
     return d[s.count][t.count]
 }
 
+/// Best lenient guess at which structure a typed answer was aiming at — used in quiz
+/// results to show "you likely meant …" for a wrong write-in answer. Same normalization
+/// + edit-distance as answer matching (checks names and aliases). Returns nil when
+/// nothing is close enough (e.g. gibberish).
+func likelyStructure(for typed: String, among structures: [AnatomyStructure]) -> AnatomyStructure? {
+    let t = normalizedForMatching(typed)
+    guard t.count >= 2 else { return nil }
+    var best: (structure: AnatomyStructure, distance: Int)?
+    for s in structures {
+        for candidate in [s.name] + s.aliases {
+            let c = normalizedForMatching(candidate)
+            guard !c.isEmpty else { continue }
+            let d = levenshteinDistance(t, c)
+            if best == nil || d < best!.distance { best = (s, d) }
+        }
+    }
+    guard let best else { return nil }
+    let refLen = max(t.count, normalizedForMatching(best.structure.name).count)
+    let threshold = refLen <= 8 ? 2 : refLen <= 16 ? 4 : 6
+    return best.distance <= threshold ? best.structure : nil
+}
+
 // MARK: - Real Exam Models
 
 struct ExamItem: Identifiable {
@@ -363,6 +386,24 @@ struct ExamItem: Identifiable {
             if !tCore.isEmpty && levenshteinDistance(tCore, targetCore) <= coreThreshold { return true }
         }
         return false
+    }
+}
+
+extension ExamItem {
+    /// For a WRONG typed answer, the structure the user most likely meant — same lenient
+    /// fuzzy match used in the answer box — so exam results can show "You likely meant: X"
+    /// next to the correct answer. nil for correct/blank items or text too far off to guess.
+    /// The correct structure is excluded so the guess is always something DIFFERENT to compare.
+    func likelyMeant(among all: [AnatomyStructure]) -> AnatomyStructure? {
+        guard !wasCorrect else { return nil }
+        let a = givenAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard a != "(blank)", !a.isEmpty else { return nil }
+        let pool = all.filter { $0.id != structure?.id }
+        // Exact name match first (cheap; catches "wrote a real structure, just the wrong one").
+        if let exact = pool.first(where: { $0.name.caseInsensitiveCompare(a) == .orderedSame }) {
+            return exact
+        }
+        return likelyStructure(for: a, among: pool)
     }
 }
 

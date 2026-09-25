@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - Setup / category picker
 
@@ -26,25 +27,6 @@ struct FlashcardView: View {
     @State private var selected: Set<UUID> = []
     @State private var session: FlashcardSession?
     @State private var showingStats = false
-
-    // Category groupings mirror the IDs page order.
-    private var groups: [(title: String, categories: [AnatomyCategory])] {
-        let cats = dataManager.categories
-        func find(_ names: [String]) -> [AnatomyCategory] { names.compactMap { n in cats.first { $0.name == n } } }
-        return [
-            ("Terminology", find(["Anatomical Planes", "Directional Terminology"])),
-            ("Gross Anatomy", find([
-                "External", "Buccal Cavity", "Upper Thoracic", "Peritoneal Cavity",
-                "Digestive System", "Respiratory System", "Circulatory System",
-                "Urinary System", "Male Reproductive", "Female Reproductive",
-                "Fetal Structures", "Adult Maternal Pig", "Cow Eye"])),
-            ("Histology", find([
-                "Blood Histology", "Vessel Histology", "Respiratory Histology",
-                "Gastrointestinal Histology", "Liver Histology", "Pancreas Histology",
-                "Kidney Histology", "Reproductive Histology"])),
-            ("Other", find(["Epithelial Types", "Microscope"])),
-        ].filter { !$0.categories.isEmpty }
-    }
 
     /// Structures that are eligible as cards: in a selected category AND have ≥1 image.
     private func eligibleStructures() -> [AnatomyStructure] {
@@ -77,14 +59,6 @@ struct FlashcardView: View {
                     .pickerStyle(.segmented)
                     .frame(width: 200)
                 }
-                if mode == .categories {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Menu {
-                            Button("Select All") { selectAll() }
-                            Button("Clear Selection") { selected.removeAll() }
-                        } label: { Image(systemName: "ellipsis.circle") }
-                    }
-                }
             }
             .fullScreenCover(item: $session) { sess in
                 FlashcardSessionView(session: sess)
@@ -104,55 +78,21 @@ struct FlashcardView: View {
                 Button {
                     startSession()
                 } label: {
-                    HStack {
-                        Image(systemName: "rectangle.stack.fill")
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Start Studying").fontWeight(.semibold)
-                            Text(total == 0
-                                 ? "Select categories below"
-                                 : "\(due) due · \(total) cards selected")
-                                .font(.caption).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary)
-                    }
+                    StartRowLabel(title: "Start Studying",
+                                  subtitle: total == 0 ? "Select categories below" : "\(due) due · \(total) cards selected",
+                                  systemImage: "rectangle.stack.fill")
                 }
                 .disabled(total == 0)
             } footer: {
                 Text("Image-backed structures from your selected categories. The image is the front of each card; tap to reveal the answer. Reviews are scheduled with spaced repetition.")
             }
 
-            ForEach(groups, id: \.title) { group in
-                Section(group.title) {
-                    ForEach(group.categories) { category in
-                        let count = cardCount(category)
-                        Button {
-                            toggle(category.id, enabled: count > 0)
-                        } label: {
-                            HStack {
-                                Image(systemName: selected.contains(category.id) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(selected.contains(category.id) ? .blue : .secondary)
-                                Text(category.name)
-                                    .foregroundStyle(count > 0 ? .primary : .secondary)
-                                Spacer()
-                                Text("\(count)")
-                                    .font(.caption).foregroundStyle(.secondary)
-                            }
-                        }
-                        .disabled(count == 0)
-                    }
-                }
-            }
+            CategoryPickerSections(
+                selected: $selected,
+                count: { cardCount($0) },
+                isEnabled: { cardCount($0) > 0 }
+            )
         }
-    }
-
-    private func toggle(_ id: UUID, enabled: Bool) {
-        guard enabled else { return }
-        if selected.contains(id) { selected.remove(id) } else { selected.insert(id) }
-    }
-
-    private func selectAll() {
-        selected = Set(groups.flatMap { $0.categories }.filter { cardCount($0) > 0 }.map { $0.id })
     }
 
     private func startSession() {
@@ -200,6 +140,19 @@ struct FlashcardSessionView: View {
     @State private var ratedCount = 0            // total ratings (incl. repeats)
     @State private var uniqueCompleted = 0       // cards that left the queue for good
     @State private var ratingTally: [String: Int] = ["again": 0, "hard": 0, "good": 0, "easy": 0]
+    @State private var undoStack: [UndoSnapshot] = []
+
+    /// Snapshot to undo the last rating: restores the queue, tallies, reveal state, and the
+    /// card's prior SM-2 schedule.
+    private struct UndoSnapshot {
+        let queue: [AnatomyStructure]
+        let revealed: Bool
+        let ratingTally: [String: Int]
+        let ratedCount: Int
+        let uniqueCompleted: Int
+        let cardName: String
+        let priorSchedule: FlashcardManager.CardSchedule?
+    }
 
     /// Cards that graduated far enough to leave the session stay re-inserted no sooner
     /// than this many seconds out; anything longer means "not this session".
@@ -222,6 +175,12 @@ struct FlashcardSessionView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if current != nil && !undoStack.isEmpty {
+                        Button { undo() } label: { Image(systemName: "arrow.uturn.backward") }
+                            .accessibilityLabel("Undo last rating")
+                    }
+                }
                 ToolbarItem(placement: .principal) {
                     if current != nil {
                         // Progress = cards fully done / starting count; queue can grow with
@@ -239,7 +198,47 @@ struct FlashcardSessionView: View {
                     queue = session.structures
                 }
             }
+            // Hardware-keyboard shortcuts (Mac / iPad + keyboard): space reveals then
+            // grades Good; 1/2/3/4 = Again/Hard/Good/Easy; U = undo. Hidden buttons with
+            // .keyboardShortcut bridge to UIKeyCommand, which works in "Designed for iPad"
+            // on Mac where .onKeyPress can't reliably hold focus.
+            .background {
+                Group {
+                    Button("") { spaceKey() }.keyboardShortcut(.space, modifiers: [])
+                    Button("") { if revealed, let s = current { rate(s, .again) } }.keyboardShortcut("1", modifiers: [])
+                    Button("") { if revealed, let s = current { rate(s, .hard) } }.keyboardShortcut("2", modifiers: [])
+                    Button("") { if revealed, let s = current { rate(s, .good) } }.keyboardShortcut("3", modifiers: [])
+                    Button("") { if revealed, let s = current { rate(s, .easy) } }.keyboardShortcut("4", modifiers: [])
+                    Button("") { undo() }.keyboardShortcut("u", modifiers: [])
+                }
+                .opacity(0)
+                .accessibilityHidden(true)
+            }
+            // iPhone: shake to undo (kept off iPad/Mac so it can't fight keyboard focus).
+            .background {
+                if UIDevice.current.userInterfaceIdiom == .phone {
+                    ShakeDetector { undo() }.allowsHitTesting(false)
+                }
+            }
         }
+    }
+
+    /// Space bar: reveal the answer, or (if already revealed) grade the card Good.
+    private func spaceKey() {
+        guard let s = current else { return }
+        if revealed { rate(s, .good) }
+        else { withAnimation(.easeInOut(duration: 0.2)) { revealed = true } }
+    }
+
+    /// Revert the last rating: restore the queue/tallies/reveal and the card's SM-2 state.
+    private func undo() {
+        guard let snap = undoStack.popLast() else { return }
+        cards.restore(name: snap.cardName, to: snap.priorSchedule)
+        queue = snap.queue
+        ratingTally = snap.ratingTally
+        ratedCount = snap.ratedCount
+        uniqueCompleted = snap.uniqueCompleted
+        withAnimation(.easeInOut(duration: 0.2)) { revealed = snap.revealed }
     }
 
     // MARK: Card
@@ -391,6 +390,13 @@ struct FlashcardSessionView: View {
 
     /// Apply a rating and update the live queue.
     private func rate(_ s: AnatomyStructure, _ rating: FlashcardManager.Rating) {
+        // Snapshot everything BEFORE mutating, so a single undo fully reverts this rating
+        // (queue order, tallies, counts, reveal state, and the card's SM-2 schedule).
+        undoStack.append(UndoSnapshot(
+            queue: queue, revealed: revealed, ratingTally: ratingTally,
+            ratedCount: ratedCount, uniqueCompleted: uniqueCompleted,
+            cardName: s.name, priorSchedule: cards.schedules[s.name]))
+
         let now = Date()
         let updated = cards.record(name: s.name, rating: rating, now: now)
         ratingTally[key(rating), default: 0] += 1
@@ -891,5 +897,38 @@ struct FlashcardStatsContent: View {
             }
         }
         .frame(height: 6)
+    }
+}
+
+// MARK: - Shake to undo (iPhone)
+
+/// Bridges the device "shake" motion gesture to a SwiftUI callback. Used on iPhone only
+/// (iPad/Mac undo goes through the keyboard "U" or the toolbar button instead).
+struct ShakeDetector: UIViewControllerRepresentable {
+    let onShake: () -> Void
+
+    func makeUIViewController(context: Context) -> ShakeResponderVC {
+        let vc = ShakeResponderVC()
+        vc.onShake = onShake
+        return vc
+    }
+
+    func updateUIViewController(_ vc: ShakeResponderVC, context: Context) {
+        vc.onShake = onShake
+    }
+
+    final class ShakeResponderVC: UIViewController {
+        var onShake: (() -> Void)?
+
+        override var canBecomeFirstResponder: Bool { true }
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            becomeFirstResponder()
+        }
+
+        override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+            if motion == .motionShake { onShake?() }
+        }
     }
 }

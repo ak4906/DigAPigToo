@@ -309,6 +309,13 @@ class FlashcardManager: ObservableObject {
         var learnedFraction: Double { total == 0 ? 0 : Double(learned) / Double(total) }
     }
 
+    /// Undo support: restore a card's schedule to a prior snapshot. Pass nil to return it
+    /// to unseen/new (i.e. it had no schedule before the graded action being undone).
+    func restore(name: String, to snapshot: CardSchedule?) {
+        if let snapshot { schedules[name] = snapshot } else { schedules.removeValue(forKey: name) }
+        save()
+    }
+
     func progress(over names: [String]) -> ProgressBreakdown {
         var b = ProgressBreakdown()
         for name in names {

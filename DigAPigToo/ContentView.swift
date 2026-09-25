@@ -839,6 +839,70 @@ struct StructurePagerView: View {
 
 // Renders a single AnatomyImage — local asset or remote URL, with zoom label
 // Tap anywhere on the image to open a fullscreen pinch-to-zoom viewer.
+/// Remote image with an explicit failed/retry state. SwiftUI's `AsyncImage` does NOT
+/// re-attempt a load when connectivity returns, so a dropped image would otherwise sit
+/// stuck on the spinner forever. This shows "Loading failed — tap to retry" on failure
+/// (or after a load times out), and retrying forces a fresh request. `onLoaded` fires
+/// once the load attempt RESOLVES — success or hard failure — so a caller gating on "all
+/// images loaded" (quiz/exam timer) isn't hung forever by one image that won't load.
+private struct RemoteImageView: View {
+    let urlString: String
+    var fillsFrame: Bool = true
+    var onLoaded: (() -> Void)? = nil
+
+    @State private var attempt = 0
+    @State private var timedOut = false
+
+    var body: some View {
+        AsyncImage(url: URL(string: urlString)) { phase in
+            switch phase {
+            case .success(let img):
+                imageContent(img).onAppear { onLoaded?() }
+            case .failure:
+                retry.onAppear { onLoaded?() }
+            case .empty:
+                Group {
+                    if timedOut {
+                        retry
+                    } else {
+                        Color.gray.opacity(0.1).overlay(ProgressView())
+                    }
+                }
+                .task(id: attempt) {
+                    timedOut = false
+                    try? await Task.sleep(nanoseconds: 12_000_000_000)   // 12s load timeout
+                    if !Task.isCancelled { timedOut = true }
+                }
+            @unknown default:
+                Color.gray.opacity(0.1)
+            }
+        }
+        .id(attempt)   // bumping `attempt` forces AsyncImage to reload
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    @ViewBuilder private func imageContent(_ img: Image) -> some View {
+        if fillsFrame {
+            img.resizable().scaledToFill().frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            img.resizable().scaledToFit().frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private var retry: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "arrow.clockwise").font(.title2)
+            Text("Loading failed").font(.caption).fontWeight(.medium)
+            Text("Tap to retry").font(.caption2).foregroundStyle(.secondary)
+        }
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.gray.opacity(0.12))
+        .contentShape(Rectangle())
+        .onTapGesture { timedOut = false; attempt += 1 }
+    }
+}
+
 struct AnatomyImageView: View {
     let image: AnatomyImage
     var fillsFrame: Bool = true        // false → scaledToFit (show full image, no cropping)
@@ -847,39 +911,31 @@ struct AnatomyImageView: View {
     var hideFullscreenTitle: Bool = false  // true in quiz context — shows "?" instead of answer
     /// Reports the structure the user ended on when the fullscreen viewer closes.
     var onFullscreenNavigate: ((UUID) -> Void)? = nil
+    /// Fired once the image resolves (success OR failure), so callers can e.g. start a
+    /// quiz timer only after the photo is actually on screen.
+    var onLoaded: (() -> Void)? = nil
     @State private var showFullscreen = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             if image.isRemote {
-                AsyncImage(url: URL(string: image.source)) { phase in
-                    switch phase {
-                    case .success(let img):
-                        if fillsFrame {
-                            img.resizable().scaledToFill()
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        } else {
-                            img.resizable().scaledToFit()
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
-                    case .failure:
-                        Color.gray.opacity(0.2).overlay(Image(systemName: "photo").foregroundStyle(.secondary))
-                    default:
-                        Color.gray.opacity(0.1).overlay(ProgressView())
+                RemoteImageView(urlString: image.source, fillsFrame: fillsFrame, onLoaded: onLoaded)
+                    .id(image.source)
+            } else if let uiImg = UIImage(named: image.source) {
+                Group {
+                    if fillsFrame {
+                        Image(uiImage: uiImg).resizable().scaledToFill()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        Image(uiImage: uiImg).resizable().scaledToFit()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let uiImg = UIImage(named: image.source) {
-                if fillsFrame {
-                    Image(uiImage: uiImg).resizable().scaledToFill()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    Image(uiImage: uiImg).resizable().scaledToFit()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
+                .onAppear { onLoaded?() }
             } else {
                 Color.gray.opacity(0.15)
                     .overlay(Image(systemName: "photo").foregroundStyle(.secondary))
+                    .onAppear { onLoaded?() }
             }
 
             VStack(alignment: .trailing, spacing: 2) {
@@ -1586,6 +1642,11 @@ struct QuizCustomizationView: View {
     @State private var stationTimeSelection = 90   // -1 = custom
     @State private var stationCustomTime = 90
 
+    // Drives programmatic navigation from the Start button (a Button, not a
+    // NavigationLink, so it matches the Flashcards "Start Studying" row exactly:
+    // one chevron, and the label tints blue when enabled / dims when disabled).
+    @State private var startRunner = false
+
     var effectiveQuizTime: Int   { timeSelection == -1 ? customTime : timeSelection }
     var effectiveStationTime: Int { stationTimeSelection == -1 ? stationCustomTime : stationTimeSelection }
 
@@ -1594,6 +1655,24 @@ struct QuizCustomizationView: View {
     var body: some View {
         NavigationStack {
             Form {
+                // ── Start (kept at the top so it's easy to find) ───────────
+                Section {
+                    Button {
+                        startRunner = true
+                    } label: {
+                        if quizMode == .realExam {
+                            StartRowLabel(title: "Start Exam",
+                                          subtitle: "\(numStations) stations · \(effectiveStationTime)s each")
+                        } else {
+                            StartRowLabel(title: "Start Quiz",
+                                          subtitle: selectedCategoryIDs.isEmpty
+                                            ? "Select categories below"
+                                            : "\(numQuestions) questions · \(selectedCategoryIDs.count) categories")
+                        }
+                    }
+                    .disabled(quizMode != .realExam && selectedCategoryIDs.isEmpty)
+                }
+
                 // ── Quiz Mode ──────────────────────────────────────────────
                 Section {
                     Picker("Mode", selection: $quizMode) {
@@ -1651,12 +1730,6 @@ struct QuizCustomizationView: View {
                             .font(.caption).foregroundStyle(.secondary)
                     } header: { Text("Exam Structure") }
 
-                    Section {
-                        NavigationLink("Start Exam") {
-                            ExamHostView(numStations: numStations, timePerStation: effectiveStationTime)
-                        }
-                    }
-
                 // ── Regular quiz settings ──────────────────────────────────
                 } else {
                     Section {
@@ -1684,79 +1757,23 @@ struct QuizCustomizationView: View {
                         }
                     } header: { Text("Time Per Question") }
 
-                    Section {
-                        // Preset toggles: computed inline at press-time to avoid
-                        // SwiftUI closure-capture issues with computed properties.
-                        // Each preset REPLACES the selection (not additive), and
-                        // pressing the same preset a second time clears it.
-                        HStack(spacing: 8) {
-                            // All
-                            let allSet = allIDs
-                            QuizPresetButton("All") {
-                                selectedCategoryIDs = (selectedCategoryIDs == allSet) ? [] : allSet
-                            }
-                            // Gross anatomy (excludes histology, microscope, epithelial types,
-                            // and the pure reference/terminology categories)
-                            let grossSet = Set(dataManager.categories.filter { cat in
-                                !cat.name.contains("Histology")
-                                    && cat.name != "Microscope"
-                                    && cat.name != "Epithelial Types"
-                                    && cat.name != "Anatomical Planes"
-                                    && cat.name != "Directional Terminology"
-                            }.map { $0.id })
-                            QuizPresetButton("Gross") {
-                                selectedCategoryIDs = (selectedCategoryIDs == grossSet) ? [] : grossSet
-                            }
-                            // Histology: slide-based categories + Microscope only
-                            // (Epithelial Types excluded — they're embedded in histo stations,
-                            //  not a standalone quiz category)
-                            let histoSet = Set(dataManager.categories.filter { cat in
-                                cat.name.contains("Histology")
-                                    || cat.name == "Microscope"
-                            }.map { $0.id })
-                            QuizPresetButton("Histology") {
-                                selectedCategoryIDs = (selectedCategoryIDs == histoSet) ? [] : histoSet
-                            }
-                        }
-                        .buttonStyle(.borderless)
-                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-
-                        ForEach(dataManager.categories) { cat in
-                            Button {
-                                if selectedCategoryIDs.contains(cat.id) {
-                                    selectedCategoryIDs.remove(cat.id)
-                                } else {
-                                    selectedCategoryIDs.insert(cat.id)
-                                }
-                            } label: {
-                                HStack {
-                                    Text(cat.name).foregroundStyle(.primary)
-                                    Spacer()
-                                    if selectedCategoryIDs.contains(cat.id) {
-                                        Image(systemName: "checkmark").foregroundStyle(.blue)
-                                    }
-                                }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    } header: { Text("Categories") }
-
-                    Section {
-                        NavigationLink("Start Quiz") {
-                            QuizView(
-                                numQuestions: numQuestions,
-                                timePerQuestion: effectiveQuizTime,
-                                selectedCategoryIDs: selectedCategoryIDs,
-                                quizMode: quizMode
-                            )
-                        }
-                        .disabled(selectedCategoryIDs.isEmpty)
-                    }
+                    CategoryPickerSections(
+                        selected: $selectedCategoryIDs,
+                        count: { dataManager.structures(in: $0).count }
+                    )
                 }
             }
             .navigationTitle("Quiz")
             .onAppear {
                 if selectedCategoryIDs.isEmpty { selectedCategoryIDs = allIDs }
+            }
+            .navigationDestination(isPresented: $startRunner) {
+                if quizMode == .realExam {
+                    ExamHostView(numStations: numStations, timePerStation: effectiveStationTime)
+                } else {
+                    QuizView(numQuestions: numQuestions, timePerQuestion: effectiveQuizTime,
+                             selectedCategoryIDs: selectedCategoryIDs, quizMode: quizMode)
+                }
             }
         }
     }
@@ -1836,6 +1853,8 @@ struct QuizQuestionView: View {
     @State private var timer: Timer?
     @State private var timeRemaining: TimeInterval = 0
     @State private var questionStartDate: Date = Date()
+    @State private var timerBegun = false          // countdown waits until the image is on screen
+    @State private var showEndConfirm = false       // "Done — end quiz early?" dialog
 
     // Multiple-choice state
     @State private var shuffledChoices: [String] = []
@@ -1879,7 +1898,9 @@ struct QuizQuestionView: View {
                     if let q = session.currentQuestion, !q.structure.images.isEmpty {
                         let img = q.structure.images[min(q.imageIndex, q.structure.images.count - 1)]
                         AnatomyImageView(image: img, fillsFrame: false, title: q.structure.name,
-                                         hideFullscreenTitle: true)
+                                         hideFullscreenTitle: true,
+                                         onLoaded: { onImageLoaded() })
+                            .id(img.id)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     } else {
                         RoundedRectangle(cornerRadius: 12)
@@ -1911,9 +1932,37 @@ struct QuizQuestionView: View {
                 else { restartTimerFromDate() }
             }
             .onDisappear { stopTimer() }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { pauseTimer(); showEndConfirm = true }
+                }
+            }
+            .confirmationDialog("End quiz early?", isPresented: $showEndConfirm, titleVisibility: .visible) {
+                Button("See Results") { finishEarly() }
+                Button("Cancel", role: .cancel) { resumeTimer() }
+            } message: {
+                Text("You'll see results for the questions you've answered so far. Your progress is already saved to Stats.")
+            }
         } else {
             ProgressView()
         }
+    }
+
+    /// End the quiz now and jump to results for whatever's been answered so far.
+    private func finishEarly() {
+        stopTimer()
+        guard var s = quizSession else { return }
+        s.currentQuestionIndex = s.questions.count
+        quizSession = s
+    }
+
+    /// Pause/resume the countdown around the Done dialog (wall-clock based, so resume
+    /// rebases the start date off the time that was left).
+    private func pauseTimer() { stopTimer() }
+    private func resumeTimer() {
+        guard timerBegun, let session = quizSession, session.timePerQuestion > 0, !isAnswered else { return }
+        questionStartDate = Date().addingTimeInterval(-(session.timePerQuestion - timeRemaining))
+        startTimer()
     }
 
     // MARK: Multiple-choice answer buttons
@@ -2016,13 +2065,31 @@ struct QuizQuestionView: View {
         typedAnswer = ""
         freeWriteCorrect = false
         canOverride = false
-        questionStartDate = Date()
-        if timeRemaining > 0 { startTimer() }
+        timerBegun = false
         if session.quizMode == .writeAnswer { fieldFocused = true }
+        // Fair timing: the countdown starts only once the image is actually on screen
+        // (onImageLoaded → beginTimer). A no-image question has nothing to wait for, so it
+        // starts immediately. If an image fails to load the user gets a tap-to-retry and
+        // the timer simply waits until it succeeds.
+        if q.structure.images.isEmpty {
+            beginTimer()
+        }
     }
 
+    /// Starts the countdown once — triggered by the image loading, the safety fallback,
+    /// or a no-image question. Guarded so it only ever fires once per question.
+    private func beginTimer() {
+        guard !timerBegun, !isAnswered, let session = quizSession else { return }
+        timerBegun = true
+        guard session.timePerQuestion > 0 else { return }   // untimed mode: no countdown
+        questionStartDate = Date()
+        startTimer()
+    }
+
+    private func onImageLoaded() { beginTimer() }
+
     private func restartTimerFromDate() {
-        guard let session = quizSession, session.timePerQuestion > 0, !isAnswered else { return }
+        guard timerBegun, let session = quizSession, session.timePerQuestion > 0, !isAnswered else { return }
         let elapsed = Date().timeIntervalSince(questionStartDate)
         timeRemaining = max(0, session.timePerQuestion - elapsed)
         if timeRemaining <= 0 { advance(); return }
@@ -2057,6 +2124,7 @@ struct QuizQuestionView: View {
         let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
         if correct { session.score += 1 }
         session.answerHistory.append(AnswerRecord(
+            structureID: q.structure.id,
             structureName: q.structure.name,
             categoryName: catName,
             givenAnswer: choice,
@@ -2086,6 +2154,7 @@ struct QuizQuestionView: View {
         let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
         if correct { s.score += 1 }
         s.answerHistory.append(AnswerRecord(
+            structureID: q.structure.id,
             structureName: q.structure.name,
             categoryName: catName,
             givenAnswer: typedAnswer.isEmpty ? "(no answer)" : typedAnswer,
@@ -2125,6 +2194,7 @@ struct QuizQuestionView: View {
         freeWriteCorrect = false
         let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
         s.answerHistory.append(AnswerRecord(
+            structureID: q.structure.id,
             structureName: q.structure.name,
             categoryName: catName,
             givenAnswer: "(skipped)",
@@ -2147,8 +2217,11 @@ struct QuizQuestionView: View {
 struct QuizResultsView: View {
     let quizSession: QuizSession
     let dismiss: DismissAction
+    @StateObject private var dataManager = AnatomyDataManager.shared
 
-    var pct: Int { Int(Double(quizSession.score) / Double(quizSession.questions.count) * 100) }
+    var attempted: Int { quizSession.answerHistory.count }
+    var total: Int { quizSession.questions.count }
+    var pct: Int { attempted == 0 ? 0 : Int(Double(quizSession.score) / Double(attempted) * 100) }
     var grade: String {
         switch pct {
         case 90...100: return "Excellent! 🎉"
@@ -2158,8 +2231,96 @@ struct QuizResultsView: View {
         }
     }
 
-    // Missed questions
-    var missed: [AnswerRecord] { quizSession.answerHistory.filter { !$0.wasCorrect } }
+    // Small cached thumbnail of a structure's first image (results recall aid).
+    @ViewBuilder private func thumb(_ img: AnatomyImage?) -> some View {
+        Group {
+            if let img {
+                if img.isRemote {
+                    AsyncImage(url: URL(string: img.source)) { phase in
+                        if let i = phase.image { i.resizable().scaledToFill() }
+                        else { Color.gray.opacity(0.12).overlay(ProgressView().scaleEffect(0.6)) }
+                    }
+                } else if let ui = UIImage(named: img.source) {
+                    Image(uiImage: ui).resizable().scaledToFill()
+                } else {
+                    Color.gray.opacity(0.12).overlay(Image(systemName: "photo").font(.caption).foregroundStyle(.secondary))
+                }
+            } else {
+                Color.gray.opacity(0.12).overlay(Image(systemName: "photo").font(.caption).foregroundStyle(.secondary))
+            }
+        }
+        .frame(width: 56, height: 56)
+        .clipped()
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    // A tappable row (thumbnail + labeled name) that opens a structure's detail page.
+    @ViewBuilder private func answerLink(_ s: AnatomyStructure, label: String, symbol: String, tint: Color) -> some View {
+        NavigationLink { StructureDetailView(structure: s) } label: {
+            HStack(spacing: 10) {
+                thumb(s.images.first)
+                Image(systemName: symbol).foregroundStyle(tint).font(.subheadline)
+                Text(label).font(.subheadline).foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer(minLength: 4)
+                Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.tertiary)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // One review entry: the correct answer (with image), plus — when wrong — what the user
+    // chose (with image, tappable when it's a real structure) for a side-by-side compare.
+    @ViewBuilder private func reviewEntry(_ record: AnswerRecord) -> some View {
+        let correct = dataManager.structures.first { $0.id == record.structureID }
+        let chosen = chosenStructure(for: record)
+        VStack(alignment: .leading, spacing: 6) {
+            if let correct {
+                answerLink(correct,
+                           label: record.wasCorrect ? correct.name : "Correct: \(correct.name)",
+                           symbol: "checkmark.circle.fill", tint: .green)
+            } else {
+                Text(record.structureName).font(.subheadline).fontWeight(.semibold)
+            }
+            if !record.wasCorrect {
+                if let chosen {
+                    let verb = quizSession.quizMode == .writeAnswer ? "You likely meant" : "You chose"
+                    answerLink(chosen, label: "\(verb): \(chosen.name)",
+                               symbol: "xmark.circle.fill", tint: .red)
+                } else {
+                    HStack(spacing: 8) {
+                        Image(systemName: "xmark.circle.fill").foregroundStyle(.red).font(.subheadline)
+                        Text(unclearAnswer(record.givenAnswer)).font(.subheadline).foregroundStyle(.secondary)
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .padding(8)
+        .background(record.wasCorrect ? Color.green.opacity(0.05) : Color.red.opacity(0.06))
+        .cornerRadius(10)
+    }
+
+    /// Which structure a wrong answer points to: an exact name match (multiple choice), or
+    /// for a typed answer the closest lenient match (same fuzzy logic as the answer box).
+    /// nil when it's a skip/blank or the text is too far off to guess.
+    private func chosenStructure(for record: AnswerRecord) -> AnatomyStructure? {
+        guard !record.wasCorrect else { return nil }
+        let a = record.givenAnswer
+        if a == "(skipped)" || a == "(no answer)" || a.isEmpty { return nil }
+        if let exact = dataManager.structures.first(where: { $0.name.caseInsensitiveCompare(a) == .orderedSame }) {
+            return exact
+        }
+        return likelyStructure(for: a, among: dataManager.structures.filter { $0.id != record.structureID })
+    }
+
+    private func unclearAnswer(_ a: String) -> String {
+        switch a {
+        case "(skipped)": return "Skipped"
+        case "(no answer)", "": return "No answer"
+        default: return "Unclear which structure you meant (you wrote: \(a))"
+        }
+    }
 
     // Category breakdown from this quiz
     var categoryBreakdown: [(category: String, correct: Int, total: Int)] {
@@ -2178,10 +2339,14 @@ struct QuizResultsView: View {
                 // Score card
                 VStack(spacing: 6) {
                     Text(grade).font(.title2).fontWeight(.semibold)
-                    Text("\(quizSession.score) / \(quizSession.questions.count)")
+                    Text("\(quizSession.score) / \(attempted)")
                         .font(.system(size: 52, weight: .bold, design: .rounded))
                         .foregroundStyle(pct >= 75 ? .green : pct >= 60 ? .orange : .red)
                     Text("\(pct)%").font(.title3).foregroundStyle(.secondary)
+                    if attempted < total {
+                        Text("Answered \(attempted) of \(total)")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
@@ -2217,23 +2382,17 @@ struct QuizResultsView: View {
                     .cornerRadius(12)
                 }
 
-                // Missed questions
-                if !missed.isEmpty {
+                // Review — every answered question, tap to open its info card
+                if !quizSession.answerHistory.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("Missed (\(missed.count))", systemImage: "xmark.circle.fill")
-                            .font(.headline).foregroundStyle(.red)
-                        ForEach(missed) { record in
-                            HStack(alignment: .top, spacing: 8) {
-                                Image(systemName: "xmark.circle.fill").foregroundStyle(.red).font(.caption)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(record.structureName).font(.subheadline).fontWeight(.semibold)
-                                    Text("You answered: \(record.givenAnswer)").font(.caption).foregroundStyle(.secondary)
-                                }
-                            }
+                        Label("Review — tap any to learn more", systemImage: "hand.tap.fill")
+                            .font(.headline).foregroundStyle(.blue)
+                        ForEach(quizSession.answerHistory) { record in
+                            reviewEntry(record)
                         }
                     }
                     .padding()
-                    .background(.red.opacity(0.06))
+                    .background(.gray.opacity(0.06))
                     .cornerRadius(12)
                 }
 
@@ -2875,6 +3034,16 @@ struct ExamStationView: View {
     @State private var timer: Timer?
     @State private var timeRemaining: TimeInterval = 90
     @State private var stationStartDate = Date()
+    // Fairness: the station clock doesn't start until all its ID photos are on screen
+    // (like the Quiz), so slow Wi-Fi can't burn time before you can see anything.
+    @State private var timerStarted = false
+    @State private var loadedImageIDs: Set<UUID> = []
+    // Which of the 5 answer fields has the keyboard, so Return can hop to the next field
+    // (and submit the station from the last one) — matching the write-answer quiz.
+    @FocusState private var focusedField: Int?
+    // The station index we've already set up. Re-appearing (e.g. returning from an ID card
+    // the user opened in the submitted review) must NOT re-init the station.
+    @State private var preparedStationIndex: Int?
 
     var body: some View {
         if let session = examSession, let station = session.currentStation {
@@ -2900,7 +3069,9 @@ struct ExamStationView: View {
                             }
                         }
                         .frame(height: 8)
-                        Text(isSubmitted ? "Submitted" : "\(Int(ceil(timeRemaining)))s remaining")
+                        Text(isSubmitted ? "Submitted"
+                             : timerStarted ? "\(Int(ceil(timeRemaining)))s remaining"
+                             : "Loading images…")
                             .font(.caption.monospacedDigit()).foregroundStyle(examTimerColor)
                     }
 
@@ -2912,7 +3083,11 @@ struct ExamStationView: View {
                                 item: item,
                                 answer: idx < answers.count ? $answers[idx] : .constant(""),
                                 isSubmitted: isSubmitted,
-                                onOverride: { overrideItemCorrect(idx) }
+                                onOverride: { overrideItemCorrect(idx) },
+                                onImageLoaded: { imageLoaded(item.id) },
+                                focus: $focusedField,
+                                isLastField: idx == station.items.count - 1,
+                                onSubmitField: { handleFieldSubmit(idx, count: station.items.count) }
                             )
                         }
                     }
@@ -2934,9 +3109,13 @@ struct ExamStationView: View {
                 }
                 .padding()
             }
-            .onAppear { resetForStation(station) }
-            .onChange(of: session.currentStationIndex) {
-                if let s = examSession, let st = s.currentStation { resetForStation(st) }
+            .onAppear { prepareStationIfNeeded() }
+            .onChange(of: session.currentStationIndex) { prepareStationIfNeeded() }
+            // Safety net: if a photo never resolves, don't hold the clock forever — start it
+            // after 15s regardless. Re-arms per station (keyed on the index).
+            .task(id: session.currentStationIndex) {
+                try? await Task.sleep(nanoseconds: 15_000_000_000)
+                if !Task.isCancelled { beginTimerIfNeeded() }
             }
             .onDisappear { stopTimer() }
         } else {
@@ -2952,13 +3131,53 @@ struct ExamStationView: View {
         return .red
     }
 
+    /// Set up a station only the first time we land on it. Guards against `.onAppear` firing
+    /// again when the view re-appears after a pushed detail (the ID card) is popped — which
+    /// would otherwise clear the submitted answers and restart the timer.
+    private func prepareStationIfNeeded() {
+        guard let session = examSession, let station = session.currentStation else { return }
+        guard preparedStationIndex != session.currentStationIndex else { return }
+        preparedStationIndex = session.currentStationIndex
+        resetForStation(station)
+    }
+
     private func resetForStation(_ station: ExamStation) {
         stopTimer()
         answers = Array(repeating: "", count: station.items.count)
         isSubmitted = false
         timeRemaining = station.timeLimit
+        timerStarted = false
+        loadedImageIDs = []
+        focusedField = nil          // don't carry focus (and the keyboard) into the new station
         stationStartDate = Date()
-        if timeRemaining > 0 { startTimer() }
+        // No photos to wait on (all concept / free-text items)? Start the clock immediately.
+        if station.timeLimit > 0 && expectedImageLoads(station) == 0 { beginTimerIfNeeded() }
+    }
+
+    /// How many of this station's items show a photo thumbnail (and will report onLoaded).
+    private func expectedImageLoads(_ station: ExamStation) -> Int {
+        station.items.filter { $0.structure?.images.isEmpty == false }.count
+    }
+
+    /// One station thumbnail finished loading (or failed). Start the clock once all have.
+    private func imageLoaded(_ id: UUID) {
+        guard !timerStarted else { return }
+        loadedImageIDs.insert(id)
+        if let station = examSession?.currentStation,
+           loadedImageIDs.count >= expectedImageLoads(station) {
+            beginTimerIfNeeded()
+        }
+    }
+
+    /// Start the station countdown from NOW, exactly once (guarded so the all-loaded path
+    /// and the 15s safety net can't both start it).
+    private func beginTimerIfNeeded() {
+        guard !timerStarted, !isSubmitted,
+              let station = examSession?.currentStation, station.timeLimit > 0 else { return }
+        timerStarted = true
+        timeRemaining = station.timeLimit
+        stationStartDate = Date()
+        startTimer()
     }
 
     private func startTimer() {
@@ -3015,6 +3234,16 @@ struct ExamStationView: View {
             examSession = session
         }
     }
+
+    /// Return key in an answer field: hop to the next ID, or submit the station from the last.
+    private func handleFieldSubmit(_ idx: Int, count: Int) {
+        if idx < count - 1 {
+            focusedField = idx + 1
+        } else {
+            focusedField = nil
+            submitStation()
+        }
+    }
 }
 
 struct ExamItemRow: View {
@@ -3023,12 +3252,18 @@ struct ExamItemRow: View {
     @Binding var answer: String
     let isSubmitted: Bool
     var onOverride: (() -> Void)? = nil
+    /// Bubbles up the thumbnail's load-resolved signal so the station can gate its timer.
+    var onImageLoaded: (() -> Void)? = nil
+    /// Keyboard focus (owned by the station) so Return can move between fields.
+    var focus: FocusState<Int?>.Binding
+    var isLastField: Bool = false
+    var onSubmitField: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 12) {
             // Thumbnail: image if available, concept icon otherwise.
             if let s = item.structure, !s.images.isEmpty {
-                ExamItemThumbnail(images: s.images)
+                ExamItemThumbnail(images: s.images, onLoaded: onImageLoaded)
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -3058,6 +3293,18 @@ struct ExamItemRow: View {
                                 if !item.wasCorrect && item.givenAnswer != "(blank)" {
                                     Text("You wrote: \(item.givenAnswer)")
                                         .font(.caption2).foregroundStyle(.secondary)
+                                    if let guess = item.likelyMeant(among: AnatomyDataManager.shared.structures) {
+                                        // Tap to open the ID card for the structure they probably meant.
+                                        NavigationLink { StructureDetailView(structure: guess) } label: {
+                                            HStack(spacing: 3) {
+                                                Text("You likely meant: \(guess.name)")
+                                                    .font(.caption2).foregroundStyle(.blue)
+                                                Image(systemName: "chevron.right")
+                                                    .font(.system(size: 8)).foregroundStyle(.blue.opacity(0.6))
+                                            }
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
                                 }
                             }
                         }
@@ -3077,6 +3324,9 @@ struct ExamItemRow: View {
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .font(.subheadline)
+                        .focused(focus, equals: index)
+                        .submitLabel(isLastField ? .done : .next)
+                        .onSubmit { onSubmitField?() }
                 }
             }
         }
@@ -3088,6 +3338,9 @@ struct ExamItemRow: View {
 
 struct ExamItemThumbnail: View {
     let images: [AnatomyImage]
+    /// Fires when the (first) image resolves — success OR failure — so the station can
+    /// start its timer only once all 5 thumbnails have loaded.
+    var onLoaded: (() -> Void)? = nil
     // Use item-based fullScreenCover so the image is guaranteed non-nil when the
     // sheet opens — avoids the isPresented + separate state timing race.
     @State private var fullscreenImage: AnatomyImage?
@@ -3096,19 +3349,18 @@ struct ExamItemThumbnail: View {
         Group {
             if let img = images.first {
                 if img.isRemote {
-                    AsyncImage(url: URL(string: img.source)) { phase in
-                        if let image = phase.image {
-                            image.resizable().scaledToFill()
-                        } else {
-                            Color.gray.opacity(0.12)
-                        }
-                    }
+                    // RemoteImageView adds retry-on-failure + reload-on-reconnect (a dropped
+                    // exam thumbnail otherwise sat stuck), and reports load completion.
+                    RemoteImageView(urlString: img.source, fillsFrame: true, onLoaded: onLoaded)
+                        .id(img.source)
                 } else {
                     Image(img.source).resizable().scaledToFill()
+                        .onAppear { onLoaded?() }
                 }
             } else {
                 Color.gray.opacity(0.12)
                     .overlay(Image(systemName: "camera").foregroundStyle(.secondary.opacity(0.5)))
+                    .onAppear { onLoaded?() }
             }
         }
         .frame(width: 65, height: 65)
@@ -3180,6 +3432,7 @@ struct ExamImageFullscreen: View {
 struct ExamResultsView: View {
     let session: ExamSession
     let dismiss: DismissAction
+    @StateObject private var dataManager = AnatomyDataManager.shared
 
     var total: Int { session.totalItems }
     var pct: Int { total > 0 ? Int(Double(session.score) / Double(total) * 100) : 0 }
@@ -3227,8 +3480,20 @@ struct ExamResultsView: View {
                                             .font(.caption)
                                         VStack(alignment: .leading, spacing: 1) {
                                             Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
-                                            if !item.wasCorrect {
+                                            if !item.wasCorrect && item.givenAnswer != "(blank)" {
                                                 Text("You wrote: \(item.givenAnswer)").font(.caption2).foregroundStyle(.secondary)
+                                                if let guess = item.likelyMeant(among: dataManager.structures) {
+                                                    // Tap to open the ID card for the structure they probably meant.
+                                                    NavigationLink { StructureDetailView(structure: guess) } label: {
+                                                        HStack(spacing: 3) {
+                                                            Text("You likely meant: \(guess.name)")
+                                                                .font(.caption2).foregroundStyle(.blue)
+                                                            Image(systemName: "chevron.right")
+                                                                .font(.system(size: 8)).foregroundStyle(.blue.opacity(0.6))
+                                                        }
+                                                    }
+                                                    .buttonStyle(.plain)
+                                                }
                                             }
                                         }
                                     }
