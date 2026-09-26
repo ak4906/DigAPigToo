@@ -402,23 +402,30 @@ struct ExamItem: Identifiable {
 }
 
 extension ExamItem {
-    /// For a WRONG typed answer, the structure the user most likely meant — same lenient
-    /// fuzzy match used in the answer box — so exam results can show "You likely meant: X"
-    /// next to the correct answer. nil for correct/blank items or text too far off to guess.
-    /// The correct structure is excluded so the guess is always something DIFFERENT to compare.
+    /// For a WRONG answer that EXACTLY matches (case-insensitive) a real structure's name or
+    /// alias — a different structure than the correct one. When present it's 100% clear what
+    /// the user meant, so results make "You wrote …" itself the tappable link (no guessing).
+    func exactMatch(among all: [AnatomyStructure]) -> AnatomyStructure? {
+        guard !wasCorrect else { return nil }
+        let a = givenAnswer.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard a != "(blank)", !a.isEmpty else { return nil }
+        let hit = all.first { s in ([s.name] + s.aliases).contains { $0.lowercased() == a } }
+        guard let hit, hit.id != structure?.id else { return nil }
+        return hit
+    }
+
+    /// For a WRONG typed answer with NO exact match, the structure it most likely meant —
+    /// same lenient fuzzy match used in the answer box — so results can show "You likely
+    /// meant: X". Searches INCLUDING the correct structure: if the typed text is closest to
+    /// the correct answer itself (a laterality/modifier near-miss like "left gastric artery"
+    /// for "Gastric Artery"), returns nil rather than naming an unrelated structure — a
+    /// different structure is surfaced only when it's genuinely a closer match. nil for
+    /// correct/blank items or text too far off to guess.
     func likelyMeant(among all: [AnatomyStructure]) -> AnatomyStructure? {
         guard !wasCorrect else { return nil }
         let a = givenAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         guard a != "(blank)", !a.isEmpty else { return nil }
-        // Search INCLUDING the correct structure. If the typed text is closest to the correct
-        // answer itself — a laterality/modifier near-miss like "left gastric artery" for
-        // "Gastric Artery" — return nil instead of reaching for an unrelated structure (the
-        // correct answer is already shown, so a bogus "you likely meant" would just mislead).
-        // A different structure is only surfaced when it's genuinely a closer match than the
-        // correct one, which filters out implausible guesses.
-        let guess = all.first(where: { $0.name.caseInsensitiveCompare(a) == .orderedSame })
-            ?? likelyStructure(for: a, among: all)
-        guard let g = guess, g.id != structure?.id else { return nil }
+        guard let g = likelyStructure(for: a, among: all), g.id != structure?.id else { return nil }
         return g
     }
 }
@@ -434,6 +441,9 @@ struct ExamSession: Identifiable {
     let id = UUID()
     var stations: [ExamStation]
     let timePerStation: TimeInterval
+    /// true → grade/reveal only after ALL stations (realistic, like the real practical);
+    /// false → show per-station feedback right after each submit (study mode).
+    var gradeAtEnd: Bool = true
     var currentStationIndex: Int = 0
     var score: Int = 0
 

@@ -423,7 +423,7 @@ struct AtlasView: View {
         case "External":                    return IconInfo(symbol: "pawprint.fill",                      color: Color(red: 0.6, green: 0.35, blue: 0.1), customAsset: "External")
         case "Buccal Cavity":               return IconInfo(symbol: "mouth.fill",                         color: .pink)
         case "Upper Thoracic":              return IconInfo(symbol: "figure.arms.open",                   color: .indigo, customAsset: "UpperThoracic")
-        case "Peritoneal Cavity":           return IconInfo(symbol: "circle.inset.filled",                color: .orange, customAsset: "PeritonealCavity")
+        case "Peritoneal Cavity":           return IconInfo(symbol: "circle.inset.filled",                color: .indigo, customAsset: "PeritonealCavity")
         case "Digestive System":            return IconInfo(symbol: "fork.knife",                         color: .orange, customAsset: "DigestiveSystem")
         case "Respiratory System":          return IconInfo(symbol: "lungs.fill",                         color: .cyan)
         case "Circulatory System":          return IconInfo(symbol: "heart.fill",                         color: .red)
@@ -1647,6 +1647,7 @@ struct QuizCustomizationView: View {
     @State private var numStations = 30
     @State private var stationTimeSelection = 90   // -1 = custom
     @State private var stationCustomTime = 90
+    @State private var examGradeAtEnd = true       // true = reveal only after all stations (realistic)
 
     // Drives programmatic navigation from the Start button (a Button, not a
     // NavigationLink, so it matches the Flashcards "Start Studying" row exactly:
@@ -1730,6 +1731,18 @@ struct QuizCustomizationView: View {
                     } header: { Text("Time Per Station") }
 
                     Section {
+                        Picker("Feedback", selection: $examGradeAtEnd) {
+                            Text("At the end").tag(true)
+                            Text("After each station").tag(false)
+                        }
+                        .pickerStyle(.segmented)
+                        Text(examGradeAtEnd
+                             ? "Realistic: no answers are shown until you finish every station, like the actual practical."
+                             : "Study mode: each station is graded right after you submit it.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    } header: { Text("Feedback") }
+
+                    Section {
                         let gross = Int((Double(numStations) * 22.0 / 30.0).rounded())
                         let histo = numStations - gross
                         Label("~\(gross) gross anatomy stations, ~\(histo) histology/microscope stations — structures grouped by organ system within each station", systemImage: "chart.pie")
@@ -1777,7 +1790,7 @@ struct QuizCustomizationView: View {
             .onChange(of: startRunner) { isAtRoot = !startRunner }
             .navigationDestination(isPresented: $startRunner) {
                 if quizMode == .realExam {
-                    ExamHostView(numStations: numStations, timePerStation: effectiveStationTime)
+                    ExamHostView(numStations: numStations, timePerStation: effectiveStationTime, gradeAtEnd: examGradeAtEnd)
                 } else {
                     QuizView(numQuestions: numQuestions, timePerQuestion: effectiveQuizTime,
                              selectedCategoryIDs: selectedCategoryIDs, quizMode: quizMode)
@@ -2301,7 +2314,12 @@ struct QuizResultsView: View {
             }
             if !record.wasCorrect {
                 if let chosen {
-                    let verb = quizSession.quizMode == .writeAnswer ? "You likely meant" : "You chose"
+                    // "You chose" for MC; for a write-in, "You wrote" when it's an exact
+                    // (case-insensitive) hit — 100% clear — else the fuzzy "You likely meant".
+                    let typed = record.givenAnswer.trimmingCharacters(in: .whitespaces)
+                    let isExact = ([chosen.name] + chosen.aliases).contains { $0.caseInsensitiveCompare(typed) == .orderedSame }
+                    let verb = quizSession.quizMode != .writeAnswer ? "You chose"
+                             : isExact ? "You wrote" : "You likely meant"
                     answerLink(chosen, label: "\(verb): \(chosen.name)",
                                symbol: "xmark.circle.fill", tint: .red)
                 } else {
@@ -2499,7 +2517,9 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pD, "Protection from abrasion"),
         ]),
         HistoScenario(slideId: "02", label: "Slide #02 — Trachea (glands)", entries: [
-            e(_pA, "Trachea"),
+            // Show the trachea HISTOLOGY slide (sero-mucous glands), not the gross-anatomy
+            // trachea photo the "Trachea" name resolves to — the B–D questions are histology.
+            e(_pA, "Trachea", image: ImageCDN.slide("sero-mucous-glands-trachea_histo_1.jpeg", magnification: 10, caption: "Trachea")),
             e(_pB, "Sero-Mucous Glands"),
             e(_pC, "Mucous cells/Serous cells"),  // cell types within sero-mucous glands
             e(_pD, "Mucus secretion/Airway humidification"),
@@ -2622,13 +2642,14 @@ private let allHistoScenarios: [HistoScenario] = {
         ]),
         // SLIDE #11 — Mammal Duodenum
         HistoScenario(slideId: "11", label: "Slide #11 — Duodenum (Brunner's)", entries: [
-            e(_pA, "Duodenum"),
+            // A shows the same duodenum HISTOLOGY image as B, not the gross duodenum photo the name resolves to.
+            e(_pA, "Duodenum", image: ImageCDN.slide("brunners-glands_histo_1.png", magnification: 10, caption: "Duodenum")),
             e(_pB, "Brunner's Glands"),
             e(_pC, "Mucous cells"),               // cell type inside Brunner's glands → mucus
             e(_pD, "Alkaline mucus secretion"),
         ]),
         HistoScenario(slideId: "11", label: "Slide #11 — Duodenum (villi)", entries: [
-            e(_pA, "Duodenum"),
+            e(_pA, "Duodenum", image: ImageCDN.slide("villi-duodenum_histo_1.jpg", magnification: 10, caption: "Duodenum")),
             e(_pB, "Villi"),
             e(_pC, "Enterocyte/Absorptive cell"),
             e(_pD, "Nutrient absorption"),
@@ -2648,7 +2669,9 @@ private let allHistoScenarios: [HistoScenario] = {
         ]),
         // SLIDE #13 — Mammal Ovary
         HistoScenario(slideId: "13", label: "Slide #13 — Ovary (secondary follicle)", entries: [
-            e(_pA, "Ovary"),
+            // A shows the ovary HISTOLOGY slide (same image as B), not the gross ovary photo
+            // the "Ovary" name resolves to — "what tissue is this?" is about reading the slide.
+            e(_pA, "Ovary", image: ImageCDN.slide("secondary-follicle_histo_1.HEIC", magnification: 10, caption: "Ovary")),
             e(_pB, "Secondary Follicle"),
             e(_pC, "Corpus Luteum"),
             e(_pD, "Progesterone production/Progesterone"),
@@ -2749,6 +2772,7 @@ struct ExamHostView: View {
 
     let numStations: Int
     let timePerStation: Int
+    var gradeAtEnd: Bool = true
 
     var body: some View {
         Group {
@@ -3045,7 +3069,7 @@ struct ExamHostView: View {
         for i in 0..<grossCount { stations.append(shuffledGross[i % shuffledGross.count]()) }
         for i in 0..<histoCount { stations.append(shuffledHisto[i % shuffledHisto.count]()) }
 
-        examSession = ExamSession(stations: stations.shuffled(), timePerStation: tl)
+        examSession = ExamSession(stations: stations.shuffled(), timePerStation: tl, gradeAtEnd: gradeAtEnd)
     }
 }
 
@@ -3079,8 +3103,12 @@ struct ExamStationView: View {
                         Text("Station \(session.currentStationIndex + 1) / \(session.stations.count)")
                             .font(.subheadline).foregroundStyle(.secondary)
                         Spacer()
-                        Text("Score: \(session.score) / \(session.currentStationIndex * 5)")
-                            .font(.subheadline.bold())
+                        // Hide the running score in realistic mode so per-station correctness
+                        // isn't leaked before the final results.
+                        if !session.gradeAtEnd {
+                            Text("Score: \(session.score) / \(session.currentStationIndex * 5)")
+                                .font(.subheadline.bold())
+                        }
                     }
 
                     // Timer bar
@@ -3127,7 +3155,9 @@ struct ExamStationView: View {
                             .frame(maxWidth: .infinity)
                             .keyboardShortcut(.defaultAction)   // Return advances to the next station
                     } else {
-                        Button("Submit Station") { submitStation() }
+                        Button(session.gradeAtEnd
+                               ? (session.currentStationIndex + 1 < session.stations.count ? "Submit & Next →" : "Submit & See Results")
+                               : "Submit Station") { submitStation() }
                             .buttonStyle(.borderedProminent)
                             .tint(.indigo)
                             .frame(maxWidth: .infinity)
@@ -3263,6 +3293,9 @@ struct ExamStationView: View {
         updatedStation.isSubmitted = true
         session.stations[session.currentStationIndex] = updatedStation
         examSession = session
+        // Realistic mode: no per-station review — go straight to the next station (or, on the
+        // last one, to the final results, since currentStationIndex then passes the end).
+        if session.gradeAtEnd { advance() }
     }
 
     // "I got it right" override for a station item the matcher marked wrong.
@@ -3317,6 +3350,39 @@ struct ExamStationView: View {
         session.stations = Array(session.stations.prefix(gradedCount))
         session.currentStationIndex = session.stations.count   // → isComplete
         examSession = session
+    }
+}
+
+/// "You wrote …" / "You likely meant …" feedback for a wrong exam item, shared by the
+/// per-station review and the final results. If the typed answer EXACTLY matches a real
+/// structure (case-insensitive), "You wrote" itself is the tappable link — no guessing,
+/// since it's 100% clear what was meant. Otherwise a fuzzy "You likely meant" link is shown.
+struct WrongAnswerFeedback: View {
+    let item: ExamItem
+    var structures: [AnatomyStructure] = AnatomyDataManager.shared.structures
+
+    var body: some View {
+        if !item.wasCorrect, item.givenAnswer != "(blank)" {
+            if let exact = item.exactMatch(among: structures) {
+                link("You wrote: \(item.givenAnswer)", to: exact)
+            } else {
+                Text("You wrote: \(item.givenAnswer)")
+                    .font(.caption2).foregroundStyle(.secondary)
+                if let guess = item.likelyMeant(among: structures) {
+                    link("You likely meant: \(guess.name)", to: guess)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder private func link(_ text: String, to s: AnatomyStructure) -> some View {
+        NavigationLink { StructureDetailView(structure: s) } label: {
+            HStack(spacing: 3) {
+                Text(text).font(.caption2).foregroundStyle(.blue)
+                Image(systemName: "chevron.right").font(.system(size: 8)).foregroundStyle(.blue.opacity(0.6))
+            }
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -3380,22 +3446,7 @@ struct ExamItemRow: View {
                                 .font(.subheadline)
                             VStack(alignment: .leading, spacing: 1) {
                                 correctAnswerLabel
-                                if !item.wasCorrect && item.givenAnswer != "(blank)" {
-                                    Text("You wrote: \(item.givenAnswer)")
-                                        .font(.caption2).foregroundStyle(.secondary)
-                                    if let guess = item.likelyMeant(among: AnatomyDataManager.shared.structures) {
-                                        // Tap to open the ID card for the structure they probably meant.
-                                        NavigationLink { StructureDetailView(structure: guess) } label: {
-                                            HStack(spacing: 3) {
-                                                Text("You likely meant: \(guess.name)")
-                                                    .font(.caption2).foregroundStyle(.blue)
-                                                Image(systemName: "chevron.right")
-                                                    .font(.system(size: 8)).foregroundStyle(.blue.opacity(0.6))
-                                            }
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
+                                WrongAnswerFeedback(item: item)
                             }
                         }
                         if !item.wasCorrect {
@@ -3582,21 +3633,7 @@ struct ExamResultsView: View {
                                             } else {
                                                 Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
                                             }
-                                            if !item.wasCorrect && item.givenAnswer != "(blank)" {
-                                                Text("You wrote: \(item.givenAnswer)").font(.caption2).foregroundStyle(.secondary)
-                                                if let guess = item.likelyMeant(among: dataManager.structures) {
-                                                    // Tap to open the ID card for the structure they probably meant.
-                                                    NavigationLink { StructureDetailView(structure: guess) } label: {
-                                                        HStack(spacing: 3) {
-                                                            Text("You likely meant: \(guess.name)")
-                                                                .font(.caption2).foregroundStyle(.blue)
-                                                            Image(systemName: "chevron.right")
-                                                                .font(.system(size: 8)).foregroundStyle(.blue.opacity(0.6))
-                                                        }
-                                                    }
-                                                    .buttonStyle(.plain)
-                                                }
-                                            }
+                                            WrongAnswerFeedback(item: item, structures: dataManager.structures)
                                         }
                                     }
                                 }
