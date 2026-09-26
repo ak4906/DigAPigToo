@@ -1603,7 +1603,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Gastric Artery",
-                    aliases: ["Gastric arterial supply"],
+                    aliases: ["Gastric arterial supply", "Left Gastric Artery"],
                     function: "Delivers oxygenated blood to the stomach wall; branch of celiac trunk",
                     commonConfusions: [],
                     examTips: ["Associated with stomach curvature/wall"],
@@ -1695,7 +1695,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Renal Arteries",
-                    aliases: ["Renal artery", "Kidney arteries"],
+                    aliases: ["Renal artery", "Kidney arteries", "Left Renal Artery", "Right Renal Artery"],
                     function: "Supply blood to kidneys for filtration; branch directly from abdominal aorta",
                     commonConfusions: [],
                     examTips: ["Flow: aorta → renal artery → kidney → renal vein → caudal vena cava", "Practical ID: vessels entering kidney hilum"],

@@ -49,6 +49,9 @@ struct ContentView: View {
     /// Same idea for Search: disabled while paging through search results so the
     /// result pager's left/right swipe isn't hijacked into a tab change.
     @State private var searchAtRoot: Bool = true
+    /// Same idea for Quiz: disabled while a quiz/exam is actually running so dragging to
+    /// select text in an answer field doesn't get hijacked into a tab change.
+    @State private var quizAtRoot: Bool = true
     private let lastTabIndex = 10
 
     var body: some View {
@@ -68,10 +71,10 @@ struct ContentView: View {
                 .tag(2)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
-            QuizCustomizationView()
+            QuizCustomizationView(isAtRoot: $quizAtRoot)
                 .tabItem { Label("Quiz", systemImage: "pencil") }
                 .tag(3)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: quizAtRoot)
 
             FillBlankListView()
                 .tabItem { Label("Fill-In", systemImage: "text.badge.plus") }
@@ -1628,6 +1631,9 @@ private let histologyCategoryNames: Set<String> = [
 ]
 
 struct QuizCustomizationView: View {
+    /// Reports to ContentView whether we're on the setup screen (true) or inside a running
+    /// quiz/exam (false), so the Quiz tab-swipe disables while running.
+    @Binding var isAtRoot: Bool
     @StateObject private var dataManager = AnatomyDataManager.shared
 
     // Regular quiz state
@@ -1766,7 +1772,9 @@ struct QuizCustomizationView: View {
             .navigationTitle("Quiz")
             .onAppear {
                 if selectedCategoryIDs.isEmpty { selectedCategoryIDs = allIDs }
+                isAtRoot = !startRunner
             }
+            .onChange(of: startRunner) { isAtRoot = !startRunner }
             .navigationDestination(isPresented: $startRunner) {
                 if quizMode == .realExam {
                     ExamHostView(numStations: numStations, timePerStation: effectiveStationTime)
@@ -2066,13 +2074,22 @@ struct QuizQuestionView: View {
         freeWriteCorrect = false
         canOverride = false
         timerBegun = false
-        if session.quizMode == .writeAnswer { fieldFocused = true }
+        if session.quizMode == .writeAnswer { focusFieldSoon() }
         // Fair timing: the countdown starts only once the image is actually on screen
         // (onImageLoaded → beginTimer). A no-image question has nothing to wait for, so it
         // starts immediately. If an image fails to load the user gets a tap-to-retry and
         // the timer simply waits until it succeeds.
         if q.structure.images.isEmpty {
             beginTimer()
+        }
+    }
+
+    /// Put the cursor in the answer box (and raise the keyboard) each new write-answer
+    /// question. Deferred slightly because a synchronous @FocusState set on appear/change is
+    /// usually dropped before the view is ready.
+    private func focusFieldSoon() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if !isAnswered { fieldFocused = true }
         }
     }
 
@@ -2303,15 +2320,19 @@ struct QuizResultsView: View {
 
     /// Which structure a wrong answer points to: an exact name match (multiple choice), or
     /// for a typed answer the closest lenient match (same fuzzy logic as the answer box).
-    /// nil when it's a skip/blank or the text is too far off to guess.
+    /// nil when it's a skip/blank, a laterality near-miss of the correct answer (so we don't
+    /// show a misleading unrelated guess), or the text is too far off to guess.
     private func chosenStructure(for record: AnswerRecord) -> AnatomyStructure? {
         guard !record.wasCorrect else { return nil }
         let a = record.givenAnswer
         if a == "(skipped)" || a == "(no answer)" || a.isEmpty { return nil }
-        if let exact = dataManager.structures.first(where: { $0.name.caseInsensitiveCompare(a) == .orderedSame }) {
-            return exact
-        }
-        return likelyStructure(for: a, among: dataManager.structures.filter { $0.id != record.structureID })
+        // Search INCLUDING the correct structure so a near-miss of it (e.g. "left gastric
+        // artery" for "Gastric Artery") wins over unrelated structures; if the best match IS
+        // the correct answer, suppress the guess (the correct answer is already displayed).
+        let guess = dataManager.structures.first(where: { $0.name.caseInsensitiveCompare(a) == .orderedSame })
+            ?? likelyStructure(for: a, among: dataManager.structures)
+        guard let g = guess, g.id != record.structureID else { return nil }
+        return g
     }
 
     private func unclearAnswer(_ a: String) -> String {
@@ -2423,6 +2444,7 @@ struct HistoScenario {
     struct Entry {
         let prompt: String
         let answer: String   // exact AnatomyStructure.name OR free-text (slash = alternatives)
+        var image: AnatomyImage? = nil   // exam-only photo override (e.g. an arrow-annotated slide)
     }
     let slideId: String      // "01", "02", …"20"
     let label: String        // e.g. "Slide #01 — Artery"
@@ -2438,8 +2460,8 @@ private let _pD = "D. What is the function or product of C?"
 /// `answer` is resolved at exam-build time: if an AnatomyStructure with that exact
 /// name exists it becomes a structure-backed ExamItem; otherwise it becomes freeText.
 private let allHistoScenarios: [HistoScenario] = {
-    func e(_ prompt: String, _ answer: String) -> HistoScenario.Entry {
-        HistoScenario.Entry(prompt: prompt, answer: answer)
+    func e(_ prompt: String, _ answer: String, image: AnatomyImage? = nil) -> HistoScenario.Entry {
+        HistoScenario.Entry(prompt: prompt, answer: answer, image: image)
     }
     return [
         // SLIDE #01 — Artery / Vein / Nerve
@@ -2450,7 +2472,9 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pD, "Vasoconstriction/vasodilation"),
         ]),
         HistoScenario(slideId: "01", label: "Slide #01 — Vein", entries: [
-            e(_pA, "Vein"),
+            // Exam-only photo with a red arrow at the tunica adventitia (the IDs-page Vein
+            // image stays un-annotated); the arrow is what B's prompt refers to.
+            e(_pA, "Vein", image: ImageCDN.slide("artery-vein-nerve_histo_vein_1arrow.jpeg", magnification: 10, caption: "Vein")),
             e(_pB, "Tunica Adventitia"),
             e(_pC, "Endothelium/Simple squamous epithelium"),
             e(_pD, "Low-resistance blood return to heart"),
@@ -2470,7 +2494,7 @@ private let allHistoScenarios: [HistoScenario] = {
         ]),
         HistoScenario(slideId: "02", label: "Slide #02 — Esophagus", entries: [
             e(_pA, "Esophagus"),
-            e(_pB, "Muscularis Mucosae"),
+            e(_pB, "Submucosa"),   // arrow in this slide's photo points at the submucosa
             e(_pC, "Stratified squamous epithelium"),
             e(_pD, "Protection from abrasion"),
         ]),
@@ -2898,15 +2922,15 @@ struct ExamHostView: View {
         // entry to a structure-backed or free-text ExamItem, then appends a random
         // Microscope part as item E.
 
-        func resolveItem(answer: String, prompt: String) -> ExamItem {
+        func resolveItem(answer: String, prompt: String, imageOverride: AnatomyImage? = nil) -> ExamItem {
             // First try an exact name match across all structures.
             if let s = dataManager.structures.first(where: {
                 $0.name.caseInsensitiveCompare(answer) == .orderedSame
             }) {
-                return ExamItem(structure: s, questionPrompt: prompt)
+                return ExamItem(structure: s, questionPrompt: prompt, imageOverride: imageOverride)
             }
             // Fall back to free-text answer (slash-delimited alternatives accepted).
-            return ExamItem(freeText: answer, questionPrompt: prompt)
+            return ExamItem(freeText: answer, questionPrompt: prompt, imageOverride: imageOverride)
         }
 
         func makeHistoStation(from pool: [HistoScenario]) -> ExamStation {
@@ -2914,7 +2938,7 @@ struct ExamHostView: View {
                 return ExamStation(items: [], timeLimit: tl)
             }
             let microscope = structs(in: ["Microscope"]).shuffled().first
-            let abcd = scenario.entries.map { resolveItem(answer: $0.answer, prompt: $0.prompt) }
+            let abcd = scenario.entries.map { resolveItem(answer: $0.answer, prompt: $0.prompt, imageOverride: $0.image) }
             let eItem: ExamItem = {
                 if let m = microscope { return ExamItem(structure: m, questionPrompt: "E. Name this microscope part.") }
                 return ExamItem(freeText: "Microscope part", questionPrompt: "E. Name this microscope part.")
@@ -3044,6 +3068,7 @@ struct ExamStationView: View {
     // The station index we've already set up. Re-appearing (e.g. returning from an ID card
     // the user opened in the submitted review) must NOT re-init the station.
     @State private var preparedStationIndex: Int?
+    @State private var showEndConfirm = false
 
     var body: some View {
         if let session = examSession, let station = session.currentStation {
@@ -3100,6 +3125,7 @@ struct ExamStationView: View {
                             .buttonStyle(.borderedProminent)
                             .tint(.indigo)
                             .frame(maxWidth: .infinity)
+                            .keyboardShortcut(.defaultAction)   // Return advances to the next station
                     } else {
                         Button("Submit Station") { submitStation() }
                             .buttonStyle(.borderedProminent)
@@ -3109,7 +3135,7 @@ struct ExamStationView: View {
                 }
                 .padding()
             }
-            .onAppear { prepareStationIfNeeded() }
+            .onAppear { prepareStationIfNeeded(); resumeTimer() }
             .onChange(of: session.currentStationIndex) { prepareStationIfNeeded() }
             // Safety net: if a photo never resolves, don't hold the clock forever — start it
             // after 15s regardless. Re-arms per station (keyed on the index).
@@ -3117,7 +3143,20 @@ struct ExamStationView: View {
                 try? await Task.sleep(nanoseconds: 15_000_000_000)
                 if !Task.isCancelled { beginTimerIfNeeded() }
             }
+            // Freeze the clock while off-screen (tab switch / pushed ID card); resumeTimer()
+            // on re-appear rebases it so no time is lost while away.
             .onDisappear { stopTimer() }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { pauseTimer(); showEndConfirm = true }
+                }
+            }
+            .confirmationDialog("Finish the exam now?", isPresented: $showEndConfirm, titleVisibility: .visible) {
+                Button("See Results", role: .destructive) { finishEarly() }
+                Button("Keep Going", role: .cancel) { resumeTimer() }
+            } message: {
+                Text("Only stations you've already submitted are scored. Unsubmitted and unreached stations are dropped, not marked wrong.")
+            }
         } else {
             ProgressView()
         }
@@ -3148,15 +3187,26 @@ struct ExamStationView: View {
         timeRemaining = station.timeLimit
         timerStarted = false
         loadedImageIDs = []
-        focusedField = nil          // don't carry focus (and the keyboard) into the new station
+        focusedField = nil
         stationStartDate = Date()
         // No photos to wait on (all concept / free-text items)? Start the clock immediately.
         if station.timeLimit > 0 && expectedImageLoads(station) == 0 { beginTimerIfNeeded() }
+        focusFirstFieldSoon()
+    }
+
+    /// Put the cursor in the first answer field (and raise the keyboard) on each new station,
+    /// so keyboard-only users can start typing immediately. Deferred because a synchronous
+    /// @FocusState set on appear/change is usually dropped before the view is ready. Only on
+    /// a fresh station (not on re-appear), so returning from an ID card won't yank focus.
+    private func focusFirstFieldSoon() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if !isSubmitted { focusedField = 0 }
+        }
     }
 
     /// How many of this station's items show a photo thumbnail (and will report onLoaded).
     private func expectedImageLoads(_ station: ExamStation) -> Int {
-        station.items.filter { $0.structure?.images.isEmpty == false }.count
+        station.items.filter { !$0.displayImages.isEmpty }.count
     }
 
     /// One station thumbnail finished loading (or failed). Start the clock once all have.
@@ -3244,6 +3294,30 @@ struct ExamStationView: View {
             submitStation()
         }
     }
+
+    private func pauseTimer() { stopTimer() }
+
+    /// Resume the station clock from where it froze (rebases the start so no time is lost
+    /// while off-screen or while the Done dialog is up). No-op if nothing is running.
+    private func resumeTimer() {
+        guard timerStarted, !isSubmitted, timer == nil,
+              let station = examSession?.currentStation,
+              station.timeLimit > 0, timeRemaining > 0 else { return }
+        stationStartDate = Date().addingTimeInterval(-(station.timeLimit - timeRemaining))
+        startTimer()
+    }
+
+    /// End the exam now, scoring ONLY stations already submitted. The current station (if not
+    /// submitted) and every station not yet reached are dropped — never attempted, so never
+    /// graded wrong. Submitted stations are contiguous from the start, so a prefix keeps them.
+    private func finishEarly() {
+        stopTimer()
+        guard var session = examSession else { return }
+        let gradedCount = session.stations.filter { $0.isSubmitted }.count
+        session.stations = Array(session.stations.prefix(gradedCount))
+        session.currentStationIndex = session.stations.count   // → isComplete
+        examSession = session
+    }
 }
 
 struct ExamItemRow: View {
@@ -3259,11 +3333,30 @@ struct ExamItemRow: View {
     var isLastField: Bool = false
     var onSubmitField: (() -> Void)? = nil
 
+    /// The correct answer — tappable to its ID card when it's a real structure (right or wrong).
+    @ViewBuilder private var correctAnswerLabel: some View {
+        let styled = Text(item.correctAnswerDisplay)
+            .font(.subheadline)
+            .fontWeight(item.wasCorrect ? .regular : .semibold)
+            .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
+        if let s = item.structure {
+            NavigationLink { StructureDetailView(structure: s) } label: {
+                HStack(spacing: 3) {
+                    styled
+                    Image(systemName: "chevron.right").font(.system(size: 8)).foregroundStyle(.secondary)
+                }
+            }
+            .buttonStyle(.plain)
+        } else {
+            styled
+        }
+    }
+
     var body: some View {
         HStack(spacing: 12) {
-            // Thumbnail: image if available, concept icon otherwise.
-            if let s = item.structure, !s.images.isEmpty {
-                ExamItemThumbnail(images: s.images, onLoaded: onImageLoaded)
+            // Thumbnail: image if available (exam override wins), concept icon otherwise.
+            if !item.displayImages.isEmpty {
+                ExamItemThumbnail(images: item.displayImages, onLoaded: onImageLoaded)
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
@@ -3286,10 +3379,7 @@ struct ExamItemRow: View {
                                 .foregroundStyle(item.wasCorrect ? .green : .red)
                                 .font(.subheadline)
                             VStack(alignment: .leading, spacing: 1) {
-                                Text(item.correctAnswerDisplay)
-                                    .font(.subheadline)
-                                    .fontWeight(item.wasCorrect ? .regular : .semibold)
-                                    .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
+                                correctAnswerLabel
                                 if !item.wasCorrect && item.givenAnswer != "(blank)" {
                                     Text("You wrote: \(item.givenAnswer)")
                                         .font(.caption2).foregroundStyle(.secondary)
@@ -3479,7 +3569,19 @@ struct ExamResultsView: View {
                                             .foregroundStyle(item.wasCorrect ? .green : .red)
                                             .font(.caption)
                                         VStack(alignment: .leading, spacing: 1) {
-                                            Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
+                                            // Correct answer — tappable to its ID card (right or wrong) when it's a real structure.
+                                            if let s = item.structure {
+                                                NavigationLink { StructureDetailView(structure: s) } label: {
+                                                    HStack(spacing: 3) {
+                                                        Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
+                                                            .foregroundStyle(.primary)
+                                                        Image(systemName: "chevron.right").font(.system(size: 8)).foregroundStyle(.secondary)
+                                                    }
+                                                }
+                                                .buttonStyle(.plain)
+                                            } else {
+                                                Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
+                                            }
                                             if !item.wasCorrect && item.givenAnswer != "(blank)" {
                                                 Text("You wrote: \(item.givenAnswer)").font(.caption2).foregroundStyle(.secondary)
                                                 if let guess = item.likelyMeant(among: dataManager.structures) {

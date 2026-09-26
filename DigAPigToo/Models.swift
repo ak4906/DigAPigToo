@@ -337,6 +337,10 @@ struct ExamItem: Identifiable {
     /// nil → gross anatomy default ("ID 1", "ID 2", …)
     /// non-nil → histology sticky-note style ("A. What organ / tissue is this?", …)
     let questionPrompt: String?
+    /// Exam-only image shown INSTEAD of the structure's own images (e.g. a photo annotated
+    /// with an arrow for this station), while `structure` still drives answer matching and
+    /// the tap-through ID card. nil → use the structure's own images.
+    let imageOverride: AnatomyImage?
     var givenAnswer: String = ""
     var wasCorrect: Bool = false
 
@@ -345,19 +349,27 @@ struct ExamItem: Identifiable {
         structure?.name ?? freeText ?? "?"
     }
 
+    /// Images the exam should display for this item (override wins over the structure's own).
+    var displayImages: [AnatomyImage] {
+        if let imageOverride { return [imageOverride] }
+        return structure?.images ?? []
+    }
+
     /// Primary init — backed by a named AnatomyStructure.
-    init(structure: AnatomyStructure, questionPrompt: String? = nil) {
+    init(structure: AnatomyStructure, questionPrompt: String? = nil, imageOverride: AnatomyImage? = nil) {
         self.structure = structure
         self.freeText = nil
         self.questionPrompt = questionPrompt
+        self.imageOverride = imageOverride
     }
 
     /// Secondary init — free-text answer (no matching structure in the DB).
     /// `answer` may contain "/" to list alternative accepted spellings.
-    init(freeText: String, questionPrompt: String? = nil) {
+    init(freeText: String, questionPrompt: String? = nil, imageOverride: AnatomyImage? = nil) {
         self.structure = nil
         self.freeText = freeText
         self.questionPrompt = questionPrompt
+        self.imageOverride = imageOverride
     }
 
     /// Unified answer checker — delegates to structure fuzzy matching OR
@@ -398,12 +410,16 @@ extension ExamItem {
         guard !wasCorrect else { return nil }
         let a = givenAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
         guard a != "(blank)", !a.isEmpty else { return nil }
-        let pool = all.filter { $0.id != structure?.id }
-        // Exact name match first (cheap; catches "wrote a real structure, just the wrong one").
-        if let exact = pool.first(where: { $0.name.caseInsensitiveCompare(a) == .orderedSame }) {
-            return exact
-        }
-        return likelyStructure(for: a, among: pool)
+        // Search INCLUDING the correct structure. If the typed text is closest to the correct
+        // answer itself — a laterality/modifier near-miss like "left gastric artery" for
+        // "Gastric Artery" — return nil instead of reaching for an unrelated structure (the
+        // correct answer is already shown, so a bogus "you likely meant" would just mislead).
+        // A different structure is only surfaced when it's genuinely a closer match than the
+        // correct one, which filters out implausible guesses.
+        let guess = all.first(where: { $0.name.caseInsensitiveCompare(a) == .orderedSame })
+            ?? likelyStructure(for: a, among: all)
+        guard let g = guess, g.id != structure?.id else { return nil }
+        return g
     }
 }
 

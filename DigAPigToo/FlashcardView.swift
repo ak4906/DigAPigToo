@@ -142,11 +142,10 @@ struct FlashcardSessionView: View {
     @State private var ratingTally: [String: Int] = ["again": 0, "hard": 0, "good": 0, "easy": 0]
     @State private var undoStack: [UndoSnapshot] = []
 
-    /// Snapshot to undo the last rating: restores the queue, tallies, reveal state, and the
-    /// card's prior SM-2 schedule.
+    /// Snapshot to undo the last rating: restores the queue, tallies, and the card's prior
+    /// SM-2 schedule. (Undo always returns to the UNREVEALED front, so reveal state isn't kept.)
     private struct UndoSnapshot {
         let queue: [AnatomyStructure]
-        let revealed: Bool
         let ratingTally: [String: Int]
         let ratedCount: Int
         let uniqueCompleted: Int
@@ -230,7 +229,8 @@ struct FlashcardSessionView: View {
         else { withAnimation(.easeInOut(duration: 0.2)) { revealed = true } }
     }
 
-    /// Revert the last rating: restore the queue/tallies/reveal and the card's SM-2 state.
+    /// Revert the last rating: restore the queue/tallies and the card's SM-2 state. The card
+    /// comes back UNREVEALED (front showing), matching Anki so muscle memory carries over.
     private func undo() {
         guard let snap = undoStack.popLast() else { return }
         cards.restore(name: snap.cardName, to: snap.priorSchedule)
@@ -238,7 +238,7 @@ struct FlashcardSessionView: View {
         ratingTally = snap.ratingTally
         ratedCount = snap.ratedCount
         uniqueCompleted = snap.uniqueCompleted
-        withAnimation(.easeInOut(duration: 0.2)) { revealed = snap.revealed }
+        withAnimation(.easeInOut(duration: 0.2)) { revealed = false }
     }
 
     // MARK: Card
@@ -393,7 +393,7 @@ struct FlashcardSessionView: View {
         // Snapshot everything BEFORE mutating, so a single undo fully reverts this rating
         // (queue order, tallies, counts, reveal state, and the card's SM-2 schedule).
         undoStack.append(UndoSnapshot(
-            queue: queue, revealed: revealed, ratingTally: ratingTally,
+            queue: queue, ratingTally: ratingTally,
             ratedCount: ratedCount, uniqueCompleted: uniqueCompleted,
             cardName: s.name, priorSchedule: cards.schedules[s.name]))
 
