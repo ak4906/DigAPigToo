@@ -1058,7 +1058,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: circulatoryCat.id,
                     name: "Pulmonary Valve",
-                    aliases: ["Pulmonary semilunar valve"],
+                    aliases: ["Pulmonary semilunar valve", "Pulmonic valve"],
                     function: "Prevents backflow from pulmonary trunk into right ventricle after ventricular contraction",
                     commonConfusions: [],
                     examTips: ["Between right ventricle and pulmonary trunk", "Semilunar (half-moon shaped) cusps"],
@@ -5014,6 +5014,139 @@ class AnatomyDataManager: ObservableObject {
     /// histology IDs in the alphabetical list (most IDs are gross anatomy).
     func isHistologyStructure(_ structure: AnatomyStructure) -> Bool {
         Self.histologyCategoryNames.contains(categoryName(for: structure))
+    }
+
+    // MARK: - Quiz distractor pools (difficulty)
+
+    /// The narrowest "nearby" group for a structure, used for Hard multiple-choice distractors:
+    /// a Circulatory subcategory, else a GI-histology slide's structures, else the whole category.
+    func nearbyGroup(for s: AnatomyStructure) -> [AnatomyStructure] {
+        if categoryName(for: s) == "Circulatory System" {
+            for section in Self.circulatorySubcategories where section.members.contains(s.name) {
+                let members = structures.filter { section.members.contains($0.name) }
+                if members.count > 1 { return members }
+            }
+        }
+        if let slide = Self.histologySlideByStructureName[s.name] {
+            let sameSlide = structures.filter { Self.histologySlideByStructureName[$0.name] == slide }
+            if sameSlide.count > 1 { return sameSlide }
+        }
+        return structures.filter { $0.categoryId == s.categoryId }
+    }
+
+    /// The GI-tract "tube" organs whose HISTOLOGY slides are the classic hard confusions
+    /// (ileum vs jejunum vs duodenum vs the stomach regions). An organ-level "what organ is
+    /// this slide?" question should be tested against these OTHER organs, not this organ's layers.
+    static let histologyGITubeOrgans: Set<String> = [
+        "Esophagus", "Cardiac Stomach", "Fundic Stomach", "Pyloric Stomach",
+        "Duodenum", "Jejunum", "Ileum", "Large Intestine",
+    ]
+
+    /// Serous membranes / peritoneal folds — thin sheets/flaps that look alike (omenta,
+    /// peritoneum, pericardium, pleura, mesentery). A question on one should be tested against
+    /// the OTHERS, not against obviously-different solid organs.
+    static let serousMembranes: Set<String> = [
+        "Greater Omentum", "Lesser Omentum", "Mesentery",
+        "Parietal Peritoneum", "Visceral Peritoneum",
+        "Parietal Pericardium", "Visceral Pericardium",
+        "Parietal Pleura", "Visceral Pleura",
+    ]
+
+    /// Structures of the SAME "kind" as `s` for the tightest Hard distractors — so a plane
+    /// question offers only planes, a valve only valves, an artery only arteries, a GI layer
+    /// the SAME layer across organs, an organ the OTHER GI organs, etc. Returns [] when no
+    /// clear type is recognized.
+    func semanticGroup(for s: AnatomyStructure) -> [AnatomyStructure] {
+        let lower = s.name.lowercased()
+        func g(_ pred: @escaping (String) -> Bool) -> [AnatomyStructure] { structures.filter { pred($0.name.lowercased()) } }
+
+        // Histology layer axis: "<Layer> (<Organ>)" → the SAME layer across organs
+        // (e.g. Mucosa of stomach vs duodenum vs ileum; Tunica Adventitia of artery vs vein).
+        if let paren = s.name.firstIndex(of: "("), s.name.hasSuffix(")") {
+            let layer = s.name[..<paren].trimmingCharacters(in: .whitespaces).lowercased()
+            if !layer.isEmpty {
+                let group = structures.filter { other in
+                    guard let p = other.name.firstIndex(of: "("), other.name.hasSuffix(")") else { return false }
+                    return other.name[..<p].trimmingCharacters(in: .whitespaces).lowercased() == layer
+                }
+                if group.count > 1 { return group }
+            }
+        }
+        // Organ-level GI histology ("what organ is this?") → the OTHER GI-tube organs (the hard
+        // slide-vs-slide discriminations), NOT this organ's own layers.
+        if Self.histologyGITubeOrgans.contains(s.name) {
+            return structures.filter { Self.histologyGITubeOrgans.contains($0.name) }
+        }
+        // Serous membranes / folds (omenta, peritoneum, pericardium, pleura, mesentery) → each other.
+        if Self.serousMembranes.contains(s.name) {
+            return structures.filter { Self.serousMembranes.contains($0.name) }
+        }
+        // Spermatogenic cell stages → only the other germ cell stages (NOT seminiferous tubule etc.).
+        let spermStems = ["spermatogon", "spermatocyt", "spermatid", "spermatozo"]
+        if spermStems.contains(where: { lower.contains($0) }) {
+            return g { name in spermStems.contains(where: { name.contains($0) }) }
+        }
+        if lower.contains("plane")   { return g { $0.contains("plane") } }
+        if lower.contains("papilla") { return g { $0.contains("papilla") } }
+        if lower.contains("valve")   { return g { $0.contains("valve") } }   // valves only (chordae is too easy to tell apart)
+        if lower.contains("palate")  { return g { $0.contains("palate") } }
+        if lower.hasSuffix("artery") || lower.hasSuffix("arteries") {
+            return g { $0.hasSuffix("artery") || $0.hasSuffix("arteries") }
+        }
+        if lower.hasSuffix("vein") || lower.hasSuffix("veins") {
+            return g { $0.hasSuffix("vein") || $0.hasSuffix("veins") }
+        }
+        if lower.contains("gland") { return g { $0.contains("gland") } }
+        return []
+    }
+
+    /// `count` wrong-answer names for `answer` at the given difficulty. Narrow pools widen
+    /// automatically if they can't supply enough DISTINCT names (names are deduped and the
+    /// answer's own name is excluded, so same-named structures never become a duplicate option).
+    func distractors(for answer: AnatomyStructure, count: Int, difficulty: QuizDifficulty) -> [String] {
+        let sameSuper = { (x: AnatomyStructure) in self.isHistologyStructure(x) == self.isHistologyStructure(answer) }
+
+        // Hard: if the answer has a clear TYPE (plane / valve / artery / GI layer / germ cell…),
+        // draw from that type so options are the same kind.
+        if difficulty == .hard {
+            let sem = Array(Set(semanticGroup(for: answer).map { $0.name }).subtracting([answer.name]))
+            if sem.count >= 2 {
+                // Enough same-type options → use ONLY these (even if fewer than `count`).
+                return Array(sem.shuffled().prefix(count))
+            } else if sem.count == 1 {
+                // A pair (e.g. hard ↔ soft palate): guarantee the one counterpart is an option,
+                // then fill the remaining slots from nearby structures.
+                var picked = sem
+                var seen: Set<String> = [answer.name, sem[0]]
+                for pool in [nearbyGroup(for: answer),
+                             structures.filter { $0.categoryId == answer.categoryId },
+                             structures] {
+                    for n in Array(Set(pool.map { $0.name }).subtracting(seen)).shuffled() {
+                        picked.append(n); seen.insert(n)
+                        if picked.count >= count { break }
+                    }
+                    if picked.count >= count { break }
+                }
+                return Array(picked.prefix(count)).shuffled()
+            }
+            // sem empty → fall through to the region-widening chain below.
+        }
+
+        let pools: [[AnatomyStructure]]
+        switch difficulty {
+        case .easy:   pools = [structures]
+        case .medium: pools = [structures.filter(sameSuper), structures]
+        case .hard:   pools = [nearbyGroup(for: answer),
+                               structures.filter { $0.categoryId == answer.categoryId },
+                               structures.filter(sameSuper),
+                               structures]
+        }
+        for pool in pools {
+            let names = Set(pool.map { $0.name }).subtracting([answer.name])
+            if names.count >= count { return Array(Array(names).shuffled().prefix(count)) }
+        }
+        let all = Set(structures.map { $0.name }).subtracting([answer.name])
+        return Array(Array(all).shuffled().prefix(count))
     }
 
     /// Structures in a histology category grouped by their handout slide, in slide-number

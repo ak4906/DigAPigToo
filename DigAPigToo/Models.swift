@@ -124,6 +124,22 @@ enum QuizMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+/// Multiple-choice difficulty — controls where the WRONG options come from. Harder = the
+/// distractors are more similar/nearby to the answer, so you must actually tell them apart.
+enum QuizDifficulty: String, CaseIterable, Identifiable {
+    case easy   = "Easy"     // distractors random from anywhere
+    case medium = "Medium"   // distractors from the same super-group (gross vs histology)
+    case hard   = "Hard"     // distractors from the same category / subcategory / slide
+    var id: String { rawValue }
+    var blurb: String {
+        switch self {
+        case .easy:   return "Wrong options can be anything — easiest to rule out."
+        case .medium: return "Wrong options match the type (gross vs histology)."
+        case .hard:   return "Wrong options are nearby structures (same region/system/slide) — closest to the real exam."
+        }
+    }
+}
+
 struct QuizQuestion: Identifiable {
     let id: UUID
     let structure: AnatomyStructure
@@ -341,6 +357,10 @@ struct ExamItem: Identifiable {
     /// with an arrow for this station), while `structure` still drives answer matching and
     /// the tap-through ID card. nil → use the structure's own images.
     let imageOverride: AnatomyImage?
+    /// Extra acceptable answers for THIS station only (beyond the structure/free-text answer),
+    /// e.g. a station where the arrow could reasonably be called more than one thing. Each is
+    /// matched leniently (slash-separated alternatives allowed).
+    var alsoAccept: [String] = []
     var givenAnswer: String = ""
     var wasCorrect: Bool = false
 
@@ -356,35 +376,42 @@ struct ExamItem: Identifiable {
     }
 
     /// Primary init — backed by a named AnatomyStructure.
-    init(structure: AnatomyStructure, questionPrompt: String? = nil, imageOverride: AnatomyImage? = nil) {
+    init(structure: AnatomyStructure, questionPrompt: String? = nil, imageOverride: AnatomyImage? = nil, alsoAccept: [String] = []) {
         self.structure = structure
         self.freeText = nil
         self.questionPrompt = questionPrompt
         self.imageOverride = imageOverride
+        self.alsoAccept = alsoAccept
     }
 
     /// Secondary init — free-text answer (no matching structure in the DB).
     /// `answer` may contain "/" to list alternative accepted spellings.
-    init(freeText: String, questionPrompt: String? = nil, imageOverride: AnatomyImage? = nil) {
+    init(freeText: String, questionPrompt: String? = nil, imageOverride: AnatomyImage? = nil, alsoAccept: [String] = []) {
         self.structure = nil
         self.freeText = freeText
         self.questionPrompt = questionPrompt
         self.imageOverride = imageOverride
+        self.alsoAccept = alsoAccept
     }
 
-    /// Unified answer checker — delegates to structure fuzzy matching OR
-    /// slash-split free-text matching.
+    /// Unified answer checker — structure fuzzy matching OR slash-split free-text matching,
+    /// plus any per-station `alsoAccept` alternatives.
     func accepts(typed: String) -> Bool {
         let t = typed.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !t.isEmpty else { return false }
-        if let s = structure { return s.accepts(answer: t) }
-        guard let answer = freeText else { return false }
-        // Build candidate list from slash-separated alternatives.
+        if let s = structure, s.accepts(answer: t) { return true }
+        if let answer = freeText, ExamItem.matchesLeniently(t, against: answer) { return true }
+        for extra in alsoAccept where ExamItem.matchesLeniently(t, against: extra) { return true }
+        return false
+    }
+
+    /// True if `t` (already lowercased/trimmed) leniently matches `answer` or any of its
+    /// slash-separated alternatives (exact, small edit distance, or filler-stripped core).
+    static func matchesLeniently(_ t: String, against answer: String) -> Bool {
         var candidates: [String] = [answer.lowercased()]
-        let parts = answer.lowercased()
+        candidates.append(contentsOf: answer.lowercased()
             .split(separator: "/")
-            .map { String($0).trimmingCharacters(in: .whitespaces) }
-        candidates.append(contentsOf: parts)
+            .map { String($0).trimmingCharacters(in: .whitespaces) })
         let tCore = normalizedForMatching(t)
         for target in candidates {
             if t == target { return true }

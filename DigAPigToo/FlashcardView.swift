@@ -141,6 +141,8 @@ struct FlashcardSessionView: View {
     @State private var uniqueCompleted = 0       // cards that left the queue for good
     @State private var ratingTally: [String: Int] = ["again": 0, "hard": 0, "good": 0, "easy": 0]
     @State private var undoStack: [UndoSnapshot] = []
+    @State private var showUndoToast = false     // brief "Last card undone" confirmation
+    @State private var undoToastToken = 0         // guards the auto-hide against rapid re-undos
 
     /// Snapshot to undo the last rating: restores the queue, tallies, and the card's prior
     /// SM-2 schedule. (Undo always returns to the UNREVEALED front, so reveal state isn't kept.)
@@ -173,6 +175,18 @@ struct FlashcardSessionView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            // Brief confirmation so an accidental undo (shake / stray key) is obvious.
+            .overlay(alignment: .top) {
+                if showUndoToast {
+                    Text("Last card undone")
+                        .font(.caption).fontWeight(.medium)
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .background(.gray.opacity(0.9), in: Capsule())
+                        .foregroundStyle(.white)
+                        .padding(.top, 10)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if current != nil && !undoStack.isEmpty {
@@ -239,6 +253,19 @@ struct FlashcardSessionView: View {
         ratedCount = snap.ratedCount
         uniqueCompleted = snap.uniqueCompleted
         withAnimation(.easeInOut(duration: 0.2)) { revealed = false }
+        flashUndoToast()
+    }
+
+    /// Show "Last card undone" for ~1s, then fade it out.
+    private func flashUndoToast() {
+        undoToastToken += 1
+        let token = undoToastToken
+        withAnimation(.easeInOut(duration: 0.2)) { showUndoToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            if undoToastToken == token {
+                withAnimation(.easeInOut(duration: 0.3)) { showUndoToast = false }
+            }
+        }
     }
 
     // MARK: Card

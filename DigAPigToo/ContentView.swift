@@ -1641,6 +1641,7 @@ struct QuizCustomizationView: View {
     @State private var timeSelection = 18   // -1 = custom, 0 = unlimited
     @State private var customTime = 18
     @State private var quizMode: QuizMode = .multipleChoice
+    @State private var difficulty: QuizDifficulty = .easy   // multiple-choice distractor difficulty
     @State private var selectedCategoryIDs: Set<UUID> = []
 
     // Real Exam state
@@ -1758,6 +1759,17 @@ struct QuizCustomizationView: View {
                         .pickerStyle(.segmented)
                     } header: { Text("Number of Questions") }
 
+                    // Difficulty only affects multiple-choice (it controls the wrong options).
+                    if quizMode == .multipleChoice {
+                        Section {
+                            Picker("Difficulty", selection: $difficulty) {
+                                ForEach(QuizDifficulty.allCases) { Text($0.rawValue).tag($0) }
+                            }
+                            .pickerStyle(.segmented)
+                            Text(difficulty.blurb).font(.caption).foregroundStyle(.secondary)
+                        } header: { Text("Difficulty") }
+                    }
+
                     Section {
                         Picker("Time", selection: $timeSelection) {
                             Text("10s").tag(10)
@@ -1793,7 +1805,7 @@ struct QuizCustomizationView: View {
                     ExamHostView(numStations: numStations, timePerStation: effectiveStationTime, gradeAtEnd: examGradeAtEnd)
                 } else {
                     QuizView(numQuestions: numQuestions, timePerQuestion: effectiveQuizTime,
-                             selectedCategoryIDs: selectedCategoryIDs, quizMode: quizMode)
+                             selectedCategoryIDs: selectedCategoryIDs, quizMode: quizMode, difficulty: difficulty)
                 }
             }
         }
@@ -1827,6 +1839,7 @@ struct QuizView: View {
     let timePerQuestion: Int
     let selectedCategoryIDs: Set<UUID>
     let quizMode: QuizMode
+    var difficulty: QuizDifficulty = .easy
 
     var body: some View {
         Group {
@@ -1852,11 +1865,10 @@ struct QuizView: View {
         pool.shuffle()
         let chosen = Array(pool.prefix(numQuestions))
 
-        // Always draw distractors from the full structure list for variety
-        let distractorPool = dataManager.structures
+        // Distractors are drawn per the chosen difficulty (Easy = anywhere, Hard = nearby).
         var questions: [QuizQuestion] = []
         for s in chosen {
-            let distractors = Array(distractorPool.filter { $0.id != s.id }.shuffled().prefix(3)).map { $0.name }
+            let distractors = dataManager.distractors(for: s, count: 3, difficulty: difficulty)
             questions.append(QuizQuestion(structure: s, distractors: distractors))
         }
 
@@ -2122,7 +2134,7 @@ struct QuizQuestionView: View {
         guard timerBegun, let session = quizSession, session.timePerQuestion > 0, !isAnswered else { return }
         let elapsed = Date().timeIntervalSince(questionStartDate)
         timeRemaining = max(0, session.timePerQuestion - elapsed)
-        if timeRemaining <= 0 { advance(); return }
+        if timeRemaining <= 0 { timeOut(); return }
         startTimer()
     }
 
@@ -2135,7 +2147,7 @@ struct QuizQuestionView: View {
             if remaining <= 0 {
                 timeRemaining = 0
                 timer?.invalidate()
-                advance()
+                timeOut()
             } else {
                 timeRemaining = remaining
             }
@@ -2143,6 +2155,25 @@ struct QuizQuestionView: View {
     }
 
     private func stopTimer() { timer?.invalidate(); timer = nil }
+
+    /// Ran out of time: record the current question as WRONG (so it's counted and shown in
+    /// results) and move on. Guards against double-recording if already answered.
+    private func timeOut() {
+        guard var s = quizSession, let q = s.currentQuestion, !isAnswered else { advance(); return }
+        stopTimer()
+        isAnswered = true
+        let catName = dataManager.categories.first { $0.id == q.structure.categoryId }?.name ?? "Unknown"
+        s.answerHistory.append(AnswerRecord(
+            structureID: q.structure.id,
+            structureName: q.structure.name,
+            categoryName: catName,
+            givenAnswer: "(ran out of time)",
+            wasCorrect: false
+        ))
+        quizSession = s
+        statsManager.record(structureName: q.structure.name, correct: false)
+        advance()
+    }
 
     // MARK: Multiple-choice answer
     private func answerMultipleChoice(_ choice: String) {
@@ -2343,7 +2374,7 @@ struct QuizResultsView: View {
     private func chosenStructure(for record: AnswerRecord) -> AnatomyStructure? {
         guard !record.wasCorrect else { return nil }
         let a = record.givenAnswer
-        if a == "(skipped)" || a == "(no answer)" || a.isEmpty { return nil }
+        if a == "(skipped)" || a == "(no answer)" || a == "(ran out of time)" || a.isEmpty { return nil }
         // Search INCLUDING the correct structure so a near-miss of it (e.g. "left gastric
         // artery" for "Gastric Artery") wins over unrelated structures; if the best match IS
         // the correct answer, suppress the guess (the correct answer is already displayed).
@@ -2356,6 +2387,7 @@ struct QuizResultsView: View {
     private func unclearAnswer(_ a: String) -> String {
         switch a {
         case "(skipped)": return "Skipped"
+        case "(ran out of time)": return "Ran out of time"
         case "(no answer)", "": return "No answer"
         default: return "Unclear which structure you meant (you wrote: \(a))"
         }
@@ -2462,11 +2494,17 @@ struct HistoScenario {
     struct Entry {
         let prompt: String
         let answer: String   // exact AnatomyStructure.name OR free-text (slash = alternatives)
-        var image: AnatomyImage? = nil   // exam-only photo override (e.g. an arrow-annotated slide)
+        var image: AnatomyImage? = nil   // exam-only photo override for THIS entry only
+        var alsoAccept: [String] = []    // extra acceptable answers for THIS station only
     }
     let slideId: String      // "01", "02", …"20"
     let label: String        // e.g. "Slide #01 — Artery"
     let entries: [Entry]     // exactly 4
+    /// One slide image shown on ALL of A–D (real practical: you view ONE fixed slide and
+    /// answer A–D about it; only E is the microscope part). Set this to an arrow-annotated
+    /// slide so B's "what does the arrow point to?" is supported. When set it wins over any
+    /// per-entry `image`. nil → each entry falls back to its own image / structure image.
+    var slideImage: AnatomyImage? = nil
 }
 
 private let _pA = "A. What organ / tissue is this?"
@@ -2478,8 +2516,8 @@ private let _pD = "D. What is the function or product of C?"
 /// `answer` is resolved at exam-build time: if an AnatomyStructure with that exact
 /// name exists it becomes a structure-backed ExamItem; otherwise it becomes freeText.
 private let allHistoScenarios: [HistoScenario] = {
-    func e(_ prompt: String, _ answer: String, image: AnatomyImage? = nil) -> HistoScenario.Entry {
-        HistoScenario.Entry(prompt: prompt, answer: answer, image: image)
+    func e(_ prompt: String, _ answer: String, image: AnatomyImage? = nil, alsoAccept: [String] = []) -> HistoScenario.Entry {
+        HistoScenario.Entry(prompt: prompt, answer: answer, image: image, alsoAccept: alsoAccept)
     }
     return [
         // SLIDE #01 — Artery / Vein / Nerve
@@ -2497,12 +2535,8 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pC, "Endothelium/Simple squamous epithelium"),
             e(_pD, "Low-resistance blood return to heart"),
         ]),
-        HistoScenario(slideId: "01", label: "Slide #01 — Nerve", entries: [
-            e(_pA, "Nerve"),
-            e(_pB, "Nerve"),
-            e(_pC, "Axon/Nerve fiber"),           // axons are what conduct impulses
-            e(_pD, "Conducts electrical impulses/Electrical conduction"),
-        ]),
+        // (Removed the Slide #01 — Nerve scenario: the curriculum doesn't cover nerves/axons,
+        // and there's no usable slide image for it — only the microscope part had a picture.)
         // SLIDE #02 — Trachea / Esophagus
         HistoScenario(slideId: "02", label: "Slide #02 — Trachea (cartilage)", entries: [
             e(_pA, "Trachea"),
@@ -2756,7 +2790,8 @@ private let allHistoScenarios: [HistoScenario] = {
         ]),
         HistoScenario(slideId: "20", label: "Slide #20 — Pyloric Stomach (gastrin)", entries: [
             e(_pA, "Pyloric Stomach"),
-            e(_pB, "Pyloric Glands"),             // B=gland; C=G cells within it
+            // The arrow region can reasonably be called the pyloric mucosa too, so accept both.
+            e(_pB, "Pyloric Glands", alsoAccept: ["Mucosa (Pyloric Stomach)", "Mucosa"]),  // B=gland; C=G cells within it
             e(_pC, "G Cells"),                    // G cells → gastrin secretion ✓
             e(_pD, "Gastrin secretion"),
         ]),
@@ -2946,15 +2981,15 @@ struct ExamHostView: View {
         // entry to a structure-backed or free-text ExamItem, then appends a random
         // Microscope part as item E.
 
-        func resolveItem(answer: String, prompt: String, imageOverride: AnatomyImage? = nil) -> ExamItem {
+        func resolveItem(answer: String, prompt: String, imageOverride: AnatomyImage? = nil, alsoAccept: [String] = []) -> ExamItem {
             // First try an exact name match across all structures.
             if let s = dataManager.structures.first(where: {
                 $0.name.caseInsensitiveCompare(answer) == .orderedSame
             }) {
-                return ExamItem(structure: s, questionPrompt: prompt, imageOverride: imageOverride)
+                return ExamItem(structure: s, questionPrompt: prompt, imageOverride: imageOverride, alsoAccept: alsoAccept)
             }
             // Fall back to free-text answer (slash-delimited alternatives accepted).
-            return ExamItem(freeText: answer, questionPrompt: prompt, imageOverride: imageOverride)
+            return ExamItem(freeText: answer, questionPrompt: prompt, imageOverride: imageOverride, alsoAccept: alsoAccept)
         }
 
         func makeHistoStation(from pool: [HistoScenario]) -> ExamStation {
@@ -2962,7 +2997,16 @@ struct ExamHostView: View {
                 return ExamStation(items: [], timeLimit: tl)
             }
             let microscope = structs(in: ["Microscope"]).shuffled().first
-            let abcd = scenario.entries.map { resolveItem(answer: $0.answer, prompt: $0.prompt, imageOverride: $0.image) }
+            // A histology station = ONE slide viewed through the scope; A–D are all questions
+            // about THAT single image (only E is the microscope part). So show the SAME image on
+            // every A–D card: prefer an explicit slideImage, else A's per-entry image, else A's
+            // structure's own image. This also removes the "message symbol" placeholder that used
+            // to appear on free-text (write-in) cards.
+            let aStructImage = dataManager.structures.first {
+                $0.name.caseInsensitiveCompare(scenario.entries.first?.answer ?? "") == .orderedSame
+            }?.images.first
+            let slideImg = scenario.slideImage ?? scenario.entries.first?.image ?? aStructImage
+            let abcd = scenario.entries.map { resolveItem(answer: $0.answer, prompt: $0.prompt, imageOverride: slideImg, alsoAccept: $0.alsoAccept) }
             let eItem: ExamItem = {
                 if let m = microscope { return ExamItem(structure: m, questionPrompt: "E. Name this microscope part.") }
                 return ExamItem(freeText: "Microscope part", questionPrompt: "E. Name this microscope part.")
@@ -3082,37 +3126,46 @@ struct ExamStationView: View {
     @State private var timer: Timer?
     @State private var timeRemaining: TimeInterval = 90
     @State private var stationStartDate = Date()
-    // Fairness: the station clock doesn't start until all its ID photos are on screen
-    // (like the Quiz), so slow Wi-Fi can't burn time before you can see anything.
+    // Fairness: the station clock doesn't start until the first ID photo is on screen,
+    // so slow Wi-Fi can't burn time before you can see anything.
     @State private var timerStarted = false
-    @State private var loadedImageIDs: Set<UUID> = []
-    // Which of the 5 answer fields has the keyboard, so Return can hop to the next field
-    // (and submit the station from the last one) — matching the write-answer quiz.
+    // Which of the 5 ID cards is showing (drives the swipe pager).
+    @State private var currentCard = 0
+    // Which answer field has the keyboard, so Return can hop to the next card (and submit
+    // from the last one) — matching the write-answer quiz.
     @FocusState private var focusedField: Int?
     // The station index we've already set up. Re-appearing (e.g. returning from an ID card
     // the user opened in the submitted review) must NOT re-init the station.
     @State private var preparedStationIndex: Int?
     @State private var showEndConfirm = false
+    // True only when the ON-SCREEN keyboard is up (tall). With a hardware keyboard (iPad Magic
+    // Keyboard / Mac) there's no software keyboard, so we don't show a "hide keyboard" button.
+    @State private var softwareKeyboardUp = false
 
     var body: some View {
         if let session = examSession, let station = session.currentStation {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // Header
-                    HStack {
-                        Text("Station \(session.currentStationIndex + 1) / \(session.stations.count)")
-                            .font(.subheadline).foregroundStyle(.secondary)
+            VStack(spacing: 12) {
+                // Header
+                HStack {
+                    Text("Station \(session.currentStationIndex + 1) / \(session.stations.count)")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                    Spacer()
+                    // Which card of 5 you're on.
+                    Text("ID \(currentCard + 1) / \(station.items.count)")
+                        .font(.subheadline).foregroundStyle(.secondary)
+                    // Hide the running score in realistic mode so per-station correctness
+                    // isn't leaked before the final results.
+                    if !session.gradeAtEnd {
                         Spacer()
-                        // Hide the running score in realistic mode so per-station correctness
-                        // isn't leaked before the final results.
-                        if !session.gradeAtEnd {
-                            Text("Score: \(session.score) / \(session.currentStationIndex * 5)")
-                                .font(.subheadline.bold())
-                        }
+                        Text("Score: \(session.score) / \(session.currentStationIndex * 5)")
+                            .font(.subheadline.bold())
                     }
+                }
+                .padding(.horizontal)
 
-                    // Timer bar
-                    if station.timeLimit > 0 {
+                // Timer bar
+                if station.timeLimit > 0 {
+                    VStack(spacing: 4) {
                         GeometryReader { geo in
                             ZStack(alignment: .leading) {
                                 RoundedRectangle(cornerRadius: 4).fill(.gray.opacity(0.2)).frame(height: 8)
@@ -3124,49 +3177,58 @@ struct ExamStationView: View {
                         .frame(height: 8)
                         Text(isSubmitted ? "Submitted"
                              : timerStarted ? "\(Int(ceil(timeRemaining)))s remaining"
-                             : "Loading images…")
+                             : "Loading image…")
                             .font(.caption.monospacedDigit()).foregroundStyle(examTimerColor)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .padding(.horizontal)
+                }
 
-                    // 5 item rows
-                    VStack(spacing: 10) {
-                        ForEach(Array(station.items.enumerated()), id: \.element.id) { idx, item in
-                            ExamItemRow(
-                                index: idx,
-                                item: item,
-                                answer: idx < answers.count ? $answers[idx] : .constant(""),
-                                isSubmitted: isSubmitted,
-                                onOverride: { overrideItemCorrect(idx) },
-                                onImageLoaded: { imageLoaded(item.id) },
-                                focus: $focusedField,
-                                isLastField: idx == station.items.count - 1,
-                                onSubmitField: { handleFieldSubmit(idx, count: station.items.count) }
-                            )
-                        }
-                    }
-
-                    // Action button
-                    if isSubmitted {
-                        Button(session.currentStationIndex + 1 < session.stations.count
-                               ? "Next Station →"
-                               : "See Results") { advance() }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.indigo)
-                            .frame(maxWidth: .infinity)
-                            .keyboardShortcut(.defaultAction)   // Return advances to the next station
-                    } else {
-                        Button(session.gradeAtEnd
-                               ? (session.currentStationIndex + 1 < session.stations.count ? "Submit & Next →" : "Submit & See Results")
-                               : "Submit Station") { submitStation() }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.indigo)
-                            .frame(maxWidth: .infinity)
+                // Swipeable ID cards — one big card per ID, swipe between them.
+                TabView(selection: $currentCard) {
+                    ForEach(Array(station.items.enumerated()), id: \.element.id) { idx, item in
+                        ExamCardView(
+                            index: idx,
+                            total: station.items.count,
+                            item: item,
+                            answer: idx < answers.count ? $answers[idx] : .constant(""),
+                            isSubmitted: isSubmitted,
+                            focus: $focusedField,
+                            isLastCard: idx == station.items.count - 1,
+                            onSubmitField: { handleFieldSubmit(idx, count: station.items.count) },
+                            onImageLoaded: { if idx == 0 { beginTimerIfNeeded() } },
+                            onOverride: { overrideItemCorrect(idx) }
+                        )
+                        .padding(.horizontal)
+                        .padding(.bottom, 46)   // clearance so the page dots sit below the card edge
+                        .tag(idx)
                     }
                 }
-                .padding()
+                .tabViewStyle(.page(indexDisplayMode: .always))
+                .frame(maxHeight: .infinity)
+
+                // Action button
+                if isSubmitted {
+                    Button(session.currentStationIndex + 1 < session.stations.count
+                           ? "Next Station →"
+                           : "See Results") { advance() }
+                        .buttonStyle(.borderedProminent).tint(.indigo)
+                        .frame(maxWidth: .infinity)
+                        .keyboardShortcut(.defaultAction)   // Return advances to the next station
+                } else {
+                    Button(session.gradeAtEnd
+                           ? (session.currentStationIndex + 1 < session.stations.count ? "Submit & Next →" : "Submit & See Results")
+                           : "Submit Station") { submitStation() }
+                        .buttonStyle(.borderedProminent).tint(.indigo)
+                        .frame(maxWidth: .infinity)
+                }
             }
+            .padding(.vertical, 8)
             .onAppear { prepareStationIfNeeded(); resumeTimer() }
             .onChange(of: session.currentStationIndex) { prepareStationIfNeeded() }
+            // Keep the keyboard on the visible card: if it was already up, move focus to the
+            // newly-swiped card's field; if it was down, don't pop it up on a browse swipe.
+            .onChange(of: currentCard) { if !isSubmitted, focusedField != nil { focusedField = currentCard } }
             // Safety net: if a photo never resolves, don't hold the clock forever — start it
             // after 15s regardless. Re-arms per station (keyed on the index).
             .task(id: session.currentStationIndex) {
@@ -3176,9 +3238,29 @@ struct ExamStationView: View {
             // Freeze the clock while off-screen (tab switch / pushed ID card); resumeTimer()
             // on re-appear rebases it so no time is lost while away.
             .onDisappear { stopTimer() }
+            // Track the on-screen keyboard so the "hide keyboard" button only appears when
+            // there's actually a software keyboard to hide (height gate excludes the small
+            // hardware-keyboard accessory bar on iPad/Mac).
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { note in
+                let h = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect)?.height ?? 0
+                softwareKeyboardUp = h > 120
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+                softwareKeyboardUp = false
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { pauseTimer(); showEndConfirm = true }
+                }
+                // Dismiss the on-screen keyboard (it shrinks the ID image). Only shown when a
+                // software keyboard is actually up — not for hardware-keyboard users.
+                ToolbarItemGroup(placement: .keyboard) {
+                    if softwareKeyboardUp {
+                        Spacer()
+                        Button { focusedField = nil } label: {
+                            Label("Hide Keyboard", systemImage: "keyboard.chevron.compact.down")
+                        }
+                    }
                 }
             }
             .confirmationDialog("Finish the exam now?", isPresented: $showEndConfirm, titleVisibility: .visible) {
@@ -3216,11 +3298,14 @@ struct ExamStationView: View {
         isSubmitted = false
         timeRemaining = station.timeLimit
         timerStarted = false
-        loadedImageIDs = []
+        currentCard = 0
         focusedField = nil
         stationStartDate = Date()
-        // No photos to wait on (all concept / free-text items)? Start the clock immediately.
-        if station.timeLimit > 0 && expectedImageLoads(station) == 0 { beginTimerIfNeeded() }
+        // Start the clock once the FIRST card's photo is on screen (its onImageLoaded fires
+        // beginTimerIfNeeded); if that card has no photo, start immediately.
+        if station.timeLimit > 0, station.items.first?.displayImages.isEmpty ?? true {
+            beginTimerIfNeeded()
+        }
         focusFirstFieldSoon()
     }
 
@@ -3230,27 +3315,12 @@ struct ExamStationView: View {
     /// a fresh station (not on re-appear), so returning from an ID card won't yank focus.
     private func focusFirstFieldSoon() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if !isSubmitted { focusedField = 0 }
+            if !isSubmitted, currentCard == 0 { focusedField = 0 }
         }
     }
 
-    /// How many of this station's items show a photo thumbnail (and will report onLoaded).
-    private func expectedImageLoads(_ station: ExamStation) -> Int {
-        station.items.filter { !$0.displayImages.isEmpty }.count
-    }
-
-    /// One station thumbnail finished loading (or failed). Start the clock once all have.
-    private func imageLoaded(_ id: UUID) {
-        guard !timerStarted else { return }
-        loadedImageIDs.insert(id)
-        if let station = examSession?.currentStation,
-           loadedImageIDs.count >= expectedImageLoads(station) {
-            beginTimerIfNeeded()
-        }
-    }
-
-    /// Start the station countdown from NOW, exactly once (guarded so the all-loaded path
-    /// and the 15s safety net can't both start it).
+    /// Start the station countdown from NOW, exactly once (guarded so the first-card-loaded
+    /// path and the 15s safety net can't both start it).
     private func beginTimerIfNeeded() {
         guard !timerStarted, !isSubmitted,
               let station = examSession?.currentStation, station.timeLimit > 0 else { return }
@@ -3318,9 +3388,11 @@ struct ExamStationView: View {
         }
     }
 
-    /// Return key in an answer field: hop to the next ID, or submit the station from the last.
+    /// Return key in an answer field: swipe to the next ID card (and focus it), or submit the
+    /// station from the last card.
     private func handleFieldSubmit(_ idx: Int, count: Int) {
         if idx < count - 1 {
+            withAnimation { currentCard = idx + 1 }
             focusedField = idx + 1
         } else {
             focusedField = nil
@@ -3350,6 +3422,137 @@ struct ExamStationView: View {
         session.stations = Array(session.stations.prefix(gradedCount))
         session.currentStationIndex = session.stations.count   // → isComplete
         examSession = session
+    }
+}
+
+/// One big, swipeable ID card for the Real Exam: prompt + large image (tap to zoom) + the
+/// answer field (before submit) or the graded feedback (after).
+struct ExamCardView: View {
+    let index: Int
+    let total: Int
+    let item: ExamItem
+    @Binding var answer: String
+    let isSubmitted: Bool
+    var focus: FocusState<Int?>.Binding
+    var isLastCard: Bool = false
+    var onSubmitField: (() -> Void)? = nil
+    var onImageLoaded: (() -> Void)? = nil
+    var onOverride: (() -> Void)? = nil
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text(item.questionPrompt ?? "ID \(index + 1)")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            // Big image (or a placeholder for concept-only items).
+            Group {
+                if !item.displayImages.isEmpty {
+                    ExamCardImage(images: item.displayImages, onLoaded: onImageLoaded)
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12).fill(.gray.opacity(0.08))
+                        Image(systemName: item.structure != nil ? "camera" : "text.bubble")
+                            .font(.system(size: 44)).foregroundStyle(.secondary.opacity(0.4))
+                    }
+                    .onAppear { onImageLoaded?() }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if isSubmitted {
+                feedback
+            } else {
+                TextField("Answer…", text: $answer)
+                    .textFieldStyle(.roundedBorder)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .focused(focus, equals: index)
+                    .submitLabel(isLastCard ? .done : .next)
+                    .onSubmit { onSubmitField?() }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(RoundedRectangle(cornerRadius: 18).fill(Color(.secondarySystemBackground)))
+        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(.gray.opacity(0.15)))
+        // Tap an empty part of the card to drop the keyboard (it shrinks the image). The
+        // image (tap = zoom) and the field (tap = focus) handle their own taps first.
+        .onTapGesture { focus.wrappedValue = nil }
+    }
+
+    @ViewBuilder private var feedback: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: item.wasCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .foregroundStyle(item.wasCorrect ? .green : .red)
+                if let s = item.structure {
+                    NavigationLink { StructureDetailView(structure: s) } label: {
+                        HStack(spacing: 3) {
+                            Text(item.correctAnswerDisplay).fontWeight(.semibold)
+                                .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
+                            Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Text(item.correctAnswerDisplay).fontWeight(.semibold)
+                        .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
+                }
+                Spacer(minLength: 0)
+            }
+            WrongAnswerFeedback(item: item)
+            if !item.wasCorrect {
+                Button { onOverride?() } label: {
+                    Label("I got it right", systemImage: "checkmark.circle").font(.caption)
+                }
+                .buttonStyle(.bordered).tint(.green).controlSize(.small)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+/// The large, zoomable image inside an ExamCardView. Shows the WHOLE image (scaledToFit)
+/// with retry-on-failure via RemoteImageView; tap to open the fullscreen viewer.
+struct ExamCardImage: View {
+    let images: [AnatomyImage]
+    var onLoaded: (() -> Void)? = nil
+    @State private var fullscreenImage: AnatomyImage?
+
+    var body: some View {
+        Group {
+            if let img = images.first {
+                if img.isRemote {
+                    RemoteImageView(urlString: img.source, fillsFrame: false, onLoaded: onLoaded)
+                        .id(img.source)
+                } else {
+                    Image(img.source).resizable().scaledToFit()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .onAppear { onLoaded?() }
+                }
+            } else {
+                Color.clear.onAppear { onLoaded?() }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(alignment: .bottomTrailing) {
+            if !images.isEmpty {
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.system(size: 10, weight: .semibold))
+                    .padding(5)
+                    .background(.black.opacity(0.6))
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                    .padding(6)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { fullscreenImage = images.randomElement() }
+        .fullScreenCover(item: $fullscreenImage) { img in
+            ExamImageFullscreen(image: img)
+        }
     }
 }
 
@@ -3383,148 +3586,6 @@ struct WrongAnswerFeedback: View {
             }
         }
         .buttonStyle(.plain)
-    }
-}
-
-struct ExamItemRow: View {
-    let index: Int
-    let item: ExamItem
-    @Binding var answer: String
-    let isSubmitted: Bool
-    var onOverride: (() -> Void)? = nil
-    /// Bubbles up the thumbnail's load-resolved signal so the station can gate its timer.
-    var onImageLoaded: (() -> Void)? = nil
-    /// Keyboard focus (owned by the station) so Return can move between fields.
-    var focus: FocusState<Int?>.Binding
-    var isLastField: Bool = false
-    var onSubmitField: (() -> Void)? = nil
-
-    /// The correct answer — tappable to its ID card when it's a real structure (right or wrong).
-    @ViewBuilder private var correctAnswerLabel: some View {
-        let styled = Text(item.correctAnswerDisplay)
-            .font(.subheadline)
-            .fontWeight(item.wasCorrect ? .regular : .semibold)
-            .foregroundStyle(item.wasCorrect ? Color.primary : Color.red)
-        if let s = item.structure {
-            NavigationLink { StructureDetailView(structure: s) } label: {
-                HStack(spacing: 3) {
-                    styled
-                    Image(systemName: "chevron.right").font(.system(size: 8)).foregroundStyle(.secondary)
-                }
-            }
-            .buttonStyle(.plain)
-        } else {
-            styled
-        }
-    }
-
-    var body: some View {
-        HStack(spacing: 12) {
-            // Thumbnail: image if available (exam override wins), concept icon otherwise.
-            if !item.displayImages.isEmpty {
-                ExamItemThumbnail(images: item.displayImages, onLoaded: onImageLoaded)
-            } else {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.gray.opacity(0.10))
-                    Image(systemName: item.structure != nil ? "camera" : "text.bubble")
-                        .foregroundStyle(.secondary.opacity(0.5))
-                        .font(.title3)
-                }
-                .frame(width: 65, height: 65)
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(item.questionPrompt ?? "ID \(index + 1)")
-                    .font(.caption2).foregroundStyle(.tertiary)
-
-                if isSubmitted {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 6) {
-                            Image(systemName: item.wasCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                .foregroundStyle(item.wasCorrect ? .green : .red)
-                                .font(.subheadline)
-                            VStack(alignment: .leading, spacing: 1) {
-                                correctAnswerLabel
-                                WrongAnswerFeedback(item: item)
-                            }
-                        }
-                        if !item.wasCorrect {
-                            Button { onOverride?() } label: {
-                                Label("I got it right", systemImage: "checkmark.circle")
-                                    .font(.caption2)
-                            }
-                            .buttonStyle(.bordered)
-                            .tint(.green)
-                            .controlSize(.small)
-                        }
-                    }
-                } else {
-                    TextField("Answer…", text: $answer)
-                        .textFieldStyle(.roundedBorder)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                        .font(.subheadline)
-                        .focused(focus, equals: index)
-                        .submitLabel(isLastField ? .done : .next)
-                        .onSubmit { onSubmitField?() }
-                }
-            }
-        }
-        .padding(10)
-        .background(.gray.opacity(0.06))
-        .cornerRadius(10)
-    }
-}
-
-struct ExamItemThumbnail: View {
-    let images: [AnatomyImage]
-    /// Fires when the (first) image resolves — success OR failure — so the station can
-    /// start its timer only once all 5 thumbnails have loaded.
-    var onLoaded: (() -> Void)? = nil
-    // Use item-based fullScreenCover so the image is guaranteed non-nil when the
-    // sheet opens — avoids the isPresented + separate state timing race.
-    @State private var fullscreenImage: AnatomyImage?
-
-    var body: some View {
-        Group {
-            if let img = images.first {
-                if img.isRemote {
-                    // RemoteImageView adds retry-on-failure + reload-on-reconnect (a dropped
-                    // exam thumbnail otherwise sat stuck), and reports load completion.
-                    RemoteImageView(urlString: img.source, fillsFrame: true, onLoaded: onLoaded)
-                        .id(img.source)
-                } else {
-                    Image(img.source).resizable().scaledToFill()
-                        .onAppear { onLoaded?() }
-                }
-            } else {
-                Color.gray.opacity(0.12)
-                    .overlay(Image(systemName: "camera").foregroundStyle(.secondary.opacity(0.5)))
-                    .onAppear { onLoaded?() }
-            }
-        }
-        .frame(width: 65, height: 65)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        // Zoom-hint badge (only when an image exists)
-        .overlay(alignment: .bottomTrailing) {
-            if !images.isEmpty {
-                Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    .font(.system(size: 7, weight: .semibold))
-                    .padding(3)
-                    .background(.black.opacity(0.6))
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 3))
-                    .padding(3)
-            }
-        }
-        .onTapGesture {
-            // randomElement() picks one image; setting it triggers the sheet.
-            fullscreenImage = images.randomElement()
-        }
-        .fullScreenCover(item: $fullscreenImage) { img in
-            ExamImageFullscreen(image: img)
-        }
     }
 }
 
