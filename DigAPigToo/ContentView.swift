@@ -1635,6 +1635,10 @@ struct QuizCustomizationView: View {
     /// quiz/exam (false), so the Quiz tab-swipe disables while running.
     @Binding var isAtRoot: Bool
     @StateObject private var dataManager = AnatomyDataManager.shared
+    // Landscape (wider than tall) → lay the setting pickers side-by-side in columns; portrait
+    // (taller than wide) → stack them. Driven by actual size (below) so it flips live on rotate
+    // /resize and treats iPad portrait as portrait (size class alone can't tell iPad orientation).
+    @State private var isWide = false
 
     // Regular quiz state
     @State private var numQuestions = 10
@@ -1660,6 +1664,117 @@ struct QuizCustomizationView: View {
 
     private var allIDs: Set<UUID> { Set(dataManager.categories.map { $0.id }) }
 
+    // MARK: Individual setting controls (no Section wrapper) — reused by the compact stacked
+    // layout and the wide/landscape side-by-side columns layout.
+
+    /// A titled column for the wide layout: small caption label above the control.
+    @ViewBuilder private func labeled<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title.uppercased()).font(.caption2).foregroundStyle(.secondary)
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder private var quizModeControl: some View {
+        Picker("Mode", selection: $quizMode) {
+            Text("Multiple Choice").tag(QuizMode.multipleChoice)
+            Text("Write Answer").tag(QuizMode.writeAnswer)
+            Text("Real Exam").tag(QuizMode.realExam)
+        }
+        .pickerStyle(.segmented)
+        Group {
+            switch quizMode {
+            case .writeAnswer:
+                Text("Write the structure name from memory. Minor spelling errors are accepted.")
+            case .realExam:
+                Text("Replicates the actual practical: stations of 5 IDs, structures grouped by organ system/region — just like real dissection setups.")
+            case .multipleChoice:
+                EmptyView()
+            }
+        }
+        .font(.caption).foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder private var numQuestionsControl: some View {
+        Picker("Questions", selection: $numQuestions) {
+            ForEach([5, 10, 15, 20], id: \.self) { Text("\($0)") }
+        }
+        .pickerStyle(.segmented)
+    }
+
+    @ViewBuilder private var difficultyControl: some View {
+        Picker("Difficulty", selection: $difficulty) {
+            ForEach(QuizDifficulty.allCases) { Text($0.rawValue).tag($0) }
+        }
+        .pickerStyle(.segmented)
+        Text(difficulty.blurb).font(.caption).foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder private var quizTimeControl: some View {
+        Picker("Time", selection: $timeSelection) {
+            Text("10s").tag(10)
+            Text("18s").tag(18)
+            Text("30s").tag(30)
+            Text("∞").tag(0)
+            Text("Custom").tag(-1)
+        }
+        .pickerStyle(.segmented)
+        if timeSelection == 18 {
+            Text("Real exam pace — ~90 s per station, 5 IDs each")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        if timeSelection == -1 {
+            Stepper("Custom: \(customTime) seconds", value: $customTime, in: 1...300, step: 1)
+        }
+    }
+
+    @ViewBuilder private var stationsControl: some View {
+        Picker("Stations", selection: $numStations) {
+            ForEach([5, 10, 20, 30], id: \.self) { Text("\($0)") }
+        }
+        .pickerStyle(.segmented)
+        Text("\(numStations) stations × 5 IDs = \(numStations * 5) total items")
+            .font(.caption).foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder private var stationTimeControl: some View {
+        Picker("Time", selection: $stationTimeSelection) {
+            Text("60s").tag(60)
+            Text("90s").tag(90)
+            Text("120s").tag(120)
+            Text("Custom").tag(-1)
+        }
+        .pickerStyle(.segmented)
+        if stationTimeSelection == 90 {
+            Text("Real exam: 90 seconds per station")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+        if stationTimeSelection == -1 {
+            Stepper("Custom: \(stationCustomTime) seconds",
+                    value: $stationCustomTime, in: 30...300, step: 5)
+        }
+    }
+
+    @ViewBuilder private var feedbackControl: some View {
+        Picker("Feedback", selection: $examGradeAtEnd) {
+            Text("At the end").tag(true)
+            Text("After each station").tag(false)
+        }
+        .pickerStyle(.segmented)
+        Text(examGradeAtEnd
+             ? "Realistic: no answers are shown until you finish every station, like the actual practical."
+             : "Study mode: each station is graded right after you submit it.")
+            .font(.caption).foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder private var examStructureControl: some View {
+        let gross = Int((Double(numStations) * 22.0 / 30.0).rounded())
+        let histo = numStations - gross
+        Label("~\(gross) gross anatomy stations, ~\(histo) histology/microscope stations — structures grouped by organ system within each station", systemImage: "chart.pie")
+            .font(.caption).foregroundStyle(.secondary)
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -1681,117 +1796,59 @@ struct QuizCustomizationView: View {
                     .disabled(quizMode != .realExam && selectedCategoryIDs.isEmpty)
                 }
 
-                // ── Quiz Mode ──────────────────────────────────────────────
-                Section {
-                    Picker("Mode", selection: $quizMode) {
-                        Text("Multiple Choice").tag(QuizMode.multipleChoice)
-                        Text("Write Answer").tag(QuizMode.writeAnswer)
-                        Text("Real Exam").tag(QuizMode.realExam)
-                    }
-                    .pickerStyle(.segmented)
-                    Group {
-                        switch quizMode {
-                        case .writeAnswer:
-                            Text("Write the structure name from memory. Minor spelling errors are accepted.")
-                        case .realExam:
-                            Text("Replicates the actual practical: stations of 5 IDs, structures grouped by organ system/region — just like real dissection setups.")
-                        case .multipleChoice:
-                            EmptyView()
-                        }
-                    }
-                    .font(.caption).foregroundStyle(.secondary)
-                } header: { Text("Quiz Mode") }
-
-                // ── Real Exam settings ─────────────────────────────────────
-                if quizMode == .realExam {
+                // ── Settings: stacked when portrait; side-by-side columns when landscape ──
+                if isWide {
                     Section {
-                        Picker("Stations", selection: $numStations) {
-                            ForEach([5, 10, 20, 30], id: \.self) { Text("\($0)") }
-                        }
-                        .pickerStyle(.segmented)
-                        Text("\(numStations) stations × 5 IDs = \(numStations * 5) total items")
-                            .font(.caption).foregroundStyle(.secondary)
-                    } header: { Text("Number of Stations") }
-
-                    Section {
-                        Picker("Time", selection: $stationTimeSelection) {
-                            Text("60s").tag(60)
-                            Text("90s").tag(90)
-                            Text("120s").tag(120)
-                            Text("Custom").tag(-1)
-                        }
-                        .pickerStyle(.segmented)
-                        if stationTimeSelection == 90 {
-                            Text("Real exam: 90 seconds per station")
-                                .font(.caption).foregroundStyle(.secondary)
-                        }
-                        if stationTimeSelection == -1 {
-                            Stepper("Custom: \(stationCustomTime) seconds",
-                                    value: $stationCustomTime, in: 30...300, step: 5)
-                        }
-                    } header: { Text("Time Per Station") }
-
-                    Section {
-                        Picker("Feedback", selection: $examGradeAtEnd) {
-                            Text("At the end").tag(true)
-                            Text("After each station").tag(false)
-                        }
-                        .pickerStyle(.segmented)
-                        Text(examGradeAtEnd
-                             ? "Realistic: no answers are shown until you finish every station, like the actual practical."
-                             : "Study mode: each station is graded right after you submit it.")
-                            .font(.caption).foregroundStyle(.secondary)
-                    } header: { Text("Feedback") }
-
-                    Section {
-                        let gross = Int((Double(numStations) * 22.0 / 30.0).rounded())
-                        let histo = numStations - gross
-                        Label("~\(gross) gross anatomy stations, ~\(histo) histology/microscope stations — structures grouped by organ system within each station", systemImage: "chart.pie")
-                            .font(.caption).foregroundStyle(.secondary)
-                    } header: { Text("Exam Structure") }
-
-                // ── Regular quiz settings ──────────────────────────────────
-                } else {
-                    Section {
-                        Picker("Questions", selection: $numQuestions) {
-                            ForEach([5, 10, 15, 20], id: \.self) { Text("\($0)") }
-                        }
-                        .pickerStyle(.segmented)
-                    } header: { Text("Number of Questions") }
-
-                    // Difficulty only affects multiple-choice (it controls the wrong options).
-                    if quizMode == .multipleChoice {
-                        Section {
-                            Picker("Difficulty", selection: $difficulty) {
-                                ForEach(QuizDifficulty.allCases) { Text($0.rawValue).tag($0) }
+                        HStack(alignment: .top, spacing: 24) {
+                            labeled("Quiz Mode") { quizModeControl }
+                            if quizMode == .realExam {
+                                labeled("Stations") { stationsControl }
+                                labeled("Time / Station") { stationTimeControl }
+                            } else {
+                                labeled("Questions") { numQuestionsControl }
+                                if quizMode == .multipleChoice {
+                                    labeled("Difficulty") { difficultyControl }
+                                }
                             }
-                            .pickerStyle(.segmented)
-                            Text(difficulty.blurb).font(.caption).foregroundStyle(.secondary)
-                        } header: { Text("Difficulty") }
+                        }
+                        if quizMode == .realExam {
+                            labeled("Feedback") { feedbackControl }
+                            examStructureControl
+                        } else {
+                            labeled("Time / Question") { quizTimeControl }
+                        }
                     }
+                } else {
+                    Section { quizModeControl } header: { Text("Quiz Mode") }
+                    if quizMode == .realExam {
+                        Section { stationsControl } header: { Text("Number of Stations") }
+                        Section { stationTimeControl } header: { Text("Time Per Station") }
+                        Section { feedbackControl } header: { Text("Feedback") }
+                        Section { examStructureControl } header: { Text("Exam Structure") }
+                    } else {
+                        Section { numQuestionsControl } header: { Text("Number of Questions") }
+                        if quizMode == .multipleChoice {
+                            Section { difficultyControl } header: { Text("Difficulty") }
+                        }
+                        Section { quizTimeControl } header: { Text("Time Per Question") }
+                    }
+                }
 
-                    Section {
-                        Picker("Time", selection: $timeSelection) {
-                            Text("10s").tag(10)
-                            Text("18s").tag(18)
-                            Text("30s").tag(30)
-                            Text("∞").tag(0)
-                            Text("Custom").tag(-1)
-                        }
-                        .pickerStyle(.segmented)
-                        if timeSelection == 18 {
-                            Text("Real exam pace — ~90 s per station, 5 IDs each")
-                                .font(.caption).foregroundStyle(.secondary)
-                        }
-                        if timeSelection == -1 {
-                            Stepper("Custom: \(customTime) seconds", value: $customTime, in: 1...300, step: 1)
-                        }
-                    } header: { Text("Time Per Question") }
-
+                // Category picker (not for Real Exam, which auto-builds its own categories).
+                if quizMode != .realExam {
                     CategoryPickerSections(
                         selected: $selectedCategoryIDs,
                         count: { dataManager.structures(in: $0).count }
                     )
+                }
+            }
+            // Measure the form's own size to pick columns (landscape) vs stacked (portrait);
+            // updates live on rotate / window resize.
+            .background {
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { isWide = geo.size.width > geo.size.height }
+                        .onChange(of: geo.size) { isWide = geo.size.width > geo.size.height }
                 }
             }
             .navigationTitle("Quiz")
@@ -2564,7 +2621,9 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pB, "Peyer's Patches"),
             e(_pC, "Goblet Cells"),
             e(_pD, "Mucus secretion"),
-        ]),
+        // Use the Peyer's-patches image for A–D (the default ileum photo has the real pointer on
+        // the intestinal glands, which misleads the Peyer's-patches question).
+        ], slideImage: ImageCDN.slide("peyers-patches_histo_1.jpeg", magnification: 4, caption: "Ileum")),
         HistoScenario(slideId: "03", label: "Slide #03 — Ileum (villi)", entries: [
             e(_pA, "Ileum"),
             e(_pB, "Villi"),
