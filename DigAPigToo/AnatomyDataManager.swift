@@ -3826,7 +3826,7 @@ class AnatomyDataManager: ObservableObject {
                 AnatomyStructure(
                     categoryId: peritonealCat.id,
                     name: "Small Intestine",
-                    aliases: ["Duodenum", "Jejunum", "Ileum"],
+                    aliases: [],   // duodenum/jejunum/ileum are SUBREGIONS (own IDs), not synonyms
                     function: "Primary site of nutrient absorption",
                     commonConfusions: [],
                     examTips: ["Coiled loops; narrower than large intestine"],
@@ -5318,6 +5318,118 @@ class AnatomyDataManager: ObservableObject {
         Array(Set(traces.map { $0.category })).sorted()
     }
 
+    // MARK: - Trace step → structure images (best-effort)
+
+    /// Lowercase word tokens for trace matching, with parenthetical content removed so
+    /// "Bicuspid (Mitral) Valve" → [bicuspid, valve]. Words are naively singularized so plural
+    /// step text ("arteries", "veins") matches singular structure names — applied to BOTH sides,
+    /// so it just needs to be consistent, not linguistically perfect.
+    /// The structure-bearing portion of a trace step: everything before the first
+    /// explanation dash (" - ", " – ", or " — "). Structure names use hyphens without
+    /// surrounding spaces, so real names are never cut. Prevents explanation prose
+    /// (e.g. "…AWAY from fetus toward placenta") from matching unrelated images.
+    private func traceMainText(_ s: String) -> String {
+        var cut = s.endIndex
+        for sep in [" — ", " – ", " - "] {
+            if let r = s.range(of: sep), r.lowerBound < cut { cut = r.lowerBound }
+        }
+        return String(s[s.startIndex..<cut])
+    }
+
+    private func traceTokens(_ s: String) -> [String] {
+        var out = ""
+        var depth = 0
+        for ch in s.lowercased() {
+            if ch == "(" { depth += 1 }
+            else if ch == ")" { if depth > 0 { depth -= 1 } }
+            else if depth == 0 { out.append(ch) }
+        }
+        return out.split { !$0.isLetter && !$0.isNumber }.map { singularizeTraceWord(String($0)) }
+    }
+
+    private func singularizeTraceWord(_ w: String) -> String {
+        if w.hasSuffix("ies") && w.count > 4 { return String(w.dropLast(3)) + "y" }   // arteries → artery
+        if w.hasSuffix("s") && !w.hasSuffix("ss") && w.count > 3 { return String(w.dropLast()) }  // veins → vein
+        return w
+    }
+
+    /// Start index where `sub` appears as a CONTIGUOUS run inside `tokens`, else nil.
+    private func contiguousStart(of sub: [String], in tokens: [String]) -> Int? {
+        guard !sub.isEmpty, sub.count <= tokens.count else { return nil }
+        for start in 0...(tokens.count - sub.count) where Array(tokens[start..<start + sub.count]) == sub {
+            return start
+        }
+        return nil
+    }
+
+    /// Cached (structure, candidate token-runs from name + aliases) for image-backed structures.
+    private lazy var traceImageIndex: [(structure: AnatomyStructure, candidates: [[String]])] = {
+        let fillers: Set<String> = ["the", "of", "a", "an", "and"]
+        // Generic/ambiguous as a bare word (tokens are already singularized). "antrum" excluded
+        // so the ovary Antrum doesn't hijack the stomach's "pyloric antrum".
+        let genericSingles: Set<String> = ["vein", "artery", "nerve", "muscle", "gland", "duct",
+                                           "valve", "cell", "capillary", "arteriole", "venule",
+                                           "tissue", "wall", "lumen", "blood", "antrum"]
+        return structures.compactMap { s in
+            guard !s.images.isEmpty else { return nil }
+            var cands: [[String]] = []
+            func add(_ raw: String, isName: Bool) {
+                let toks = traceTokens(raw).filter { !fillers.contains($0) && $0.count > 1 }
+                guard !toks.isEmpty else { return }
+                if toks.count == 1 {
+                    if genericSingles.contains(toks[0]) { return }
+                    if !isName { return }   // skip single-word ALIASES (e.g. "Femoral") — too ambiguous
+                }
+                cands.append(toks)
+            }
+            add(s.name, isName: true)
+            for a in s.aliases { add(a, isName: false) }
+            return cands.isEmpty ? nil : (s, cands)
+        }
+    }()
+
+    /// Best-effort: the image-backed structures a trace step's free text refers to, in order.
+    /// A structure matches only when its full name (or an alias) appears as a CONTIGUOUS phrase
+    /// — so "Hepatic Vein" does NOT match "Hepatic Portal Vein". A shorter match wholly inside a
+    /// longer one is dropped (e.g. "Vena Cava" inside "Caudal Vena Cava"). Deduped, capped.
+    /// Pure-concept steps (no structure) return [].
+    func structures(inTraceStep text: String) -> [AnatomyStructure] {
+        let tokens = traceTokens(traceMainText(text))
+        guard !tokens.isEmpty else { return [] }
+        // For each structure, its best (longest) contiguous match span.
+        var matches: [(s: AnatomyStructure, start: Int, len: Int)] = []
+        for entry in traceImageIndex {
+            var best: (start: Int, len: Int)? = nil
+            for cand in entry.candidates {
+                if let start = contiguousStart(of: cand, in: tokens),
+                   best == nil || cand.count > best!.len {
+                    best = (start, cand.count)
+                }
+            }
+            if let b = best { matches.append((entry.structure, b.start, b.len)) }
+        }
+        // Drop any match whose token span is contained within a longer match's span.
+        let kept = matches.filter { m in
+            !matches.contains { o in
+                o.s.id != m.s.id && o.len > m.len &&
+                o.start <= m.start && (o.start + o.len) >= (m.start + m.len)
+            }
+        }
+        // Dedupe by name, preferring the GROSS version when both a gross and a histology
+        // structure share the name (e.g. "Esophagus"). Keep the earliest position for ordering.
+        var byName: [String: (s: AnatomyStructure, start: Int)] = [:]
+        for m in kept.sorted(by: { $0.start < $1.start }) {
+            if let ex = byName[m.s.name] {
+                if isHistologyStructure(ex.s) && !isHistologyStructure(m.s) {
+                    byName[m.s.name] = (m.s, ex.start)
+                }
+            } else {
+                byName[m.s.name] = (m.s, m.start)
+            }
+        }
+        return Array(byName.values.sorted { $0.start < $1.start }.map { $0.s }.prefix(6))
+    }
+
     // MARK: - Trace Data
 
     private func createTraces() -> [TraceQuestion] {
@@ -5408,7 +5520,7 @@ class AnatomyDataManager: ObservableObject {
                     "Foramen ovale → fossa ovalis after birth",
                     "Ductus arteriosus → ligamentum arteriosum after birth",
                 ],
-                highYield: true
+                highYield: false
             ),
 
             // MARK: Maternal-to-Fetal
@@ -5432,7 +5544,7 @@ class AnatomyDataManager: ObservableObject {
                     "The chorioallantoic membrane is the actual exchange surface",
                     "Exchange is: O2/nutrients from maternal to fetal; CO2/waste from fetal to maternal",
                 ],
-                highYield: true
+                highYield: false
             ),
 
             // MARK: Portal Circulation
@@ -5456,7 +5568,7 @@ class AnatomyDataManager: ObservableObject {
                     "Hepatic artery ALSO supplies liver (oxygenated blood), distinct from portal vein",
                     "All absorbed GI nutrients pass through liver before reaching systemic circulation",
                 ],
-                highYield: true
+                highYield: false
             ),
 
             // MARK: Oxygen: Nasal Cavity → Alveoli
@@ -5485,7 +5597,7 @@ class AnatomyDataManager: ObservableObject {
                     "Gas exchange at alveoli: simple squamous epithelium for minimal diffusion distance",
                     "Glottis = opening; epiglottis = flap covering — do not confuse",
                 ],
-                highYield: true
+                highYield: false
             ),
 
             // MARK: Urine Formation
@@ -5509,7 +5621,7 @@ class AnatomyDataManager: ObservableObject {
                     "Collecting duct → renal pelvis → ureter → bladder → urethra",
                     "Bladder epithelium: transitional (urothelium) — can stretch",
                 ],
-                highYield: true
+                highYield: false
             ),
 
             // MARK: Sperm to Ejaculation
@@ -5535,7 +5647,7 @@ class AnatomyDataManager: ObservableObject {
                     "Accessory glands add fluid: seminal vesicles → prostate → bulbourethral glands",
                     "Preputial orifice is the external male opening near umbilical cord (sex ID landmark)",
                 ],
-                highYield: true
+                highYield: false
             ),
             TraceQuestion(
                 title: "CO₂: Fetal Thigh Muscle → Outside Mother's Nose",

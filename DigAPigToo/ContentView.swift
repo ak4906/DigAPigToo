@@ -1334,10 +1334,50 @@ struct TracesView: View {
 
 struct TraceDetailView: View {
     let trace: TraceQuestion
-    @State private var practiceMode = false
-    @State private var revealedCount = 0
+    @StateObject private var dataManager = AnatomyDataManager.shared
+    @State private var showStudy = false          // false = interactive card practice (default)
+    @State private var showImages = true          // study mode: show/hide per-step thumbnails
+    /// Image-backed structures resolved per step (computed once when the trace opens).
+    @State private var stepStructures: [UUID: [AnatomyStructure]] = [:]
 
     var body: some View {
+        Group {
+            if showStudy {
+                studyView
+            } else {
+                // Interactive card practice is the DEFAULT view for a trace.
+                TracePracticeView(trace: trace, stepStructures: stepStructures)
+            }
+        }
+        .navigationTitle(trace.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            // Resolve each step's structures once (best-effort text → image-backed structures).
+            if stepStructures.isEmpty {
+                for step in trace.steps {
+                    stepStructures[step.id] = dataManager.structures(inTraceStep: step.text)
+                }
+            }
+        }
+        .toolbar {
+            if showStudy {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { showImages.toggle() } label: {
+                        Image(systemName: showImages ? "photo.fill" : "photo")
+                    }
+                    .accessibilityLabel(showImages ? "Hide step images" : "Show step images")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(showStudy ? "Practice" : "Study") { showStudy.toggle() }
+                    .font(.subheadline)
+            }
+        }
+    }
+
+    /// The full read-through of the trace (secondary to practice) — every step in order with
+    /// its images, plus key points.
+    private var studyView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 6) {
@@ -1350,78 +1390,19 @@ struct TraceDetailView: View {
                 .background(.blue.opacity(0.07))
                 .cornerRadius(10)
 
-                if !practiceMode {
-                    // Study mode: show full trace
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("Full Trace")
-                            .font(.headline)
-                            .padding(.bottom, 8)
-
-                        ForEach(Array(trace.steps.enumerated()), id: \.element.id) { idx, step in
-                            TraceStepRow(step: step, index: idx, isLast: idx == trace.steps.count - 1)
-                        }
-                    }
-                    .padding()
-                    .background(.gray.opacity(0.05))
-                    .cornerRadius(10)
-                } else {
-                    // Practice mode: reveal steps one by one
-                    VStack(alignment: .leading, spacing: 0) {
-                        HStack {
-                            Text("Practice Mode")
-                                .font(.headline)
-                            Spacer()
-                            Text("\(revealedCount) / \(trace.steps.count)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Full Trace")
+                        .font(.headline)
                         .padding(.bottom, 8)
-
-                        ForEach(Array(trace.steps.enumerated()), id: \.element.id) { idx, step in
-                            if idx < revealedCount {
-                                TraceStepRow(step: step, index: idx, isLast: idx == trace.steps.count - 1)
-                            } else if idx == revealedCount {
-                                Button {
-                                    withAnimation(.easeIn(duration: 0.2)) { revealedCount += 1 }
-                                } label: {
-                                    HStack {
-                                        Image(systemName: "eye.slash").foregroundStyle(.secondary)
-                                        Text("Tap to reveal next step")
-                                            .foregroundStyle(.secondary)
-                                        Spacer()
-                                    }
-                                    .padding(.vertical, 8)
-                                    .padding(.horizontal, 4)
-                                    .background(.blue.opacity(0.07))
-                                    .cornerRadius(6)
-                                }
-                                .padding(.vertical, 2)
-                            } else {
-                                EmptyView()
-                            }
-                        }
-
-                        if revealedCount >= trace.steps.count {
-                            Label("All steps revealed!", systemImage: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                                .font(.subheadline)
-                                .padding(.top, 8)
-                        }
-                    }
-                    .padding()
-                    .background(.gray.opacity(0.05))
-                    .cornerRadius(10)
-
-                    if revealedCount > 0 {
-                        Button("Reveal All") {
-                            withAnimation { revealedCount = trace.steps.count }
-                        }
-                        .font(.subheadline)
-                        .foregroundStyle(.blue)
+                    ForEach(Array(trace.steps.enumerated()), id: \.element.id) { idx, step in
+                        TraceStepRow(step: step, index: idx, isLast: idx == trace.steps.count - 1,
+                                     structures: showImages ? (stepStructures[step.id] ?? []) : [])
                     }
                 }
+                .padding()
+                .background(.gray.opacity(0.05))
+                .cornerRadius(10)
 
-                // Key Points
                 if !trace.keyPoints.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Key Points & Common Mistakes", systemImage: "exclamationmark.triangle.fill")
@@ -1442,17 +1423,6 @@ struct TraceDetailView: View {
             }
             .padding()
         }
-        .navigationTitle(trace.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(practiceMode ? "Study Mode" : "Practice Mode") {
-                    practiceMode.toggle()
-                    revealedCount = 0
-                }
-                .font(.subheadline)
-            }
-        }
     }
 }
 
@@ -1460,6 +1430,7 @@ struct TraceStepRow: View {
     let step: TraceStep
     let index: Int
     let isLast: Bool
+    var structures: [AnatomyStructure] = []
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -1476,18 +1447,62 @@ struct TraceStepRow: View {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .frame(width: 2)
+                        .frame(maxHeight: .infinity)   // stretch to connect to the next step
                         .frame(minHeight: 24)
                 }
             }
             .frame(width: 28)
 
-            Text(step.text)
-                .font(step.isHighlight ? .body.weight(.semibold) : .body)
-                .foregroundStyle(step.isHighlight ? .primary : .secondary)
-                .padding(.leading, 8)
-                .padding(.bottom, isLast ? 0 : 8)
-                .padding(.top, 1)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(step.text)
+                    .font(step.isHighlight ? .body.weight(.semibold) : .body)
+                    .foregroundStyle(step.isHighlight ? .primary : .secondary)
+                    .padding(.top, 1)
+
+                // Best-effort images for the structures named in this step (tap → ID card).
+                if !structures.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(structures) { s in
+                                NavigationLink { StructureDetailView(structure: s) } label: {
+                                    TraceThumb(image: s.images.first)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.leading, 8)
+            .padding(.bottom, isLast ? 0 : 10)
         }
+    }
+}
+
+/// Small tappable thumbnail for a structure shown alongside a trace step.
+private struct TraceThumb: View {
+    let image: AnatomyImage?
+    var body: some View {
+        Group {
+            if let img = image {
+                if img.isRemote {
+                    AsyncImage(url: URL(string: img.source)) { phase in
+                        if let i = phase.image { i.resizable().scaledToFill() }
+                        else { Color.gray.opacity(0.12).overlay(ProgressView().scaleEffect(0.5)) }
+                    }
+                } else if let ui = UIImage(named: img.source) {
+                    Image(uiImage: ui).resizable().scaledToFill()
+                } else {
+                    Color.gray.opacity(0.12).overlay(Image(systemName: "photo").font(.caption2).foregroundStyle(.secondary))
+                }
+            } else {
+                Color.gray.opacity(0.12).overlay(Image(systemName: "photo").font(.caption2).foregroundStyle(.secondary))
+            }
+        }
+        .frame(width: 46, height: 46)
+        .clipped()
+        .clipShape(RoundedRectangle(cornerRadius: 7))
+        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(.gray.opacity(0.2)))
     }
 }
 
