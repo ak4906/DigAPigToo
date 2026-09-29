@@ -16,16 +16,41 @@ import Combine
 final class FillBlankProgressManager: ObservableObject {
     static let shared = FillBlankProgressManager()
 
+    /// A fill-in climbs a one-way difficulty ladder:
+    /// `.mc` (multiple choice, recognition) → `.write` (write-in, active recall) → `.mastered`.
+    /// Getting the write-in wrong demotes it back to `.mc`. Mastering write-in masters both,
+    /// since write-in is strictly harder than multiple choice.
+    enum Stage: String, Codable { case mc, write, mastered }
+
     struct QProgress: Codable {
         var seen: Int = 0            // attempts (whole-sentence)
         var correct: Int = 0         // attempts where EVERY gap was right
-        var reps: Int = 0            // consecutive all-correct passes (drives interval + mastery)
+        var reps: Int = 0            // consecutive all-correct passes WITHIN the current stage
         var lastSeen: Date = .distantPast
         var due: Date = Date()       // next recommended time (new = now)
         var intervalDays: Double = 0
+        var stage: Stage = .mc       // current difficulty stage
+
+        init() {}
+
+        // Defensive decode so progress saved before `stage` existed still loads (defaults to .mc).
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            seen = try c.decodeIfPresent(Int.self, forKey: .seen) ?? 0
+            correct = try c.decodeIfPresent(Int.self, forKey: .correct) ?? 0
+            reps = try c.decodeIfPresent(Int.self, forKey: .reps) ?? 0
+            lastSeen = try c.decodeIfPresent(Date.self, forKey: .lastSeen) ?? .distantPast
+            due = try c.decodeIfPresent(Date.self, forKey: .due) ?? Date()
+            intervalDays = try c.decodeIfPresent(Double.self, forKey: .intervalDays) ?? 0
+            stage = try c.decodeIfPresent(Stage.self, forKey: .stage) ?? .mc
+        }
     }
 
     @Published private(set) var progress: [String: QProgress] = [:]
+
+    /// Correct passes needed to advance each stage.
+    private let mcGraduateReps = 1     // one correct multiple-choice pass → graduate to write-in
+    private let writeMasterReps = 2    // two correct write-in passes → fully mastered
 
     private let udKey = "DigAPigToo_FillBlankProgress"
 
@@ -36,9 +61,14 @@ final class FillBlankProgressManager: ObservableObject {
     }
 
     func entry(for prompt: String) -> QProgress { progress[prompt] ?? QProgress() }
-    func isMastered(_ prompt: String) -> Bool { (progress[prompt]?.reps ?? 0) >= 2 }
+    func isMastered(_ prompt: String) -> Bool { (progress[prompt]?.stage ?? .mc) == .mastered }
+
+    /// The stage a fill-in should currently be studied in (drives multiple-choice vs write-in).
+    func stage(for prompt: String) -> Stage { progress[prompt]?.stage ?? .mc }
 
     /// Record a completed sentence (all its gaps answered). `allCorrect` = every gap was right.
+    /// Advances the one-way difficulty ladder: master MC → write-in; master write-in → mastered;
+    /// miss a write-in → demote to MC.
     func record(prompt: String, allCorrect: Bool) {
         var p = progress[prompt] ?? QProgress()
         p.seen += 1
@@ -46,12 +76,22 @@ final class FillBlankProgressManager: ObservableObject {
         if allCorrect {
             p.correct += 1
             p.reps += 1
-            p.intervalDays = p.intervalDays == 0 ? 1 : min(p.intervalDays * 2.5, 60)
-            p.due = Date().addingTimeInterval(p.intervalDays * 86_400)
+            if p.stage == .mc && p.reps >= mcGraduateReps {
+                // Graduated recognition → restart spacing for the harder write-in stage, soon.
+                p.stage = .write
+                p.reps = 0
+                p.intervalDays = 0
+                p.due = Date().addingTimeInterval(600)
+            } else {
+                if p.stage == .write && p.reps >= writeMasterReps { p.stage = .mastered }
+                p.intervalDays = p.intervalDays == 0 ? 1 : min(p.intervalDays * 2.5, 60)
+                p.due = Date().addingTimeInterval(p.intervalDays * 86_400)
+            }
         } else {
             p.reps = 0
+            if p.stage != .mc { p.stage = .mc }      // missed the write-in → back to multiple choice
             p.intervalDays = 0
-            p.due = Date().addingTimeInterval(600)   // ~10 min → resurfaces later this session
+            p.due = Date().addingTimeInterval(600)    // ~10 min → resurfaces later this session
         }
         progress[prompt] = p
         save()
@@ -84,10 +124,24 @@ final class FillBlankProgressManager: ObservableObject {
         for q in questions {
             if let p = progress[q.prompt], p.seen > 0 {
                 studied += 1
-                if p.reps >= 2 { mastered += 1 }
+                if p.stage == .mastered { mastered += 1 }
             }
         }
         return (studied, mastered, questions.count)
+    }
+
+    /// How many studied questions sit in each stage (unseen questions are excluded).
+    func stageCounts(for questions: [FillBlankQuestion]) -> (mc: Int, write: Int, mastered: Int) {
+        var mc = 0, write = 0, mastered = 0
+        for q in questions {
+            guard let p = progress[q.prompt], p.seen > 0 else { continue }
+            switch p.stage {
+            case .mc: mc += 1
+            case .write: write += 1
+            case .mastered: mastered += 1
+            }
+        }
+        return (mc, write, mastered)
     }
 
     func reset() {

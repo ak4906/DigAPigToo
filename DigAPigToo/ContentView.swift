@@ -1550,6 +1550,15 @@ struct FillBlankListView: View {
         }
     }
 
+    /// The filtered questions grouped into alphabetical category sections, so the unfiltered
+    /// list is scannable. Flattening this (in order) gives the swipe-paging order.
+    var displayGroups: [(category: String, items: [FillBlankQuestion])] {
+        let items = filtered
+        return Array(Set(items.map { $0.category })).sorted().map { c in
+            (c, items.filter { $0.category == c })
+        }
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -1582,29 +1591,34 @@ struct FillBlankListView: View {
                         }
                     }
                 } footer: {
-                    Text("Smart Review prioritizes new, missed, and least-recently-seen questions so you cycle through all of them. Browse All goes straight through by topic. Each blank is tested as its own multiple-choice or write-in question.")
+                    Text("Smart Review prioritizes new, missed, and least-recently-seen questions so you cycle through all of them. Browse All goes straight through by topic. Each fill-in starts as multiple choice; once you master it, it graduates to write-in (active recall) and can't be done as multiple choice anymore. Miss the write-in and it drops back to multiple choice.")
                 }
-                ForEach(filtered) { q in
-                    NavigationLink { FillBlankDetailView(question: q) } label: {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(q.prompt)
-                                .font(.subheadline)
-                                .lineLimit(2)
-                            HStack(spacing: 6) {
-                                Text(q.category)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                if q.mcatRelevant {
-                                    Text("MCAT")
-                                        .font(.caption2.bold())
-                                        .padding(.horizontal, 5).padding(.vertical, 1)
-                                        .background(.purple.opacity(0.15))
-                                        .foregroundStyle(.purple)
-                                        .clipShape(Capsule())
+                let groups = displayGroups
+                let order = groups.flatMap { $0.items }
+                let indexByID = Dictionary(order.enumerated().map { ($0.element.id, $0.offset) },
+                                           uniquingKeysWith: { first, _ in first })
+                ForEach(groups, id: \.category) { group in
+                    Section(group.category) {
+                        ForEach(group.items) { q in
+                            NavigationLink {
+                                FillBlankDetailView(questions: order, startAt: indexByID[q.id] ?? 0)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(q.prompt)
+                                        .font(.subheadline)
+                                        .lineLimit(2)
+                                    if q.mcatRelevant {
+                                        Text("MCAT")
+                                            .font(.caption2.bold())
+                                            .padding(.horizontal, 5).padding(.vertical, 1)
+                                            .background(.purple.opacity(0.15))
+                                            .foregroundStyle(.purple)
+                                            .clipShape(Capsule())
+                                    }
                                 }
+                                .padding(.vertical, 2)
                             }
                         }
-                        .padding(.vertical, 2)
                     }
                 }
             }
@@ -1614,17 +1628,36 @@ struct FillBlankListView: View {
 }
 
 struct FillBlankDetailView: View {
+    let questions: [FillBlankQuestion]
+    @State private var index: Int
+
+    /// Pager over the current (filtered) list — swipe left/right between adjacent fill-ins.
+    init(questions: [FillBlankQuestion], startAt: Int) {
+        self.questions = questions
+        _index = State(initialValue: min(max(startAt, 0), max(questions.count - 1, 0)))
+    }
+    /// Single-question convenience (e.g. from Search) — no paging.
+    init(question: FillBlankQuestion) {
+        self.questions = [question]
+        _index = State(initialValue: 0)
+    }
+
+    var body: some View {
+        TabView(selection: $index) {
+            ForEach(Array(questions.enumerated()), id: \.element.id) { i, q in
+                FillBlankRevealCard(question: q).tag(i)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .navigationTitle(questions.count > 1 ? "Fill-in \(index + 1) of \(questions.count)" : "Fill-in-the-Blank")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// One reveal-style fill-in card: question → "Reveal Answer" → answers + explanation.
+private struct FillBlankRevealCard: View {
     let question: FillBlankQuestion
     @State private var revealed = false
-
-    var highlightedPrompt: AttributedString {
-        var result = AttributedString(question.prompt)
-        if let range = result.range(of: "___") {
-            result[range].foregroundColor = .blue
-            result[range].font = .body.bold()
-        }
-        return result
-    }
 
     var body: some View {
         ScrollView {
@@ -1687,8 +1720,6 @@ struct FillBlankDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("Fill-in-the-Blank")
-        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: question.id) { revealed = false }
     }
 }
@@ -4786,6 +4817,7 @@ struct StatsView: View {
                 List {
                     // Overall
                     let summary = fillProgress.summary(for: all)
+                    let stages = fillProgress.stageCounts(for: all)
                     let seenTotal = studied.reduce(0) { $0 + (fillProgress.progress[$1.prompt]?.seen ?? 0) }
                     let correctTotal = studied.reduce(0) { $0 + (fillProgress.progress[$1.prompt]?.correct ?? 0) }
                     let acc = seenTotal > 0 ? Double(correctTotal) / Double(seenTotal) : 0
@@ -4794,6 +4826,16 @@ struct StatsView: View {
                             Label("Studied", systemImage: "book.closed.fill")
                             Spacer()
                             Text("\(summary.studied) / \(summary.total)").fontWeight(.semibold)
+                        }
+                        HStack {
+                            Label("Learning (multiple choice)", systemImage: "checklist")
+                            Spacer()
+                            Text("\(stages.mc)").fontWeight(.semibold).foregroundStyle(.blue)
+                        }
+                        HStack {
+                            Label("Recall (write-in)", systemImage: "pencil.line")
+                            Spacer()
+                            Text("\(stages.write)").fontWeight(.semibold).foregroundStyle(.indigo)
                         }
                         HStack {
                             Label("Mastered", systemImage: "checkmark.seal.fill")
@@ -4843,9 +4885,9 @@ struct StatsView: View {
                         }
                     }
 
-                    // Weak spots: seen but not mastered, lowest accuracy first
+                    // Weak spots: seen but not yet mastered, lowest accuracy first
                     let weak = studied
-                        .filter { (fillProgress.progress[$0.prompt]?.reps ?? 0) < 2 }
+                        .filter { fillProgress.entry(for: $0.prompt).stage != .mastered }
                         .sorted { a, b in
                             let pa = fillProgress.entry(for: a.prompt), pb = fillProgress.entry(for: b.prompt)
                             let aa = pa.seen > 0 ? Double(pa.correct) / Double(pa.seen) : 0
@@ -4857,10 +4899,11 @@ struct StatsView: View {
                         Section("Keep Practicing") {
                             ForEach(Array(weak), id: \.prompt) { q in
                                 let p = fillProgress.entry(for: q.prompt)
+                                let stageLabel = p.stage == .mc ? "multiple choice" : "write-in"
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(q.prompt.replacingOccurrences(of: "___", with: "____"))
                                         .font(.subheadline).lineLimit(2)
-                                    Text("\(p.correct)/\(p.seen) correct · \(q.category)")
+                                    Text("\(p.correct)/\(p.seen) correct · \(stageLabel) · \(q.category)")
                                         .font(.caption).foregroundStyle(.secondary)
                                 }
                                 .padding(.vertical, 1)
@@ -4892,7 +4935,7 @@ struct GuideView: View {
                 Section("App Tabs") {
                     Label("IDs — Browse all anatomy categories. Tap a structure for details, or swipe left/right to move through every structure in order — even across categories.", systemImage: "photo.on.rectangle")
                     Label("Traces — Practice tracing molecules step by step through organ systems. Reveal each step one at a time and check key points at the end.", systemImage: "arrow.right.circle")
-                    Label("Fill-In — Fill-in-the-blank questions with instant feedback. Smart Review schedules new, missed, and stale questions first so you cycle through and master all of them; Browse All goes straight through by topic. Track mastery under Stats › Fill-Ins.", systemImage: "text.badge.plus")
+                    Label("Fill-In — Fill-in-the-blank questions with instant feedback. Smart Review schedules new, missed, and stale questions first so you cycle through and master all of them; Browse All goes straight through by topic. Each fill-in begins as multiple choice and graduates to write-in once mastered (a missed write-in drops it back). Track mastery under Stats › Fill-Ins.", systemImage: "text.badge.plus")
                     Label("Quiz — Timed multiple-choice or write-your-own-answer practice, filterable by category.", systemImage: "pencil")
                     Label("Search — Find any structure instantly by name, alias, or description.", systemImage: "magnifyingglass")
                     Label("Diagrams — Swipeable reference diagrams for arterial, venous, and digestive systems.", systemImage: "photo.stack.fill")

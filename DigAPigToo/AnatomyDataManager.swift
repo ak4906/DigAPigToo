@@ -2130,12 +2130,12 @@ class AnatomyDataManager: ObservableObject {
                     name: "Testis",
                     aliases: ["Testicle", "Male gonad"],
                     function: "Produces sperm via spermatogenesis and testosterone via Leydig cells",
-                    commonConfusions: ["Seminiferous tubule epithelium is specialized stratified germinal epithelium — NOT simple cuboidal/columnar/squamous"],
+                    commonConfusions: ["Leydig cells sit BETWEEN the seminiferous tubules (secrete testosterone); Sertoli cells are INSIDE the tubules (support developing sperm) — don't swap the two"],
                     examTips: ["One of the more commonly tested reproductive structures", "Practical ID: oval reproductive organ with epididymis attached along one side", "VERY important histology slide: seminiferous tubules, spermatogonia, spermatocytes, spermatids, spermatozoa, Leydig cells", "Leydig cells located between seminiferous tubules — secrete testosterone — VERY HIGH YIELD endocrine concept", "External scrotal position maintains lower temperature for spermatogenesis"],
                     images: [
                         ImageCDN.image("testis_gross_1.png", caption: "Testis"),
                     ],
-                    histology: "Composed mainly of coiled seminiferous tubules lined by specialized stratified germinal epithelium; Leydig cells (testosterone-secreting) located between tubules; Sertoli cells support sperm maturation within tubules",
+                    histology: "Composed mainly of coiled seminiferous tubules packed with developing sperm cells (spermatogonia → spermatocytes → spermatids → spermatozoa) and supporting Sertoli cells; Leydig cells (testosterone-secreting) located in the interstitium between the tubules",
                     connections: "Seminiferous tubules → epididymis → ductus deferens",
                     highYield: true
                 ),
@@ -2295,7 +2295,7 @@ class AnatomyDataManager: ObservableObject {
                     images: [
                         ImageCDN.image("ovary_gross_1.jpeg", caption: "Ovary"),
                     ],
-                    histology: "Simple cuboidal to simple squamous (germinal epithelium) overlying a dense connective tissue cortex containing follicles in various stages; medulla is vascular loose connective tissue",
+                    histology: "Simple cuboidal to simple squamous surface epithelium overlying a dense connective tissue cortex containing follicles in various stages; medulla is vascular loose connective tissue",
                     connections: "Connected to oviduct via fimbriae; suspended by mesovarium (part of broad ligament); receives blood from ovarian artery (branch of abdominal aorta)",
                     highYield: true
                 ),
@@ -5641,7 +5641,6 @@ class AnatomyDataManager: ObservableObject {
                 category: "Reproductive",
                 steps: [
                     TraceStep("Seminiferous Tubules (sperm production via spermatogenesis)", highlight: true),
-                    TraceStep("Rete Testis → Efferent Ductules"),
                     TraceStep("Epididymis (sperm maturation + storage; pseudostratified columnar with stereocilia)", highlight: true),
                     TraceStep("Ductus Deferens / Vas Deferens (thick smooth muscle; peristaltic propulsion)", highlight: true),
                     TraceStep("Seminal Vesicles contribute seminal fluid (fructose, prostaglandins)"),
@@ -5651,7 +5650,7 @@ class AnatomyDataManager: ObservableObject {
                     TraceStep("Urethra → Penis → Preputial Orifice / External environment", highlight: true),
                 ],
                 keyPoints: [
-                    "Seminiferous tubules lined by specialized stratified germinal epithelium — NOT simple cuboidal",
+                    "Seminiferous tubules contain developing sperm and Sertoli cells; Leydig cells lie between the tubules and secrete testosterone",
                     "Epididymis has stereocilia (nonmotile microvilli) — NOT true cilia",
                     "Ductus deferens is one of the most muscular ducts in the body (powerful peristalsis)",
                     "Accessory glands add fluid: seminal vesicles → prostate → bulbourethral glands",
@@ -5858,6 +5857,12 @@ class AnatomyDataManager: ObservableObject {
                 prompt: "Besides the main pancreatic duct (which joins the common bile duct), a separate ___ pancreatic duct empties into the ___ on its own.",
                 answers: ["accessory", "duodenum"],
                 explanation: "The accessory pancreatic duct enters the duodenum directly, apart from the common bile duct.",
+                category: "Ducts & Sphincters"
+            ),
+            FillBlankQuestion(
+                prompt: "The ___, located at the opening between the ileum and the large intestine, controls the flow of chyme from the small intestine into the large intestine.",
+                answers: ["ileocecal valve"],
+                explanation: "The ileocecal valve is a one-way sphincter at the ileum–caecum junction: it lets chyme pass into the large intestine and prevents bacteria-laden contents from backflowing into the small intestine.",
                 category: "Ducts & Sphincters"
             ),
 

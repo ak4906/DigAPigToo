@@ -232,6 +232,8 @@ struct TracePracticeView: View {
             Button(stepIndex + 1 < steps.count ? "Next Step →" : "See Results") { advance() }
                 .buttonStyle(.borderedProminent).tint(.indigo)
                 .frame(maxWidth: .infinity)
+                // Hardware keyboard: Return advances to the next step / results.
+                .keyboardShortcut(.return, modifiers: [])
         }
     }
 

@@ -63,12 +63,7 @@ struct FillBlankStudyView: View {
     private func runner(_ q: FillBlankQuestion) -> some View {
         let isLastBlank = blankIndex >= q.answers.count - 1
         return VStack(spacing: 14) {
-            Picker("Mode", selection: $mode) {
-                ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .onChange(of: mode) { startQuestion() }
+            modeBadge(for: q)
 
             HStack {
                 Text("Sentence \(qIndex + 1) of \(deck.count)")
@@ -150,6 +145,34 @@ struct FillBlankStudyView: View {
                     .keyboardShortcut(.return, modifiers: [])
             }
         }
+    }
+
+    // Shows which mode this fill-in is locked into by its mastery stage, and why.
+    private func modeBadge(for q: FillBlankQuestion) -> some View {
+        let stage = FillBlankProgressManager.shared.stage(for: q.prompt)
+        return HStack(spacing: 8) {
+            switch stage {
+            case .mc:
+                Label("Multiple Choice", systemImage: "checklist")
+                    .font(.caption.bold())
+                    .padding(.horizontal, 10).padding(.vertical, 5)
+                    .background(.blue.opacity(0.15)).foregroundStyle(.blue).clipShape(Capsule())
+            case .write:
+                Label("Write-In", systemImage: "pencil.line")
+                    .font(.caption.bold())
+                    .padding(.horizontal, 10).padding(.vertical, 5)
+                    .background(.indigo.opacity(0.15)).foregroundStyle(.indigo).clipShape(Capsule())
+                Text("Mastered multiple choice — recall it").font(.caption2).foregroundStyle(.secondary)
+            case .mastered:
+                Label("Write-In", systemImage: "pencil.line")
+                    .font(.caption.bold())
+                    .padding(.horizontal, 10).padding(.vertical, 5)
+                    .background(.green.opacity(0.15)).foregroundStyle(.green).clipShape(Capsule())
+                Label("Mastered", systemImage: "checkmark.seal.fill").font(.caption2).foregroundStyle(.green)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal)
     }
 
     private func nextButtonTitle(isLastBlank: Bool) -> String {
@@ -253,11 +276,15 @@ struct FillBlankStudyView: View {
 
     private func startQuestion() {
         guard qIndex < deck.count else { return }
+        let q = deck[qIndex]
+        // The presentation mode is dictated by the fill-in's mastery stage, not chosen by the user:
+        // recognition (MC) until mastered, then active recall (write-in).
+        mode = FillBlankProgressManager.shared.stage(for: q.prompt) == .mc ? .multipleChoice : .writeIn
         blankIndex = 0
         answeredCurrent = false
         selected = nil
         typed = ""
-        results = Array(repeating: false, count: deck[qIndex].answers.count)
+        results = Array(repeating: false, count: q.answers.count)
         prepareGap()
     }
 
