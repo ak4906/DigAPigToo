@@ -1535,6 +1535,7 @@ private struct TraceThumb: View {
 
 struct FillBlankListView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @StateObject private var progressMgr = FillBlankProgressManager.shared
     @State private var selectedCategory: String = "All"
     @State private var mcatOnly = false
 
@@ -1559,14 +1560,29 @@ struct FillBlankListView: View {
                     .pickerStyle(.menu)
                     Toggle("MCAT-relevant only", isOn: $mcatOnly)
                     NavigationLink {
-                        FillBlankStudyView(questions: filtered)
+                        FillBlankStudyView(questions: filtered, useSmartOrder: true)
                     } label: {
-                        Label("Study these (\(filtered.count))", systemImage: "play.circle.fill")
+                        Label("Smart Review (\(filtered.count))", systemImage: "brain.head.profile")
                             .foregroundStyle(.indigo)
                     }
                     .disabled(filtered.isEmpty)
+                    NavigationLink {
+                        FillBlankStudyView(questions: filtered, useSmartOrder: false)
+                    } label: {
+                        Label("Browse All in Order (\(filtered.count))", systemImage: "list.number")
+                    }
+                    .disabled(filtered.isEmpty)
+                    if !filtered.isEmpty {
+                        let s = progressMgr.summary(for: filtered)
+                        HStack {
+                            Label("Mastered", systemImage: "checkmark.seal.fill")
+                                .font(.caption).foregroundStyle(.green)
+                            Spacer()
+                            Text("\(s.mastered) / \(s.total)").font(.caption.bold()).foregroundStyle(.secondary)
+                        }
+                    }
                 } footer: {
-                    Text("Study tests each blank as its own multiple-choice or write-in question.")
+                    Text("Smart Review prioritizes new, missed, and least-recently-seen questions so you cycle through all of them. Browse All goes straight through by topic. Each blank is tested as its own multiple-choice or write-in question.")
                 }
                 ForEach(filtered) { q in
                     NavigationLink { FillBlankDetailView(question: q) } label: {
@@ -4608,13 +4624,16 @@ struct DiagramDetailView: View {
 
 enum StatsMode: String, CaseIterable {
     case quiz = "Quiz"
-    case flashcards = "Flashcards"
+    case flashcards = "Cards"
+    case fillins = "Fill-Ins"
 }
 
 struct StatsView: View {
     @StateObject private var stats = StatsManager.shared
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @StateObject private var fillProgress = FillBlankProgressManager.shared
     @State private var showResetConfirm = false
+    @State private var showFillResetConfirm = false
     @State private var mode: StatsMode = .quiz
 
     var body: some View {
@@ -4623,6 +4642,7 @@ struct StatsView: View {
                 switch mode {
                 case .quiz:       quizStats
                 case .flashcards: FlashcardStatsContent()
+                case .fillins:    fillinStats
                 }
             }
             .navigationTitle("My Stats")
@@ -4633,7 +4653,7 @@ struct StatsView: View {
                         ForEach(StatsMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 220)
+                    .frame(width: 260)
                 }
             }
         }
@@ -4747,6 +4767,120 @@ struct StatsView: View {
             Text("This cannot be undone.")
         }
     }
+
+    // MARK: Fill-in stats
+    @ViewBuilder
+    private var fillinStats: some View {
+        let all = dataManager.fillBlanks
+        let studied = all.filter { (fillProgress.progress[$0.prompt]?.seen ?? 0) > 0 }
+        Group {
+            if studied.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "text.badge.plus").font(.system(size: 52)).foregroundStyle(.secondary)
+                    Text("No fill-in data yet").font(.headline)
+                    Text("Use Smart Review on the Fill-In tab to start tracking mastery.")
+                        .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                }
+                .padding()
+            } else {
+                List {
+                    // Overall
+                    let summary = fillProgress.summary(for: all)
+                    let seenTotal = studied.reduce(0) { $0 + (fillProgress.progress[$1.prompt]?.seen ?? 0) }
+                    let correctTotal = studied.reduce(0) { $0 + (fillProgress.progress[$1.prompt]?.correct ?? 0) }
+                    let acc = seenTotal > 0 ? Double(correctTotal) / Double(seenTotal) : 0
+                    Section("Overall") {
+                        HStack {
+                            Label("Studied", systemImage: "book.closed.fill")
+                            Spacer()
+                            Text("\(summary.studied) / \(summary.total)").fontWeight(.semibold)
+                        }
+                        HStack {
+                            Label("Mastered", systemImage: "checkmark.seal.fill")
+                            Spacer()
+                            Text("\(summary.mastered) / \(summary.total)")
+                                .fontWeight(.semibold).foregroundStyle(.green)
+                        }
+                        HStack {
+                            Label("Sentence Accuracy", systemImage: "percent")
+                            Spacer()
+                            Text("\(Int(acc * 100))%")
+                                .fontWeight(.semibold)
+                                .foregroundStyle(acc >= 0.75 ? .green : acc >= 0.6 ? .orange : .red)
+                        }
+                    }
+
+                    // By category (mastered / studied)
+                    let cats = Array(Set(all.map { $0.category })).sorted()
+                    let catRows: [(cat: String, mastered: Int, studied: Int, total: Int)] = cats.map { c in
+                        let qs = all.filter { $0.category == c }
+                        let s = fillProgress.summary(for: qs)
+                        let st = qs.filter { (fillProgress.progress[$0.prompt]?.seen ?? 0) > 0 }.count
+                        return (c, s.mastered, st, s.total)
+                    }.filter { $0.studied > 0 }.sorted { $0.mastered * $1.total < $1.mastered * $0.total }
+                    if !catRows.isEmpty {
+                        Section("By Category (least mastered first)") {
+                            ForEach(catRows, id: \.cat) { row in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Text(row.cat).font(.subheadline)
+                                        Spacer()
+                                        Text("\(row.mastered)/\(row.total) mastered")
+                                            .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                                    }
+                                    GeometryReader { geo in
+                                        let frac = row.total > 0 ? Double(row.mastered) / Double(row.total) : 0
+                                        ZStack(alignment: .leading) {
+                                            RoundedRectangle(cornerRadius: 3).fill(.gray.opacity(0.15)).frame(height: 5)
+                                            RoundedRectangle(cornerRadius: 3).fill(Color.green)
+                                                .frame(width: geo.size.width * frac, height: 5)
+                                        }
+                                    }
+                                    .frame(height: 5)
+                                }
+                                .padding(.vertical, 2)
+                            }
+                        }
+                    }
+
+                    // Weak spots: seen but not mastered, lowest accuracy first
+                    let weak = studied
+                        .filter { (fillProgress.progress[$0.prompt]?.reps ?? 0) < 2 }
+                        .sorted { a, b in
+                            let pa = fillProgress.entry(for: a.prompt), pb = fillProgress.entry(for: b.prompt)
+                            let aa = pa.seen > 0 ? Double(pa.correct) / Double(pa.seen) : 0
+                            let ab = pb.seen > 0 ? Double(pb.correct) / Double(pb.seen) : 0
+                            return aa < ab
+                        }
+                        .prefix(15)
+                    if !weak.isEmpty {
+                        Section("Keep Practicing") {
+                            ForEach(Array(weak), id: \.prompt) { q in
+                                let p = fillProgress.entry(for: q.prompt)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(q.prompt.replacingOccurrences(of: "___", with: "____"))
+                                        .font(.subheadline).lineLimit(2)
+                                    Text("\(p.correct)/\(p.seen) correct · \(q.category)")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
+                                .padding(.vertical, 1)
+                            }
+                        }
+                    }
+
+                    Section {
+                        Button("Reset Fill-in Progress", role: .destructive) { showFillResetConfirm = true }
+                    }
+                }
+            }
+        }
+        .confirmationDialog("Reset all fill-in progress?", isPresented: $showFillResetConfirm, titleVisibility: .visible) {
+            Button("Reset", role: .destructive) { fillProgress.reset() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This clears mastery and scheduling for every fill-in. This cannot be undone.")
+        }
+    }
 }
 
 // MARK: - Guide
@@ -4758,7 +4892,7 @@ struct GuideView: View {
                 Section("App Tabs") {
                     Label("IDs — Browse all anatomy categories. Tap a structure for details, or swipe left/right to move through every structure in order — even across categories.", systemImage: "photo.on.rectangle")
                     Label("Traces — Practice tracing molecules step by step through organ systems. Reveal each step one at a time and check key points at the end.", systemImage: "arrow.right.circle")
-                    Label("Fill-In — Fill-in-the-blank questions with instant feedback. Great for memorizing specific names and terms.", systemImage: "text.badge.plus")
+                    Label("Fill-In — Fill-in-the-blank questions with instant feedback. Smart Review schedules new, missed, and stale questions first so you cycle through and master all of them; Browse All goes straight through by topic. Track mastery under Stats › Fill-Ins.", systemImage: "text.badge.plus")
                     Label("Quiz — Timed multiple-choice or write-your-own-answer practice, filterable by category.", systemImage: "pencil")
                     Label("Search — Find any structure instantly by name, alias, or description.", systemImage: "magnifyingglass")
                     Label("Diagrams — Swipeable reference diagrams for arterial, venous, and digestive systems.", systemImage: "photo.stack.fill")
@@ -4949,7 +5083,7 @@ struct CloudSyncView: View {
                 Section {
                     Button("Reset All Progress", role: .destructive) { showResetConfirm = true }
                 } footer: {
-                    Text("Erases your quiz stats and flashcard progress on this device and from iCloud, so you can start fresh. Custom decks are kept. If another signed-in device syncs afterward, its progress can return — reset while your other devices are closed.")
+                    Text("Erases your quiz stats, flashcard progress, and fill-in mastery on this device and from iCloud, so you can start fresh. Custom decks are kept. If another signed-in device syncs afterward, its progress can return — reset while your other devices are closed.")
                 }
             }
             .navigationTitle("iCloud Sync")
@@ -4959,7 +5093,7 @@ struct CloudSyncView: View {
                 Button("Reset Everything", role: .destructive) { resetAll() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This permanently erases your quiz stats and flashcard progress on this device and in iCloud. This cannot be undone.")
+                Text("This permanently erases your quiz stats, flashcard progress, and fill-in mastery on this device and in iCloud. This cannot be undone.")
             }
         }
     }
@@ -4967,6 +5101,7 @@ struct CloudSyncView: View {
     private func resetAll() {
         StatsManager.shared.reset()
         FlashcardManager.shared.resetAll()
+        FillBlankProgressManager.shared.reset()
         CloudSync.recordSync()
         _ = CloudSync.flush()
         lastSync = CloudSync.lastSyncDate
@@ -4976,6 +5111,7 @@ struct CloudSyncView: View {
         StatsManager.shared.syncNow()
         FlashcardManager.shared.syncNow()
         DeckManager.shared.syncNow()
+        FillBlankProgressManager.shared.syncNow()
         CloudSync.recordSync()
         _ = CloudSync.flush()
         lastSync = CloudSync.lastSyncDate

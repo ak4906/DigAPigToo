@@ -12,6 +12,9 @@ import SwiftUI
 
 struct FillBlankStudyView: View {
     let questions: [FillBlankQuestion]
+    /// Smart Review orders by weakest + least-recently-seen (and varies each session);
+    /// Browse All keeps the original topic order for a straight pass.
+    var useSmartOrder: Bool = true
 
     enum Mode: String, CaseIterable, Identifiable {
         case multipleChoice = "Multiple Choice"
@@ -221,6 +224,11 @@ struct FillBlankStudyView: View {
 
     private func advance(isLastBlank: Bool) {
         if isLastBlank {
+            // Log the whole-sentence attempt (drives mastery + smart order): all gaps right?
+            if qIndex < deck.count {
+                let allCorrect = !results.isEmpty && results.allSatisfy { $0 }
+                FillBlankProgressManager.shared.record(prompt: deck[qIndex].prompt, allCorrect: allCorrect)
+            }
             qIndex += 1
             if qIndex < deck.count { startQuestion() }
         } else {
@@ -233,9 +241,10 @@ struct FillBlankStudyView: View {
     }
 
     private func rebuild() {
-        deck = questions.filter { q in
+        let valid = questions.filter { q in
             q.answers.count > 0 && q.prompt.components(separatedBy: "___").count - 1 == q.answers.count
-        }.shuffled()
+        }
+        deck = useSmartOrder ? FillBlankProgressManager.shared.smartOrder(valid) : valid
         totalBlanks = deck.reduce(0) { $0 + $1.answers.count }
         qIndex = 0
         gotBlanks = 0

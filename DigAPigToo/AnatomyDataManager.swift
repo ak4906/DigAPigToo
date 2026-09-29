@@ -5788,10 +5788,11 @@ class AnatomyDataManager: ObservableObject {
                 category: "Respiratory"
             ),
             FillBlankQuestion(
-                prompt: "Seminiferous tubules are lined by specialized ___ epithelium. ___ cells between the tubules secrete testosterone, while ___ cells inside the tubules support sperm maturation.",
-                answers: ["stratified germinal", "Leydig", "Sertoli"],
-                explanation: "High yield histology: seminiferous tubule epithelium is a specialized stratified germinal epithelium (not simple cuboidal). Leydig cells are interstitial (between tubules); Sertoli cells are inside the tubules.",
-                category: "Reproductive"
+                prompt: "___ cells located between the seminiferous tubules secrete testosterone, while ___ cells inside the tubules support sperm maturation.",
+                answers: ["Leydig", "Sertoli"],
+                explanation: "High yield: Leydig (interstitial) cells sit between the tubules and secrete testosterone; Sertoli cells line the inside of the tubules and support developing sperm.",
+                category: "Reproductive",
+                mcatRelevant: true
             ),
             FillBlankQuestion(
                 prompt: "The glottis is the ___ leading into the larynx, while the ___ is the cartilaginous flap that covers it during swallowing.",
