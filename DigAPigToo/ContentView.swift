@@ -4943,7 +4943,7 @@ struct AboutView: View {
                             .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                         Text("Dig a Pig Too")
                             .font(.title).fontWeight(.bold)
-                        Text("Version 1.3.1  •  2026")
+                        Text("Version 1.4  •  2026")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
@@ -4969,12 +4969,15 @@ struct AboutView: View {
                         Divider()
 
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("What's New in 1.3.1").font(.headline)
+                            Text("What's New in 1.4").font(.headline)
                             Group {
-                                Label("Photo coverage is complete: every structure in the atlas now has a real dissection or histology image, across all organ systems", systemImage: "photo.stack.fill")
-                                Label("Expanded histology detail from the lab handout, including the liver lobule, hepatocytes, and the testis (spermatogenesis) slide", systemImage: "checkmark.seal.fill")
-                                Label("Write-Answer & Real Exam now accept the core name, so \"uterus\" counts for the adult maternal uterus", systemImage: "checkmark.circle.fill")
-                                Label("Real Exam stations no longer repeat an ID; the intact-kidney station now includes the renal artery and vein", systemImage: "clock.badge.checkmark")
+                                Label("Offline mode: download every photo and histology slide to study with no internet — on the subway, in lab, or on airplane mode", systemImage: "arrow.down.circle")
+                                Label("iCloud sync keeps your stats, flashcard progress, and decks in step across your iPhone, iPad, and Mac", systemImage: "icloud")
+                                Label("Traces now have a card-based practice mode with step-by-step images and multiple-choice or write-in recall", systemImage: "arrow.right.circle")
+                                Label("Real Exam rebuilt: swipeable ID cards, an overhauled set of histology stations, and an \"I got it right\" self-check", systemImage: "clock.badge.checkmark")
+                                Label("Quiz difficulty levels — Hard mode serves trickier look-alike options", systemImage: "pencil")
+                                Label("Fill-in-the-Blank study mode: multiple-choice or write-in, filterable by topic, with MCAT-relevant tags", systemImage: "text.badge.plus")
+                                Label("Photo coverage is complete — every structure in the atlas now has a real dissection or histology image", systemImage: "photo.stack.fill")
                             }
                             .font(.subheadline)
                         }
