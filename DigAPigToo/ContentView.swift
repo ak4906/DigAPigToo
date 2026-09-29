@@ -4053,29 +4053,69 @@ struct SearchView: View {
         searchText.isEmpty ? [] : dataManager.searchStructures(query: searchText)
     }
 
+    /// Fill-in questions whose sentence, answers, explanation, or category contain the query.
+    var fillBlankResults: [FillBlankQuestion] {
+        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !q.isEmpty else { return [] }
+        return dataManager.fillBlanks.filter { fb in
+            fb.prompt.lowercased().contains(q)
+            || fb.answers.contains { $0.lowercased().contains(q) }
+            || fb.explanation.lowercased().contains(q)
+            || fb.category.lowercased().contains(q)
+        }
+    }
+
     private func categoryName(for structure: AnatomyStructure) -> String {
         dataManager.categories.first { $0.id == structure.categoryId }?.name ?? ""
+    }
+
+    /// The fill-in sentence with its blanks filled in, so the matched keyword is visible in the hit.
+    private func filledPrompt(_ q: FillBlankQuestion) -> String {
+        var s = q.prompt
+        for a in q.answers {
+            if let r = s.range(of: "___") { s.replaceSubrange(r, with: a) }
+        }
+        return s
     }
 
     var body: some View {
         NavigationStack(path: $navPath) {
             Group {
-                if results.isEmpty {
-                    VStack {
+                if results.isEmpty && fillBlankResults.isEmpty {
+                    VStack(spacing: 6) {
                         Image(systemName: "magnifyingglass").font(.largeTitle)
-                        Text("Search for structures").foregroundStyle(.secondary)
+                        Text(searchText.isEmpty ? "Search structures & fill-ins" : "No matches")
+                            .foregroundStyle(.secondary)
                     }
                 } else {
-                    List(results) { s in
-                        NavigationLink(value: s) {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(s.name)
-                                    .font(.body)
-                                let cat = categoryName(for: s)
-                                if !cat.isEmpty {
-                                    Label(cat, systemImage: "folder")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                    List {
+                        if !results.isEmpty {
+                            Section("Structures") {
+                                ForEach(results) { s in
+                                    NavigationLink(value: s) {
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(s.name).font(.body)
+                                            let cat = categoryName(for: s)
+                                            if !cat.isEmpty {
+                                                Label(cat, systemImage: "folder")
+                                                    .font(.caption).foregroundStyle(.secondary)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if !fillBlankResults.isEmpty {
+                            Section("Fill-in Questions") {
+                                ForEach(fillBlankResults) { q in
+                                    NavigationLink(value: q) {
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(filledPrompt(q))
+                                                .font(.subheadline).lineLimit(3)
+                                            Label(q.category, systemImage: "text.badge.plus")
+                                                .font(.caption).foregroundStyle(.secondary)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -4087,9 +4127,12 @@ struct SearchView: View {
                             initialIndex: results.firstIndex(where: { $0.id == s.id }) ?? 0
                         )
                     }
+                    .navigationDestination(for: FillBlankQuestion.self) { q in
+                        FillBlankDetailView(question: q)
+                    }
                 }
             }
-            .searchable(text: $searchText, prompt: "Search structures")
+            .searchable(text: $searchText, prompt: "Search structures & fill-ins")
             .navigationTitle("Search")
         }
         .onChange(of: navPath.count) { _, count in

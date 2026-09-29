@@ -196,7 +196,7 @@ struct TraceQuestion: Identifiable {
 
 // MARK: - Fill-in-the-Blank Models
 
-struct FillBlankQuestion: Identifiable {
+struct FillBlankQuestion: Identifiable, Hashable {
     let id: UUID
     let prompt: String       // sentence with "___" markers
     let answers: [String]    // in order of blanks
