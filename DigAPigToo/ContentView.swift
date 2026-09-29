@@ -16,6 +16,18 @@ extension UIDevice {
     static var isPad: Bool { current.userInterfaceIdiom == .pad }
 }
 
+extension View {
+    /// Hardware-keyboard (Mac / iPad) shortcut: maps number keys 1–9 to a 0-based choice index,
+    /// top to bottom. No-op past 9 (avoids a multi-digit key). Used for all multiple-choice lists.
+    @ViewBuilder func numberKeyShortcut(_ index: Int) -> some View {
+        if index < 9 {
+            self.keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: [])
+        } else {
+            self
+        }
+    }
+}
+
 /// iPhone: a fixed image height (unchanged). iPad: a fraction of the container's height,
 /// so images scale proportionally across iPad sizes (mini → 12.9") and orientation
 /// instead of a fixed pixel value.
@@ -2137,7 +2149,7 @@ struct QuizQuestionView: View {
     @ViewBuilder
     private func multipleChoiceAnswerArea(session: QuizSession) -> some View {
         VStack(spacing: 10) {
-            ForEach(shuffledChoices, id: \.self) { choice in
+            ForEach(Array(shuffledChoices.enumerated()), id: \.element) { i, choice in
                 Button(action: { answerMultipleChoice(choice) }) {
                     Text(choice)
                         .frame(maxWidth: .infinity)
@@ -2147,6 +2159,8 @@ struct QuizQuestionView: View {
                         .cornerRadius(10)
                 }
                 .disabled(isAnswered)
+                // Hardware keyboard (Mac / iPad): number keys 1–N pick the choice, top to bottom.
+                .numberKeyShortcut(i)
             }
         }
     }

@@ -88,7 +88,7 @@ struct FillBlankStudyView: View {
                     if !answeredCurrent {
                         // Prompt for the ACTIVE gap only.
                         if mode == .multipleChoice {
-                            ForEach(options, id: \.self) { opt in
+                            ForEach(Array(options.enumerated()), id: \.element) { i, opt in
                                 Button { choose(opt, correct: q.answers[blankIndex]) } label: {
                                     Text(opt)
                                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -97,6 +97,8 @@ struct FillBlankStudyView: View {
                                         .cornerRadius(10)
                                 }
                                 .buttonStyle(.plain)
+                                // Hardware keyboard: number keys 1–N pick the choice, top to bottom.
+                                .numberKeyShortcut(i)
                             }
                         } else {
                             TextField("Fill gap \(blankIndex + 1)…", text: $typed)
@@ -141,6 +143,8 @@ struct FillBlankStudyView: View {
                     .buttonStyle(.borderedProminent).tint(.indigo)
                     .frame(maxWidth: .infinity)
                     .padding([.horizontal, .bottom])
+                    // Hardware keyboard: Return advances to the next gap / sentence.
+                    .keyboardShortcut(.return, modifiers: [])
             }
         }
     }

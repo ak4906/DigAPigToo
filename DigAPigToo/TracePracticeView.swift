@@ -103,7 +103,7 @@ struct TracePracticeView: View {
                 Text(stepIndex == 0 ? "What's the FIRST step?" : "What comes NEXT?")
                     .font(.headline).foregroundStyle(.green)
                 if style == .multipleChoice {
-                    ForEach(options, id: \.self) { opt in
+                    ForEach(Array(options.enumerated()), id: \.element) { i, opt in
                         Button { chooseMC(opt, correct: step.text) } label: {
                             Text(opt)
                                 .font(.subheadline)
@@ -114,6 +114,8 @@ struct TracePracticeView: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        // Hardware keyboard: number keys 1–N pick the choice, top to bottom.
+                        .numberKeyShortcut(i)
                     }
                 } else {
                     TextField("Type the next step…", text: $typed, axis: .vertical)
