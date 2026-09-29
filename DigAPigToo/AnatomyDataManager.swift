@@ -5081,6 +5081,16 @@ class AnatomyDataManager: ObservableObject {
         if Self.serousMembranes.contains(s.name) {
             return structures.filter { Self.serousMembranes.contains($0.name) }
         }
+        // Limb joints → only other joints (the app has Knee/Ankle/Wrist/Elbow — no Shoulder
+        // structure exists, so Wrist stands in; all are pinned points that look alike).
+        let limbJoints: Set<String> = ["Knee", "Ankle", "Wrist", "Elbow"]
+        if limbJoints.contains(s.name) { return structures.filter { limbJoints.contains($0.name) } }
+        // Small round histology structures that are classically hard to tell apart.
+        let roundHisto: Set<String> = ["Acinus", "Islet of Langerhans", "Glomerulus", "Bowman's Capsule"]
+        if roundHisto.contains(s.name) { return structures.filter { roundHisto.contains($0.name) } }
+        // Aorta segments → each other (ascending / arch / descending).
+        let aortaSegments: Set<String> = ["Ascending Aorta", "Arch of the Aorta", "Descending Aorta"]
+        if aortaSegments.contains(s.name) { return structures.filter { aortaSegments.contains($0.name) } }
         // Spermatogenic cell stages → only the other germ cell stages (NOT seminiferous tubule etc.).
         let spermStems = ["spermatogon", "spermatocyt", "spermatid", "spermatozo"]
         if spermStems.contains(where: { lower.contains($0) }) {

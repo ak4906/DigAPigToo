@@ -359,7 +359,7 @@ private struct TracePracticeThumb: View {
             Group {
                 if let img = image {
                     if img.isRemote {
-                        AsyncImage(url: URL(string: img.source)) { phase in
+                        AsyncImage(url: OfflineImageStore.shared.loadURL(for: img.source)) { phase in
                             if let i = phase.image { i.resizable().scaledToFill() }
                             else { Color.gray.opacity(0.12) }
                         }

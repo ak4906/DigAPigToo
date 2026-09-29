@@ -111,6 +111,9 @@ struct ContentView: View {
                 .tag(10)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
         }
+        // If the user opted into offline images, quietly pick up any newly-added
+        // photos on launch so their downloaded set stays complete.
+        .task { OfflineImageStore.shared.fetchMissingIfEnabled() }
     }
 }
 
@@ -857,7 +860,7 @@ private struct RemoteImageView: View {
     @State private var timedOut = false
 
     var body: some View {
-        AsyncImage(url: URL(string: urlString)) { phase in
+        AsyncImage(url: OfflineImageStore.shared.loadURL(for: urlString)) { phase in
             switch phase {
             case .success(let img):
                 imageContent(img).onAppear { onLoaded?() }
@@ -1148,7 +1151,7 @@ private struct FullscreenPageView: View {
 
     var body: some View {
         if let img = image {
-            if img.isRemote, let url = URL(string: img.source) {
+            if img.isRemote, let url = OfflineImageStore.shared.loadURL(for: img.source) {
                 AsyncZoomableImage(url: url, isZoomed: $isZoomed)
             } else if let uiImg = UIImage(named: img.source) {
                 ZoomableUIImage(uiImage: uiImg, isZoomed: $isZoomed)
@@ -1486,7 +1489,7 @@ private struct TraceThumb: View {
         Group {
             if let img = image {
                 if img.isRemote {
-                    AsyncImage(url: URL(string: img.source)) { phase in
+                    AsyncImage(url: OfflineImageStore.shared.loadURL(for: img.source)) { phase in
                         if let i = phase.image { i.resizable().scaledToFill() }
                         else { Color.gray.opacity(0.12).overlay(ProgressView().scaleEffect(0.5)) }
                     }
@@ -1673,6 +1676,8 @@ struct QuizCustomizationView: View {
     // NavigationLink, so it matches the Flashcards "Start Studying" row exactly:
     // one chevron, and the label tints blue when enabled / dims when disabled).
     @State private var startRunner = false
+    // Real Exam launches as a full-screen cover (no back-swipe gesture); quiz stays a nav push.
+    @State private var showExam = false
 
     var effectiveQuizTime: Int   { timeSelection == -1 ? customTime : timeSelection }
     var effectiveStationTime: Int { stationTimeSelection == -1 ? stationCustomTime : stationTimeSelection }
@@ -1796,7 +1801,7 @@ struct QuizCustomizationView: View {
                 // ── Start (kept at the top so it's easy to find) ───────────
                 Section {
                     Button {
-                        startRunner = true
+                        if quizMode == .realExam { showExam = true } else { startRunner = true }
                     } label: {
                         if quizMode == .realExam {
                             StartRowLabel(title: "Start Exam",
@@ -1869,15 +1874,21 @@ struct QuizCustomizationView: View {
             .navigationTitle("Quiz")
             .onAppear {
                 if selectedCategoryIDs.isEmpty { selectedCategoryIDs = allIDs }
-                isAtRoot = !startRunner
+                isAtRoot = !(startRunner || showExam)
             }
-            .onChange(of: startRunner) { isAtRoot = !startRunner }
+            .onChange(of: startRunner) { isAtRoot = !(startRunner || showExam) }
+            .onChange(of: showExam) { isAtRoot = !(startRunner || showExam) }
             .navigationDestination(isPresented: $startRunner) {
-                if quizMode == .realExam {
+                QuizView(numQuestions: numQuestions, timePerQuestion: effectiveQuizTime,
+                         selectedCategoryIDs: selectedCategoryIDs, quizMode: quizMode, difficulty: difficulty)
+            }
+            // Real Exam is a FULL-SCREEN COVER (not a nav push): a cover has NO back-swipe pop
+            // gesture, so it's impossible to swipe out of the exam. Exit is via Close / Done.
+            // Its own NavigationStack still lets tapping a graded answer push the ID card (and
+            // swipe back from THAT to the exam), while the exam root itself can't be swiped away.
+            .fullScreenCover(isPresented: $showExam) {
+                NavigationStack {
                     ExamHostView(numStations: numStations, timePerStation: effectiveStationTime, gradeAtEnd: examGradeAtEnd)
-                } else {
-                    QuizView(numQuestions: numQuestions, timePerQuestion: effectiveQuizTime,
-                             selectedCategoryIDs: selectedCategoryIDs, quizMode: quizMode, difficulty: difficulty)
                 }
             }
         }
@@ -1948,6 +1959,20 @@ struct QuizView: View {
     }
 }
 
+/// Quiz photo sizing: on iPhone multiple-choice the image fills the available height (so it's
+/// as large as possible and the answer buttons drop to the bottom); otherwise the standard
+/// fixed phone height / iPad fractional height.
+private struct QuizPhotoSizing: ViewModifier {
+    let fill: Bool
+    @ViewBuilder func body(content: Content) -> some View {
+        if fill {
+            content.frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            content.adaptiveImageHeight(phone: 180, padFraction: 0.52)
+        }
+    }
+}
+
 struct QuizQuestionView: View {
     @Binding var quizSession: QuizSession?
     @StateObject private var statsManager = StatsManager.shared
@@ -1998,7 +2023,10 @@ struct QuizQuestionView: View {
                         .font(.caption).foregroundStyle(timerColor).monospacedDigit()
                 }
 
-                // Photo
+                // Photo. On iPhone multiple-choice, let the image FILL the space so it's as big
+                // as possible and the options get pushed to the bottom (write-in already maxes
+                // the image, and iPad uses the fractional height, so only iPhone-MC changes).
+                let phoneMC = !UIDevice.isPad && session.quizMode == .multipleChoice
                 Group {
                     if let q = session.currentQuestion, !q.structure.images.isEmpty {
                         let img = q.structure.images[min(q.imageIndex, q.structure.images.count - 1)]
@@ -2018,7 +2046,7 @@ struct QuizQuestionView: View {
                             )
                     }
                 }
-                .adaptiveImageHeight(phone: 180, padFraction: 0.52)
+                .modifier(QuizPhotoSizing(fill: phoneMC))
                 .clipped()
 
                 // Answer area — branches on quiz mode
@@ -2028,7 +2056,9 @@ struct QuizQuestionView: View {
                     multipleChoiceAnswerArea(session: session)
                 }
 
-                Spacer()
+                // iPhone-MC: no trailing spacer — the filling image already pushes the options
+                // to the bottom (just above the tab bar), maximizing image visibility.
+                if !phoneMC { Spacer() }
             }
             .padding()
             .onChange(of: session.currentQuestionIndex) { resetForNewQuestion() }
@@ -2369,7 +2399,7 @@ struct QuizResultsView: View {
         Group {
             if let img {
                 if img.isRemote {
-                    AsyncImage(url: URL(string: img.source)) { phase in
+                    AsyncImage(url: OfflineImageStore.shared.loadURL(for: img.source)) { phase in
                         if let i = phase.image { i.resizable().scaledToFill() }
                         else { Color.gray.opacity(0.12).overlay(ProgressView().scaleEffect(0.6)) }
                     }
@@ -2634,8 +2664,8 @@ private let allHistoScenarios: [HistoScenario] = {
         HistoScenario(slideId: "03", label: "Slide #03 — Ileum (Peyer's patches)", entries: [
             e(_pA, "Ileum"),
             e(_pB, "Peyer's Patches"),
-            e(_pC, "Goblet Cells"),
-            e(_pD, "Mucus secretion"),
+            e(_pC, "Lymphocytes/Lymphoid tissue", alsoAccept: ["Lymphocyte", "Lymphoid follicle", "Lymphatic tissue", "Lymph tissue"]),
+            e(_pD, "Immune surveillance", alsoAccept: ["Immune defense", "Immune response", "Mucosal immunity", "Fights infection"]),
         // Use the Peyer's-patches image for A–D (the default ileum photo has the real pointer on
         // the intestinal glands, which misleads the Peyer's-patches question).
         ], slideImage: ImageCDN.slide("peyers-patches_histo_1.jpeg", magnification: 4, caption: "Ileum")),
@@ -2690,7 +2720,7 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pB, "Tunica Media"),
             e(_pC, "Elastic connective tissue/Elastic lamellae"),
             e(_pD, "Dampens pulse pressure/Elastic recoil"),
-        ]),
+        ], slideImage: ImageCDN.slide("aorta_histo_1exam.jpg", magnification: 4, caption: "Aorta")),
         HistoScenario(slideId: "07", label: "Slide #07 — Aorta (intima)", entries: [
             e(_pA, "Aorta"),
             e(_pB, "Tunica Intima"),
@@ -2785,7 +2815,9 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pD, "Progesterone production/Progesterone"),
         ]),
         HistoScenario(slideId: "13", label: "Slide #13 — Ovary (primary follicle)", entries: [
-            e(_pA, "Ovary"),
+            // A shows the ovary HISTOLOGY slide (same image as B), not the gross ovary photo the
+            // "Ovary" name resolves to — "what tissue is this?" is about reading the slide.
+            e(_pA, "Ovary", image: ImageCDN.slide("primary-follicle_histo_1.jpg", magnification: 40, caption: "Ovary")),
             e(_pB, "Primary Follicle"),
             e(_pC, "Primary Oocyte"),
             e(_pD, "Oogenesis"),
@@ -3076,10 +3108,23 @@ struct ExamHostView: View {
             // every A–D card: prefer an explicit slideImage, else A's per-entry image, else A's
             // structure's own image. This also removes the "message symbol" placeholder that used
             // to appear on free-text (write-in) cards.
-            let aStructImage = dataManager.structures.first {
-                $0.name.caseInsensitiveCompare(scenario.entries.first?.answer ?? "") == .orderedSame
-            }?.images.first
-            let slideImg = scenario.slideImage ?? scenario.entries.first?.image ?? aStructImage
+            // These are HISTOLOGY stations, so when a structure has both a gross and a histology
+            // image, pick the HISTO one (magnification != nil) — never show a gross photo for a
+            // "what tissue is this?" slide question.
+            func histoImage(forAnswer answer: String) -> AnatomyImage? {
+                let s = dataManager.structures.first { $0.name.caseInsensitiveCompare(answer) == .orderedSame }
+                return s?.images.first { $0.magnification != nil } ?? s?.images.first
+            }
+            // A (histology) must ALWAYS show an image — "what tissue is this?" makes no sense
+            // blank. Since A–D are all the SAME slide, if A itself has no image fall back to
+            // the first image available among ANY entry (its override or that answer's
+            // structure image) before giving up.
+            let slideImg: AnatomyImage? = scenario.slideImage
+                ?? scenario.entries.first?.image
+                ?? histoImage(forAnswer: scenario.entries.first?.answer ?? "")
+                ?? scenario.entries.lazy.compactMap { entry -> AnatomyImage? in
+                    entry.image ?? histoImage(forAnswer: entry.answer)
+                }.first
             let abcd = scenario.entries.map { resolveItem(answer: $0.answer, prompt: $0.prompt, imageOverride: slideImg, alsoAccept: $0.alsoAccept) }
             let eItem: ExamItem = {
                 if let m = microscope { return ExamItem(structure: m, questionPrompt: "E. Name this microscope part.") }
@@ -3194,6 +3239,7 @@ struct ExamHostView: View {
 struct ExamStationView: View {
     @Binding var examSession: ExamSession?
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @Environment(\.dismiss) private var dismiss
 
     @State private var answers: [String] = Array(repeating: "", count: 5)
     @State private var isSubmitted = false
@@ -3214,7 +3260,11 @@ struct ExamStationView: View {
     @State private var showEndConfirm = false
     // True only when the ON-SCREEN keyboard is up (tall). With a hardware keyboard (iPad Magic
     // Keyboard / Mac) there's no software keyboard, so we don't show a "hide keyboard" button.
-    @State private var softwareKeyboardUp = false
+    // Direction of the last card change, so the iPhone card slides the right way.
+    @State private var goingForward = true
+    // iPhone uses ONE persistent field with a STABLE focus identity (not keyed to the card),
+    // so advancing to the next ID only swaps the bound text — the keyboard never dips down/up.
+    @FocusState private var phoneFieldFocused: Bool
 
     var body: some View {
         if let session = examSession, let station = session.currentStation {
@@ -3258,43 +3308,53 @@ struct ExamStationView: View {
                     .padding(.horizontal)
                 }
 
-                // Swipeable ID cards — one big card per ID, swipe between them.
-                TabView(selection: $currentCard) {
-                    ForEach(Array(station.items.enumerated()), id: \.element.id) { idx, item in
-                        ExamCardView(
-                            index: idx,
-                            total: station.items.count,
-                            item: item,
-                            answer: idx < answers.count ? $answers[idx] : .constant(""),
-                            isSubmitted: isSubmitted,
-                            focus: $focusedField,
-                            isLastCard: idx == station.items.count - 1,
-                            onSubmitField: { handleFieldSubmit(idx, count: station.items.count) },
-                            onImageLoaded: { if idx == 0 { beginTimerIfNeeded() } },
-                            onOverride: { overrideItemCorrect(idx) }
-                        )
-                        .padding(.horizontal)
-                        .padding(.bottom, 46)   // clearance so the page dots sit below the card edge
-                        .tag(idx)
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                .frame(maxHeight: .infinity)
-
-                // Action button
-                if isSubmitted {
-                    Button(session.currentStationIndex + 1 < session.stations.count
-                           ? "Next Station →"
-                           : "See Results") { advance() }
-                        .buttonStyle(.borderedProminent).tint(.indigo)
-                        .frame(maxWidth: .infinity)
-                        .keyboardShortcut(.defaultAction)   // Return advances to the next station
+                // iPhone (answering): a SINGLE full-size image that reliably fills the space,
+                // with the answer field docked directly below it. A paged TabView won't expand
+                // under the keyboard (leaving dead space), so iPhone answering skips it. iPad —
+                // and the submitted review on every device — keep the swipeable TabView cards.
+                if !UIDevice.isPad, !isSubmitted {
+                    phoneAnsweringArea(station: station)
                 } else {
-                    Button(session.gradeAtEnd
-                           ? (session.currentStationIndex + 1 < session.stations.count ? "Submit & Next →" : "Submit & See Results")
-                           : "Submit Station") { submitStation() }
-                        .buttonStyle(.borderedProminent).tint(.indigo)
-                        .frame(maxWidth: .infinity)
+                    TabView(selection: $currentCard) {
+                        ForEach(Array(station.items.enumerated()), id: \.element.id) { idx, item in
+                            ExamCardView(
+                                index: idx,
+                                total: station.items.count,
+                                item: item,
+                                answer: idx < answers.count ? $answers[idx] : .constant(""),
+                                isSubmitted: isSubmitted,
+                                focus: $focusedField,
+                                isLastCard: idx == station.items.count - 1,
+                                onSubmitField: { handleFieldSubmit(idx, count: station.items.count) },
+                                onImageLoaded: { if idx == 0 { beginTimerIfNeeded() } },
+                                onOverride: { overrideItemCorrect(idx) },
+                                showInlineField: UIDevice.isPad
+                            )
+                            .padding(.horizontal)
+                            .padding(.bottom, UIDevice.isPad ? 46 : 6)
+                            .tag(idx)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: UIDevice.isPad ? .always : .never))
+                    .frame(maxHeight: .infinity)
+
+                    // Action button
+                    if isSubmitted {
+                        Button(session.currentStationIndex + 1 < session.stations.count
+                               ? "Next Station →"
+                               : "See Results") { advance() }
+                            .buttonStyle(.borderedProminent).tint(.indigo)
+                            .frame(maxWidth: .infinity)
+                            .keyboardShortcut(.defaultAction)   // Return advances to the next station
+                    } else if UIDevice.isPad {
+                        // iPad/Mac: one button that walks ID → ID, and only submits the whole
+                        // station from the last card (prevents an accidental early submit).
+                        Button(primaryButtonLabel(session: session, count: station.items.count)) {
+                            primaryAdvance(count: station.items.count)
+                        }
+                            .buttonStyle(.borderedProminent).tint(.indigo)
+                            .frame(maxWidth: .infinity)
+                    }
                 }
             }
             .padding(.vertical, 8)
@@ -3312,29 +3372,14 @@ struct ExamStationView: View {
             // Freeze the clock while off-screen (tab switch / pushed ID card); resumeTimer()
             // on re-appear rebases it so no time is lost while away.
             .onDisappear { stopTimer() }
-            // Track the on-screen keyboard so the "hide keyboard" button only appears when
-            // there's actually a software keyboard to hide (height gate excludes the small
-            // hardware-keyboard accessory bar on iPad/Mac).
-            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { note in
-                let h = (note.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect)?.height ?? 0
-                softwareKeyboardUp = h > 120
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-                softwareKeyboardUp = false
-            }
             .toolbar {
+                // Close (X) replaces the old system back button, since a full-screen cover has
+                // no back chevron. Dismisses the whole exam.
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { dismiss() } label: { Image(systemName: "xmark") }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { pauseTimer(); showEndConfirm = true }
-                }
-                // Dismiss the on-screen keyboard (it shrinks the ID image). Only shown when a
-                // software keyboard is actually up — not for hardware-keyboard users.
-                ToolbarItemGroup(placement: .keyboard) {
-                    if softwareKeyboardUp {
-                        Spacer()
-                        Button { focusedField = nil } label: {
-                            Label("Hide Keyboard", systemImage: "keyboard.chevron.compact.down")
-                        }
-                    }
                 }
             }
             .confirmationDialog("Finish the exam now?", isPresented: $showEndConfirm, titleVisibility: .visible) {
@@ -3374,6 +3419,7 @@ struct ExamStationView: View {
         timerStarted = false
         currentCard = 0
         focusedField = nil
+        phoneFieldFocused = false
         stationStartDate = Date()
         // Start the clock once the FIRST card's photo is on screen (its onImageLoaded fires
         // beginTimerIfNeeded); if that card has no photo, start immediately.
@@ -3387,7 +3433,10 @@ struct ExamStationView: View {
     /// so keyboard-only users can start typing immediately. Deferred because a synchronous
     /// @FocusState set on appear/change is usually dropped before the view is ready. Only on
     /// a fresh station (not on re-appear), so returning from an ID card won't yank focus.
+    /// SKIPPED on iPhone: there the software keyboard would cover the image on load — the user
+    /// wants to see the ID first and tap the floating field to start typing.
     private func focusFirstFieldSoon() {
+        guard UIDevice.isPad else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if !isSubmitted, currentCard == 0 { focusedField = 0 }
         }
@@ -3466,12 +3515,145 @@ struct ExamStationView: View {
     /// station from the last card.
     private func handleFieldSubmit(_ idx: Int, count: Int) {
         if idx < count - 1 {
+            goingForward = true
             withAnimation { currentCard = idx + 1 }
             focusedField = idx + 1
         } else {
             focusedField = nil
             submitStation()
         }
+    }
+
+    /// iPhone answering view: one full-size ID image that FILLS all space between the timer and
+    /// the answer field, plus the single docked field + Next/Submit. No paged TabView (it won't
+    /// expand under the keyboard) and no keyboard-down button. Tap the image once to drop the
+    /// keyboard, again to open it fullscreen; swipe left/right to move between IDs 1–5. The exam
+    /// is a full-screen cover (no back-swipe pop), so a back-swipe just moves to an earlier ID and
+    /// can never exit. Cards slide in/out directionally so the set-of-5 paging reads clearly.
+    @ViewBuilder
+    private func phoneAnsweringArea(station: ExamStation) -> some View {
+        let item = station.items[min(currentCard, station.items.count - 1)]
+        let onLast = currentCard >= station.items.count - 1
+        VStack(spacing: 10) {
+            // Card area: only the current ID's card slides; the gestures live on this stable
+            // wrapper so they survive the transition.
+            ZStack {
+                examCard(item: item)
+                    .id(currentCard)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: goingForward ? .trailing : .leading),
+                        removal: .move(edge: goingForward ? .leading : .trailing)
+                    ))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
+            .contentShape(Rectangle())
+            // Tap anywhere on the card (image or padding) drops the keyboard first.
+            .onTapGesture { if phoneFieldFocused { phoneFieldFocused = false } }
+            // Swipe between IDs, clamped to 1–5 (never exits). Simultaneous so it won't block taps.
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 40)
+                    .onEnded { v in
+                        guard abs(v.translation.width) > abs(v.translation.height) else { return }
+                        goToCard(v.translation.width < 0 ? currentCard + 1 : currentCard - 1,
+                                 count: station.items.count)
+                    }
+            )
+            .padding(.horizontal)
+
+            // Single docked answer field + Next/Submit (rides above the keyboard when it opens).
+            // Its focus is a STABLE Bool (not keyed to the card), so advancing keeps the keyboard up.
+            HStack(spacing: 8) {
+                TextField("Answer…", text: currentCard < answers.count ? $answers[currentCard] : .constant(""))
+                    .textFieldStyle(.roundedBorder)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .focused($phoneFieldFocused)
+                    .submitLabel(onLast ? .done : .next)
+                    .onSubmit { phoneSubmit(count: station.items.count) }
+                Button(onLast ? "Submit" : "Next") { phoneSubmit(count: station.items.count) }
+                    .buttonStyle(.borderedProminent).tint(.indigo)
+            }
+            .padding(.horizontal)
+        }
+    }
+
+    /// iPhone Next/Submit (button or keyboard Return): advance to the next ID KEEPING the keyboard
+    /// up (focus state is unchanged, so no pull-down/pull-up), or on the last card drop the keyboard
+    /// and submit the station.
+    private func phoneSubmit(count: Int) {
+        if currentCard >= count - 1 {
+            phoneFieldFocused = false
+            submitStation()
+        } else {
+            goingForward = true
+            withAnimation { currentCard += 1 }
+        }
+    }
+
+    /// The prompt + big filling image for the current ID (no gestures — those live on the stable
+    /// wrapper so they persist across the slide transition).
+    @ViewBuilder
+    private func examCard(item: ExamItem) -> some View {
+        VStack(spacing: 8) {
+            Text(item.questionPrompt ?? "ID \(currentCard + 1)")
+                .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Group {
+                if !item.displayImages.isEmpty {
+                    ExamCardImage(
+                        images: item.displayImages,
+                        onLoaded: { if currentCard == 0 { beginTimerIfNeeded() } },
+                        onImageTap: {
+                            if phoneFieldFocused { phoneFieldFocused = false; return true }
+                            return false
+                        }
+                    )
+                } else {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12).fill(.gray.opacity(0.08))
+                        Image(systemName: item.structure != nil ? "camera" : "text.bubble")
+                            .font(.system(size: 44)).foregroundStyle(.secondary.opacity(0.4))
+                    }
+                    .onAppear { if currentCard == 0 { beginTimerIfNeeded() } }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(RoundedRectangle(cornerRadius: 18).fill(Color(.secondarySystemBackground)))
+        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(.gray.opacity(0.15)))
+    }
+
+    /// Move to another ID card (clamped to the station's range — never past the ends, so a
+    /// back-swipe on ID 1 or forward-swipe on ID 5 just stays put), sliding in the right
+    /// direction. Focus follows via `.onChange(of: currentCard)` when the keyboard is up.
+    private func goToCard(_ target: Int, count: Int) {
+        guard target >= 0, target < count, target != currentCard else { return }
+        goingForward = target > currentCard
+        withAnimation(.easeInOut(duration: 0.28)) { currentCard = target }
+    }
+
+    /// The primary button (bottom bar / iPad button): walk to the next ID card, and only
+    /// submit the whole station from the LAST card — so pressing it after ID 1 no longer
+    /// submits everything. Focus follows via `.onChange(of: currentCard)` when typing.
+    private func primaryAdvance(count: Int) {
+        if currentCard >= count - 1 {
+            focusedField = nil
+            submitStation()
+        } else {
+            goingForward = true
+            withAnimation { currentCard += 1 }
+        }
+    }
+
+    private func primaryButtonLabel(session: ExamSession, count: Int) -> String {
+        if currentCard < count - 1 { return "Next ID →" }
+        if session.gradeAtEnd {
+            return session.currentStationIndex + 1 < session.stations.count ? "Submit & Next →" : "Submit & See Results"
+        }
+        return "Submit Station"
     }
 
     private func pauseTimer() { stopTimer() }
@@ -3512,6 +3694,9 @@ struct ExamCardView: View {
     var onSubmitField: (() -> Void)? = nil
     var onImageLoaded: (() -> Void)? = nil
     var onOverride: (() -> Void)? = nil
+    // iPhone routes the answer field into a bottom bar (so the keyboard doesn't shove the
+    // image off-screen), so the in-card field is suppressed there.
+    var showInlineField: Bool = true
 
     var body: some View {
         VStack(spacing: 12) {
@@ -3536,7 +3721,7 @@ struct ExamCardView: View {
 
             if isSubmitted {
                 feedback
-            } else {
+            } else if showInlineField {
                 TextField("Answer…", text: $answer)
                     .textFieldStyle(.roundedBorder)
                     .autocorrectionDisabled()
@@ -3576,7 +3761,11 @@ struct ExamCardView: View {
                 Spacer(minLength: 0)
             }
             WrongAnswerFeedback(item: item)
-            if !item.wasCorrect {
+            // Override only for FREE-TEXT (conceptual) prompts — "name a cell type", "function"
+            // — where the app might not list every valid phrasing. NOT for structure-backed
+            // photo IDs ("what organ is this?" / gross IDs): those are unambiguous, so a wrong
+            // answer is genuinely wrong (fix a missed synonym with an alias instead).
+            if !item.wasCorrect && item.structure == nil {
                 Button { onOverride?() } label: {
                     Label("I got it right", systemImage: "checkmark.circle").font(.caption)
                 }
@@ -3592,6 +3781,9 @@ struct ExamCardView: View {
 struct ExamCardImage: View {
     let images: [AnatomyImage]
     var onLoaded: (() -> Void)? = nil
+    /// Optional first-tap handler. Return true if the tap was consumed (e.g. it dismissed the
+    /// keyboard) so the image should NOT fullscreen; return false to fullscreen as usual.
+    var onImageTap: (() -> Bool)? = nil
     @State private var fullscreenImage: AnatomyImage?
 
     var body: some View {
@@ -3623,7 +3815,13 @@ struct ExamCardImage: View {
             }
         }
         .contentShape(Rectangle())
-        .onTapGesture { fullscreenImage = images.randomElement() }
+        .onTapGesture {
+            // Let a caller consume the first tap (e.g. drop the keyboard); only fullscreen
+            // when it doesn't handle it — so on iPhone one tap hides the keyboard, the next
+            // opens fullscreen.
+            if let onImageTap, onImageTap() { return }
+            fullscreenImage = images.randomElement()
+        }
         .fullScreenCover(item: $fullscreenImage) { img in
             ExamImageFullscreen(image: img)
         }
@@ -4518,6 +4716,82 @@ struct GuideView: View {
 
 // MARK: - About
 
+// MARK: - Offline Images
+
+struct OfflineDownloadsView: View {
+    @StateObject private var store = OfflineImageStore.shared
+    @State private var showDeleteConfirm = false
+
+    private var isComplete: Bool { store.totalCount > 0 && store.savedCount >= store.totalCount }
+
+    var body: some View {
+        List {
+            Section {
+                if store.isDownloading {
+                    VStack(alignment: .leading, spacing: 10) {
+                        ProgressView(value: store.progress)
+                        Text("Downloading… \(Int(store.progress * 100))%")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                        Button("Cancel", role: .destructive) { store.cancelDownload() }
+                    }
+                    .padding(.vertical, 4)
+                } else if isComplete {
+                    Label("All images downloaded", systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                } else {
+                    Button {
+                        store.downloadAll()
+                    } label: {
+                        Label(store.savedCount > 0 ? "Resume download" : "Download all images  (~\(Self.estimatedSizeMB) MB)",
+                              systemImage: "arrow.down.circle")
+                    }
+                }
+            } header: {
+                Text("Offline Access")
+            } footer: {
+                Text("Save every photo and histology slide to this device so the app works with no internet — on the subway, in lab, or on airplane mode. About \(store.totalCount) images, roughly \(Self.estimatedSizeMB) MB total. Downloads over Wi-Fi or cellular; stored only on this device.")
+            }
+
+            Section("On This Device") {
+                LabeledContent("Downloaded", value: "\(store.savedCount) of \(store.totalCount)")
+                LabeledContent(store.savedCount > 0 ? "Storage used" : "Estimated size",
+                               value: store.savedCount > 0 ? Self.byteString(store.bytesOnDisk) : "~\(Self.estimatedSizeMB) MB")
+                if store.lastRunFailures > 0 && !store.isDownloading {
+                    Text("\(store.lastRunFailures) image\(store.lastRunFailures == 1 ? "" : "s") couldn't be downloaded. Tap Download again to retry.")
+                        .font(.footnote).foregroundStyle(.orange)
+                }
+            }
+
+            if store.savedCount > 0 {
+                Section {
+                    Button("Delete downloaded images", role: .destructive) {
+                        showDeleteConfirm = true
+                    }
+                } footer: {
+                    Text("Frees up space. The app streams images again as needed.")
+                }
+            }
+        }
+        .navigationTitle("Offline Images")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear { store.refreshUsage() }
+        .confirmationDialog("Delete all downloaded images?", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+            Button("Delete", role: .destructive) { store.deleteAll() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This frees \(Self.byteString(store.bytesOnDisk)). You can download them again anytime.")
+        }
+    }
+
+    /// Rounded estimate shown BEFORE downloading, so users can gauge the size first.
+    /// Currently ~414 images ≈ 298 MB (Sep 2026); rounded so it survives content changes.
+    private static let estimatedSizeMB = 300
+
+    private static func byteString(_ bytes: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+}
+
 struct AboutView: View {
     var body: some View {
         NavigationStack {
@@ -4543,6 +4817,25 @@ struct AboutView: View {
                     Divider()
 
                     VStack(alignment: .leading, spacing: 20) {
+
+                        NavigationLink {
+                            OfflineDownloadsView()
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "arrow.down.circle.fill")
+                                    .font(.title2).foregroundStyle(.blue)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Offline Images").font(.headline).foregroundStyle(.primary)
+                                    Text("Download photos & slides to use without internet")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                Spacer(minLength: 4)
+                                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
+                            }
+                        }
+
+                        Divider()
 
                         VStack(alignment: .leading, spacing: 8) {
                             Text("About This App").font(.headline)
