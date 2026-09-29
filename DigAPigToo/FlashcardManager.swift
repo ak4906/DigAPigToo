@@ -109,7 +109,13 @@ class FlashcardManager: ObservableObject {
     private let udKey = "DigAPigToo_FlashcardSchedules_v2"
     private let udReviewsKey = "DigAPigToo_FlashcardLifetimeReviews_v2"
 
-    private init() { load() }
+    private init() {
+        load()
+        mergeFromCloud()
+        CloudSync.observe { [weak self] in
+            Task { @MainActor in self?.mergeFromCloud() }
+        }
+    }
 
     // MARK: - Querying
 
@@ -365,6 +371,9 @@ class FlashcardManager: ObservableObject {
         lifetimeReviews = 0
         UserDefaults.standard.removeObject(forKey: udKey)
         UserDefaults.standard.removeObject(forKey: udReviewsKey)
+        CloudSync.remove(forKey: udKey)
+        CloudSync.remove(forKey: udReviewsKey)
+        CloudSync.flush()
     }
 
     func reset(name: String) {
@@ -372,13 +381,16 @@ class FlashcardManager: ObservableObject {
         save()
     }
 
-    // MARK: - Persistence (swap this section for SwiftData+CloudKit later)
+    // MARK: - Persistence (local UserDefaults + iCloud key-value mirror)
 
     private func save() {
         if let data = try? JSONEncoder().encode(schedules) {
             UserDefaults.standard.set(data, forKey: udKey)
+            CloudSync.set(data, forKey: udKey)
         }
         UserDefaults.standard.set(lifetimeReviews, forKey: udReviewsKey)
+        CloudSync.set(lifetimeReviews, forKey: udReviewsKey)
+        CloudSync.flush()
     }
 
     private func load() {
@@ -387,5 +399,35 @@ class FlashcardManager: ObservableObject {
             schedules = decoded
         }
         lifetimeReviews = UserDefaults.standard.integer(forKey: udReviewsKey)
+    }
+
+    /// Merge the iCloud copy into local schedules: union of cards, and for a card
+    /// reviewed on both devices the more recently reviewed record wins (per-card
+    /// last-writer-wins via `lastReviewed`). Lifetime review count takes the max.
+    /// Idempotent; re-saves + re-pushes the merged result only when it changed.
+    private func mergeFromCloud() {
+        guard let data = CloudSync.data(forKey: udKey),
+              let cloud = try? JSONDecoder().decode([String: CardSchedule].self, from: data)
+        else { return }   // no cloud copy yet — a later review/notification will seed it
+        var changed = false          // we adopted something newer from the cloud
+        for (name, remote) in cloud {
+            let remoteDate = remote.lastReviewed ?? .distantPast
+            if let local = schedules[name] {
+                if remoteDate > (local.lastReviewed ?? .distantPast) { schedules[name] = remote; changed = true }
+            } else {
+                schedules[name] = remote; changed = true
+            }
+        }
+        // Do we hold cards the cloud is missing or has an older review of? Push up.
+        var cloudStale = false
+        for (name, local) in schedules {
+            let localDate = local.lastReviewed ?? .distantPast
+            if let remote = cloud[name] { if localDate > (remote.lastReviewed ?? .distantPast) { cloudStale = true; break } }
+            else { cloudStale = true; break }
+        }
+        let cloudLifetime = CloudSync.integer(forKey: udReviewsKey)
+        if cloudLifetime > lifetimeReviews { lifetimeReviews = cloudLifetime; changed = true }
+        else if lifetimeReviews > cloudLifetime { cloudStale = true }
+        if changed || cloudStale { save() }
     }
 }

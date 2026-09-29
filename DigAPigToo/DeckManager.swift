@@ -30,7 +30,14 @@ class DeckManager: ObservableObject {
     @Published private(set) var decks: [Deck] = []
 
     private let udKey = "DigAPigToo_CustomDecks_v1"
-    private init() { load() }
+    private let udModKey = "DigAPigToo_CustomDecks_modifiedAt"
+    private init() {
+        load()
+        mergeFromCloud()
+        CloudSync.observe { [weak self] in
+            Task { @MainActor in self?.mergeFromCloud() }
+        }
+    }
 
     // MARK: - Deck CRUD
 
@@ -113,17 +120,47 @@ class DeckManager: ObservableObject {
         return "\(base) \(n)"
     }
 
-    // MARK: - Persistence (swap for SwiftData+CloudKit later)
+    // MARK: - Persistence (local UserDefaults + iCloud key-value mirror)
 
     private func save() {
-        if let data = try? JSONEncoder().encode(decks) {
-            UserDefaults.standard.set(data, forKey: udKey)
-        }
+        guard let data = try? JSONEncoder().encode(decks) else { return }
+        let now = Date().timeIntervalSince1970
+        UserDefaults.standard.set(data, forKey: udKey)
+        UserDefaults.standard.set(now, forKey: udModKey)
+        CloudSync.set(data, forKey: udKey)
+        CloudSync.set(now, forKey: udModKey)
+        CloudSync.flush()
     }
 
     private func load() {
         guard let data = UserDefaults.standard.data(forKey: udKey),
               let decoded = try? JSONDecoder().decode([Deck].self, from: data) else { return }
         decks = decoded
+    }
+
+    /// Adopt the iCloud copy when it is newer than ours. Decks use WHOLE-blob
+    /// last-writer-wins (by modified timestamp) rather than a per-item union so
+    /// that deck DELETIONS propagate instead of being resurrected. Adopts the
+    /// cloud timestamp locally (no re-push) so both devices converge.
+    private func mergeFromCloud() {
+        let cloudMod = CloudSync.double(forKey: udModKey)
+        guard cloudMod > 0,
+              let data = CloudSync.data(forKey: udKey),
+              let cloudDecks = try? JSONDecoder().decode([Deck].self, from: data) else { return }
+        let localMod = UserDefaults.standard.double(forKey: udModKey)
+        // First time this device joins the cloud (localMod == 0) while it already has
+        // local decks: UNION by id so neither device's pre-existing decks are lost.
+        // save() pushes the union up and stamps localMod, so the other device adopts it.
+        if localMod == 0 && !decks.isEmpty {
+            let localIds = Set(decks.map { $0.id })
+            decks.append(contentsOf: cloudDecks.filter { !localIds.contains($0.id) })
+            save()
+            return
+        }
+        // Steady state: whole-blob last-writer-wins, so edits AND deletions propagate.
+        guard cloudMod > localMod else { return }
+        decks = cloudDecks
+        UserDefaults.standard.set(data, forKey: udKey)
+        UserDefaults.standard.set(cloudMod, forKey: udModKey)
     }
 }

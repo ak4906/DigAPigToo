@@ -31,7 +31,13 @@ class StatsManager: ObservableObject {
     @Published private(set) var stats: [String: StructureStat] = [:]
 
     private let udKey = "DigAPigToo_StructureStats"
-    private init() { load() }
+    private init() {
+        load()
+        mergeFromCloud()
+        CloudSync.observe { [weak self] in
+            Task { @MainActor in self?.mergeFromCloud() }
+        }
+    }
 
     // MARK: - Record an answer
     func record(structureName: String, correct: Bool) {
@@ -97,18 +103,47 @@ class StatsManager: ObservableObject {
     func reset() {
         stats = [:]
         UserDefaults.standard.removeObject(forKey: udKey)
+        CloudSync.set(nil, forKey: udKey)
+        CloudSync.flush()
     }
 
-    // MARK: - Persistence
+    // MARK: - Persistence (local UserDefaults + iCloud key-value mirror)
     private func save() {
-        if let data = try? JSONEncoder().encode(stats) {
-            UserDefaults.standard.set(data, forKey: udKey)
-        }
+        guard let data = try? JSONEncoder().encode(stats) else { return }
+        UserDefaults.standard.set(data, forKey: udKey)
+        CloudSync.set(data, forKey: udKey)
+        CloudSync.flush()
     }
     private func load() {
         guard let data = UserDefaults.standard.data(forKey: udKey),
               let decoded = try? JSONDecoder().decode([String: StructureStat].self, from: data)
         else { return }
         stats = decoded
+    }
+
+    /// Merge the iCloud copy into local stats: union of structures, and for a
+    /// structure recorded on both devices the more recently seen record wins
+    /// (per-key last-writer-wins via `lastSeen`). Idempotent; re-saves + re-pushes
+    /// the merged result only when something actually changed.
+    private func mergeFromCloud() {
+        guard let data = CloudSync.data(forKey: udKey),
+              let cloud = try? JSONDecoder().decode([String: StructureStat].self, from: data)
+        else { return }   // no cloud copy yet — a later record()/notification will seed it
+        var changed = false          // we adopted something newer from the cloud
+        for (name, remote) in cloud {
+            if let local = stats[name] {
+                if remote.lastSeen > local.lastSeen { stats[name] = remote; changed = true }
+            } else {
+                stats[name] = remote; changed = true
+            }
+        }
+        // Do we hold anything the cloud is missing or has an older copy of? If so,
+        // push our union up so the other device gets it without us having to record.
+        var cloudStale = false
+        for (name, local) in stats {
+            if let remote = cloud[name] { if local.lastSeen > remote.lastSeen { cloudStale = true; break } }
+            else { cloudStale = true; break }
+        }
+        if changed || cloudStale { save() }
     }
 }
