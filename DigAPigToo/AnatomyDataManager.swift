@@ -5788,12 +5788,6 @@ class AnatomyDataManager: ObservableObject {
                 category: "Respiratory"
             ),
             FillBlankQuestion(
-                prompt: "The urinary bladder is lined by ___ epithelium, also called ___. This type can ___ as the bladder fills.",
-                answers: ["transitional", "urothelium", "stretch"],
-                explanation: "Transitional epithelium (urothelium) is unique to the urinary tract. Dome-shaped 'umbrella cells' on the surface flatten when the bladder distends, allowing massive volume changes.",
-                category: "Histology"
-            ),
-            FillBlankQuestion(
                 prompt: "Seminiferous tubules are lined by specialized ___ epithelium. ___ cells between the tubules secrete testosterone, while ___ cells inside the tubules support sperm maturation.",
                 answers: ["stratified germinal", "Leydig", "Sertoli"],
                 explanation: "High yield histology: seminiferous tubule epithelium is a specialized stratified germinal epithelium (not simple cuboidal). Leydig cells are interstitial (between tubules); Sertoli cells are inside the tubules.",
@@ -5804,6 +5798,258 @@ class AnatomyDataManager: ObservableObject {
                 answers: ["opening", "epiglottis"],
                 explanation: "Glottis = opening (not a structure per se). Epiglottis = flap. This distinction was specifically noted as a common confusion point.",
                 category: "Respiratory"
+            ),
+
+            // ───────── Oral & Salivary ─────────
+            FillBlankQuestion(
+                prompt: "The stiff hairs on the snout and under the chin, called ___, are wrapped in touch receptors at their roots, so they act as ___ sensory organs.",
+                answers: ["vibrissae", "tactile"],
+                explanation: "Vibrissae (whiskers) sense touch — the receptors around each follicle make them tactile organs.",
+                category: "Oral & Salivary"
+            ),
+            FillBlankQuestion(
+                prompt: "Saliva contains the enzyme ___, which starts digesting dietary ___ in the mouth. Its main source is the ___ gland, produced by that gland's serous acinar cells.",
+                answers: ["α-amylase", "starch", "parotid"],
+                explanation: "Salivary α-amylase hydrolyzes starch into di- and trisaccharides. The parotid gland (serous acinar cells) is its primary source.",
+                category: "Oral & Salivary"
+            ),
+            FillBlankQuestion(
+                prompt: "The ___ glands, near the back of the tongue, secrete ___ through short ducts to begin the digestion of ___.",
+                answers: ["von Ebner", "lingual lipase", "fats"],
+                explanation: "Von Ebner glands are serous glands whose acinar cells release lingual lipase via the ducts of von Ebner, starting fat digestion in the mouth.",
+                category: "Oral & Salivary"
+            ),
+
+            // ───────── Immune & Lymphatic ─────────
+            FillBlankQuestion(
+                prompt: "The bead-like ___ found along the caudal edge of the masseter muscle are full of ___ that fight infection and ___ the lymphatic fluid.",
+                answers: ["lymph nodes", "lymphocytes", "filter"],
+                explanation: "Lymph nodes house lymphocytes (white blood cells) and filter lymph; there are hundreds throughout the body.",
+                category: "Immune & Lymphatic"
+            ),
+
+            // ───────── Ducts & Sphincters ─────────
+            FillBlankQuestion(
+                prompt: "A swallowed bolus enters the esophagus through the ___ sphincter (UES) and passes into the stomach through the lower esophageal sphincter, also called the ___ sphincter.",
+                answers: ["upper esophageal", "cardiac"],
+                explanation: "The LES (cardiac sphincter) keeps acidic stomach contents from rising into the esophagus; its failure causes gastroesophageal reflux (GERD).",
+                category: "Ducts & Sphincters"
+            ),
+            FillBlankQuestion(
+                prompt: "The ___ sphincter is the muscular valve at the distal stomach that retains food until it is processed enough to pass into the ___.",
+                answers: ["pyloric", "duodenum"],
+                explanation: "From the luminal view the pyloric sphincter is a narrow, puckered circular opening leading into the duodenum.",
+                category: "Ducts & Sphincters"
+            ),
+            FillBlankQuestion(
+                prompt: "The ___, located where the common bile duct and pancreatic duct enter the duodenum, controls the release of bile and pancreatic secretions.",
+                answers: ["sphincter of Oddi"],
+                explanation: "CCK relaxes the sphincter of Oddi (and contracts the gallbladder) so bile and pancreatic juice enter the duodenum.",
+                category: "Ducts & Sphincters"
+            ),
+            FillBlankQuestion(
+                prompt: "Bile leaves the liver through the ___ duct, which joins the ___ duct from the gallbladder and the pancreatic duct to form the ___, the portal into the duodenum.",
+                answers: ["hepatic", "cystic", "common bile duct"],
+                explanation: "Hepatic duct + cystic duct + pancreatic duct → common bile duct → duodenum. The two-way cystic duct diverts bile into the gallbladder for storage between meals.",
+                category: "Ducts & Sphincters"
+            ),
+            FillBlankQuestion(
+                prompt: "Besides the main pancreatic duct (which joins the common bile duct), a separate ___ pancreatic duct empties into the ___ on its own.",
+                answers: ["accessory", "duodenum"],
+                explanation: "The accessory pancreatic duct enters the duodenum directly, apart from the common bile duct.",
+                category: "Ducts & Sphincters"
+            ),
+
+            // ───────── Stomach ─────────
+            FillBlankQuestion(
+                prompt: "Food moves through the stomach's four regions in order: the ___ region (where the esophagus enters), the ___ (blind sac to the left), the ___ or body, and the ___ (pyloric antrum).",
+                answers: ["cardiac", "fundus", "corpus", "pyloric"],
+                explanation: "Order: cardia → fundus → corpus (body) → pyloric antrum → toward the small intestine.",
+                category: "Stomach"
+            ),
+            FillBlankQuestion(
+                prompt: "The short medial edge of the stomach is the ___ curvature, while the longer lateral edge is the ___ curvature.",
+                answers: ["lesser", "greater"],
+                explanation: "Lesser curvature = short medial border (esophagus to pylorus); greater curvature = long lateral border.",
+                category: "Stomach"
+            ),
+            FillBlankQuestion(
+                prompt: "The folds on the stomach's inner surface, called ___, let the stomach ___ as it fills with food.",
+                answers: ["rugae", "expand"],
+                explanation: "Rugae flatten out as the stomach distends; the muscular layers churn and mix the contents.",
+                category: "Stomach"
+            ),
+            FillBlankQuestion(
+                prompt: "Gastric glands release their secretions into ___, which are invaginations of the stomach's mucosal surface.",
+                answers: ["gastric pits"],
+                explanation: "Gastric pits are the surface openings through which gastric gland secretions reach the lumen.",
+                category: "Stomach"
+            ),
+            FillBlankQuestion(
+                prompt: "In the fundus and corpus, gastric glands contain ___ cells that make hydrochloric acid, ___ cells that make pepsinogen, and mucous cells.",
+                answers: ["parietal", "chief"],
+                explanation: "Fundic/corpus glands = parietal + chief + mucous cells. Cardiac glands are mostly mucus-secreting.",
+                category: "Stomach"
+            ),
+            FillBlankQuestion(
+                prompt: "___ cells secrete ___, which acidifies the stomach, and ___, a protein required for vitamin B₁₂ absorption in the small intestine.",
+                answers: ["parietal", "hydrochloric acid", "intrinsic factor"],
+                explanation: "Gastric acid activates pepsin, denatures proteins, and kills microbes; intrinsic factor is essential for B₁₂ uptake.",
+                category: "Stomach",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "___ cells secrete ___, an inactive zymogen that is converted to the active enzyme ___ in the presence of stomach acid.",
+                answers: ["chief", "pepsinogen", "pepsin"],
+                explanation: "Chief cells also secrete gastric lipase. Pepsinogen → pepsin requires the acidic environment made by parietal cells.",
+                category: "Stomach"
+            ),
+            FillBlankQuestion(
+                prompt: "In the pyloric region, ___ cells secrete the hormone ___, which stimulates parietal and chief cell activity.",
+                answers: ["G", "gastrin"],
+                explanation: "G cells are enteroendocrine cells of the pyloric glands; gastrin drives acid and enzyme secretion.",
+                category: "Stomach",
+                mcatRelevant: true
+            ),
+
+            // ───────── Pancreas & Liver ─────────
+            FillBlankQuestion(
+                prompt: "The ___ stores and concentrates ___, which is produced by the liver's ___ (liver cells).",
+                answers: ["gallbladder", "bile", "hepatocytes"],
+                explanation: "Hepatocytes secrete bile → intrahepatic ducts → hepatic duct; the gallbladder stores and concentrates it.",
+                category: "Pancreas & Liver"
+            ),
+            FillBlankQuestion(
+                prompt: "When fatty, protein-rich chyme reaches the duodenum, enteroendocrine cells release the hormone ___, which relaxes the sphincter of Oddi and makes the ___ contract to release bile.",
+                answers: ["cholecystokinin", "gallbladder"],
+                explanation: "Cholecystokinin (CCK) coordinates bile and pancreatic enzyme delivery when fats/proteins arrive in the duodenum.",
+                category: "Pancreas & Liver",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "The endocrine ___ of Langerhans regulate blood sugar: ___ cells release glucagon, and ___ cells release insulin.",
+                answers: ["islets", "alpha", "beta"],
+                explanation: "Islets are ~scattered clusters within the mostly-exocrine pancreas. Alpha → glucagon, beta → insulin.",
+                category: "Pancreas & Liver",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "During low blood glucose, alpha cells secrete ___ to stimulate the liver to make glucose; after a meal, beta cells secrete ___ to promote glucose uptake and storage.",
+                answers: ["glucagon", "insulin"],
+                explanation: "Glucagon raises blood glucose (fasting/exertion); insulin lowers it (fed state).",
+                category: "Pancreas & Liver",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "Besides alpha and beta cells, pancreatic islets contain ___ cells that secrete somatostatin and ___ cells that secrete pancreatic polypeptide.",
+                answers: ["delta", "PP"],
+                explanation: "Delta (δ) cells → somatostatin (modulates hormone release); PP cells → pancreatic polypeptide (digestion/satiety).",
+                category: "Pancreas & Liver"
+            ),
+            FillBlankQuestion(
+                prompt: "The pancreas secretes over a liter of alkaline ___ per day; its ___ ions (secreted by ductal cells) neutralize acidic chyme so pancreatic enzymes can work.",
+                answers: ["pancreatic juice", "bicarbonate"],
+                explanation: "Pancreatic juice (pH ~7.1–8.2) neutralizes gastric acid, inactivates pepsin, and creates the slightly alkaline optimum for pancreatic enzymes.",
+                category: "Pancreas & Liver",
+                mcatRelevant: true
+            ),
+
+            // ───────── Digestive Enzymes ─────────
+            FillBlankQuestion(
+                prompt: "All amylases are ___ enzymes that cleave the ___ bonds of starch.",
+                answers: ["hydrolase", "α-1,4-glycosidic"],
+                explanation: "Amylase hydrolyzes α-1,4-glycosidic bonds, breaking starch into smaller sugars.",
+                category: "Digestive Enzymes",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "The pancreas secretes ___ to digest carbohydrates, the proteases ___ and chymotrypsin to digest proteins, and ___ to digest fats.",
+                answers: ["amylase", "trypsin", "lipase"],
+                explanation: "Amylase → carbs, trypsin/chymotrypsin → proteins, lipase → fats.",
+                category: "Digestive Enzymes"
+            ),
+            FillBlankQuestion(
+                prompt: "Protein-digesting enzymes are secreted as inactive ___. In the duodenum, ___ from brush-border enterocytes converts trypsinogen into ___, which then activates the other zymogens.",
+                answers: ["zymogens", "enteropeptidase", "trypsin"],
+                explanation: "Secreting proteases as zymogens prevents the pancreas from digesting itself. Enteropeptidase (enterokinase) activates trypsin, which then activates chymotrypsinogen, etc. Amylase and lipase are secreted already active.",
+                category: "Digestive Enzymes",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "___ works best in the acidic stomach (pH ~1–2) to begin protein digestion, while ___ and chymotrypsin continue it at the alkaline pH of the ___.",
+                answers: ["pepsin", "trypsin", "duodenum"],
+                explanation: "Pepsin initiates protein digestion in acid; pancreatic proteases and brush-border enzymes (aminopeptidases, dipeptidases) finish it.",
+                category: "Digestive Enzymes",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "Final carbohydrate digestion occurs at the intestinal ___ border, where enzymes such as ___, sucrase, and lactase split disaccharides into monosaccharides like glucose.",
+                answers: ["brush", "maltase"],
+                explanation: "Brush-border enzymes (maltase, sucrase, lactase) complete carb digestion into absorbable monosaccharides (glucose, galactose, fructose).",
+                category: "Digestive Enzymes"
+            ),
+
+            // ───────── Small Intestine ─────────
+            FillBlankQuestion(
+                prompt: "Absorptive surface area is increased by circular folds called ___, finger-like projections called ___, and tiny ___ that form the brush border on each enterocyte.",
+                answers: ["plicae", "villi", "microvilli"],
+                explanation: "Plicae (circular folds) → villi → microvilli — three levels of folding that hugely increase absorptive area.",
+                category: "Small Intestine"
+            ),
+            FillBlankQuestion(
+                prompt: "The main absorptive cells lining each villus are the ___, while scattered ___ cells secrete mucus to protect the surface.",
+                answers: ["enterocytes", "goblet"],
+                explanation: "Enterocytes carry the brush-border enzymes and absorb nutrients; goblet cells lubricate and protect.",
+                category: "Small Intestine"
+            ),
+            FillBlankQuestion(
+                prompt: "Each villus contains blood capillaries and a central lymphatic vessel called a ___, which absorbs digested ___.",
+                answers: ["lacteal", "fats"],
+                explanation: "The lacteal takes up chylomicrons (packaged fats) that are too large to enter blood capillaries.",
+                category: "Small Intestine"
+            ),
+            FillBlankQuestion(
+                prompt: "Between the villi lie the intestinal crypts (crypts of ___), which contain ___ cells that continually renew the intestinal epithelium.",
+                answers: ["Lieberkühn", "stem"],
+                explanation: "Crypts of Lieberkühn house the stem cells that regenerate the rapidly-turning-over gut lining.",
+                category: "Small Intestine"
+            ),
+            FillBlankQuestion(
+                prompt: "Bile salts ___ large fat droplets into many smaller ones; the resulting fatty acids and monoglycerides then form ___ that ferry them to the intestinal lining for absorption.",
+                answers: ["emulsify", "micelles"],
+                explanation: "Emulsification increases the fat surface area exposed to water-soluble lipase; micelles shuttle the products to the enterocytes.",
+                category: "Small Intestine",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "Inside enterocytes, digested long-chain fats are packaged into ___, which are too large for blood capillaries and instead enter the ___; they rejoin the blood at the ___ duct.",
+                answers: ["chylomicrons", "lacteals", "thoracic"],
+                explanation: "Chylomicrons → lacteals → lymphatic system → thoracic duct → venous blood (near the left subclavian/internal jugular junction).",
+                category: "Small Intestine",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "Absorbed monosaccharides and amino acids enter the villus capillaries and travel to the ___ via the ___ vein.",
+                answers: ["liver", "hepatic portal"],
+                explanation: "Water-soluble nutrients go straight to the liver through the hepatic portal vein; fats take the lymphatic route instead.",
+                category: "Small Intestine",
+                mcatRelevant: true
+            ),
+
+            // ───────── Histology ─────────
+            FillBlankQuestion(
+                prompt: "An organ covered by visceral peritoneum inside the abdominal cavity (like the stomach) has an outer ___, whereas an organ bound to surrounding tissue outside a cavity (like the thoracic esophagus) has an ___ instead.",
+                answers: ["serosa", "adventitia"],
+                explanation: "Serosa = mesothelium + thin connective tissue that secretes serous fluid; adventitia = connective tissue only, blending into nearby structures.",
+                category: "Histology"
+            ),
+
+            // ───────── Fetal ─────────
+            FillBlankQuestion(
+                prompt: "The greenish material in the fetal digestive tract, called ___, is made of bile-stained mucus, swallowed ___ fluid, and sloughed ___ cells.",
+                answers: ["meconium", "amniotic", "epithelial"],
+                explanation: "Meconium usually stays in the intestines until birth; it forms the newborn's first stool.",
+                category: "Fetal"
             ),
         ]
     }

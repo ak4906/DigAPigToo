@@ -202,13 +202,15 @@ struct FillBlankQuestion: Identifiable {
     let answers: [String]    // in order of blanks
     let explanation: String
     let category: String
+    let mcatRelevant: Bool   // conceptual/physiology content the MCAT tests (not just visual ID)
 
-    init(prompt: String, answers: [String], explanation: String = "", category: String = "General") {
+    init(prompt: String, answers: [String], explanation: String = "", category: String = "General", mcatRelevant: Bool = false) {
         self.id = UUID()
         self.prompt = prompt
         self.answers = answers
         self.explanation = explanation
         self.category = category
+        self.mcatRelevant = mcatRelevant
     }
 }
 
@@ -373,6 +375,16 @@ struct ExamItem: Identifiable {
     var displayImages: [AnatomyImage] {
         if let imageOverride { return [imageOverride] }
         return structure?.images ?? []
+    }
+
+    /// Whether the "I got it right" self-override is offered when this item is marked wrong.
+    /// Only the histology conceptual slots — B (arrow structure), C (cell type / related), and
+    /// D (function/product), where valid phrasing varies — qualify. The "what organ/tissue is
+    /// this?" (A), the microscope part (E), and gross photo IDs (no prompt) are unambiguous, so
+    /// they don't offer it.
+    var allowsSelfOverride: Bool {
+        guard let p = questionPrompt else { return false }
+        return p.hasPrefix("B.") || p.hasPrefix("C.") || p.hasPrefix("D.")
     }
 
     /// Primary init — backed by a named AnatomyStructure.

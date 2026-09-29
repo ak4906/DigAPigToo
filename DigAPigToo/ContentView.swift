@@ -52,7 +52,7 @@ struct ContentView: View {
     /// Same idea for Quiz: disabled while a quiz/exam is actually running so dragging to
     /// select text in an answer field doesn't get hijacked into a tab change.
     @State private var quizAtRoot: Bool = true
-    private let lastTabIndex = 10
+    private let lastTabIndex = 12
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -109,6 +109,16 @@ struct ContentView: View {
             UploadView()
                 .tabItem { Label("Contribute", systemImage: "plus.app") }
                 .tag(10)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
+
+            OfflineDownloadsView()
+                .tabItem { Label("Offline Images", systemImage: "arrow.down.circle") }
+                .tag(11)
+                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
+
+            CloudSyncView()
+                .tabItem { Label("iCloud Sync", systemImage: "icloud") }
+                .tag(12)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
         }
         // If the user opted into offline images, quietly pick up any newly-added
@@ -1514,14 +1524,17 @@ private struct TraceThumb: View {
 struct FillBlankListView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var selectedCategory: String = "All"
+    @State private var mcatOnly = false
 
     var categories: [String] {
         ["All"] + Array(Set(dataManager.fillBlanks.map { $0.category })).sorted()
     }
 
     var filtered: [FillBlankQuestion] {
-        selectedCategory == "All" ? dataManager.fillBlanks :
-            dataManager.fillBlanks.filter { $0.category == selectedCategory }
+        dataManager.fillBlanks.filter {
+            (selectedCategory == "All" || $0.category == selectedCategory) &&
+            (!mcatOnly || $0.mcatRelevant)
+        }
     }
 
     var body: some View {
@@ -1532,16 +1545,36 @@ struct FillBlankListView: View {
                         ForEach(categories, id: \.self) { Text($0) }
                     }
                     .pickerStyle(.menu)
+                    Toggle("MCAT-relevant only", isOn: $mcatOnly)
+                    NavigationLink {
+                        FillBlankStudyView(questions: filtered)
+                    } label: {
+                        Label("Study these (\(filtered.count))", systemImage: "play.circle.fill")
+                            .foregroundStyle(.indigo)
+                    }
+                    .disabled(filtered.isEmpty)
+                } footer: {
+                    Text("Study tests each blank as its own multiple-choice or write-in question.")
                 }
                 ForEach(filtered) { q in
                     NavigationLink { FillBlankDetailView(question: q) } label: {
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: 3) {
                             Text(q.prompt)
                                 .font(.subheadline)
                                 .lineLimit(2)
-                            Text(q.category)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            HStack(spacing: 6) {
+                                Text(q.category)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                if q.mcatRelevant {
+                                    Text("MCAT")
+                                        .font(.caption2.bold())
+                                        .padding(.horizontal, 5).padding(.vertical, 1)
+                                        .background(.purple.opacity(0.15))
+                                        .foregroundStyle(.purple)
+                                        .clipShape(Capsule())
+                                }
+                            }
                         }
                         .padding(.vertical, 2)
                     }
@@ -2832,8 +2865,15 @@ private let allHistoScenarios: [HistoScenario] = {
         HistoScenario(slideId: "16", label: "Slide #16 — Testis (spermatogenesis)", entries: [
             e(_pA, "Testis"),
             e(_pB, "Seminiferous Tubule"),
-            e(_pC, "Spermatogonia"),
-            e(_pD, "Spermatogenesis"),
+            // Any spermatogenic stage counts (C graded independently of D), with each stage's
+            // simple function accepted for D.
+            e(_pC, "Spermatogonia", alsoAccept: ["Spermatocyte", "Primary spermatocyte", "Secondary spermatocyte", "Spermatid", "Spermatozoa", "Spermatozoon", "Sperm", "Sperm cell"]),
+            e(_pD, "Mitosis to produce sperm cells", alsoAccept: [
+                "Mitosis", "Stem cells for sperm production", "Renews the sperm supply",     // spermatogonia
+                "Undergo meiosis", "Meiosis", "Halve the chromosome number",                 // spermatocyte
+                "Mature into spermatozoa", "Mature into sperm", "Spermiogenesis",             // spermatid
+                "Fertilize the egg", "Fertilization", "Fertilize the ovum",                   // spermatozoa
+                "Spermatogenesis", "Produce sperm"]),
         ]),
         HistoScenario(slideId: "16", label: "Slide #16 — Testis (Leydig)", entries: [
             e(_pA, "Testis"),
@@ -2893,7 +2933,14 @@ struct ExamHostView: View {
         Group {
             if let session = examSession {
                 if session.isComplete {
-                    ExamResultsView(session: session, dismiss: dismiss)
+                    ExamResultsView(session: session, dismiss: dismiss, onOverride: { sIdx, iIdx in
+                        guard var s = examSession, sIdx < s.stations.count,
+                              iIdx < s.stations[sIdx].items.count,
+                              !s.stations[sIdx].items[iIdx].wasCorrect else { return }
+                        s.stations[sIdx].items[iIdx].wasCorrect = true
+                        s.score += 1
+                        examSession = s
+                    })
                 } else {
                     ExamStationView(examSession: $examSession)
                 }
@@ -3744,11 +3791,10 @@ struct ExamCardView: View {
                 Spacer(minLength: 0)
             }
             WrongAnswerFeedback(item: item)
-            // Override only for FREE-TEXT (conceptual) prompts — "name a cell type", "function"
-            // — where the app might not list every valid phrasing. NOT for structure-backed
-            // photo IDs ("what organ is this?" / gross IDs): those are unambiguous, so a wrong
-            // answer is genuinely wrong (fix a missed synonym with an alias instead).
-            if !item.wasCorrect && item.structure == nil {
+            // Override for the conceptual B/C/D slots (arrow structure, cell type, function) where
+            // valid phrasing varies — NOT for the "what organ is this?" (A) / microscope / gross
+            // photo IDs, which are unambiguous.
+            if !item.wasCorrect && item.allowsSelfOverride {
                 Button { onOverride?() } label: {
                     Label("I got it right", systemImage: "checkmark.circle").font(.caption)
                 }
@@ -3889,6 +3935,8 @@ struct ExamImageFullscreen: View {
 struct ExamResultsView: View {
     let session: ExamSession
     let dismiss: DismissAction
+    /// (stationIndex, itemIndex) → bump the score and mark that item correct.
+    var onOverride: ((Int, Int) -> Void)? = nil
     @StateObject private var dataManager = AnatomyDataManager.shared
 
     var total: Int { session.totalItems }
@@ -3930,7 +3978,7 @@ struct ExamResultsView: View {
                         let total = station.items.count
                         DisclosureGroup {
                             VStack(alignment: .leading, spacing: 6) {
-                                ForEach(station.items) { item in
+                                ForEach(Array(station.items.enumerated()), id: \.element.id) { itemIdx, item in
                                     HStack(spacing: 8) {
                                         Image(systemName: item.wasCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
                                             .foregroundStyle(item.wasCorrect ? .green : .red)
@@ -3950,7 +3998,16 @@ struct ExamResultsView: View {
                                                 Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
                                             }
                                             WrongAnswerFeedback(item: item, structures: dataManager.structures)
+                                            // Self-override for the conceptual B/C/D slots marked wrong.
+                                            if !item.wasCorrect && item.allowsSelfOverride {
+                                                Button { onOverride?(idx, itemIdx) } label: {
+                                                    Label("I got it right", systemImage: "checkmark.circle").font(.caption2)
+                                                }
+                                                .buttonStyle(.bordered).tint(.green).controlSize(.mini)
+                                                .padding(.top, 2)
+                                            }
                                         }
+                                        Spacer(minLength: 0)
                                     }
                                 }
                             }
@@ -4708,6 +4765,7 @@ struct OfflineDownloadsView: View {
     private var isComplete: Bool { store.totalCount > 0 && store.savedCount >= store.totalCount }
 
     var body: some View {
+        NavigationStack {
         List {
             Section {
                 if store.isDownloading {
@@ -4764,6 +4822,7 @@ struct OfflineDownloadsView: View {
         } message: {
             Text("This frees \(Self.byteString(store.bytesOnDisk)). You can download them again anytime.")
         }
+        }
     }
 
     /// Rounded estimate shown BEFORE downloading, so users can gauge the size first.
@@ -4772,6 +4831,99 @@ struct OfflineDownloadsView: View {
 
     private static func byteString(_ bytes: Int64) -> String {
         ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+}
+
+// MARK: - iCloud Sync
+
+struct CloudSyncView: View {
+    @State private var lastSync: Date? = CloudSync.lastSyncDate
+    @State private var justSynced = false
+    @State private var showResetConfirm = false
+
+    private var lastSyncText: String {
+        guard let d = lastSync else { return "Never" }
+        let f = RelativeDateTimeFormatter()
+        f.unitsStyle = .full
+        return f.localizedString(for: d, relativeTo: Date())
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    HStack {
+                        Text("iCloud account")
+                        Spacer()
+                        if CloudSync.isSignedIn {
+                            Label("Signed in", systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green).labelStyle(.titleAndIcon)
+                        } else {
+                            Label("Not signed in", systemImage: "exclamationmark.circle.fill")
+                                .foregroundStyle(.orange).labelStyle(.titleAndIcon)
+                        }
+                    }
+                    LabeledContent("Last synced", value: lastSyncText)
+                } header: {
+                    Text("Status")
+                } footer: {
+                    Text("Your stats, flashcard progress, and decks sync across your devices through your own iCloud — no account or backend needed. Sync Now is a two-way merge: it uploads AND downloads, and for each item the most recently changed version wins (nothing gets wiped). Tap it after a study session and again when you pick up another device so the newest progress carries over.")
+                }
+
+                Section {
+                    Button {
+                        syncNow()
+                    } label: {
+                        HStack {
+                            Label("Sync Now  ·  merge with iCloud", systemImage: "arrow.triangle.2.circlepath")
+                            if justSynced {
+                                Spacer()
+                                Image(systemName: "checkmark").foregroundStyle(.green)
+                            }
+                        }
+                    }
+                    .disabled(!CloudSync.isSignedIn)
+                } footer: {
+                    if !CloudSync.isSignedIn {
+                        Text("Sign into iCloud in the Settings app to enable syncing. Until then, your progress is saved on this device only.")
+                    }
+                }
+
+                Section {
+                    Button("Reset All Progress", role: .destructive) { showResetConfirm = true }
+                } footer: {
+                    Text("Erases your quiz stats and flashcard progress on this device and from iCloud, so you can start fresh. Custom decks are kept. If another signed-in device syncs afterward, its progress can return — reset while your other devices are closed.")
+                }
+            }
+            .navigationTitle("iCloud Sync")
+            .navigationBarTitleDisplayMode(.inline)
+            .onAppear { lastSync = CloudSync.lastSyncDate }
+            .confirmationDialog("Reset all progress?", isPresented: $showResetConfirm, titleVisibility: .visible) {
+                Button("Reset Everything", role: .destructive) { resetAll() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This permanently erases your quiz stats and flashcard progress on this device and in iCloud. This cannot be undone.")
+            }
+        }
+    }
+
+    private func resetAll() {
+        StatsManager.shared.reset()
+        FlashcardManager.shared.resetAll()
+        CloudSync.recordSync()
+        _ = CloudSync.flush()
+        lastSync = CloudSync.lastSyncDate
+    }
+
+    private func syncNow() {
+        StatsManager.shared.syncNow()
+        FlashcardManager.shared.syncNow()
+        DeckManager.shared.syncNow()
+        CloudSync.recordSync()
+        _ = CloudSync.flush()
+        lastSync = CloudSync.lastSyncDate
+        withAnimation { justSynced = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { justSynced = false } }
     }
 }
 
@@ -4800,25 +4952,6 @@ struct AboutView: View {
                     Divider()
 
                     VStack(alignment: .leading, spacing: 20) {
-
-                        NavigationLink {
-                            OfflineDownloadsView()
-                        } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: "arrow.down.circle.fill")
-                                    .font(.title2).foregroundStyle(.blue)
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Offline Images").font(.headline).foregroundStyle(.primary)
-                                    Text("Download photos & slides to use without internet")
-                                        .font(.caption).foregroundStyle(.secondary)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
-                                Spacer(minLength: 4)
-                                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
-                            }
-                        }
-
-                        Divider()
 
                         VStack(alignment: .leading, spacing: 8) {
                             Text("About This App").font(.headline)
