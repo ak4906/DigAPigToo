@@ -381,6 +381,10 @@ class FlashcardManager: ObservableObject {
         save()
     }
 
+    /// Manual iCloud sync (iCloud Sync page): pull the cloud copy in, then push the merged
+    /// result back up.
+    func syncNow() { mergeFromCloud(); save() }
+
     // MARK: - Persistence (local UserDefaults + iCloud key-value mirror)
 
     private func save() {

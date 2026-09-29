@@ -38,9 +38,29 @@ enum CloudSync {
     static func remove(forKey key: String) { store.removeObject(forKey: key) }
 
     /// Best-effort push of pending local writes toward iCloud. Returns false when
-    /// the store is unavailable (e.g. capability off / not signed in).
+    /// the store is unavailable (e.g. capability off / not signed in). Records the
+    /// time on success so the iCloud Sync page can show "last synced".
     @discardableResult
-    static func flush() -> Bool { store.synchronize() }
+    static func flush() -> Bool {
+        let ok = store.synchronize()
+        if ok { recordSync() }
+        return ok
+    }
+
+    // MARK: - Status (surfaced on the iCloud Sync page)
+    private static let lastSyncKey = "DigAPigToo_LastCloudSync"
+
+    /// Whether the user is signed into iCloud (so key-value sync can actually work).
+    static var isSignedIn: Bool { FileManager.default.ubiquityIdentityToken != nil }
+
+    /// When we last pushed to iCloud (local record), or nil if never.
+    static var lastSyncDate: Date? {
+        let t = UserDefaults.standard.double(forKey: lastSyncKey)
+        return t > 0 ? Date(timeIntervalSince1970: t) : nil
+    }
+    static func recordSync() {
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastSyncKey)
+    }
 
     /// Pull the latest values now, and call `onChange` on the main queue whenever
     /// ANOTHER device updates the store. Call once per manager from its init.
