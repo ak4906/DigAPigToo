@@ -2624,7 +2624,7 @@ private let allHistoScenarios: [HistoScenario] = {
     return [
         // SLIDE #01 — Artery / Vein / Nerve
         HistoScenario(slideId: "01", label: "Slide #01 — Artery", entries: [
-            e(_pA, "Artery"),
+            e(_pA, "Artery", image: ImageCDN.slide("artery-vein-nerve_histo_artery_1arrow.jpeg", magnification: 10, caption: "Artery")),
             e(_pB, "Tunica Media"),
             e(_pC, "Smooth muscle"),
             e(_pD, "Vasoconstriction/vasodilation"),
@@ -2647,7 +2647,9 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pD, "Mucociliary clearance"),
         ]),
         HistoScenario(slideId: "02", label: "Slide #02 — Esophagus", entries: [
-            e(_pA, "Esophagus"),
+            // Explicit histo image: there are two "Esophagus" structures (gross + histo), so pin
+            // the histology slide rather than relying on which one resolves first.
+            e(_pA, "Esophagus", image: ImageCDN.slide("esophagus_histo_1.jpeg", magnification: 4, caption: "Esophagus")),
             e(_pB, "Submucosa"),   // arrow in this slide's photo points at the submucosa
             e(_pC, "Stratified squamous epithelium"),
             e(_pD, "Protection from abrasion"),
@@ -2677,39 +2679,33 @@ private let allHistoScenarios: [HistoScenario] = {
         ]),
         // SLIDE #04 — Cardiac Stomach
         HistoScenario(slideId: "04", label: "Slide #04 — Cardiac Stomach (glands)", entries: [
-            e(_pA, "Cardiac Stomach"),
+            e(_pA, "Cardiac Stomach", image: ImageCDN.slide("gastric-pits-cardiac-stomach_histo_1.heic", magnification: 4, caption: "Cardiac Stomach")),
             e(_pB, "Gastric Pits"),
             e(_pC, "Cardiac Glands"),
             e(_pD, "Mucus secretion"),
         ]),
         HistoScenario(slideId: "04", label: "Slide #04 — Cardiac Stomach (muscle)", entries: [
-            e(_pA, "Cardiac Stomach"),
+            e(_pA, "Cardiac Stomach", image: ImageCDN.slide("muscularis-cardiac-stomach_histo_1.png", magnification: 4, caption: "Cardiac Stomach")),
             e(_pB, "Muscularis"),
             e(_pC, "Smooth muscle"),
-            e(_pD, "Mechanical mixing/Peristalsis"),
+            e(_pD, "Mechanical mixing/Peristalsis", alsoAccept: ["Churning food", "Churning"]),
         ]),
         // SLIDE #05 — Large Intestine
-        HistoScenario(slideId: "05", label: "Slide #05 — Large Intestine (goblet)", entries: [
-            e(_pA, "Large Intestine"),
+        HistoScenario(slideId: "05", label: "Slide #05 — Large Intestine", entries: [
+            e(_pA, "Large Intestine", image: ImageCDN.slide("intestinal-glands-large-intestine_histo_1.jpeg", magnification: 4, caption: "Large Intestine")),
             e(_pB, "Crypts of Lieberkühn"),
-            e(_pC, "Goblet Cells"),
-            e(_pD, "Mucus secretion"),
-        ]),
-        HistoScenario(slideId: "05", label: "Slide #05 — Large Intestine (absorption)", entries: [
-            e(_pA, "Large Intestine"),
-            e(_pB, "Crypts of Lieberkühn"),
-            e(_pC, "Enterocyte/Absorptive cell"),
-            e(_pD, "Water absorption"),
+            e(_pC, "Goblet Cells", alsoAccept: ["Enterocyte", "Absorptive cell", "Enterocyte/Absorptive cell"]),
+            e(_pD, "Mucus secretion", alsoAccept: ["Water absorption"]),
         ]),
         // SLIDE #06 — Mammal Jejunum
         HistoScenario(slideId: "06", label: "Slide #06 — Jejunum (villi)", entries: [
-            e(_pA, "Jejunum"),
+            e(_pA, "Jejunum", image: ImageCDN.slide("villi-jejunum_histo_1.jpeg", magnification: 10, caption: "Jejunum")),
             e(_pB, "Villi"),
             e(_pC, "Enterocyte/Absorptive cell"),
             e(_pD, "Nutrient absorption"),
         ]),
         HistoScenario(slideId: "06", label: "Slide #06 — Jejunum (crypts)", entries: [
-            e(_pA, "Jejunum"),
+            e(_pA, "Jejunum", image: ImageCDN.slide("intestinal-glands-jejunum_histo_1.jpeg", magnification: 10, caption: "Jejunum")),
             e(_pB, "Crypts of Lieberkühn"),       // B=crypt; C=cell type within B
             e(_pC, "Goblet Cells"),
             e(_pD, "Mucus secretion"),
@@ -2719,39 +2715,33 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pA, "Aorta"),
             e(_pB, "Tunica Media"),
             e(_pC, "Elastic connective tissue/Elastic lamellae"),
-            e(_pD, "Dampens pulse pressure/Elastic recoil"),
-        ], slideImage: ImageCDN.slide("aorta_histo_1exam.jpg", magnification: 4, caption: "Aorta")),
+            e(_pD, "Stretch in systole and recoil in diastole using elastic lamellae", alsoAccept: ["Elastic recoil", "Dampens pulse pressure", "Stretch and recoil"]),
+        ], slideImage: ImageCDN.slide("aorta_histo_2.jpeg", magnification: 4, caption: "Aorta")),
         HistoScenario(slideId: "07", label: "Slide #07 — Aorta (intima)", entries: [
-            e(_pA, "Aorta"),
+            e(_pA, "Aorta", image: ImageCDN.slide("aorta_histo_1exam.jpg", magnification: 4, caption: "Aorta")),
             e(_pB, "Tunica Intima"),
-            e(_pC, "Endothelium/Simple squamous epithelium"),
+            e("C. What epithelial type does B exhibit?", "Endothelium/Simple squamous epithelium"),
             e(_pD, "Reduces friction for blood flow"),
         ]),
         // SLIDE #08 — Liver
         HistoScenario(slideId: "08", label: "Slide #08 — Liver (portal triad)", entries: [
             e(_pA, "Liver"),
             e(_pB, "Portal Triad"),
-            e(_pC, "Bile duct"),                  // one of three vessels in the portal triad
+            e("C. What's the structure outlined in green?", "Bile duct"),
             e(_pD, "Bile transport"),
         ]),
         HistoScenario(slideId: "08", label: "Slide #08 — Liver (hepatocyte)", entries: [
             e(_pA, "Liver"),
             e(_pB, "Central Vein"),
-            e(_pC, "Hepatocyte"),
+            e("C. What kind of cell is abundant here?", "Hepatocyte"),
             e(_pD, "Detoxification/Metabolism"),
         ]),
         // SLIDE #09 — Mammal Pancreas
-        HistoScenario(slideId: "09", label: "Slide #09 — Pancreas (alpha cells)", entries: [
+        HistoScenario(slideId: "09", label: "Slide #09 — Pancreas (islet)", entries: [
             e(_pA, "Pancreas"),
             e(_pB, "Islet of Langerhans"),
-            e(_pC, "Alpha cells"),                // unambiguous: alpha → glucagon
-            e(_pD, "Glucagon secretion"),
-        ]),
-        HistoScenario(slideId: "09", label: "Slide #09 — Pancreas (beta cells)", entries: [
-            e(_pA, "Pancreas"),
-            e(_pB, "Islet of Langerhans"),
-            e(_pC, "Beta cells"),                 // unambiguous: beta → insulin
-            e(_pD, "Insulin secretion"),
+            e(_pC, "Alpha cells", alsoAccept: ["Beta cells"]),
+            e(_pD, "Glucagon secretion", alsoAccept: ["Insulin secretion"]),
         ]),
         HistoScenario(slideId: "09", label: "Slide #09 — Pancreas (acinus)", entries: [
             e(_pA, "Pancreas"),
@@ -2760,23 +2750,19 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pD, "Digestive enzyme secretion"),
         ]),
         // SLIDE #10 — Kidney
-        HistoScenario(slideId: "10", label: "Slide #10 — Kidney (glomerulus)", entries: [
-            e(_pA, "Kidney"),
-            e(_pB, "Glomerulus"),
-            e(_pC, "Bowman's Capsule"),
-            e(_pD, "Blood filtration/Ultrafiltration"),
-        ]),
         HistoScenario(slideId: "10", label: "Slide #10 — Kidney (PCT)", entries: [
-            e(_pA, "Kidney"),
+            // Uses the glomerulus slide (renal corpuscle in the centre, surrounded by tubules) so
+            // B = a PCT tubule and C = the central glomerulus both read off the one image.
+            e(_pA, "Kidney", image: ImageCDN.slide("glomerulus_histo_1.jpeg", magnification: 10, caption: "Kidney")),
             e(_pB, "Proximal Convoluted Tubule"),
-            e(_pC, "Renal Cortex"),
-            e(_pD, "Reabsorption"),
+            e("C. What's the big structure in the center?", "Glomerulus/Bowman's Capsule", alsoAccept: ["Glomerulus", "Bowman's Capsule", "Renal corpuscle"]),
+            e(_pD, "Filtration of blood", alsoAccept: ["Blood filtration", "Ultrafiltration"]),
         ]),
         HistoScenario(slideId: "10", label: "Slide #10 — Kidney (DCT)", entries: [
             e(_pA, "Kidney"),
             e(_pB, "Distal Convoluted Tubule"),
-            e(_pC, "Renal Medulla"),
-            e(_pD, "Ion/water regulation"),
+            e("C. What epithelial type does B exhibit?", "Simple cuboidal epithelium"),
+            e(_pD, "Active ion transport and regulation", alsoAccept: ["Ion/water regulation", "Ion regulation", "Reabsorption"]),
         ]),
         // SLIDE #11 — Mammal Duodenum
         HistoScenario(slideId: "11", label: "Slide #11 — Duodenum (Brunner's)", entries: [
@@ -2793,17 +2779,11 @@ private let allHistoScenarios: [HistoScenario] = {
             e(_pD, "Nutrient absorption"),
         ]),
         // SLIDE #12 — Mammal Fundic Stomach
-        HistoScenario(slideId: "12", label: "Slide #12 — Fundic Stomach (parietal)", entries: [
-            e(_pA, "Fundic Stomach"),
+        HistoScenario(slideId: "12", label: "Slide #12 — Fundic Stomach", entries: [
+            e(_pA, "Fundic Stomach", image: ImageCDN.slide("fundic-glands_histo_1.png", magnification: 10, caption: "Fundic Stomach")),
             e(_pB, "Fundic Glands"),
-            e(_pC, "Parietal cells"),
-            e(_pD, "HCl secretion/Hydrochloric acid secretion"),
-        ]),
-        HistoScenario(slideId: "12", label: "Slide #12 — Fundic Stomach (chief)", entries: [
-            e(_pA, "Fundic Stomach"),
-            e(_pB, "Fundic Glands"),
-            e(_pC, "Chief cells"),
-            e(_pD, "Pepsinogen secretion"),
+            e(_pC, "Parietal cells", alsoAccept: ["Chief cells"]),
+            e(_pD, "HCl secretion", alsoAccept: ["Hydrochloric acid secretion", "Pepsinogen secretion", "Pepsinogen"]),
         ]),
         // SLIDE #13 — Mammal Ovary
         HistoScenario(slideId: "13", label: "Slide #13 — Ovary (secondary follicle)", entries: [
@@ -2811,7 +2791,7 @@ private let allHistoScenarios: [HistoScenario] = {
             // the "Ovary" name resolves to — "what tissue is this?" is about reading the slide.
             e(_pA, "Ovary", image: ImageCDN.slide("secondary-follicle_histo_1.HEIC", magnification: 10, caption: "Ovary")),
             e(_pB, "Secondary Follicle"),
-            e(_pC, "Corpus Luteum"),
+            e("C. What is the big structure above B?", "Corpus Luteum"),
             e(_pD, "Progesterone production/Progesterone"),
         ]),
         HistoScenario(slideId: "13", label: "Slide #13 — Ovary (primary follicle)", entries: [
@@ -2819,31 +2799,31 @@ private let allHistoScenarios: [HistoScenario] = {
             // "Ovary" name resolves to — "what tissue is this?" is about reading the slide.
             e(_pA, "Ovary", image: ImageCDN.slide("primary-follicle_histo_1.jpg", magnification: 40, caption: "Ovary")),
             e(_pB, "Primary Follicle"),
-            e(_pC, "Primary Oocyte"),
-            e(_pD, "Oogenesis"),
+            e("C. What does B contain?", "Primary Oocyte"),
+            e("D. What maturation process does C undergo?", "Oogenesis"),
         ]),
         // SLIDE #14 — Lung Section
-        HistoScenario(slideId: "14", label: "Slide #14 — Lung (bronchiole)", entries: [
-            e(_pA, "Lung"),
-            e(_pB, "Bronchiole"),
-            e(_pC, "Pulmonary Smooth Muscle"),
-            e(_pD, "Airflow regulation/Bronchoconstriction"),
+        HistoScenario(slideId: "14", label: "Slide #14 — Lung (bronchus)", entries: [
+            e(_pA, "Lung", image: ImageCDN.slide("bronchus_histo_1.jpg", magnification: 4, caption: "Lung")),
+            e(_pB, "Bronchus"),
+            e("C. What is the thick structure bordering B?", "Cartilage", alsoAccept: ["Hyaline cartilage"]),
+            e(_pD, "Structural support/Prevent collapse during breathing", alsoAccept: ["Prevents collapse", "Structural support", "Keeps airway open"]),
         ]),
         HistoScenario(slideId: "14", label: "Slide #14 — Lung (alveoli)", entries: [
             e(_pA, "Lung"),
-            e(_pB, "Alveolar Sacs"),              // B=sac; C=individual alveolus within
-            e(_pC, "Alveoli"),
+            e(_pB, "Alveolar Sacs", alsoAccept: ["Alveoli", "Alveolus"]),
+            e("C. What epithelial type does B exhibit?", "Simple squamous epithelium"),
             e(_pD, "Gas exchange/O2-CO2 exchange"),
         ]),
         // SLIDE #15 — Human Vena Cava
-        HistoScenario(slideId: "15", label: "Slide #15 — Vena Cava (adventitia)", entries: [
+        HistoScenario(slideId: "15", label: "Slide #15 — Vena Cava (media)", entries: [
             e(_pA, "Vena Cava"),
-            e(_pB, "Tunica Adventitia"),
+            e(_pB, "Tunica Media"),
             e(_pC, "Smooth muscle"),
-            e(_pD, "Venous return to heart"),
+            e(_pD, "Venoconstriction/Venodilation", alsoAccept: ["Venoconstriction and venodilation", "Venoconstriction", "Venodilation"]),
         ]),
         HistoScenario(slideId: "15", label: "Slide #15 — Vena Cava (intima)", entries: [
-            e(_pA, "Vena Cava"),
+            e(_pA, "Vena Cava", image: ImageCDN.slide("tunica-intima-vena-cava_histo_1.jpeg", magnification: 4, caption: "Vena Cava")),
             e(_pB, "Tunica Intima"),
             e(_pC, "Endothelium/Simple squamous epithelium"),
             e(_pD, "Minimizes blood flow resistance"),
@@ -2858,16 +2838,10 @@ private let allHistoScenarios: [HistoScenario] = {
         HistoScenario(slideId: "16", label: "Slide #16 — Testis (Leydig)", entries: [
             e(_pA, "Testis"),
             e(_pB, "Seminiferous Tubule"),        // B=tubule; C=adjacent Leydig cells
-            e(_pC, "Leydig Cells"),               // Leydig cells produce testosterone ✓
+            e("C. What cells are clustered between each B?", "Leydig Cells"),
             e(_pD, "Testosterone secretion"),
         ]),
         // SLIDE #18 — Gall Bladder
-        HistoScenario(slideId: "18", label: "Slide #18 — Gall Bladder (mucosa)", entries: [
-            e(_pA, "Gall Bladder"),
-            e(_pB, "Simple columnar epithelium"),
-            e(_pC, "Mucosa"),                     // mucosa (not serosa) performs bile concentration
-            e(_pD, "Bile concentration"),
-        ]),
         HistoScenario(slideId: "18", label: "Slide #18 — Gall Bladder (muscle)", entries: [
             e(_pA, "Gall Bladder"),
             e(_pB, "Muscularis"),
@@ -2878,7 +2852,7 @@ private let allHistoScenarios: [HistoScenario] = {
         HistoScenario(slideId: "19", label: "Slide #19 — Blood Smear (RBC/platelet)", entries: [
             e(_pA, "Blood smear/Blood"),
             e(_pB, "Erythrocyte"),
-            e(_pC, "Platelet"),
+            e("C. What is the small dot present besides B?", "Platelet"),
             e(_pD, "Hemostasis/Blood clotting"),
         ]),
         HistoScenario(slideId: "19", label: "Slide #19 — Blood Smear (WBC)", entries: [
@@ -2889,7 +2863,7 @@ private let allHistoScenarios: [HistoScenario] = {
         ]),
         // SLIDE #20 — Mammal Pyloric Stomach
         HistoScenario(slideId: "20", label: "Slide #20 — Pyloric Stomach (glands)", entries: [
-            e(_pA, "Pyloric Stomach"),
+            e(_pA, "Pyloric Stomach", image: ImageCDN.slide("gastric-pits-pyloric-stomach_histo_1.jpeg", magnification: 4, caption: "Pyloric Stomach")),
             e(_pB, "Gastric Pits"),
             e(_pC, "Pyloric Glands"),
             e(_pD, "Mucus secretion"),
@@ -3108,23 +3082,32 @@ struct ExamHostView: View {
             // every A–D card: prefer an explicit slideImage, else A's per-entry image, else A's
             // structure's own image. This also removes the "message symbol" placeholder that used
             // to appear on free-text (write-in) cards.
-            // These are HISTOLOGY stations, so when a structure has both a gross and a histology
-            // image, pick the HISTO one (magnification != nil) — never show a gross photo for a
-            // "what tissue is this?" slide question.
-            func histoImage(forAnswer answer: String) -> AnatomyImage? {
-                let s = dataManager.structures.first { $0.name.caseInsensitiveCompare(answer) == .orderedSame }
-                return s?.images.first { $0.magnification != nil } ?? s?.images.first
+            // Resolve an answer (by NAME or ALIAS, tolerating slash-delimited alternatives) to a
+            // structure — so e.g. "Gall Bladder" finds the "Gallbladder" structure.
+            func structFor(_ answer: String) -> AnatomyStructure? {
+                for part in answer.split(separator: "/").map({ $0.trimmingCharacters(in: .whitespaces) }) where !part.isEmpty {
+                    if let s = dataManager.structures.first(where: {
+                        $0.name.caseInsensitiveCompare(part) == .orderedSame
+                        || $0.aliases.contains { $0.caseInsensitiveCompare(part) == .orderedSame }
+                    }) { return s }
+                }
+                return nil
             }
-            // A (histology) must ALWAYS show an image — "what tissue is this?" makes no sense
-            // blank. Since A–D are all the SAME slide, if A itself has no image fall back to
-            // the first image available among ANY entry (its override or that answer's
-            // structure image) before giving up.
+            func histoOnly(_ answer: String) -> AnatomyImage? {
+                structFor(answer)?.images.first { $0.magnification != nil }
+            }
+            // A must ALWAYS show a HISTOLOGY image ("what tissue is this?" on a gross photo or a
+            // blank card makes no sense). Since A–D are all the SAME slide, prefer in order: an
+            // explicit slide image, A's per-entry override, A's own histo image, a histo image
+            // from ANY A–D structure, and only then a gross image as a last resort. This auto-fixes
+            // organs whose A structure has only a gross photo but whose B–D layers are histology
+            // (liver, pancreas, kidney, testis, gall bladder…).
             let slideImg: AnatomyImage? = scenario.slideImage
                 ?? scenario.entries.first?.image
-                ?? histoImage(forAnswer: scenario.entries.first?.answer ?? "")
-                ?? scenario.entries.lazy.compactMap { entry -> AnatomyImage? in
-                    entry.image ?? histoImage(forAnswer: entry.answer)
-                }.first
+                ?? histoOnly(scenario.entries.first?.answer ?? "")
+                ?? scenario.entries.lazy.compactMap { $0.image ?? histoOnly($0.answer) }.first
+                ?? structFor(scenario.entries.first?.answer ?? "")?.images.first
+                ?? scenario.entries.lazy.compactMap { $0.image ?? structFor($0.answer)?.images.first }.first
             let abcd = scenario.entries.map { resolveItem(answer: $0.answer, prompt: $0.prompt, imageOverride: slideImg, alsoAccept: $0.alsoAccept) }
             let eItem: ExamItem = {
                 if let m = microscope { return ExamItem(structure: m, questionPrompt: "E. Name this microscope part.") }
