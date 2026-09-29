@@ -6051,6 +6051,363 @@ class AnatomyDataManager: ObservableObject {
                 explanation: "Meconium usually stays in the intestines until birth; it forms the newborn's first stool.",
                 category: "Fetal"
             ),
+            FillBlankQuestion(
+                prompt: "In the pig, folds of the chorionic vesicle interdigitate with the uterine lining across almost the whole surface, forming a ___ placenta; humans instead have a ___ placenta restricted to a disk-shaped region.",
+                answers: ["diffuse", "discoidal"],
+                explanation: "Diffuse (pig) = villi scattered over nearly the whole chorion; discoidal (human) = exchange restricted to one disk.",
+                category: "Fetal"
+            ),
+            FillBlankQuestion(
+                prompt: "The uterine glands secrete ___ ('uterine milk'), a nutrient-rich fluid absorbed by the fetal membranes at the ___ to nourish the developing pig fetus.",
+                answers: ["histotroph", "areolae"],
+                explanation: "Histotroph carries proteins (e.g., uteroferrin), sugars, lipids, ions, and growth factors; pigs absorb it at the areolae.",
+                category: "Fetal"
+            ),
+            FillBlankQuestion(
+                prompt: "Vertebrates such as amphibians and fish that develop without an amnion and lay their eggs in water are called ___.",
+                answers: ["anamniotes"],
+                explanation: "Anamniotes lack the amnion that amniotes (reptiles, birds, mammals) use to develop on land / in the uterus.",
+                category: "Fetal"
+            ),
+            FillBlankQuestion(
+                prompt: "Because of its position by the foramen ovale, most blood from the ___ vena cava passes through the foramen ovale into the left atrium, while blood from the ___ vena cava is directed toward the tricuspid valve into the right ventricle.",
+                answers: ["caudal", "cranial"],
+                explanation: "Caudal vena cava blood (more oxygenated, from the umbilical vein) is shunted to the left heart → aorta → head/heart; cranial vena cava blood goes to the right ventricle → pulmonary trunk → ductus arteriosus.",
+                category: "Fetal"
+            ),
+            FillBlankQuestion(
+                prompt: "Fetal and maternal blood normally stay ___; nutrients, oxygen, and wastes cross between the two streams mainly by ___.",
+                answers: ["separate", "diffusion"],
+                explanation: "The placenta keeps the bloodstreams apart but close enough for diffusion-based exchange.",
+                category: "Fetal"
+            ),
+
+            // ───────── Circulatory ─────────
+            FillBlankQuestion(
+                prompt: "Blood leaving the heart travels through muscular ___, then smaller ___, then thin-walled ___ (the exchange sites), before draining into ___ and finally into larger ___.",
+                answers: ["arteries", "arterioles", "capillaries", "venules", "veins"],
+                explanation: "Vessel order away from and back to the heart: arteries → arterioles → capillaries → venules → veins.",
+                category: "Circulatory"
+            ),
+            FillBlankQuestion(
+                prompt: "Exchange of gases, nutrients, and wastes with the surrounding ___ fluid happens only across the thin ___; no exchange occurs across the thicker walls of arteries and ___.",
+                answers: ["interstitial", "capillaries", "veins"],
+                explanation: "Only capillaries are thin enough for exchange; arteries and veins are transport vessels.",
+                category: "Circulatory"
+            ),
+            FillBlankQuestion(
+                prompt: "Capillaries are classified by their ___: ___ capillaries (the most common) have tight junctions and pass only small solutes, while ___ (discontinuous) capillaries have wide gaps that let plasma proteins and whole cells through.",
+                answers: ["endothelium", "continuous", "sinusoidal"],
+                explanation: "Endothelial structure sets permeability. Sinusoids (liver, spleen, bone marrow) are the leakiest, with slow flow.",
+                category: "Circulatory"
+            ),
+            FillBlankQuestion(
+                prompt: "Blood travels in two circuits: the ___ circuit carries oxygen-rich blood to the tissues, while the ___ circuit carries oxygen-poor blood to the lungs for gas exchange.",
+                answers: ["systemic", "pulmonary"],
+                explanation: "Systemic = body; pulmonary = lungs. Pulmonary arteries carry deoxygenated blood — named by direction from the heart, not oxygen content.",
+                category: "Circulatory"
+            ),
+            FillBlankQuestion(
+                prompt: "Contraction of the smooth muscle in a vessel wall, called ___, narrows the lumen, while relaxation, called ___, widens it.",
+                answers: ["vasoconstriction", "vasodilation"],
+                explanation: "The tunica media's smooth muscle sets vessel diameter and thus resistance/flow.",
+                category: "Circulatory",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "The two main artery types are ___ and ___ arteries. The ___ type (e.g., the aorta) lies near the heart and recoils to smooth out each heartbeat, while the ___ type has proportionally more smooth muscle.",
+                answers: ["elastic", "muscular", "elastic", "muscular"],
+                explanation: "Elastic arteries near the heart absorb systolic pressure and maintain flow in diastole; muscular arteries distribute blood and regulate diameter.",
+                category: "Circulatory"
+            ),
+            FillBlankQuestion(
+                prompt: "Compared with arteries, veins have ___ walls and larger lumens, and many (especially in the limbs) contain ___ that prevent backflow and keep blood moving toward the ___.",
+                answers: ["thinner", "valves", "heart"],
+                explanation: "Veins operate at low pressure; valves counteract gravity and prevent backflow.",
+                category: "Circulatory",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "The heart wall has three layers: the inner ___, the thick muscular ___, and the outer ___ (the visceral layer of the serous pericardium). The fluid-filled ___ cavity lies between the epicardium and the parietal pericardium.",
+                answers: ["endocardium", "myocardium", "epicardium", "pericardial"],
+                explanation: "Endocardium → myocardium → epicardium; pericardial fluid lets the heart beat without friction.",
+                category: "Circulatory"
+            ),
+            FillBlankQuestion(
+                prompt: "The muscular ___ septum divides the heart into left and right chambers, and the ___ — a remnant of the closed foramen ovale — sits in the interatrial septum of the adult heart.",
+                answers: ["atrioventricular", "fossa ovalis"],
+                explanation: "The foramen ovale closes at birth, leaving the fossa ovalis depression.",
+                category: "Circulatory"
+            ),
+            FillBlankQuestion(
+                prompt: "Fluid filtered out of capillaries into the tissues is ___ fluid; the excess that drains into lymphatic capillaries is then called ___ and rejoins the blood at the ___ duct.",
+                answers: ["interstitial", "lymph", "thoracic"],
+                explanation: "The thoracic duct empties near the junction of the jugular and subclavian veins.",
+                category: "Immune & Lymphatic"
+            ),
+
+            // ───────── Renal ─────────
+            FillBlankQuestion(
+                prompt: "The kidneys, aorta, and caudal vena cava lie against the back muscles, deep to the parietal peritoneum. Because only their ventral surface is covered by peritoneum, their position is called ___.",
+                answers: ["retroperitoneal"],
+                explanation: "Retroperitoneal = behind the peritoneum; the kidneys bulge into the cavity but are peritoneum-covered only on their ventral face.",
+                category: "Renal"
+            ),
+            FillBlankQuestion(
+                prompt: "The kidney's microscopic functional unit is the ___; it filters blood and processes the filtrate into ___, reabsorbing most of the water back into the bloodstream.",
+                answers: ["nephron", "urine"],
+                explanation: "Human kidneys filter ~1,100–2,000 L of blood daily but make only ~1.5 L of urine.",
+                category: "Renal"
+            ),
+            FillBlankQuestion(
+                prompt: "Each nephron has a ___ (a capillary cluster) and a ___. Blood enters the glomerulus through the ___ arteriole and leaves through the ___ arteriole, and filtrate is caught by ___ capsule.",
+                answers: ["glomerulus", "renal tubule", "afferent", "efferent", "Bowman's"],
+                explanation: "Glomerular blood pressure forces water and small solutes into Bowman's capsule to start filtration.",
+                category: "Renal",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "Substances reabsorbed by the renal tubules diffuse back into the blood via the ___ capillaries, which drain into the renal ___ and then the renal ___.",
+                answers: ["peritubular", "venules", "veins"],
+                explanation: "Peritubular capillaries surround the tubules to recover reabsorbed water and solutes.",
+                category: "Renal"
+            ),
+            FillBlankQuestion(
+                prompt: "Most solutes are recovered in the proximal convoluted tubule by tubular ___, which returns water, ions, and nutrients to the blood; the opposite process, tubular ___, actively moves toxins and drugs from the blood into the filtrate.",
+                answers: ["reabsorption", "secretion"],
+                explanation: "Reabsorption moves things filtrate→blood; secretion moves things blood→filtrate.",
+                category: "Renal",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "Normally all filtered ___ is reabsorbed in the proximal convoluted tubule, so finding it in the urine can be a sign of ___.",
+                answers: ["glucose", "diabetes mellitus"],
+                explanation: "Glucosuria occurs when filtered glucose exceeds the tubule's reabsorptive capacity, as in diabetes mellitus.",
+                category: "Renal",
+                mcatRelevant: true
+            ),
+
+            // ───────── Reproductive ─────────
+            FillBlankQuestion(
+                prompt: "The testes develop ___ (behind the peritoneum) just caudal to the kidneys, then undergo a caudal ___ into the scrotum, traveling with their arteries, veins, nerves, and sperm ducts.",
+                answers: ["retroperitoneally", "descent"],
+                explanation: "Depending on the pig's age, the testes may still be in the abdomen or already descended into the scrotum.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "The seminal vesicles, prostate, ___ glands, and ___ glands (located distally along the penis, often lost in dissection) together contribute over 60% of the seminal fluid.",
+                answers: ["bulbourethral", "preputial"],
+                explanation: "These accessory glands produce alkaline secretions that lubricate and neutralize vaginal acidity.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "In the female pig, the genital papilla is formed by two skin folds, the ___, that converge ventrally.",
+                answers: ["labia"],
+                explanation: "The labia are lateral skin folds forming the external genital papilla.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "In the pig, the vagina and urethra join into a common chamber, the ___, which opens to the outside through a single ___ opening; in humans they open separately.",
+                answers: ["urogenital sinus", "urogenital"],
+                explanation: "The pig has one urogenital opening; humans have separate urethral and vaginal openings.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "Each ovary connects to a coiled ___ (a fallopian tube in humans). With no direct connection between them, finger-like projections of the ___ sweep the egg in, and the ___ lining of the tube propels it toward the uterus.",
+                answers: ["oviduct", "ovarian bursa", "ciliated"],
+                explanation: "The ovarian bursa and ciliated oviduct epithelium move the ovulated egg into and along the tube.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "In pigs the uterus has two large ___ where embryos develop; in humans these are reduced and the embryo implants in the ___ of the uterus. Fertilization itself occurs in the upper third of the ___.",
+                answers: ["uterine horns", "body", "oviduct"],
+                explanation: "Pig = two uterine horns for a litter; human = single uterine body for (usually) one embryo.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "During ___, an oocyte matures in stages: primary oocyte → ___ follicle (oocyte + granulosa cells) → ___ follicle → ___ follicle (with a fluid-filled antrum).",
+                answers: ["folliculogenesis", "primary", "secondary", "tertiary"],
+                explanation: "All stages coexist in the ovary; typically one follicle per cycle ovulates.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "As a follicle matures, ___ fluid collects into one large pool called the ___, which defines the ___ follicle stage.",
+                answers: ["follicular", "antrum", "tertiary"],
+                explanation: "In a tertiary (antral) follicle the oocyte sits to one side, attached to the follicle wall.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "Roughly 99% of ovarian follicles never ovulate and instead degenerate through a process called ___.",
+                answers: ["atresia"],
+                explanation: "Atresia (follicular death) can happen at any stage of folliculogenesis.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "Sperm form in the ___ tubules: diploid ___ (stem cells at the outer wall) divide into primary and secondary ___, then ___, and finally mature ___.",
+                answers: ["seminiferous", "spermatogonia", "spermatocytes", "spermatids", "spermatozoa"],
+                explanation: "Least-mature cells sit at the outer rim; the fully formed sperm reach the central lumen.",
+                category: "Reproductive"
+            ),
+            FillBlankQuestion(
+                prompt: "Between the seminiferous tubules, triangular clusters of interstitial (___) cells secrete ___.",
+                answers: ["Leydig", "testosterone"],
+                explanation: "Leydig (interstitial) cells produce testosterone; Sertoli cells inside the tubules support sperm development.",
+                category: "Reproductive"
+            ),
+
+            // ───────── Respiratory ─────────
+            FillBlankQuestion(
+                prompt: "The trachea is held open by 15–20 C-shaped rings of ___ cartilage; the gap of each C faces the ___, letting the trachea flatten slightly to make room for a swallowed bolus.",
+                answers: ["hyaline", "esophagus"],
+                explanation: "Smooth muscle and elastic tissue span the open side of the C-rings, allowing slight give during swallowing.",
+                category: "Respiratory"
+            ),
+            FillBlankQuestion(
+                prompt: "The trachea is lined by ciliated columnar epithelium interspersed with ___ cells; the ___ sweep mucus and trapped debris up and out of the airway.",
+                answers: ["goblet", "cilia"],
+                explanation: "The mucociliary escalator: goblet cells make mucus, cilia move it toward the pharynx.",
+                category: "Respiratory"
+            ),
+            FillBlankQuestion(
+                prompt: "The trachea splits into the right and left ___ bronchi, which enter the lungs and divide into ___ bronchi, then ___ bronchi, continuing into ever-smaller ___.",
+                answers: ["primary", "secondary", "tertiary", "bronchioles"],
+                explanation: "Primary → secondary → tertiary bronchi → bronchioles, all part of the branching airway system.",
+                category: "Respiratory"
+            ),
+            FillBlankQuestion(
+                prompt: "The whole branching system of airways is collectively called the ___ (or respiratory tree).",
+                answers: ["bronchial tree"],
+                explanation: "The bronchial tree runs from the primary bronchi down to the terminal bronchioles.",
+                category: "Respiratory"
+            ),
+
+            // ───────── Digestive / GI histology ─────────
+            FillBlankQuestion(
+                prompt: "Bile secreted by hepatocytes first collects in tiny grooves between them called ___, which drain into bile ductules, then bile ducts, then the right and left ___ ducts.",
+                answers: ["bile canaliculi", "hepatic"],
+                explanation: "Canaliculi → ductules → bile ducts → hepatic ducts → common hepatic duct → (with cystic duct) common bile duct.",
+                category: "Pancreas & Liver"
+            ),
+            FillBlankQuestion(
+                prompt: "The gut wall has four layers: the ___ (innermost), submucosa, muscularis, and ___ (outermost). The mucosa's absorptive cells, the ___, carry microvilli, and scattered ___ cells secrete mucus.",
+                answers: ["mucosa", "serosa", "enterocytes", "goblet"],
+                explanation: "Villi arise from the mucosa; enterocytes with microvilli (brush border) do the absorbing.",
+                category: "Small Intestine"
+            ),
+            FillBlankQuestion(
+                prompt: "Peyer's patches and other diffuse lymphoid tissue in the gut wall together make up the ___ (GALT).",
+                answers: ["Gut-Associated Lymphoid Tissue"],
+                explanation: "GALT monitors gut contents and mounts immune responses to pathogens.",
+                category: "Immune & Lymphatic"
+            ),
+            FillBlankQuestion(
+                prompt: "The esophageal mucosa is a thick ___ epithelium (40–50 cell layers) for protection during swallowing, separated from the underlying connective tissue by a thin ___.",
+                answers: ["stratified squamous", "basement membrane"],
+                explanation: "The basement membrane is specialized ECM that anchors and supports the epithelium.",
+                category: "Histology"
+            ),
+
+            // ───────── Histology: tissues, epithelia, stains ─────────
+            FillBlankQuestion(
+                prompt: "The four basic tissue types are ___, ___, ___, and ___ tissue.",
+                answers: ["epithelial", "connective", "muscular", "nervous"],
+                explanation: "Epithelium covers/lines; connective supports/binds; muscle contracts; nervous conducts impulses.",
+                category: "Histology",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "Epithelial cells are named by shape: ___ cells are flat and scale-like (alveoli, vessel lining, Bowman's capsule); ___ cells are cube-shaped (kidney tubules, glands); and ___ cells are tall like columns (the gut lining).",
+                answers: ["squamous", "cuboidal", "columnar"],
+                explanation: "Shape follows function — flat squamous for diffusion, cuboidal/columnar for secretion and absorption.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "A single layer of flat cells that allows diffusion is ___ epithelium, while multiple layers that protect against abrasion (skin, esophagus) form ___ epithelium.",
+                answers: ["simple squamous", "stratified squamous"],
+                explanation: "Simple = one layer (exchange); stratified = many layers (protection).",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "The simple squamous cells lining the inside of blood vessels are specifically called ___ cells.",
+                answers: ["endothelial"],
+                explanation: "Endothelium is the squamous lining of the entire circulatory system.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "Connective tissue has few, loosely-spaced cells in abundant ___ (ECM), built from protein fibers — mainly ___ for strength and ___ for flexibility — plus a gel-like ___.",
+                answers: ["extracellular matrix", "collagen", "elastin", "ground substance"],
+                explanation: "Ground substance (with proteoglycans) fills the space between fibers and cells.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "The main connective-tissue cell, the ___, synthesizes the collagen and elastin fibers found in nearly all connective tissues.",
+                answers: ["fibroblast"],
+                explanation: "Fibroblasts are motile, can divide, and produce tissue-specific ECM.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "___ connective tissue surrounds and anchors blood vessels and organs, while dense ___ connective tissue (parallel collagen) makes up tendons and ligaments.",
+                answers: ["Loose", "fibrous"],
+                explanation: "Tendons connect muscle to bone; ligaments connect bone to bone — both regular fibrous CT.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "The most abundant cartilage, ___ cartilage, is glass-like and holds open the larynx, trachea, and bronchi; it is also found in the ribs and nose.",
+                answers: ["hyaline"],
+                explanation: "Hyaline cartilage provides support plus flexibility on joint surfaces and in the airways.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "The three muscle types are ___ (voluntary, striated, multinucleated), ___ (involuntary, non-striated, one central nucleus, in vessel and gut walls), and ___ (involuntary, striated, one nucleus, with intercalated discs, in the heart).",
+                answers: ["skeletal", "smooth", "cardiac"],
+                explanation: "Distinguish by striations, nucleus number/position, and voluntary vs involuntary control.",
+                category: "Histology",
+                mcatRelevant: true
+            ),
+            FillBlankQuestion(
+                prompt: "___ muscle cells are joined end-to-end by ___ — gap-junction-rich connections that let the heart contract as a single unit.",
+                answers: ["Cardiac", "intercalated discs"],
+                explanation: "Intercalated discs synchronize electrical impulses across cardiac cells.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "In ___ staining, hematoxylin stains ___ blue while eosin counterstains cytoplasm and matrix ___.",
+                answers: ["H&E", "nuclei", "pink"],
+                explanation: "H&E shows general tissue structure; fatty (hydrophobic) structures stain poorly and need other stains.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "___ stain, used for blood smears, combines eosin (staining cytoplasm and acidophilic granules) and ___ blue (staining nuclei and basophilic granules by binding DNA).",
+                answers: ["Wright's", "methylene"],
+                explanation: "Eosin is acidophilic; methylene blue is basophilic.",
+                category: "Histology"
+            ),
+            FillBlankQuestion(
+                prompt: "Blood is a connective tissue whose extracellular matrix, called ___, is a fluid — mostly water — that keeps the blood cells in suspension.",
+                answers: ["plasma"],
+                explanation: "The fluid plasma matrix is what makes blood unique among connective tissues.",
+                category: "Histology"
+            ),
+
+            // ───────── Microscope ─────────
+            FillBlankQuestion(
+                prompt: "___ is the minimum distance between two points at which they can still be told apart; anything closer blurs together into one.",
+                answers: ["Resolution"],
+                explanation: "Resolution (resolving power) measures the detail/clarity a microscope can distinguish.",
+                category: "Microscope"
+            ),
+            FillBlankQuestion(
+                prompt: "The lab's Leica microscopes have four objective lenses — ___, ___, 40X, and ___ — plus a 10X ocular.",
+                answers: ["4X", "10X", "100X"],
+                explanation: "Total magnification = objective power × ocular power (10X).",
+                category: "Microscope"
+            ),
+            FillBlankQuestion(
+                prompt: "Total magnification equals the objective power times the ___ power. Using m1·d1 = m2·d2, a higher magnification gives a ___ field-of-view diameter.",
+                answers: ["ocular", "smaller"],
+                explanation: "Field of view shrinks as magnification rises; the formula finds the high-power diameter from the low-power one.",
+                category: "Microscope"
+            ),
         ]
     }
 }
