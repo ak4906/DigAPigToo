@@ -5230,7 +5230,7 @@ struct AboutView: View {
                             .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                         Text("Dig a Pig Too")
                             .font(.title).fontWeight(.bold)
-                        Text("Version 1.4  •  2026")
+                        Text("Version 1.5  •  2026")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
@@ -5256,7 +5256,23 @@ struct AboutView: View {
                         Divider()
 
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("What's New in 1.4").font(.headline)
+                            Text("What's New in 1.5").font(.headline)
+                            Group {
+                                Label("Friendly class leaderboard powered by Game Center — see the top 3 right on the IDs page, plus achievements for mastering each area", systemImage: "trophy.fill")
+                                Label("A single Mastery Score (Stats & Ranking) weighted like the real practical — physical IDs, then traces, then fill-ins — with bonus points for practicing quizzes and exams", systemImage: "chart.bar.fill")
+                                Label("Fill-in Smart Review schedules new, missed, and stale questions first, and graduates each one from multiple choice to write-in as you master it", systemImage: "brain.head.profile")
+                                Label("Many more traces — lipid digestion, waste out the GI tract, oxygen from mother to fetal heart, nitrogen to urine — plus short \"Building Blocks\" chunks to memorize in pieces", systemImage: "arrow.right.circle")
+                                Label("Traces rewritten to match how the practical is graded: one structure per step, consistent left/right, and full capillary → venule → vein detail", systemImage: "checkmark.seal.fill")
+                                Label("New MCAT-tagged fill-ins (adrenal gland, tubular secretion, and more), searchable alongside ID results", systemImage: "text.badge.plus")
+                                Label("New Settings tab for offline images and iCloud sync; hardware-keyboard shortcuts on Mac/iPad — number keys pick choices, Return/Space to advance and reveal", systemImage: "keyboard")
+                            }
+                            .font(.subheadline)
+                        }
+
+                        Divider()
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("What's New in 1.4").font(.headline).foregroundStyle(.secondary)
                             Group {
                                 Label("Offline mode: download every photo and histology slide to study with no internet — on the subway, in lab, or on airplane mode", systemImage: "arrow.down.circle")
                                 Label("iCloud sync keeps your stats, flashcard progress, and decks in step across your iPhone, iPad, and Mac", systemImage: "icloud")
@@ -5267,6 +5283,7 @@ struct AboutView: View {
                                 Label("Photo coverage is complete — every structure in the atlas now has a real dissection or histology image", systemImage: "photo.stack.fill")
                             }
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                         }
 
                         Divider()
