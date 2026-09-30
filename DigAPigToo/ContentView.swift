@@ -3002,6 +3002,9 @@ struct ExamHostView: View {
                               !s.stations[sIdx].items[iIdx].wasCorrect else { return }
                         s.stations[sIdx].items[iIdx].wasCorrect = true
                         s.score += 1
+                        if let name = s.stations[sIdx].items[iIdx].structure?.name {
+                            StatsManager.shared.overrideLastToCorrect(structureName: name)
+                        }
                         examSession = s
                     })
                 } else {
@@ -3575,6 +3578,11 @@ struct ExamStationView: View {
             updatedStation.items[idx].givenAnswer = typed.isEmpty ? "(blank)" : typed
             updatedStation.items[idx].wasCorrect = correct
             if correct { session.score += 1 }
+            // Feed exam performance into Stats (structure-backed items) so it counts toward the
+            // leaderboard practice score and per-structure accuracy, like the quiz does.
+            if let name = updatedStation.items[idx].structure?.name {
+                StatsManager.shared.record(structureName: name, correct: correct)
+            }
         }
         updatedStation.isSubmitted = true
         session.stations[session.currentStationIndex] = updatedStation
@@ -3592,6 +3600,9 @@ struct ExamStationView: View {
         guard idx < station.items.count, !station.items[idx].wasCorrect else { return }
         station.items[idx].wasCorrect = true
         session.score += 1
+        if let name = station.items[idx].structure?.name {
+            StatsManager.shared.overrideLastToCorrect(structureName: name)
+        }
         session.stations[session.currentStationIndex] = station
         examSession = session
     }

@@ -36,12 +36,13 @@ struct LeaderboardContent: View {
 
     @ViewBuilder
     private func scoreSection(_ m: MasteryScore) -> some View {
-        Section("Your Mastery Score") {
+        Section("Your Score") {
             VStack(spacing: 4) {
                 Text("\(m.score)")
                     .font(.system(size: 52, weight: .bold, design: .rounded))
                     .foregroundStyle(.indigo)
-                Text("out of 1000").font(.caption).foregroundStyle(.secondary)
+                Text("mastery \(m.masteryPoints)/1000  ·  practice \(m.performancePoints)")
+                    .font(.caption).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 4)
@@ -49,6 +50,19 @@ struct LeaderboardContent: View {
             scoreRow("Physical IDs", m.idMastered, m.idTotal, m.idPoints, .blue)
             scoreRow("Traces", m.traceMastered, m.traceTotal, m.tracePoints, .teal)
             scoreRow("Fill-ins", m.fillMastered, m.fillTotal, m.fillPoints, .purple)
+
+            // Practice / performance — the tie-breaker among people who've mastered everything.
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Practice (quizzes & exams)").font(.subheadline)
+                    Spacer()
+                    Text("\(m.questionsAnswered) answered · \(Int(m.answerAccuracy * 100))% · \(m.performancePoints) pts")
+                        .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                }
+                Text("Reps + accuracy add up to \(Int(MasteryScore.practiceVolumeCap + MasteryScore.accuracyCap)) bonus points.")
+                    .font(.caption2).foregroundStyle(.secondary)
+            }
+            .padding(.vertical, 2)
         }
     }
 
