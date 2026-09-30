@@ -68,64 +68,53 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            AtlasView(isAtRoot: $idsAtRoot, selection: $selectedTab, maxTab: lastTabIndex)
+            AtlasView(isAtRoot: $idsAtRoot)
                 .tabItem { Label("IDs", systemImage: "photo.on.rectangle") }
                 .tag(0)
 
             TracesView()
                 .tabItem { Label("Traces", systemImage: "arrow.right.circle") }
                 .tag(1)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             FlashcardView()
                 .tabItem { Label("Flashcards", systemImage: "rectangle.stack.fill") }
                 .tag(2)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             QuizCustomizationView(isAtRoot: $quizAtRoot)
                 .tabItem { Label("Quiz", systemImage: "pencil") }
                 .tag(3)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: quizAtRoot)
 
             FillBlankListView()
                 .tabItem { Label("Fill-In", systemImage: "text.badge.plus") }
                 .tag(4)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             SearchView(isAtRoot: $searchAtRoot)
                 .tabItem { Label("Search", systemImage: "magnifyingglass") }
                 .tag(5)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: searchAtRoot)
 
             DiagramsView(isAtRoot: $diagramsAtRoot)
                 .tabItem { Label("Diagrams", systemImage: "photo.stack.fill") }
                 .tag(6)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: diagramsAtRoot)
 
             StatsView()
                 .tabItem { Label("Stats & Ranking", systemImage: "chart.bar.fill") }
                 .tag(7)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             GuideView()
                 .tabItem { Label("Guide", systemImage: "book") }
                 .tag(8)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             AboutView()
                 .tabItem { Label("About", systemImage: "info.circle") }
                 .tag(9)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             UploadView()
                 .tabItem { Label("Contribute", systemImage: "plus.app") }
                 .tag(10)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(11)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
         }
         // If the user opted into offline images, quietly pick up any newly-added
         // photos on launch so their downloaded set stays complete.
@@ -134,43 +123,6 @@ struct ContentView: View {
 }
 
 // MARK: - Tab swipe modifier
-
-/// Adds a horizontal swipe to a tab's content that moves between tabs. Uses
-/// `.simultaneousGesture` so it coexists with vertical scrolling: a swipe that is
-/// predominantly horizontal (a natural human diagonal counts) switches tabs on release.
-/// `enabled` lets callers opt out per-tab (e.g. IDs while inside a category).
-struct TabSwipeGesture: ViewModifier {
-    @Binding var selection: Int
-    let maxTab: Int
-    var enabled: Bool = true
-
-    func body(content: Content) -> some View {
-        content.simultaneousGesture(
-            DragGesture(minimumDistance: 24)
-                .onEnded { value in
-                    guard enabled else { return }
-                    let h = value.translation.width
-                    let v = value.translation.height
-                    // Horizontal must dominate (allows up to ~45° diagonal) and clear a
-                    // minimum distance, so deliberate sideways swipes register but
-                    // ordinary vertical scrolls never switch tabs.
-                    guard abs(h) > abs(v) else { return }
-                    guard abs(h) > 44 else { return }
-                    if h < 0, selection < maxTab {
-                        selection += 1
-                    } else if h > 0, selection > 0 {
-                        selection -= 1
-                    }
-                }
-        )
-    }
-}
-
-extension View {
-    func tabSwipe(selection: Binding<Int>, maxTab: Int, enabled: Bool = true) -> some View {
-        modifier(TabSwipeGesture(selection: selection, maxTab: maxTab, enabled: enabled))
-    }
-}
 
 // MARK: - Atlas
 
@@ -182,10 +134,6 @@ enum AtlasViewMode {
 struct AtlasView: View {
     /// Reports nav-stack depth to ContentView so IDs tab-swipe disables inside a category.
     @Binding var isAtRoot: Bool
-    /// Tab-swipe is applied to the LIST only (below), so scrolling the mini leaderboard strip
-    /// on top never switches tabs.
-    @Binding var selection: Int
-    let maxTab: Int
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var navPath = NavigationPath()
     @State private var viewMode: AtlasViewMode = .byCategory
@@ -276,7 +224,6 @@ struct AtlasView: View {
                     case .alphabetical: alphabeticalList
                     }
                 }
-                .tabSwipe(selection: $selection, maxTab: maxTab, enabled: isAtRoot)
             }
             .navigationTitle("Dig a Pig Too")
             .navigationDestination(for: CategoryNavDestination.self) { dest in
@@ -1667,48 +1614,52 @@ private struct FillBlankRevealCard: View {
     var isActive: Bool = true          // only the on-screen pager card owns the space shortcut
     @State private var revealed = false
 
+    // The sentence with blanks as blue placeholders, or (once revealed) filled in with the answers
+    // in bold green so it reads as a complete sentence.
+    private var renderedPrompt: AttributedString {
+        let parts = question.prompt.components(separatedBy: "___")
+        var s = AttributedString()
+        for j in parts.indices {
+            s += AttributedString(parts[j])
+            guard j < question.answers.count else { continue }
+            var chunk = AttributedString(revealed ? question.answers[j] : "____")
+            chunk.foregroundColor = revealed ? .green : .blue
+            chunk.font = .body.bold()
+            s += chunk
+        }
+        return s
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Question")
+                    Text(revealed ? "Answer" : "Question")
                         .font(.headline)
-                        .foregroundStyle(.blue)
-                    Text(question.prompt)
+                        .foregroundStyle(revealed ? .green : .blue)
+                    Text(renderedPrompt)
                         .font(.body)
                 }
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.blue.opacity(0.07))
+                .background((revealed ? Color.green : Color.blue).opacity(0.07))
                 .cornerRadius(10)
 
                 if revealed {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("Answers", systemImage: "checkmark.circle.fill")
-                            .font(.headline)
-                            .foregroundStyle(.green)
-                        ForEach(Array(question.answers.enumerated()), id: \.offset) { i, ans in
-                            HStack(alignment: .top, spacing: 6) {
-                                Text("Blank \(i + 1):")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(.secondary)
-                                Text(ans)
-                                    .font(.subheadline)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(.green)
-                            }
-                        }
-                        if !question.explanation.isEmpty {
-                            Divider()
+                    if !question.explanation.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Why", systemImage: "lightbulb.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(.green)
                             Text(question.explanation)
                                 .font(.body)
                                 .foregroundStyle(.secondary)
                         }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.green.opacity(0.08))
+                        .cornerRadius(10)
                     }
-                    .padding()
-                    .background(.green.opacity(0.08))
-                    .cornerRadius(10)
                 } else {
                     let revealButton = Button {
                         withAnimation { revealed = true }
@@ -3018,7 +2969,9 @@ struct ExamHostView: View {
                             StatsManager.shared.overrideLastToCorrect(structureName: name)
                         }
                         examSession = s
+                        StatsManager.shared.recordExamScore(s.score)
                     })
+                    .onAppear { StatsManager.shared.recordExamScore(session.score) }
                 } else {
                     ExamStationView(examSession: $examSession)
                 }
@@ -4695,16 +4648,15 @@ struct StatsView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                Group {
-                    switch mode {
-                    case .quiz:       quizStats
-                    case .flashcards: FlashcardStatsContent()
-                    case .fillins:    fillinStats
-                    case .ranking:    LeaderboardContent()
-                    }
-                }
+            // Page-style TabView so you can swipe left/right between the segments; the picker
+            // below drives the same selection (and is a stable toolbar host, so it won't glitch).
+            TabView(selection: $mode) {
+                quizStats.tag(StatsMode.quiz)
+                FlashcardStatsContent().tag(StatsMode.flashcards)
+                fillinStats.tag(StatsMode.fillins)
+                LeaderboardContent().tag(StatsMode.ranking)
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
             .navigationTitle("Stats & Ranking")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

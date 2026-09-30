@@ -26,6 +26,7 @@ struct MasteryScore {
     // Practice/performance inputs (quizzes + Real Exam, which both record into StatsManager).
     var questionsAnswered = 0
     var answerAccuracy = 0.0        // 0…1 overall correctness
+    var bestExamScore = 0          // best correct-item count in one Real-Exam session
 
     var idFrac: Double { idTotal > 0 ? Double(idMastered) / Double(idTotal) : 0 }
     var traceFrac: Double { traceTotal > 0 ? Double(traceMastered) / Double(traceTotal) : 0 }
@@ -40,17 +41,23 @@ struct MasteryScore {
     var fillPoints: Int { Int(Self.fillWeight * fillFrac * 1000) }
 
     // MARK: Practice (using it correctly) — a 0…250 differentiator on top of mastery
-    // Rewards putting in reps (quizzes + exams) AND getting them right, so among two people who
-    // have mastered everything, the one who practices more and makes fewer mistakes ranks higher.
-    static let practiceVolumeCap = 150.0   // pts from sheer reps (0.5 pt/question, maxes at 300 Q)
-    static let accuracyCap = 100.0         // pts from correctness (full only at 100% over 50+ Q)
+    // Among people who've mastered everything, this ranks who practices MORE, more ACCURATELY,
+    // and can hold it together across a full-length exam.
+    static let volumeCap = 100.0        // reps from quizzes + exams
+    static let accuracyCap = 50.0       // overall correctness
+    static let examCap = 100.0          // best full-length-exam performance
+    // Maxing volume takes real study — roughly the ~398 IDs practiced several times over.
+    static let volumeTarget = 2000.0
+    // A flawless full-length practical: 30 stations × 5 items = 150 correct.
+    static let examTarget = 150.0
 
-    var practicePoints: Int { Int(min(Self.practiceVolumeCap, Double(questionsAnswered) * 0.5)) }
+    var practicePoints: Int { Int(Self.volumeCap * min(1.0, Double(questionsAnswered) / Self.volumeTarget)) }
     var accuracyPoints: Int {
-        let confidence = min(1.0, Double(questionsAnswered) / 50.0)   // ramp in over first 50 Q
+        let confidence = min(1.0, Double(questionsAnswered) / 100.0)   // earned over ~100 questions
         return Int(answerAccuracy * confidence * Self.accuracyCap)
     }
-    var performancePoints: Int { practicePoints + accuracyPoints }
+    var examPoints: Int { Int(Self.examCap * min(1.0, Double(bestExamScore) / Self.examTarget)) }
+    var performancePoints: Int { practicePoints + accuracyPoints + examPoints }
 
     /// Total leaderboard score: mastery (≤1000) + practice/performance (≤250).
     var score: Int { masteryPoints + performancePoints }
@@ -82,6 +89,7 @@ struct MasteryScore {
 
         m.questionsAnswered = quiz.totalAnswered
         m.answerAccuracy = quiz.overallAccuracy
+        m.bestExamScore = quiz.bestExamScore
 
         return m
     }

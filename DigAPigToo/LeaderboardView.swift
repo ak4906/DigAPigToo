@@ -59,7 +59,13 @@ struct LeaderboardContent: View {
                     Text("\(m.questionsAnswered) answered · \(Int(m.answerAccuracy * 100))% · \(m.performancePoints) pts")
                         .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                 }
-                Text("Reps + accuracy add up to \(Int(MasteryScore.practiceVolumeCap + MasteryScore.accuracyCap)) bonus points.")
+                HStack {
+                    Text("Best exam: \(m.bestExamScore)/\(Int(MasteryScore.examTarget)) items").font(.caption2).foregroundStyle(.secondary)
+                    Spacer()
+                    Text("reps \(m.practicePoints) · accuracy \(m.accuracyPoints) · exam \(m.examPoints)")
+                        .font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
+                }
+                Text("Up to \(Int(MasteryScore.volumeCap + MasteryScore.accuracyCap + MasteryScore.examCap)) bonus points — earned by heavy practice, accuracy, and a flawless full-length exam.")
                     .font(.caption2).foregroundStyle(.secondary)
             }
             .padding(.vertical, 2)
@@ -166,7 +172,7 @@ struct MiniLeaderboardView: View {
 
     var body: some View {
         let m = MasteryScore.current()
-        let top3 = Array(gc.entries.prefix(3))
+        let topN = Array(gc.entries.prefix(10))
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 // Your own score.
@@ -182,10 +188,10 @@ struct MiniLeaderboardView: View {
                         Text("Sign in to compete →").font(.caption)
                     }
                     .buttonStyle(.plain).foregroundStyle(.indigo)
-                } else if top3.isEmpty {
+                } else if topN.isEmpty {
                     Text("No rankings yet").font(.caption).foregroundStyle(.secondary)
                 } else {
-                    ForEach(top3) { e in
+                    ForEach(topN) { e in
                         HStack(spacing: 4) {
                             Text(medal(e.rank))
                             Text(e.displayName).font(.caption).lineLimit(1)

@@ -186,8 +186,11 @@ struct TracePracticeView: View {
 
         // Big image of the step's first structure; extra structures as small tappable thumbs.
         if let first = structures.first, let img = first.images.first {
-            AnatomyImageView(image: img, title: first.name)
+            // scaledToFit (fillsFrame: false) + capped width so a wide image can't balloon past
+            // the screen and push the card's text off-screen on iPhone.
+            AnatomyImageView(image: img, fillsFrame: false, title: first.name)
                 .adaptiveImageHeight(phone: 300, padFraction: 0.5)
+                .frame(maxWidth: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             if structures.count > 1 {
                 ScrollView(.horizontal, showsIndicators: false) {

@@ -29,8 +29,12 @@ class StatsManager: ObservableObject {
 
     // MARK: - Published state
     @Published private(set) var stats: [String: StructureStat] = [:]
+    /// Best single Real-Exam result (correct items in one session). Benchmarks the leaderboard's
+    /// exam-performance points against a flawless full-length exam (30 stations = 150 items).
+    @Published private(set) var bestExamScore: Int = 0
 
     private let udKey = "DigAPigToo_StructureStats"
+    private let examKey = "DigAPigToo_BestExamScore"
     private init() {
         load()
         mergeFromCloud()
@@ -57,6 +61,13 @@ class StatsManager: ObservableObject {
         s.correctCount += 1
         stats[structureName] = s
         save()
+    }
+
+    /// Record a completed Real-Exam session's correct-item count; keeps the running best.
+    func recordExamScore(_ correctItems: Int) {
+        guard correctItems > bestExamScore else { return }
+        bestExamScore = correctItems
+        saveExamScore()
     }
 
     // MARK: - Aggregates
@@ -102,14 +113,17 @@ class StatsManager: ObservableObject {
     // MARK: - Reset
     func reset() {
         stats = [:]
+        bestExamScore = 0
         UserDefaults.standard.removeObject(forKey: udKey)
+        UserDefaults.standard.removeObject(forKey: examKey)
         CloudSync.set(nil, forKey: udKey)
+        CloudSync.set(0, forKey: examKey)
         CloudSync.flush()
     }
 
     /// Manual iCloud sync (iCloud Sync page): pull the cloud copy in, then push the merged
     /// result back up.
-    func syncNow() { mergeFromCloud(); save() }
+    func syncNow() { mergeFromCloud(); save(); saveExamScore() }
 
     // MARK: - Persistence (local UserDefaults + iCloud key-value mirror)
     private func save() {
@@ -118,7 +132,13 @@ class StatsManager: ObservableObject {
         CloudSync.set(data, forKey: udKey)
         CloudSync.flush()
     }
+    private func saveExamScore() {
+        UserDefaults.standard.set(bestExamScore, forKey: examKey)
+        CloudSync.set(bestExamScore, forKey: examKey)
+        CloudSync.flush()
+    }
     private func load() {
+        bestExamScore = UserDefaults.standard.integer(forKey: examKey)
         guard let data = UserDefaults.standard.data(forKey: udKey),
               let decoded = try? JSONDecoder().decode([String: StructureStat].self, from: data)
         else { return }
@@ -130,6 +150,9 @@ class StatsManager: ObservableObject {
     /// (per-key last-writer-wins via `lastSeen`). Idempotent; re-saves + re-pushes
     /// the merged result only when something actually changed.
     private func mergeFromCloud() {
+        // Best exam score: take the higher of local vs cloud (independent of the stats blob).
+        let cloudExam = CloudSync.integer(forKey: examKey)
+        if cloudExam != bestExamScore { bestExamScore = max(bestExamScore, cloudExam); saveExamScore() }
         guard let data = CloudSync.data(forKey: udKey),
               let cloud = try? JSONDecoder().decode([String: StructureStat].self, from: data)
         else { return }   // no cloud copy yet — a later record()/notification will seed it
