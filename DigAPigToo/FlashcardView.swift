@@ -40,10 +40,12 @@ struct FlashcardView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                switch mode {
-                case .categories: categoryPicker
-                case .decks:      DeckListView(session: $session)
+            VStack(spacing: 0) {
+                Group {
+                    switch mode {
+                    case .categories: categoryPicker
+                    case .decks:      DeckListView(session: $session)
+                    }
                 }
             }
             .navigationTitle("Flashcards")

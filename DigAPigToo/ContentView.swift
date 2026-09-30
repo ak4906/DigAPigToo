@@ -256,6 +256,20 @@ struct AtlasView: View {
         NavigationStack(path: $navPath) {
             VStack(spacing: 0) {
                 MiniLeaderboardView()
+                // View-mode toggle lives in the body (not the toolbar): a trailing toolbar item
+                // gets an extra bar-button chrome outline on iPad/Mac stacked on the segmented
+                // control; in-body it shows a single clean outline like the other pickers.
+                HStack {
+                    Spacer()
+                    Picker("View", selection: $viewMode) {
+                        Image(systemName: "folder").tag(AtlasViewMode.byCategory)
+                        Image(systemName: "textformat.abc").tag(AtlasViewMode.alphabetical)
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 6)
                 Group {
                     switch viewMode {
                     case .byCategory:   categoryList
@@ -277,15 +291,6 @@ struct AtlasView: View {
                     allStructures: all,
                     initialIndex: all.firstIndex(where: { $0.id == dest.structure.id }) ?? 0
                 )
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Picker("View", selection: $viewMode) {
-                        Image(systemName: "folder").tag(AtlasViewMode.byCategory)
-                        Image(systemName: "textformat.abc").tag(AtlasViewMode.alphabetical)
-                    }
-                    .pickerStyle(.segmented)
-                }
             }
         }
         .onChange(of: navPath.count) { _, count in
@@ -1647,7 +1652,7 @@ struct FillBlankDetailView: View {
     var body: some View {
         TabView(selection: $index) {
             ForEach(Array(questions.enumerated()), id: \.element.id) { i, q in
-                FillBlankRevealCard(question: q).tag(i)
+                FillBlankRevealCard(question: q, isActive: i == index).tag(i)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
@@ -1659,6 +1664,7 @@ struct FillBlankDetailView: View {
 /// One reveal-style fill-in card: question → "Reveal Answer" → answers + explanation.
 private struct FillBlankRevealCard: View {
     let question: FillBlankQuestion
+    var isActive: Bool = true          // only the on-screen pager card owns the space shortcut
     @State private var revealed = false
 
     var body: some View {
@@ -1704,7 +1710,7 @@ private struct FillBlankRevealCard: View {
                     .background(.green.opacity(0.08))
                     .cornerRadius(10)
                 } else {
-                    Button {
+                    let revealButton = Button {
                         withAnimation { revealed = true }
                     } label: {
                         Label("Reveal Answer", systemImage: "eye.fill")
@@ -1713,6 +1719,12 @@ private struct FillBlankRevealCard: View {
                             .background(.blue.opacity(0.15))
                             .foregroundStyle(.blue)
                             .cornerRadius(10)
+                    }
+                    // Hardware keyboard: space reveals (only the visible pager card registers it).
+                    if isActive {
+                        revealButton.keyboardShortcut(.space, modifiers: [])
+                    } else {
+                        revealButton
                     }
                 }
 
@@ -4683,12 +4695,14 @@ struct StatsView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                switch mode {
-                case .quiz:       quizStats
-                case .flashcards: FlashcardStatsContent()
-                case .fillins:    fillinStats
-                case .ranking:    LeaderboardContent()
+            VStack(spacing: 0) {
+                Group {
+                    switch mode {
+                    case .quiz:       quizStats
+                    case .flashcards: FlashcardStatsContent()
+                    case .fillins:    fillinStats
+                    case .ranking:    LeaderboardContent()
+                    }
                 }
             }
             .navigationTitle("Stats & Ranking")

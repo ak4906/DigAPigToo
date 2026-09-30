@@ -125,6 +125,8 @@ struct TracePracticeView: View {
                     Button("Reveal Answer") { answered = true; fieldFocused = false }
                         .buttonStyle(.borderedProminent).tint(.indigo)
                         .frame(maxWidth: .infinity)
+                        // Hardware keyboard: space reveals (when the text field isn't focused).
+                        .keyboardShortcut(.space, modifiers: [])
                 }
             }
         }
