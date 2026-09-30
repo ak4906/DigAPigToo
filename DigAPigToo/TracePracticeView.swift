@@ -300,7 +300,12 @@ struct TracePracticeView: View {
             stepIndex += 1
         }
         resetStepInput()
-        if !isComplete { buildOptions() }
+        if !isComplete {
+            buildOptions()
+        } else {
+            // Run finished — log it for trace mastery (feeds the overall mastery score).
+            TraceProgressManager.shared.record(title: trace.title, correct: gotCount, total: steps.count)
+        }
     }
 
     private func resetStepInput() {
@@ -320,8 +325,10 @@ struct TracePracticeView: View {
     }
 
     /// MC distractors that keep you on your toes: mostly the NEXT 1–3 steps (are we there yet,
-    /// or jumping ahead?) plus one much-later step; NEVER already-covered/past steps; topped up
-    /// from other traces (same category preferred) when this trace can't supply enough.
+    /// or jumping ahead?) plus one much-later step. To top up, prefer OTHER steps of THIS trace —
+    /// they're distinct stages of one pathway, so they can never be a synonym of the answer. Only a
+    /// very short trace falls back to other traces, and then we drop anything that reads like the
+    /// answer, so a differently-worded name for the SAME structure can't show up as a wrong option.
     private func buildOptions() {
         guard stepIndex < steps.count else { options = []; return }
         let correct = steps[stepIndex].text
@@ -335,9 +342,19 @@ struct TracePracticeView: View {
         var picks: [String] = Array(Set(nearPool)).shuffled().prefix(2).map { $0 }
         if let far = Array(Set(farPool)).shuffled().first { picks.append(far) }
 
+        // Top up from this trace's OTHER steps (including earlier ones) before ever borrowing.
         if picks.count < 3 {
-            let covered = Set(steps.prefix(stepIndex + 1).map(\.text))
-            let extra = otherTraceDistractors.filter { !covered.contains($0) && $0 != correct && !picks.contains($0) }
+            let sameTrace = steps.map(\.text).filter { $0 != correct && !picks.contains($0) }
+            picks += Array(Set(sameTrace)).shuffled().prefix(3 - picks.count)
+        }
+        // Last resort (very short trace): borrow from other traces, excluding anything that
+        // matches the answer even loosely — no cross-trace synonym can slip in as "wrong".
+        if picks.count < 3 {
+            let covered = Set(steps.map(\.text))
+            let extra = otherTraceDistractors.filter {
+                !covered.contains($0) && $0 != correct && !picks.contains($0)
+                && !ExamItem.matchesLeniently($0.lowercased(), against: correct)
+            }
             picks += Array(Set(extra)).shuffled().prefix(3 - picks.count)
         }
         options = (Array(picks.prefix(3)) + [correct]).shuffled()

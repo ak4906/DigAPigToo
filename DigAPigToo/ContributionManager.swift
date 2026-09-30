@@ -23,6 +23,11 @@ class ContributionManager: ObservableObject {
 
     @Published var state: State = .idle
 
+    // Sticky flag so the "contributor" achievement can be awarded even after `state` resets.
+    private static let contributedKey = "DigAPigToo_HasContributed"
+    static var hasContributed: Bool { UserDefaults.standard.bool(forKey: contributedKey) }
+    static func markContributed() { UserDefaults.standard.set(true, forKey: contributedKey) }
+
     private let db = CKContainer(identifier: "iCloud.cometzfly.DigAPigToo").publicCloudDatabase
 
     // MARK: - Submit
@@ -50,6 +55,7 @@ class ContributionManager: ObservableObject {
                 _ = try await db.save(record)
 
                 try? FileManager.default.removeItem(at: tmpURL)
+                Self.markContributed()
                 state = .success
 
             } catch let ckError as CKError {

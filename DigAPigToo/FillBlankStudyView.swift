@@ -171,6 +171,13 @@ struct FillBlankStudyView: View {
                 Label("Mastered", systemImage: "checkmark.seal.fill").font(.caption2).foregroundStyle(.green)
             }
             Spacer(minLength: 0)
+            if q.mcatRelevant {
+                // Motivation flag for premeds: this one's worth knowing well for the MCAT.
+                Label("MCAT", systemImage: "star.fill")
+                    .font(.caption2.bold())
+                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .background(.purple.opacity(0.15)).foregroundStyle(.purple).clipShape(Capsule())
+            }
         }
         .padding(.horizontal)
     }

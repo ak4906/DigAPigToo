@@ -64,14 +64,13 @@ struct ContentView: View {
     /// Same idea for Quiz: disabled while a quiz/exam is actually running so dragging to
     /// select text in an answer field doesn't get hijacked into a tab change.
     @State private var quizAtRoot: Bool = true
-    private let lastTabIndex = 12
+    private let lastTabIndex = 11
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            AtlasView(isAtRoot: $idsAtRoot)
+            AtlasView(isAtRoot: $idsAtRoot, selection: $selectedTab, maxTab: lastTabIndex)
                 .tabItem { Label("IDs", systemImage: "photo.on.rectangle") }
                 .tag(0)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: idsAtRoot)
 
             TracesView()
                 .tabItem { Label("Traces", systemImage: "arrow.right.circle") }
@@ -104,7 +103,7 @@ struct ContentView: View {
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex, enabled: diagramsAtRoot)
 
             StatsView()
-                .tabItem { Label("Stats", systemImage: "chart.bar.fill") }
+                .tabItem { Label("Stats & Ranking", systemImage: "chart.bar.fill") }
                 .tag(7)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
@@ -123,14 +122,9 @@ struct ContentView: View {
                 .tag(10)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
 
-            OfflineDownloadsView()
-                .tabItem { Label("Offline Images", systemImage: "arrow.down.circle") }
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(11)
-                .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
-
-            CloudSyncView()
-                .tabItem { Label("iCloud Sync", systemImage: "icloud") }
-                .tag(12)
                 .tabSwipe(selection: $selectedTab, maxTab: lastTabIndex)
         }
         // If the user opted into offline images, quietly pick up any newly-added
@@ -188,6 +182,10 @@ enum AtlasViewMode {
 struct AtlasView: View {
     /// Reports nav-stack depth to ContentView so IDs tab-swipe disables inside a category.
     @Binding var isAtRoot: Bool
+    /// Tab-swipe is applied to the LIST only (below), so scrolling the mini leaderboard strip
+    /// on top never switches tabs.
+    @Binding var selection: Int
+    let maxTab: Int
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var navPath = NavigationPath()
     @State private var viewMode: AtlasViewMode = .byCategory
@@ -256,11 +254,15 @@ struct AtlasView: View {
 
     var body: some View {
         NavigationStack(path: $navPath) {
-            Group {
-                switch viewMode {
-                case .byCategory:   categoryList
-                case .alphabetical: alphabeticalList
+            VStack(spacing: 0) {
+                MiniLeaderboardView()
+                Group {
+                    switch viewMode {
+                    case .byCategory:   categoryList
+                    case .alphabetical: alphabeticalList
+                    }
                 }
+                .tabSwipe(selection: $selection, maxTab: maxTab, enabled: isAtRoot)
             }
             .navigationTitle("Dig a Pig Too")
             .navigationDestination(for: CategoryNavDestination.self) { dest in
@@ -4657,6 +4659,7 @@ enum StatsMode: String, CaseIterable {
     case quiz = "Quiz"
     case flashcards = "Cards"
     case fillins = "Fill-Ins"
+    case ranking = "Ranking"
 }
 
 struct StatsView: View {
@@ -4674,9 +4677,10 @@ struct StatsView: View {
                 case .quiz:       quizStats
                 case .flashcards: FlashcardStatsContent()
                 case .fillins:    fillinStats
+                case .ranking:    LeaderboardContent()
                 }
             }
-            .navigationTitle("My Stats")
+            .navigationTitle("Stats & Ranking")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -4684,7 +4688,7 @@ struct StatsView: View {
                         ForEach(StatsMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 260)
+                    .frame(width: 320)
                 }
             }
         }
@@ -4992,6 +4996,30 @@ struct GuideView: View {
 
 // MARK: - Offline Images
 
+struct SettingsView: View {
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    NavigationLink {
+                        OfflineDownloadsView()
+                    } label: {
+                        Label("Offline Images", systemImage: "arrow.down.circle")
+                    }
+                    NavigationLink {
+                        CloudSyncView()
+                    } label: {
+                        Label("iCloud Sync", systemImage: "icloud")
+                    }
+                } footer: {
+                    Text("Save images for offline use, and manage iCloud sync of your progress across your devices.")
+                }
+            }
+            .navigationTitle("Settings")
+        }
+    }
+}
+
 struct OfflineDownloadsView: View {
     @StateObject private var store = OfflineImageStore.shared
     @State private var showDeleteConfirm = false
@@ -4999,7 +5027,6 @@ struct OfflineDownloadsView: View {
     private var isComplete: Bool { store.totalCount > 0 && store.savedCount >= store.totalCount }
 
     var body: some View {
-        NavigationStack {
         List {
             Section {
                 if store.isDownloading {
@@ -5056,7 +5083,6 @@ struct OfflineDownloadsView: View {
         } message: {
             Text("This frees \(Self.byteString(store.bytesOnDisk)). You can download them again anytime.")
         }
-        }
     }
 
     /// Rounded estimate shown BEFORE downloading, so users can gauge the size first.
@@ -5083,7 +5109,6 @@ struct CloudSyncView: View {
     }
 
     var body: some View {
-        NavigationStack {
             List {
                 Section {
                     HStack {
@@ -5138,13 +5163,13 @@ struct CloudSyncView: View {
             } message: {
                 Text("This permanently erases your quiz stats, flashcard progress, and fill-in mastery on this device and in iCloud. This cannot be undone.")
             }
-        }
     }
 
     private func resetAll() {
         StatsManager.shared.reset()
         FlashcardManager.shared.resetAll()
         FillBlankProgressManager.shared.reset()
+        TraceProgressManager.shared.reset()
         CloudSync.recordSync()
         _ = CloudSync.flush()
         lastSync = CloudSync.lastSyncDate
@@ -5155,6 +5180,7 @@ struct CloudSyncView: View {
         FlashcardManager.shared.syncNow()
         DeckManager.shared.syncNow()
         FillBlankProgressManager.shared.syncNow()
+        TraceProgressManager.shared.syncNow()
         CloudSync.recordSync()
         _ = CloudSync.flush()
         lastSync = CloudSync.lastSyncDate
