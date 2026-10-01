@@ -58,13 +58,8 @@ struct ContentView: View {
     /// Same idea for Diagrams: disabled while viewing a diagram's image pager so the
     /// internal left/right image swipe isn't hijacked into a tab change.
     @State private var diagramsAtRoot: Bool = true
-    /// Same idea for Search: disabled while paging through search results so the
-    /// result pager's left/right swipe isn't hijacked into a tab change.
-    @State private var searchAtRoot: Bool = true
-    /// Same idea for Quiz: disabled while a quiz/exam is actually running so dragging to
-    /// select text in an answer field doesn't get hijacked into a tab change.
+    /// Reports whether Quiz is at its setup screen (vs a running quiz/exam).
     @State private var quizAtRoot: Bool = true
-    private let lastTabIndex = 11
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -87,10 +82,6 @@ struct ContentView: View {
             FillBlankListView()
                 .tabItem { Label("Fill-In", systemImage: "text.badge.plus") }
                 .tag(4)
-
-            SearchView(isAtRoot: $searchAtRoot)
-                .tabItem { Label("Search", systemImage: "magnifyingglass") }
-                .tag(5)
 
             DiagramsView(isAtRoot: $diagramsAtRoot)
                 .tabItem { Label("Diagrams", systemImage: "photo.stack.fill") }
@@ -122,8 +113,6 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Tab swipe modifier
-
 // MARK: - Atlas
 
 enum AtlasViewMode {
@@ -137,6 +126,7 @@ struct AtlasView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
     @State private var navPath = NavigationPath()
     @State private var viewMode: AtlasViewMode = .byCategory
+    @State private var searchText = ""   // embedded search (replaces the old Search tab)
 
     /// All structures sorted alphabetically (flat). Drives both the grouped list and the
     /// running "ID x/X" position counter.
@@ -202,30 +192,41 @@ struct AtlasView: View {
 
     var body: some View {
         NavigationStack(path: $navPath) {
-            VStack(spacing: 0) {
-                MiniLeaderboardView()
-                // View-mode toggle lives in the body (not the toolbar): a trailing toolbar item
-                // gets an extra bar-button chrome outline on iPad/Mac stacked on the segmented
-                // control; in-body it shows a single clean outline like the other pickers.
-                HStack {
-                    Spacer()
-                    Picker("View", selection: $viewMode) {
-                        Image(systemName: "folder").tag(AtlasViewMode.byCategory)
-                        Image(systemName: "textformat.abc").tag(AtlasViewMode.alphabetical)
+            ZStack {
+                // Normal content stays mounted even while searching, so the navigation bar's
+                // title isn't torn down (swapping the whole view out hid "Dig a Pig Too" after
+                // dismissing a search until you left and re-entered the tab).
+                VStack(spacing: 0) {
+                    MiniLeaderboardView()
+                    // View-mode toggle in the body (a trailing toolbar item adds an extra chrome
+                    // outline on iPad/Mac); in-body it shows a single clean outline.
+                    HStack {
+                        Spacer()
+                        Picker("View", selection: $viewMode) {
+                            Image(systemName: "folder").tag(AtlasViewMode.byCategory)
+                            Image(systemName: "textformat.abc").tag(AtlasViewMode.alphabetical)
+                        }
+                        .pickerStyle(.segmented)
+                        .fixedSize()
                     }
-                    .pickerStyle(.segmented)
-                    .fixedSize()
+                    .padding(.horizontal)
+                    .padding(.bottom, 6)
+                    Group {
+                        switch viewMode {
+                        case .byCategory:   categoryList
+                        case .alphabetical: alphabeticalList
+                        }
+                    }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 6)
-                Group {
-                    switch viewMode {
-                    case .byCategory:   categoryList
-                    case .alphabetical: alphabeticalList
-                    }
+                if !searchText.isEmpty {
+                    searchResults
+                        .background(Color(.systemBackground))
                 }
             }
             .navigationTitle("Dig a Pig Too")
+            .searchable(text: $searchText,
+                        placement: .navigationBarDrawer(displayMode: .automatic),
+                        prompt: "Search structures, notes, fill-ins")
             .navigationDestination(for: CategoryNavDestination.self) { dest in
                 StructureListView(initialCategory: dest.category, initialScrollID: dest.scrollToID)
             }
@@ -242,6 +243,112 @@ struct AtlasView: View {
         }
         .onChange(of: navPath.count) { _, count in
             isAtRoot = (count == 0)
+        }
+    }
+
+    // MARK: Embedded search (structures by name, structures by their detail notes, and fill-ins)
+    private var nameHits: [AnatomyStructure] {
+        searchText.isEmpty ? [] : dataManager.searchStructures(query: searchText)
+    }
+    private var noteHits: [AnatomyStructure] {
+        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !q.isEmpty else { return [] }
+        let named = Set(nameHits.map { $0.id })
+        return dataManager.structures.filter { s in
+            guard !named.contains(s.id) else { return false }
+            return s.function.lowercased().contains(q)
+                || s.histology.lowercased().contains(q)
+                || s.connections.lowercased().contains(q)
+                || s.commonConfusions.contains { $0.lowercased().contains(q) }
+                || s.examTips.contains { $0.lowercased().contains(q) }
+        }
+    }
+    private var fillHits: [FillBlankQuestion] {
+        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !q.isEmpty else { return [] }
+        return dataManager.fillBlanks.filter { fb in
+            fb.prompt.lowercased().contains(q)
+            || fb.answers.contains { $0.lowercased().contains(q) }
+            || fb.explanation.lowercased().contains(q)
+            || fb.category.lowercased().contains(q)
+        }
+    }
+    private func catName(_ s: AnatomyStructure) -> String {
+        dataManager.categories.first { $0.id == s.categoryId }?.name ?? ""
+    }
+    private func filledPrompt(_ q: FillBlankQuestion) -> String {
+        var s = q.prompt
+        for a in q.answers { if let r = s.range(of: "___") { s.replaceSubrange(r, with: a) } }
+        return s
+    }
+    /// First detail-note field containing the query, as "Field: …snippet…" so the hit is visible.
+    private func noteSnippet(_ s: AnatomyStructure) -> String {
+        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        func hit(_ label: String, _ text: String) -> String? {
+            guard let r = text.range(of: q, options: .caseInsensitive) else { return nil }
+            let lo = text.index(r.lowerBound, offsetBy: -30, limitedBy: text.startIndex) ?? text.startIndex
+            let hi = text.index(r.upperBound, offsetBy: 45, limitedBy: text.endIndex) ?? text.endIndex
+            let pre = lo > text.startIndex ? "…" : ""
+            let suf = hi < text.endIndex ? "…" : ""
+            return "\(label): \(pre)\(text[lo..<hi])\(suf)"
+        }
+        if let h = hit("Function", s.function) { return h }
+        if let h = hit("Histology", s.histology) { return h }
+        if let h = hit("Connections", s.connections) { return h }
+        for c in s.commonConfusions { if let h = hit("Common confusion", c) { return h } }
+        for t in s.examTips { if let h = hit("Exam tip", t) { return h } }
+        return ""
+    }
+
+    @ViewBuilder private var searchResults: some View {
+        if nameHits.isEmpty && noteHits.isEmpty && fillHits.isEmpty {
+            VStack(spacing: 6) {
+                Image(systemName: "magnifyingglass").font(.largeTitle).foregroundStyle(.secondary)
+                Text("No matches").foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            List {
+                if !nameHits.isEmpty {
+                    Section("Structures") {
+                        ForEach(nameHits) { s in
+                            NavigationLink { StructureDetailView(structure: s) } label: {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(s.name).font(.body)
+                                    let c = catName(s)
+                                    if !c.isEmpty {
+                                        Label(c, systemImage: "folder").font(.caption).foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if !noteHits.isEmpty {
+                    Section("In Structure Notes") {
+                        ForEach(noteHits) { s in
+                            NavigationLink { StructureDetailView(structure: s) } label: {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(s.name).font(.body)
+                                    Text(noteSnippet(s)).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                                }
+                            }
+                        }
+                    }
+                }
+                if !fillHits.isEmpty {
+                    Section("Fill-in Questions") {
+                        ForEach(fillHits) { q in
+                            NavigationLink { FillBlankDetailView(question: q) } label: {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(filledPrompt(q)).font(.subheadline).lineLimit(3)
+                                    Label(q.category, systemImage: "text.badge.plus").font(.caption).foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -3206,6 +3313,27 @@ struct ExamHostView: View {
         //   with umbilical/ventral structures.
         // Bronchioles excluded from Respiratory gross pool: they're microscopic.
         let grossPool: [() -> ExamStation] = [
+            // Pinned real-dissection photos: ONE annotated image, five pinned IDs (A–E).
+            {
+                let img = ImageCDN.image("IMG_1817.jpg", caption: "External structures — pins A–E")
+                return ExamStation(items: [
+                    resolveItem(answer: "Epiglottis", prompt: "Pin A — name this structure", imageOverride: img),
+                    resolveItem(answer: "Filiform Papillae", prompt: "Pin B — name this structure", imageOverride: img, alsoAccept: ["Filiform Papilla", "Papillae"]),
+                    resolveItem(answer: "Hard Palate", prompt: "Pin C — name this structure (note the rugae)", imageOverride: img, alsoAccept: ["Rugae", "Palatine Rugae"]),
+                    resolveItem(answer: "Soft Palate", prompt: "Pin D — name this structure", imageOverride: img),
+                    resolveItem(answer: "External Nostril", prompt: "Pin E — name this structure (right)", imageOverride: img, alsoAccept: ["Right External Nostril", "Naris", "Nostril"]),
+                ], timeLimit: tl)
+            },
+            {
+                let img = ImageCDN.image("IMG_1819.jpg", caption: "Transverse abdominal section — pins A–E")
+                return ExamStation(items: [
+                    resolveItem(answer: "Abdominal Aorta", prompt: "Pin A — name this structure", imageOverride: img, alsoAccept: ["Descending Aorta", "Dorsal Aorta", "Aorta"]),
+                    resolveItem(answer: "Kidney", prompt: "Pin B — name this structure (left)", imageOverride: img, alsoAccept: ["Left Kidney"]),
+                    resolveItem(answer: "Spleen", prompt: "Pin C — name this structure", imageOverride: img),
+                    resolveItem(answer: "Mesentery", prompt: "Pin D — name this structure", imageOverride: img),
+                    resolveItem(answer: "Pancreas", prompt: "Pin E — name this structure", imageOverride: img),
+                ], timeLimit: tl)
+            },
             // Isolated adult cow heart (×1): cut open, internal anatomy visible —
             // valves, chordae, chambers, truncated vessel stumps.
             { station(from: circCowHeart) },
@@ -4079,106 +4207,6 @@ struct ExamResultsView: View {
 }
 
 // MARK: - Search
-
-struct SearchView: View {
-    /// Reports nav-stack depth to ContentView so the Search tab-swipe disables while
-    /// paging through results (otherwise the result pager's swipe changes tabs).
-    @Binding var isAtRoot: Bool
-    @State private var searchText = ""
-    @State private var navPath = NavigationPath()
-    @StateObject private var dataManager = AnatomyDataManager.shared
-
-    var results: [AnatomyStructure] {
-        searchText.isEmpty ? [] : dataManager.searchStructures(query: searchText)
-    }
-
-    /// Fill-in questions whose sentence, answers, explanation, or category contain the query.
-    var fillBlankResults: [FillBlankQuestion] {
-        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
-        guard !q.isEmpty else { return [] }
-        return dataManager.fillBlanks.filter { fb in
-            fb.prompt.lowercased().contains(q)
-            || fb.answers.contains { $0.lowercased().contains(q) }
-            || fb.explanation.lowercased().contains(q)
-            || fb.category.lowercased().contains(q)
-        }
-    }
-
-    private func categoryName(for structure: AnatomyStructure) -> String {
-        dataManager.categories.first { $0.id == structure.categoryId }?.name ?? ""
-    }
-
-    /// The fill-in sentence with its blanks filled in, so the matched keyword is visible in the hit.
-    private func filledPrompt(_ q: FillBlankQuestion) -> String {
-        var s = q.prompt
-        for a in q.answers {
-            if let r = s.range(of: "___") { s.replaceSubrange(r, with: a) }
-        }
-        return s
-    }
-
-    var body: some View {
-        NavigationStack(path: $navPath) {
-            Group {
-                if results.isEmpty && fillBlankResults.isEmpty {
-                    VStack(spacing: 6) {
-                        Image(systemName: "magnifyingglass").font(.largeTitle)
-                        Text(searchText.isEmpty ? "Search structures & fill-ins" : "No matches")
-                            .foregroundStyle(.secondary)
-                    }
-                } else {
-                    List {
-                        if !results.isEmpty {
-                            Section("Structures") {
-                                ForEach(results) { s in
-                                    NavigationLink(value: s) {
-                                        VStack(alignment: .leading, spacing: 3) {
-                                            Text(s.name).font(.body)
-                                            let cat = categoryName(for: s)
-                                            if !cat.isEmpty {
-                                                Label(cat, systemImage: "folder")
-                                                    .font(.caption).foregroundStyle(.secondary)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if !fillBlankResults.isEmpty {
-                            Section("Fill-in Questions") {
-                                ForEach(fillBlankResults) { q in
-                                    NavigationLink(value: q) {
-                                        VStack(alignment: .leading, spacing: 3) {
-                                            Text(filledPrompt(q))
-                                                .font(.subheadline).lineLimit(3)
-                                            Label(q.category, systemImage: "text.badge.plus")
-                                                .font(.caption).foregroundStyle(.secondary)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .navigationDestination(for: AnatomyStructure.self) { s in
-                        // Page through the CURRENT results, starting at the tapped one.
-                        StructurePagerView(
-                            allStructures: results,
-                            initialIndex: results.firstIndex(where: { $0.id == s.id }) ?? 0
-                        )
-                    }
-                    .navigationDestination(for: FillBlankQuestion.self) { q in
-                        FillBlankDetailView(question: q)
-                    }
-                }
-            }
-            .searchable(text: $searchText, prompt: "Search structures & fill-ins")
-            .navigationTitle("Search")
-        }
-        .onChange(of: navPath.count) { _, count in
-            isAtRoot = (count == 0)
-        }
-    }
-}
 
 // MARK: - Upload / Contribute
 
@@ -5210,12 +5238,15 @@ struct AboutView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("What's New in 1.5").font(.headline)
                             Group {
-                                Label("Friendly class leaderboard powered by Game Center — see the top 3 right on the IDs page, plus achievements for mastering each area", systemImage: "trophy.fill")
+                                Label("Friendly class leaderboard powered by Game Center — see the top 10 right on the IDs page, plus achievements for mastering each area", systemImage: "trophy.fill")
                                 Label("A single Mastery Score (Stats & Ranking) weighted like the real practical — physical IDs, then traces, then fill-ins — with bonus points for practicing quizzes and exams", systemImage: "chart.bar.fill")
                                 Label("Fill-in Smart Review schedules new, missed, and stale questions first, and graduates each one from multiple choice to write-in as you master it", systemImage: "brain.head.profile")
                                 Label("Many more traces — lipid digestion, waste out the GI tract, oxygen from mother to fetal heart, nitrogen to urine — plus short \"Building Blocks\" chunks to memorize in pieces", systemImage: "arrow.right.circle")
                                 Label("Traces rewritten to match how the practical is graded: one structure per step, consistent left/right, and full capillary → venule → vein detail", systemImage: "checkmark.seal.fill")
-                                Label("New MCAT-tagged fill-ins (adrenal gland, tubular secretion, and more), searchable alongside ID results", systemImage: "text.badge.plus")
+                                Label("Search is built into the IDs page and now also finds matches inside structure notes — Function, Histology, Connections, and Common Confusions — plus fill-in questions", systemImage: "magnifyingglass")
+                                Label("New real-dissection exam stations with pinned A–E structures (external head & mouth, and a transverse abdominal section)", systemImage: "mappin.and.ellipse")
+                                Label("New reference diagrams: a labeled transverse abdominal section and the biliary / pancreatic duct pathways", systemImage: "photo.stack.fill")
+                                Label("New MCAT-tagged fill-ins (adrenal gland, tubular secretion, and more)", systemImage: "text.badge.plus")
                                 Label("New Settings tab for offline images and iCloud sync; hardware-keyboard shortcuts on Mac/iPad — number keys pick choices, Return/Space to advance and reveal", systemImage: "keyboard")
                             }
                             .font(.subheadline)

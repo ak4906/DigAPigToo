@@ -68,6 +68,22 @@ class AnatomyDataManager: ObservableObject {
                     ImageCDN.image("ref_epithelial-types_1.png", caption: "Epithelial Types Overview"),
                 ]
             ),
+            DiagramGroup(
+                title: "Transverse Section (Abdomen)",
+                description: "Labeled transverse slice through the fetal pig abdomen — aorta, kidneys, spleen, gut, and more",
+                systemImage: "circle.dashed",
+                images: [
+                    ImageCDN.image("ref_transverse-slice.jpg", caption: "Transverse Section of the Abdomen (labeled)"),
+                ]
+            ),
+            DiagramGroup(
+                title: "Biliary & Pancreatic Ducts",
+                description: "How the liver, gallbladder, and pancreas ducts converge on the duodenum",
+                systemImage: "arrow.triangle.branch",
+                images: [
+                    ImageCDN.image("image00845.jpeg", caption: "Ducts of the Liver, Gallbladder & Pancreas → Duodenum"),
+                ]
+            ),
             // ── Add more groups below as you gather photos ──────────────────
         ]
     }
@@ -5759,21 +5775,11 @@ class AnatomyDataManager: ObservableObject {
                     TraceStep("Chief Cells secrete Gastric Lipase (minor fat digestion)"),
                     TraceStep("Pyloric Sphincter"),
                     TraceStep("Duodenum", highlight: true),
-                    TraceStep("Liver"),
-                    TraceStep("Hepatocytes produce Bile"),
-                    TraceStep("Hepatic Ducts"),
-                    TraceStep("Cystic Duct"),
-                    TraceStep("Gallbladder (stores/concentrates bile)"),
-                    TraceStep("Common Bile Duct"),
-                    TraceStep("Sphincter of Oddi"),
-                    TraceStep("Bile emulsifies fat in the duodenum"),
-                    TraceStep("Exocrine Pancreas"),
-                    TraceStep("Acinar Cells secrete Pancreatic Lipase"),
-                    TraceStep("Pancreatic Duct"),
-                    TraceStep("Accessory Pancreatic Duct (alternate route directly into the duodenum, without the sphincter of Oddi)"),
-                    TraceStep("Common Bile Duct"),
-                    TraceStep("Sphincter of Oddi"),
-                    TraceStep("Duodenum"),
+                    TraceStep("Liver — Hepatocytes produce Bile → Hepatic Ducts"),
+                    TraceStep("Gallbladder (stores/concentrates bile) → Cystic Duct"),
+                    TraceStep("Exocrine Pancreas — Acinar Cells secrete Pancreatic Lipase → Pancreatic Duct"),
+                    TraceStep("Hepatic + Cystic + Pancreatic Ducts converge → Common Bile Duct (or the Accessory Pancreatic Duct straight into the duodenum)"),
+                    TraceStep("Sphincter of Oddi → Duodenum (bile emulsifies the fat; pancreatic lipase digests it)"),
                     TraceStep("Fat digested to fatty acids + monoglycerides"),
                     TraceStep("Jejunum", highlight: true),
                     TraceStep("Jejunal Villi"),
