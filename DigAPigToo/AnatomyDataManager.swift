@@ -6455,7 +6455,8 @@ class AnatomyDataManager: ObservableObject {
                 prompt: "___ cells secrete ___, an inactive zymogen that is converted to the active enzyme ___ in the presence of stomach acid.",
                 answers: ["chief", "pepsinogen", "pepsin"],
                 explanation: "Chief cells also secrete gastric lipase. Pepsinogen → pepsin requires the acidic environment made by parietal cells.",
-                category: "Stomach"
+                category: "Stomach",
+                mcatRelevant: true
             ),
             FillBlankQuestion(
                 prompt: "In the pyloric region, ___ cells secrete the hormone ___, which stimulates parietal and chief cell activity.",
