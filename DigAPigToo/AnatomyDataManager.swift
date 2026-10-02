@@ -5763,6 +5763,7 @@ class AnatomyDataManager: ObservableObject {
                 category: "Digestive + Circulatory",
                 steps: [
                     TraceStep("Oral Cavity (mechanical breakdown)", highlight: true),
+                    TraceStep("Von Ebner Glands — Serous Acinar Cells secrete Lingual Lipase via the Ducts of von Ebner (fat digestion begins in the mouth)"),
                     TraceStep("Oral Pharynx"),
                     TraceStep("Laryngeal Pharynx"),
                     TraceStep("Upper Esophageal Sphincter (UES)"),
@@ -5808,6 +5809,7 @@ class AnatomyDataManager: ObservableObject {
                     TraceStep("Adipose (Fat-Storage) Cell", highlight: true),
                 ],
                 keyPoints: [
+                    "Fat digestion actually STARTS in the mouth: von Ebner glands (serous glands of the tongue) release lingual lipase via the ducts of von Ebner",
                     "Fats are EMULSIFIED by bile (made by hepatocytes, stored in the gallbladder) before pancreatic lipase digests them",
                     "Bile comes from the LIVER, not the pancreas",
                     "Absorbed fats enter LACTEALS (lymph), not blood capillaries — bypassing the hepatic portal vein and liver",
@@ -6666,10 +6668,11 @@ class AnatomyDataManager: ObservableObject {
                 mcatRelevant: true
             ),
             FillBlankQuestion(
-                prompt: "The two main artery types are ___ and ___ arteries. The ___ type (e.g., the aorta) lies near the heart and recoils to smooth out each heartbeat, while the ___ type has proportionally more smooth muscle.",
-                answers: ["elastic", "muscular", "elastic", "muscular"],
-                explanation: "Elastic arteries near the heart absorb systolic pressure and maintain flow in diastole; muscular arteries distribute blood and regulate diameter.",
-                category: "Circulatory"
+                prompt: "The two main artery types are ___ and ___ arteries.",
+                answers: ["elastic", "muscular"],
+                explanation: "Elastic arteries (e.g., the aorta) lie near the heart and recoil to smooth out each heartbeat; muscular arteries have proportionally more smooth muscle to distribute blood and regulate diameter.",
+                category: "Circulatory",
+                orderIndependent: true
             ),
             FillBlankQuestion(
                 prompt: "Compared with arteries, veins have ___ walls and larger lumens, and many (especially in the limbs) contain ___ that prevent backflow and keep blood moving toward the ___.",
@@ -6803,7 +6806,8 @@ class AnatomyDataManager: ObservableObject {
                 prompt: "Between the seminiferous tubules, triangular clusters of interstitial (___) cells secrete ___.",
                 answers: ["Leydig", "testosterone"],
                 explanation: "Leydig (interstitial) cells produce testosterone; Sertoli cells inside the tubules support sperm development.",
-                category: "Reproductive"
+                category: "Reproductive",
+                mcatRelevant: true
             ),
 
             // ───────── Respiratory ─────────
@@ -6864,7 +6868,8 @@ class AnatomyDataManager: ObservableObject {
                 answers: ["epithelial", "connective", "muscular", "nervous"],
                 explanation: "Epithelium covers/lines; connective supports/binds; muscle contracts; nervous conducts impulses.",
                 category: "Histology",
-                mcatRelevant: true
+                mcatRelevant: true,
+                orderIndependent: true
             ),
             FillBlankQuestion(
                 prompt: "Epithelial cells are named by shape: ___ cells are flat and scale-like (alveoli, vessel lining, Bowman's capsule); ___ cells are cube-shaped (kidney tubules, glands); and ___ cells are tall like columns (the gut lining).",
@@ -6937,7 +6942,8 @@ class AnatomyDataManager: ObservableObject {
                 prompt: "Blood is a connective tissue whose extracellular matrix, called ___, is a fluid — mostly water — that keeps the blood cells in suspension.",
                 answers: ["plasma"],
                 explanation: "The fluid plasma matrix is what makes blood unique among connective tissues.",
-                category: "Histology"
+                category: "Histology",
+                mcatRelevant: true
             ),
 
             // ───────── Microscope ─────────

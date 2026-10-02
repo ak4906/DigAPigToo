@@ -2859,7 +2859,7 @@ private let allHistoScenarios: [HistoScenario] = {
         // SLIDE #05 — Large Intestine
         HistoScenario(slideId: "05", label: "Slide #05 — Large Intestine", entries: [
             e(_pA, "Large Intestine", image: ImageCDN.slide("intestinal-glands-large-intestine_histo_1.jpeg", magnification: 4, caption: "Large Intestine")),
-            e(_pB, "Crypts of Lieberkühn"),
+            e(_pB, "Crypts of Lieberkühn", alsoAccept: ["Intestinal Glands (Large Intestine)", "Intestinal Glands", "Colonic Crypts", "Crypts"]),
             e(_pC, "Goblet Cells", alsoAccept: ["Enterocyte", "Absorptive cell", "Enterocyte/Absorptive cell"]),
             e(_pD, "Mucus secretion", alsoAccept: ["Water absorption"]),
         ]),
@@ -2872,7 +2872,9 @@ private let allHistoScenarios: [HistoScenario] = {
         ]),
         HistoScenario(slideId: "06", label: "Slide #06 — Jejunum (crypts)", entries: [
             e(_pA, "Jejunum", image: ImageCDN.slide("intestinal-glands-jejunum_histo_1.jpeg", magnification: 10, caption: "Jejunum")),
-            e(_pB, "Crypts of Lieberkühn"),       // B=crypt; C=cell type within B
+            // "Crypts of Lieberkühn" = "Intestinal Glands (Jejunum)" (the very structure this slide
+            // borrows its image from) — accept that name and its variants, not just the crypt term.
+            e(_pB, "Crypts of Lieberkühn", alsoAccept: ["Intestinal Glands (Jejunum)", "Intestinal Glands", "Jejunal Crypts", "Crypts"]),       // B=crypt; C=cell type within B
             e(_pC, "Goblet Cells"),
             e(_pD, "Mucus secretion"),
         ]),

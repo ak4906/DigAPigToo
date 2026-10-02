@@ -203,14 +203,16 @@ struct FillBlankQuestion: Identifiable, Hashable {
     let explanation: String
     let category: String
     let mcatRelevant: Bool   // conceptual/physiology content the MCAT tests (not just visual ID)
+    let orderIndependent: Bool  // blanks form an unordered set — any answer accepted in any blank
 
-    init(prompt: String, answers: [String], explanation: String = "", category: String = "General", mcatRelevant: Bool = false) {
+    init(prompt: String, answers: [String], explanation: String = "", category: String = "General", mcatRelevant: Bool = false, orderIndependent: Bool = false) {
         self.id = UUID()
         self.prompt = prompt
         self.answers = answers
         self.explanation = explanation
         self.category = category
         self.mcatRelevant = mcatRelevant
+        self.orderIndependent = orderIndependent
     }
 }
 

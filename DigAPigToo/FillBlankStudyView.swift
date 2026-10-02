@@ -27,6 +27,8 @@ struct FillBlankStudyView: View {
     @State private var qIndex = 0
     @State private var blankIndex = 0                   // active gap within the current sentence
     @State private var results: [Bool] = []            // per-gap correct/wrong for the current sentence
+    @State private var gapFill: [String] = []          // the answer text that actually landed in each gap
+    @State private var remaining: [String] = []        // unused answers (order-independent questions only)
     @State private var answeredCurrent = false         // the active gap has been answered
     @State private var options: [String] = []
     @State private var selected: String? = nil
@@ -87,7 +89,7 @@ struct FillBlankStudyView: View {
                         // Prompt for the ACTIVE gap only.
                         if mode == .multipleChoice {
                             ForEach(Array(options.enumerated()), id: \.element) { i, opt in
-                                Button { choose(opt, correct: q.answers[blankIndex]) } label: {
+                                Button { choose(opt) } label: {
                                     Text(opt)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .padding()
@@ -104,8 +106,8 @@ struct FillBlankStudyView: View {
                                 .autocorrectionDisabled()
                                 .focused($fieldFocused)
                                 .submitLabel(.done)
-                                .onSubmit { checkWriteIn(q.answers[blankIndex]) }
-                            Button("Check") { checkWriteIn(q.answers[blankIndex]) }
+                                .onSubmit { checkWriteIn() }
+                            Button("Check") { checkWriteIn() }
                                 .buttonStyle(.borderedProminent).tint(.indigo)
                                 .disabled(typed.trimmingCharacters(in: .whitespaces).isEmpty)
                         }
@@ -113,7 +115,7 @@ struct FillBlankStudyView: View {
                         // Feedback for the gap just answered (+ explanation once the sentence is done).
                         let ok = results.indices.contains(blankIndex) && results[blankIndex]
                         VStack(alignment: .leading, spacing: 8) {
-                            Label(ok ? "Correct" : "Answer: \(q.answers[blankIndex])",
+                            Label(ok ? "Correct" : "Answer: \(displayAnswer(blankIndex, q))",
                                   systemImage: ok ? "checkmark.circle.fill" : "xmark.circle.fill")
                                 .foregroundStyle(ok ? .green : .red).font(.subheadline.bold())
                             if mode == .writeIn && !ok {
@@ -206,9 +208,9 @@ struct FillBlankStudyView: View {
             s += AttributedString(parts[j])
             guard j < q.answers.count else { continue }
             if j < blankIndex || (j == blankIndex && answeredCurrent) {
-                // Filled gap: show the correct answer, green if gotten / orange if missed.
+                // Filled gap: show the answer that landed here, green if gotten / orange if missed.
                 let ok = results.indices.contains(j) && results[j]
-                var a = AttributedString(q.answers[j])
+                var a = AttributedString(displayAnswer(j, q))
                 a.foregroundColor = ok ? .green : .orange
                 a.font = .body.bold()
                 s += a
@@ -227,17 +229,59 @@ struct FillBlankStudyView: View {
     }
 
     // MARK: Logic
-    private func choose(_ opt: String, correct: String) {
-        guard !answeredCurrent else { return }
-        selected = opt
-        recordResult(opt == correct)
+    // The answer shown in a gap: the text that actually landed there, falling back to the
+    // positional answer before anything has been recorded.
+    private func displayAnswer(_ j: Int, _ q: FillBlankQuestion) -> String {
+        if gapFill.indices.contains(j), !gapFill[j].isEmpty { return gapFill[j] }
+        return q.answers.indices.contains(j) ? q.answers[j] : ""
     }
 
-    private func checkWriteIn(_ correct: String) {
-        guard !answeredCurrent, !typed.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+    private func choose(_ opt: String) {
+        guard !answeredCurrent, let q = currentQuestion else { return }
+        selected = opt
+        if q.orderIndependent {
+            // Any still-unused answer is correct for this gap; consume the one picked.
+            if let idx = remaining.firstIndex(of: opt) {
+                setGapFill(opt); remaining.remove(at: idx); recordResult(true)
+            } else {
+                revealRemaining(q); recordResult(false)
+            }
+        } else {
+            setGapFill(q.answers[blankIndex])
+            recordResult(opt == q.answers[blankIndex])
+        }
+    }
+
+    private func checkWriteIn() {
+        guard !answeredCurrent, let q = currentQuestion,
+              !typed.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         fieldFocused = false
         let t = typed.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        recordResult(ExamItem.matchesLeniently(t, against: correct))
+        if q.orderIndependent {
+            // Accept any unused answer regardless of position; consume the one matched.
+            if let idx = remaining.firstIndex(where: { ExamItem.matchesLeniently(t, against: $0) }) {
+                setGapFill(remaining[idx]); remaining.remove(at: idx); recordResult(true)
+            } else {
+                revealRemaining(q); recordResult(false)
+            }
+        } else {
+            setGapFill(q.answers[blankIndex])
+            recordResult(ExamItem.matchesLeniently(t, against: q.answers[blankIndex]))
+        }
+    }
+
+    private func setGapFill(_ text: String) {
+        if gapFill.indices.contains(blankIndex) { gapFill[blankIndex] = text }
+    }
+
+    // Wrong answer on an order-independent gap: lock in an unused answer so the sentence stays
+    // consistent and later gaps don't re-offer it.
+    private func revealRemaining(_ q: FillBlankQuestion) {
+        if let first = remaining.first {
+            setGapFill(first); remaining.removeFirst()
+        } else {
+            setGapFill(q.answers.indices.contains(blankIndex) ? q.answers[blankIndex] : "")
+        }
     }
 
     private func recordResult(_ ok: Bool) {
@@ -292,6 +336,8 @@ struct FillBlankStudyView: View {
         selected = nil
         typed = ""
         results = Array(repeating: false, count: q.answers.count)
+        gapFill = Array(repeating: "", count: q.answers.count)
+        remaining = q.answers   // whole unordered set; order-independent gaps draw from this
         prepareGap()
     }
 
@@ -305,6 +351,20 @@ struct FillBlankStudyView: View {
 
     private func buildOptions() {
         guard let q = currentQuestion, blankIndex < q.answers.count else { options = []; return }
+        if q.orderIndependent {
+            // Every still-unused answer is a correct pick; pad to 4 with distractors drawn from
+            // OTHER questions (never this question's own answers, which are all valid at some gap).
+            let exclude = Set(q.answers)
+            let needed = max(0, 4 - remaining.count)
+            let sameCat = questions.filter { $0.category == q.category }.flatMap { $0.answers }
+            var distractors = Array(Set(sameCat).subtracting(exclude)).shuffled()
+            if distractors.count < needed {
+                let all = questions.flatMap { $0.answers }
+                distractors += Array(Set(all).subtracting(exclude).subtracting(Set(distractors))).shuffled()
+            }
+            options = (remaining + distractors.prefix(needed)).shuffled()
+            return
+        }
         let correct = q.answers[blankIndex]
         // Distractor pool = every answer in the selection; prefer ones from the same category.
         let sameCat = questions.filter { $0.category == q.category }.flatMap { $0.answers }
