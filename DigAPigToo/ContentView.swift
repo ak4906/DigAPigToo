@@ -192,40 +192,53 @@ struct AtlasView: View {
 
     var body: some View {
         NavigationStack(path: $navPath) {
-            ZStack {
-                // Normal content stays mounted even while searching, so the navigation bar's
-                // title isn't torn down (swapping the whole view out hid "Dig a Pig Too" after
-                // dismissing a search until you left and re-entered the tab).
-                VStack(spacing: 0) {
-                    MiniLeaderboardView()
-                    // View-mode toggle in the body (a trailing toolbar item adds an extra chrome
-                    // outline on iPad/Mac); in-body it shows a single clean outline.
-                    HStack {
-                        Spacer()
-                        Picker("View", selection: $viewMode) {
-                            Image(systemName: "folder").tag(AtlasViewMode.byCategory)
-                            Image(systemName: "textformat.abc").tag(AtlasViewMode.alphabetical)
+            // Exactly ONE scroll view is ever mounted here — the search results OR the normal
+            // list — so iOS binds the large title + search bar to a single, stable scroll view.
+            // (A previous ZStack kept both Lists alive at once; with two scroll views under one
+            // nav bar, iOS couldn't reliably restore the "Dig a Pig Too" title or the search bar
+            // after a search was dismissed or after returning from a tapped result.)
+            // ONE List whose SECTIONS swap (normal content ⇄ search results) — the List keeps the same
+            // identity across a search, so the large title + search bar stay bound to a single, stable
+            // scroll view and don't tear down on dismiss. The mini leaderboard + folder/A–Z toggle live
+            // inside the list (scrolling with it) so the List sits directly under the nav bar.
+            ScrollViewReader { proxy in
+                List {
+                    if searchText.isEmpty {
+                        Section {
+                            MiniLeaderboardView()
+                                .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 2, trailing: 0))
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                            HStack {
+                                Spacer()
+                                Picker("View", selection: $viewMode) {
+                                    Image(systemName: "folder").tag(AtlasViewMode.byCategory)
+                                    Image(systemName: "textformat.abc").tag(AtlasViewMode.alphabetical)
+                                }
+                                .pickerStyle(.segmented)
+                                .fixedSize()
+                            }
+                            .listRowInsets(EdgeInsets(top: 0, leading: 12, bottom: 4, trailing: 12))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                         }
-                        .pickerStyle(.segmented)
-                        .fixedSize()
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom, 6)
-                    Group {
                         switch viewMode {
-                        case .byCategory:   categoryList
-                        case .alphabetical: alphabeticalList
+                        case .byCategory:   categorySections
+                        case .alphabetical: alphabeticalSections
                         }
+                    } else {
+                        searchResultSections
                     }
                 }
-                if !searchText.isEmpty {
-                    searchResults
-                        .background(Color(.systemBackground))
+                .overlay(alignment: .trailing) {
+                    if searchText.isEmpty && viewMode == .alphabetical {
+                        alphabetIndexBar(proxy: proxy)
+                    }
                 }
             }
             .navigationTitle("Dig a Pig Too")
             .searchable(text: $searchText,
-                        placement: .navigationBarDrawer(displayMode: .automatic),
+                        placement: .navigationBarDrawer(displayMode: .always),
                         prompt: "Search structures, notes, fill-ins")
             .navigationDestination(for: CategoryNavDestination.self) { dest in
                 StructureListView(initialCategory: dest.category, initialScrollID: dest.scrollToID)
@@ -239,6 +252,14 @@ struct AtlasView: View {
                     allStructures: all,
                     initialIndex: all.firstIndex(where: { $0.id == dest.structure.id }) ?? 0
                 )
+            }
+            // Search hits navigate value-based, like the rest of the screen, so pushing from the
+            // results list never leaves the search presentation in a torn-down state on return.
+            .navigationDestination(for: SearchStructureDestination.self) { dest in
+                StructureDetailView(structure: dest.structure)
+            }
+            .navigationDestination(for: SearchFillBlankDestination.self) { dest in
+                FillBlankDetailView(question: dest.question)
             }
         }
         .onChange(of: navPath.count) { _, count in
@@ -300,50 +321,52 @@ struct AtlasView: View {
         return ""
     }
 
-    @ViewBuilder private var searchResults: some View {
+    @ViewBuilder private var searchResultSections: some View {
         if nameHits.isEmpty && noteHits.isEmpty && fillHits.isEmpty {
-            VStack(spacing: 6) {
-                Image(systemName: "magnifyingglass").font(.largeTitle).foregroundStyle(.secondary)
-                Text("No matches").foregroundStyle(.secondary)
+            Section {
+                VStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass").font(.largeTitle).foregroundStyle(.secondary)
+                    Text("No matches").foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+                .listRowBackground(Color.clear)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            List {
-                if !nameHits.isEmpty {
-                    Section("Structures") {
-                        ForEach(nameHits) { s in
-                            NavigationLink { StructureDetailView(structure: s) } label: {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(s.name).font(.body)
-                                    let c = catName(s)
-                                    if !c.isEmpty {
-                                        Label(c, systemImage: "folder").font(.caption).foregroundStyle(.secondary)
-                                    }
+            if !nameHits.isEmpty {
+                Section("Structures") {
+                    ForEach(nameHits) { s in
+                        NavigationLink(value: SearchStructureDestination(structure: s)) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(s.name).font(.body)
+                                let c = catName(s)
+                                if !c.isEmpty {
+                                    Label(c, systemImage: "folder").font(.caption).foregroundStyle(.secondary)
                                 }
                             }
                         }
                     }
                 }
-                if !noteHits.isEmpty {
-                    Section("In Structure Notes") {
-                        ForEach(noteHits) { s in
-                            NavigationLink { StructureDetailView(structure: s) } label: {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(s.name).font(.body)
-                                    Text(noteSnippet(s)).font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                                }
+            }
+            if !noteHits.isEmpty {
+                Section("In Structure Notes") {
+                    ForEach(noteHits) { s in
+                        NavigationLink(value: SearchStructureDestination(structure: s)) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(s.name).font(.body)
+                                Text(noteSnippet(s)).font(.caption).foregroundStyle(.secondary).lineLimit(2)
                             }
                         }
                     }
                 }
-                if !fillHits.isEmpty {
-                    Section("Fill-in Questions") {
-                        ForEach(fillHits) { q in
-                            NavigationLink { FillBlankDetailView(question: q) } label: {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(filledPrompt(q)).font(.subheadline).lineLimit(3)
-                                    Label(q.category, systemImage: "text.badge.plus").font(.caption).foregroundStyle(.secondary)
-                                }
+            }
+            if !fillHits.isEmpty {
+                Section("Fill-in Questions") {
+                    ForEach(fillHits) { q in
+                        NavigationLink(value: SearchFillBlankDestination(question: q)) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(filledPrompt(q)).font(.subheadline).lineLimit(3)
+                                Label(q.category, systemImage: "text.badge.plus").font(.caption).foregroundStyle(.secondary)
                             }
                         }
                     }
@@ -352,10 +375,9 @@ struct AtlasView: View {
         }
     }
 
-    private var categoryList: some View {
-        List {
-            ForEach(groups, id: \.title) { group in
-                Section {
+    @ViewBuilder private var categorySections: some View {
+        ForEach(groups, id: \.title) { group in
+            Section {
                     ForEach(group.categories) { category in
                         NavigationLink(value: CategoryNavDestination(category)) {
                             Label {
@@ -406,55 +428,48 @@ struct AtlasView: View {
                         .padding(.top, 4)
                 }
             }
-        }
     }
 
-    private var alphabeticalList: some View {
-        let total = alphabeticalAll.count
-        // Precompute each structure's 1-based position in the flat alphabetical order.
-        let positionByID: [UUID: Int] = Dictionary(
-            uniqueKeysWithValues: alphabeticalAll.enumerated().map { ($0.element.id, $0.offset + 1) }
-        )
-        return ScrollViewReader { proxy in
-            List {
-                ForEach(alphabeticalGroups, id: \.letter) { group in
-                    Section {
-                        ForEach(group.structures) { structure in
-                            NavigationLink(value: AlphabeticalNavDestination(structure: structure)) {
-                                HStack {
-                                    Text(structure.name).font(.body)
-                                    if dataManager.isHistologyStructure(structure) {
-                                        Text("HISTOLOGY")
-                                            .font(.system(size: 9, weight: .bold))
-                                            .foregroundStyle(.purple)
-                                            .padding(.horizontal, 5).padding(.vertical, 2)
-                                            .background(.purple.opacity(0.15), in: Capsule())
-                                    }
-                                    Spacer()
-                                    if let pos = positionByID[structure.id] {
-                                        Text("\(pos)/\(total)")
-                                            .font(.caption2.monospacedDigit())
-                                            .foregroundStyle(.tertiary)
-                                    }
-                                }
+    private var alphaTotal: Int { alphabeticalAll.count }
+    /// Each structure's 1-based position in the flat alphabetical order.
+    private var alphaPositionByID: [UUID: Int] {
+        Dictionary(uniqueKeysWithValues: alphabeticalAll.enumerated().map { ($0.element.id, $0.offset + 1) })
+    }
+
+    @ViewBuilder private var alphabeticalSections: some View {
+        ForEach(alphabeticalGroups, id: \.letter) { group in
+            Section {
+                ForEach(group.structures) { structure in
+                    NavigationLink(value: AlphabeticalNavDestination(structure: structure)) {
+                        HStack {
+                            Text(structure.name).font(.body)
+                            if dataManager.isHistologyStructure(structure) {
+                                Text("HISTOLOGY")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(.purple)
+                                    .padding(.horizontal, 5).padding(.vertical, 2)
+                                    .background(.purple.opacity(0.15), in: Capsule())
+                            }
+                            Spacer()
+                            if let pos = alphaPositionByID[structure.id] {
+                                Text("\(pos)/\(alphaTotal)")
+                                    .font(.caption2.monospacedDigit())
+                                    .foregroundStyle(.tertiary)
                             }
                         }
-                    } header: {
-                        HStack {
-                            Text(group.letter)
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(.primary)
-                            Text("\(group.structures.count)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
                     }
-                    .id(group.letter)
+                }
+            } header: {
+                HStack {
+                    Text(group.letter)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Text("\(group.structures.count)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .overlay(alignment: .trailing) {
-                alphabetIndexBar(proxy: proxy)
-            }
+            .id(group.letter)
         }
     }
 
@@ -831,6 +846,15 @@ struct CategoryNavDestination: Hashable {
 /// StructureListView registers for category-mode paging.
 struct AlphabeticalNavDestination: Hashable {
     let structure: AnatomyStructure
+}
+
+/// Search-result nav values. Dedicated wrapper types so a tapped search hit never collides with
+/// the plain AnatomyStructure / category destinations StructureListView registers for paging.
+struct SearchStructureDestination: Hashable {
+    let structure: AnatomyStructure
+}
+struct SearchFillBlankDestination: Hashable {
+    let question: FillBlankQuestion
 }
 
 // MARK: - Structure Pager (swipe left/right between all structures in atlas order)
@@ -1550,7 +1574,7 @@ struct TraceStepRow: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 6) {
                             ForEach(structures) { s in
-                                NavigationLink { StructureDetailView(structure: s) } label: {
+                                NavigationLink(value: SearchStructureDestination(structure: s)) {
                                     TraceThumb(image: s.images.first)
                                 }
                                 .buttonStyle(.plain)
@@ -1632,7 +1656,7 @@ struct FillBlankListView: View {
                     NavigationLink {
                         FillBlankStudyView(questions: filtered, useSmartOrder: true)
                     } label: {
-                        Label("Smart Review (\(filtered.count))", systemImage: "brain.head.profile")
+                        Label("Smart Review — focused set", systemImage: "brain.head.profile")
                             .foregroundStyle(.indigo)
                     }
                     .disabled(filtered.isEmpty)
@@ -1828,6 +1852,7 @@ struct QuizCustomizationView: View {
     @State private var customTime = 18
     @State private var quizMode: QuizMode = .multipleChoice
     @State private var difficulty: QuizDifficulty = .easy   // multiple-choice distractor difficulty
+    @State private var selection: QuizSelection = .smart    // how questions are chosen (Smart vs Sweep)
     @State private var selectedCategoryIDs: Set<UUID> = []
 
     // Real Exam state
@@ -1893,6 +1918,18 @@ struct QuizCustomizationView: View {
         }
         .pickerStyle(.segmented)
         Text(difficulty.blurb).font(.caption).foregroundStyle(.secondary)
+    }
+
+    @ViewBuilder private var selectionControl: some View {
+        Picker("Selection", selection: $selection) {
+            Text("Smart").tag(QuizSelection.smart)
+            Text("Sweep").tag(QuizSelection.sweep)
+        }
+        .pickerStyle(.segmented)
+        Text(selection == .smart
+             ? "Learn fast: focuses your weakest and almost-mastered IDs, skips ones you've already mastered, and brings mastered ones back on a later day to confirm they stuck."
+             : "Overview: sweeps through everything without repeating, resuming where you left off — great for a quick review or spotting gaps.")
+            .font(.caption).foregroundStyle(.secondary)
     }
 
     @ViewBuilder private var quizTimeControl: some View {
@@ -1999,6 +2036,7 @@ struct QuizCustomizationView: View {
                             labeled("Feedback") { feedbackControl }
                             examStructureControl
                         } else {
+                            labeled("Selection") { selectionControl }
                             labeled("Time / Question") { quizTimeControl }
                         }
                     }
@@ -2014,6 +2052,7 @@ struct QuizCustomizationView: View {
                         if quizMode == .multipleChoice {
                             Section { difficultyControl } header: { Text("Difficulty") }
                         }
+                        Section { selectionControl } header: { Text("Question Selection") }
                         Section { quizTimeControl } header: { Text("Time Per Question") }
                     }
                 }
@@ -2044,7 +2083,8 @@ struct QuizCustomizationView: View {
             .onChange(of: showExam) { isAtRoot = !(startRunner || showExam) }
             .navigationDestination(isPresented: $startRunner) {
                 QuizView(numQuestions: numQuestions, timePerQuestion: effectiveQuizTime,
-                         selectedCategoryIDs: selectedCategoryIDs, quizMode: quizMode, difficulty: difficulty)
+                         selectedCategoryIDs: selectedCategoryIDs, quizMode: quizMode, difficulty: difficulty,
+                         selection: selection)
             }
             // Real Exam is a FULL-SCREEN COVER (not a nav push): a cover has NO back-swipe pop
             // gesture, so it's impossible to swipe out of the exam. Exit is via Close / Done.
@@ -2087,6 +2127,7 @@ struct QuizView: View {
     let selectedCategoryIDs: Set<UUID>
     let quizMode: QuizMode
     var difficulty: QuizDifficulty = .easy
+    var selection: QuizSelection = .smart
 
     var body: some View {
         Group {
@@ -2106,11 +2147,19 @@ struct QuizView: View {
 
     private func startQuiz() {
         let selectedCats = dataManager.categories.filter { selectedCategoryIDs.contains($0.id) }
-        var pool: [AnatomyStructure] = selectedCats.isEmpty
+        let pool: [AnatomyStructure] = selectedCats.isEmpty
             ? dataManager.structures
             : selectedCats.flatMap { dataManager.structures(in: $0) }
-        pool.shuffle()
-        let chosen = Array(pool.prefix(numQuestions))
+
+        let chosen: [AnatomyStructure]
+        switch selection {
+        case .smart:
+            chosen = smartPick(from: pool, count: numQuestions)
+        case .sweep:
+            let byName = Dictionary(pool.map { ($0.name, $0) }, uniquingKeysWith: { a, _ in a })
+            chosen = StatsManager.shared.sweepPick(from: pool.map { $0.name }, count: numQuestions)
+                .compactMap { byName[$0] }
+        }
 
         // Distractors are drawn per the chosen difficulty (Easy = anywhere, Hard = nearby).
         var questions: [QuizQuestion] = []
@@ -2119,7 +2168,46 @@ struct QuizView: View {
             questions.append(QuizQuestion(structure: s, distractors: distractors))
         }
 
-        quizSession = QuizSession(questions: questions, timePerQuestion: TimeInterval(timePerQuestion), quizMode: quizMode)
+        quizSession = QuizSession(questions: questions, timePerQuestion: TimeInterval(timePerQuestion), quizMode: quizMode, difficulty: difficulty)
+    }
+
+    /// Smart selection: surface the IDs that most need work, newest-learning first, so a session
+    /// drives real mastery instead of scattering across all 398. Priority:
+    ///   1. In-progress, not yet mastered — closest to mastery first (quick wins).
+    ///   2. Never-seen — introduce new material.
+    ///   3. Mastered but not seen today — a later-day recheck to confirm it stuck (or revoke it).
+    /// Already-mastered items seen today are skipped (only used to backfill if nothing else is left).
+    private func smartPick(from pool: [AnatomyStructure], count: Int) -> [AnatomyStructure] {
+        let stats = StatsManager.shared
+        let cards = FlashcardManager.shared
+        let cal = Calendar.current
+        func evidence(_ s: AnatomyStructure) -> Double { stats.stats[s.name]?.masteryEvidence ?? 0 }
+        func isMastered(_ s: AnatomyStructure) -> Bool {
+            (stats.stats[s.name]?.isMastered ?? false) || cards.schedule(for: s.name).isMasteredForScore
+        }
+        func seenToday(_ s: AnatomyStructure) -> Bool {
+            guard let d = stats.stats[s.name]?.lastSeen else { return false }
+            return cal.isDateInToday(d)
+        }
+
+        var started: [AnatomyStructure] = [], fresh: [AnatomyStructure] = [], recheck: [AnatomyStructure] = []
+        for s in pool {
+            if isMastered(s) {
+                if !seenToday(s) { recheck.append(s) }
+            } else if stats.stats[s.name] != nil {
+                started.append(s)          // attempted before, not yet mastered
+            } else {
+                fresh.append(s)            // never attempted
+            }
+        }
+        started.sort { evidence($0) > evidence($1) }   // closest to mastery first
+        fresh.shuffle(); recheck.shuffle()
+
+        var ordered = started + fresh + recheck
+        if ordered.count < count {                      // everything mastered & already seen today → light review
+            ordered += pool.filter { isMastered($0) && seenToday($0) }.shuffled()
+        }
+        return Array(ordered.prefix(count))
     }
 }
 
@@ -2460,7 +2548,8 @@ struct QuizQuestionView: View {
             wasCorrect: correct
         ))
         quizSession = session
-        statsManager.record(structureName: q.structure.name, correct: correct)
+        statsManager.record(structureName: q.structure.name, correct: correct,
+                            kind: .multipleChoice, difficulty: session.difficulty)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { advance() }
     }
 
@@ -2490,7 +2579,7 @@ struct QuizQuestionView: View {
             wasCorrect: correct
         ))
         quizSession = s
-        statsManager.record(structureName: q.structure.name, correct: correct)
+        statsManager.record(structureName: q.structure.name, correct: correct, kind: .writeIn)
         if correct {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advance() }
         } else {
@@ -3676,7 +3765,7 @@ struct ExamStationView: View {
             // Feed exam performance into Stats (structure-backed items) so it counts toward the
             // leaderboard practice score and per-structure accuracy, like the quiz does.
             if let name = updatedStation.items[idx].structure?.name {
-                StatsManager.shared.record(structureName: name, correct: correct)
+                StatsManager.shared.record(structureName: name, correct: correct, kind: .writeIn)
             }
         }
         updatedStation.isSubmitted = true
@@ -4155,7 +4244,7 @@ struct ExamResultsView: View {
                                         VStack(alignment: .leading, spacing: 1) {
                                             // Correct answer — tappable to its ID card (right or wrong) when it's a real structure.
                                             if let s = item.structure {
-                                                NavigationLink { StructureDetailView(structure: s) } label: {
+                                                NavigationLink(value: SearchStructureDestination(structure: s)) {
                                                     HStack(spacing: 3) {
                                                         Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
                                                             .foregroundStyle(.primary)
@@ -5004,6 +5093,8 @@ struct GuideView: View {
 // MARK: - Offline Images
 
 struct SettingsView: View {
+    @StateObject private var notif = NotificationManager.shared
+
     var body: some View {
         NavigationStack {
             List {
@@ -5020,6 +5111,16 @@ struct SettingsView: View {
                     }
                 } footer: {
                     Text("Save images for offline use, and manage iCloud sync of your progress across your devices.")
+                }
+
+                Section {
+                    Toggle(isOn: Binding(get: { notif.isEnabled }, set: { notif.setEnabled($0) })) {
+                        Label("Rank change alerts", systemImage: "bell.badge")
+                    }
+                } header: {
+                    Text("Leaderboard")
+                } footer: {
+                    Text("Get a heads-up when a classmate passes you on the leaderboard, so you can jump back in. Needs Game Center + notifications; checks in the background now and then, and never sends more than one alert every couple of hours.")
                 }
             }
             .navigationTitle("Settings")

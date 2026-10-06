@@ -124,6 +124,13 @@ enum QuizMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+/// How quiz questions are CHOSEN (separate from the answer format above).
+/// • smart — mastery-driving: weakest + almost-mastered + due-for-recheck first, already-mastered
+///   skipped. The fast path to mastering the set.
+/// • sweep — overview: cycle through everything without repeating, resuming where you left off, so
+///   each pass surfaces new items (good for a quick review / finding gaps). Doesn't filter by mastery.
+enum QuizSelection: String { case smart = "Smart", sweep = "Sweep" }
+
 /// Multiple-choice difficulty — controls where the WRONG options come from. Harder = the
 /// distractors are more similar/nearby to the answer, so you must actually tell them apart.
 enum QuizDifficulty: String, CaseIterable, Identifiable {
@@ -136,6 +143,26 @@ enum QuizDifficulty: String, CaseIterable, Identifiable {
         case .easy:   return "Wrong options can be anything — easiest to rule out."
         case .medium: return "Wrong options match the type (gross vs histology)."
         case .hard:   return "Wrong options are nearby structures (same region/system/slide) — closest to the real exam."
+        }
+    }
+}
+
+/// How a recall was tested, for mastery accounting. Write-in is active recall; multiple-choice
+/// is recognition (guessable), so it earns less credit per correct answer.
+enum RecallKind { case writeIn, multipleChoice }
+
+/// Credit a single CORRECT answer earns toward mastering an item (1.0 = mastered). Derived from
+/// guess-resistance — the easier it is to get right by luck, the smaller each correct answer counts,
+/// so more correct-in-a-row are needed. A wrong answer resets the accumulated credit to 0 (caller's
+/// job). Thresholds: write-in = 2 (0.5 each); MC hard = 4; MC medium = 5; MC easy = 6.
+func masteryCredit(kind: RecallKind, difficulty: QuizDifficulty) -> Double {
+    switch kind {
+    case .writeIn: return 0.5
+    case .multipleChoice:
+        switch difficulty {
+        case .hard:   return 0.25        // 4 in a row ≈ (25% guess)^… well under 5% luck
+        case .medium: return 0.20        // 5 in a row
+        case .easy:   return 1.0 / 6.0   // 6 in a row (easy distractors ≈ 50% effective guess)
         }
     }
 }
@@ -231,6 +258,7 @@ struct QuizSession: Identifiable {
     let questions: [QuizQuestion]
     let timePerQuestion: TimeInterval // seconds; 0 = unlimited
     let quizMode: QuizMode
+    let difficulty: QuizDifficulty    // multiple-choice distractor difficulty (sets MC mastery credit)
     var currentQuestionIndex: Int = 0
     var score: Int = 0
     var answerHistory: [AnswerRecord] = []
@@ -244,11 +272,13 @@ struct QuizSession: Identifiable {
         return questions[currentQuestionIndex]
     }
 
-    init(questions: [QuizQuestion], timePerQuestion: TimeInterval = 20, quizMode: QuizMode = .multipleChoice) {
+    init(questions: [QuizQuestion], timePerQuestion: TimeInterval = 20, quizMode: QuizMode = .multipleChoice,
+         difficulty: QuizDifficulty = .easy) {
         self.id = UUID()
         self.questions = questions
         self.timePerQuestion = timePerQuestion
         self.quizMode = quizMode
+        self.difficulty = difficulty
     }
 }
 

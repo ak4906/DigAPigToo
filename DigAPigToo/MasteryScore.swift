@@ -71,14 +71,16 @@ struct MasteryScore {
 
         var m = MasteryScore()
 
-        // IDs: known via a solid review-phase flashcard OR high quiz accuracy over enough attempts.
+        // IDs: mastered via an exam-horizon flashcard (≥3 consecutive spaced successful reviews)
+        // OR enough guess-resistant, spaced quiz/exam recall (the per-structure mastery evidence ≥ 1).
+        // Both can be LOST: a flashcard lapse leaves the review phase and resets reps; a wrong quiz/
+        // exam answer resets the evidence streak. (Replaces the old bars — review+2-reps cards at
+        // ~2–3-day intervals, and cumulative-80%-accuracy quizzes — which both inflated the score.)
         m.idTotal = data.structures.count
         for s in data.structures {
-            let sched = cards.schedule(for: s.name)
-            let cardKnown = sched.phase == .review && sched.reps >= 2
-            let qstat = quiz.stats[s.name]
-            let quizKnown = (qstat?.totalAttempts ?? 0) >= 3 && (qstat?.accuracy ?? 0) >= 0.8
-            if cardKnown || quizKnown { m.idMastered += 1 }
+            let cardMastered = cards.schedule(for: s.name).isMasteredForScore
+            let quizMastered = quiz.isQuizMastered(s.name)
+            if cardMastered || quizMastered { m.idMastered += 1 }
         }
 
         m.traceTotal = data.traces.count

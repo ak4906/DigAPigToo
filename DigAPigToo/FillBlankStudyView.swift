@@ -16,6 +16,11 @@ struct FillBlankStudyView: View {
     /// Browse All keeps the original topic order for a straight pass.
     var useSmartOrder: Bool = true
 
+    /// Smart Review works in small bites (like the quiz) so a session is a focused chunk of the
+    /// most-needed fill-ins — not a march through all of them (which was indistinguishable from
+    /// Browse All). Each new session / "Study Again" surfaces the next chunk. Browse All stays full.
+    private let smartChunkSize = 12
+
     enum Mode: String, CaseIterable, Identifiable {
         case multipleChoice = "Multiple Choice"
         case writeIn = "Write-In"
@@ -318,7 +323,9 @@ struct FillBlankStudyView: View {
         let valid = questions.filter { q in
             q.answers.count > 0 && q.prompt.components(separatedBy: "___").count - 1 == q.answers.count
         }
-        deck = useSmartOrder ? FillBlankProgressManager.shared.smartOrder(valid) : valid
+        deck = useSmartOrder
+            ? Array(FillBlankProgressManager.shared.smartOrder(valid).prefix(smartChunkSize))
+            : FillBlankProgressManager.shared.browseOrder(valid)
         totalBlanks = deck.reduce(0) { $0 + $1.answers.count }
         qIndex = 0
         gotBlanks = 0

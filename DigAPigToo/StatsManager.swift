@@ -18,6 +18,9 @@ class StatsManager: ObservableObject {
         var correctCount: Int = 0
         var incorrectCount: Int = 0
         var lastSeen: Date = Date()
+        /// Mastery evidence 0…1 (exam-horizon): each correct answer adds guess-resistance-scaled
+        /// credit (see `masteryCredit`); any wrong answer resets it to 0. ≥1 ⇒ this ID is mastered.
+        var masteryEvidence: Double = 0
 
         var totalAttempts: Int { correctCount + incorrectCount }
         var accuracy: Double {
@@ -25,6 +28,19 @@ class StatsManager: ObservableObject {
             return Double(correctCount) / Double(totalAttempts)
         }
         var accuracyPercent: Int { Int(accuracy * 100) }
+        var isMastered: Bool { masteryEvidence >= 1.0 - 1e-9 }
+
+        init() {}
+        // Custom decode so stats saved before `masteryEvidence` existed still load (default 0)
+        // instead of failing the whole blob.
+        enum CodingKeys: String, CodingKey { case correctCount, incorrectCount, lastSeen, masteryEvidence }
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            correctCount = try c.decodeIfPresent(Int.self, forKey: .correctCount) ?? 0
+            incorrectCount = try c.decodeIfPresent(Int.self, forKey: .incorrectCount) ?? 0
+            lastSeen = try c.decodeIfPresent(Date.self, forKey: .lastSeen) ?? Date()
+            masteryEvidence = try c.decodeIfPresent(Double.self, forKey: .masteryEvidence) ?? 0
+        }
     }
 
     // MARK: - Published state
@@ -35,6 +51,9 @@ class StatsManager: ObservableObject {
 
     private let udKey = "DigAPigToo_StructureStats"
     private let examKey = "DigAPigToo_BestExamScore"
+    private let sweptKey = "DigAPigToo_QuizSweptNames"   // device-local sweep cursor (no cloud sync)
+    /// Names already shown in the current "Sweep" cycle, so a sweep resumes instead of restarting.
+    private var sweptNames: Set<String> = []
     private init() {
         load()
         mergeFromCloud()
@@ -44,12 +63,46 @@ class StatsManager: ObservableObject {
     }
 
     // MARK: - Record an answer
-    func record(structureName: String, correct: Bool) {
+    /// `kind`/`difficulty` drive mastery credit: a correct answer adds guess-resistance-scaled
+    /// evidence; a cold first-ever write-in correct = instant mastery (prior knowledge); a wrong
+    /// answer resets the evidence streak. (Defaults keep older/neutral callers working.)
+    func record(structureName: String, correct: Bool,
+                kind: RecallKind = .multipleChoice, difficulty: QuizDifficulty = .easy) {
         var s = stats[structureName] ?? StructureStat()
+        let firstExposure = s.totalAttempts == 0
         if correct { s.correctCount += 1 } else { s.incorrectCount += 1 }
         s.lastSeen = Date()
+        if correct {
+            if firstExposure && kind == .writeIn {
+                s.masteryEvidence = 1.0   // wrote it cold on first exposure ⇒ already knew it
+            } else {
+                s.masteryEvidence = min(1.0, s.masteryEvidence + masteryCredit(kind: kind, difficulty: difficulty))
+            }
+        } else {
+            s.masteryEvidence = 0         // a miss breaks the streak — rebuild from scratch
+        }
         stats[structureName] = s
         save()
+    }
+
+    /// True once a structure's quiz/exam evidence has reached mastery (≥1).
+    func isQuizMastered(_ structureName: String) -> Bool { stats[structureName]?.isMastered ?? false }
+
+    /// "Sweep" quiz selection: return up to `count` names from `names` not yet shown this cycle,
+    /// resuming where the last sweep left off; when the pool is exhausted it starts a fresh cycle.
+    /// Device-local only (a review-order convenience, not progress worth syncing).
+    func sweepPick(from names: [String], count: Int) -> [String] {
+        guard count > 0, !names.isEmpty else { return [] }
+        let pool = Set(names)
+        var available = pool.subtracting(sweptNames)
+        if available.count < count {
+            sweptNames.subtract(pool)     // finished a cycle for this pool → make it all available again
+            available = pool
+        }
+        let chosen = Array(available).shuffled().prefix(count)
+        sweptNames.formUnion(chosen)
+        UserDefaults.standard.set(Array(sweptNames), forKey: sweptKey)
+        return Array(chosen)
     }
 
     /// Reclassify one prior incorrect attempt as correct — used by the "I got it right"
@@ -59,6 +112,9 @@ class StatsManager: ObservableObject {
         guard var s = stats[structureName], s.incorrectCount > 0 else { return }
         s.incorrectCount -= 1
         s.correctCount += 1
+        // The override only applies to write-answer quiz/exam, so credit it as a correct write-in
+        // (the preceding wrong had reset the streak to 0).
+        s.masteryEvidence = min(1.0, s.masteryEvidence + masteryCredit(kind: .writeIn, difficulty: .easy))
         stats[structureName] = s
         save()
     }
@@ -139,6 +195,7 @@ class StatsManager: ObservableObject {
     }
     private func load() {
         bestExamScore = UserDefaults.standard.integer(forKey: examKey)
+        sweptNames = Set(UserDefaults.standard.stringArray(forKey: sweptKey) ?? [])
         guard let data = UserDefaults.standard.data(forKey: udKey),
               let decoded = try? JSONDecoder().decode([String: StructureStat].self, from: data)
         else { return }

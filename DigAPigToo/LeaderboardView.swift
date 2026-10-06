@@ -31,6 +31,9 @@ struct LeaderboardContent: View {
         .onAppear {
             gc.authenticate()
             Task { await gc.refresh() }
+            // Opted-in users are asked for notification permission here, in context (they clearly
+            // care about ranking), so the default-on rank alerts can actually be delivered.
+            Task { await NotificationManager.shared.requestAuthorizationIfEnabled() }
         }
     }
 
@@ -211,7 +214,9 @@ struct MiniLeaderboardView: View {
                     .background(Color(.secondarySystemBackground)).clipShape(Capsule())
                 }
             }
-            .padding(.horizontal)
+            // No horizontal padding here: in the IDs list this view sits in a zero-inset row, so the
+            // first chip lands at the standard content margin (aligned with the title). The trailing
+            // chip can scroll to the edge.
         }
         .frame(height: 40)
         .onAppear {

@@ -118,6 +118,21 @@ final class FillBlankProgressManager: ObservableObject {
             .map { $0.q }
     }
 
+    /// Browse-All order: the questions' original topic order, but ROTATED to resume right after the
+    /// one you most recently saw — so repeated passes cycle through everything instead of restarting
+    /// at the top (where the first few got over-seen and the last ones never appeared).
+    func browseOrder(_ questions: [FillBlankQuestion]) -> [FillBlankQuestion] {
+        guard !questions.isEmpty else { return questions }
+        var bestIdx: Int? = nil
+        var bestDate = Date.distantPast
+        for (i, q) in questions.enumerated() {
+            if let d = progress[q.prompt]?.lastSeen, d >= bestDate { bestDate = d; bestIdx = i }
+        }
+        guard let idx = bestIdx else { return questions }   // none seen yet → original order
+        let start = (idx + 1) % questions.count
+        return Array(questions[start...] + questions[..<start])
+    }
+
     /// Counts over a question set, for the Stats tab.
     func summary(for questions: [FillBlankQuestion]) -> (studied: Int, mastered: Int, total: Int) {
         var studied = 0, mastered = 0

@@ -41,6 +41,16 @@ struct FlashcardView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // Mode toggle lives in the body (not the nav bar's principal slot, which crammed it
+                // against the top with no margin) so it has proper breathing room under the title.
+                Picker("Mode", selection: $mode) {
+                    ForEach(FlashcardMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                .padding(.top, 10)
+                .padding(.bottom, 6)
+
                 Group {
                     switch mode {
                     case .categories: categoryPicker
@@ -49,17 +59,16 @@ struct FlashcardView: View {
                 }
             }
             .navigationTitle("Flashcards")
-            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { showingStats = true } label: { Image(systemName: "chart.bar.fill") }
                 }
-                ToolbarItem(placement: .principal) {
-                    Picker("Mode", selection: $mode) {
-                        ForEach(FlashcardMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 200)
+            }
+            .onAppear {
+                // Default to every category that has cards selected, so "Start Studying" works
+                // immediately without the user having to select all first.
+                if selected.isEmpty {
+                    selected = Set(dataManager.categories.filter { cardCount($0) > 0 }.map { $0.id })
                 }
             }
             .fullScreenCover(item: $session) { sess in
@@ -85,8 +94,17 @@ struct FlashcardView: View {
                                   systemImage: "rectangle.stack.fill")
                 }
                 .disabled(total == 0)
+
+                Button {
+                    session = FlashcardSession.buildReviewAll(from: eligibleStructures())
+                } label: {
+                    StartRowLabel(title: "Review All (quick flip)",
+                                  subtitle: total == 0 ? "Select categories below" : "Flip through all \(total) — resumes where you left off",
+                                  systemImage: "rectangle.stack")
+                }
+                .disabled(total == 0)
             } footer: {
-                Text("Image-backed structures from your selected categories. The image is the front of each card; tap to reveal the answer. Reviews are scheduled with spaced repetition.")
+                Text("Start Studying schedules cards with spaced repetition (the path to mastery). Review All is a fast flip-through of everything — reveal, then Got it / Shaky — for a pre-exam sweep; it doesn't change your schedule.")
             }
 
             CategoryPickerSections(
@@ -108,6 +126,9 @@ struct FlashcardView: View {
 struct FlashcardSession: Identifiable {
     let id = UUID()
     let structures: [AnatomyStructure]
+    /// Review-All sweep: a fast flip-through of EVERY selected card (reveal → Next, no SM-2 rating,
+    /// no scheduling changes), as opposed to the SRS "Start Studying" session.
+    var reviewAll: Bool = false
 
     /// Build a study session from an image-backed pool, in SRS study order:
     /// most-overdue reviewed cards first, then shuffled new cards. If nothing is due,
@@ -123,6 +144,20 @@ struct FlashcardSession: Identifiable {
         if ordered.isEmpty { ordered = pool.shuffled() }
         guard !ordered.isEmpty else { return nil }
         return FlashcardSession(structures: ordered)
+    }
+
+    /// Build a Review-All sweep over the WHOLE pool, rotated to resume right after the last card you
+    /// reviewed, so repeated passes cycle through everything instead of restarting at the top.
+    @MainActor
+    static func buildReviewAll(from pool: [AnatomyStructure]) -> FlashcardSession? {
+        guard !pool.isEmpty else { return nil }
+        var ordered = pool
+        if let cursor = FlashcardManager.shared.reviewCursor(),
+           let idx = pool.firstIndex(where: { $0.name == cursor }) {
+            let start = (idx + 1) % pool.count
+            ordered = Array(pool[start...] + pool[..<start])
+        }
+        return FlashcardSession(structures: ordered, reviewAll: true)
     }
 }
 
@@ -220,10 +255,10 @@ struct FlashcardSessionView: View {
             .background {
                 Group {
                     Button("") { spaceKey() }.keyboardShortcut(.space, modifiers: [])
-                    Button("") { if revealed, let s = current { rate(s, .again) } }.keyboardShortcut("1", modifiers: [])
-                    Button("") { if revealed, let s = current { rate(s, .hard) } }.keyboardShortcut("2", modifiers: [])
-                    Button("") { if revealed, let s = current { rate(s, .good) } }.keyboardShortcut("3", modifiers: [])
-                    Button("") { if revealed, let s = current { rate(s, .easy) } }.keyboardShortcut("4", modifiers: [])
+                    Button("") { if !session.reviewAll, revealed, let s = current { rate(s, .again) } }.keyboardShortcut("1", modifiers: [])
+                    Button("") { if !session.reviewAll, revealed, let s = current { rate(s, .hard) } }.keyboardShortcut("2", modifiers: [])
+                    Button("") { if !session.reviewAll, revealed, let s = current { rate(s, .good) } }.keyboardShortcut("3", modifiers: [])
+                    Button("") { if !session.reviewAll, revealed, let s = current { rate(s, .easy) } }.keyboardShortcut("4", modifiers: [])
                     Button("") { undo() }.keyboardShortcut("u", modifiers: [])
                 }
                 .opacity(0)
@@ -240,9 +275,13 @@ struct FlashcardSessionView: View {
 
     /// Space bar: reveal the answer, or (if already revealed) grade the card Good.
     private func spaceKey() {
-        guard let s = current else { return }
-        if revealed { rate(s, .good) }
-        else { withAnimation(.easeInOut(duration: 0.2)) { revealed = true } }
+        guard current != nil else { return }
+        if revealed {
+            if session.reviewAll { advanceReview() }
+            else if let s = current { rate(s, .good) }
+        } else {
+            withAnimation(.easeInOut(duration: 0.2)) { revealed = true }
+        }
     }
 
     /// Revert the last rating: restore the queue/tallies and the card's SM-2 state. The card
@@ -304,7 +343,7 @@ struct FlashcardSessionView: View {
 
             // Controls
             if revealed {
-                ratingButtons(for: s)
+                if session.reviewAll { reviewControls } else { ratingButtons(for: s) }
             } else {
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { revealed = true }
@@ -448,22 +487,63 @@ struct FlashcardSessionView: View {
         revealed = false
     }
 
+    // MARK: Review-All controls (no SM-2 rating / no scheduling change)
+
+    private var reviewControls: some View {
+        HStack(spacing: 10) {
+            Button { reviewRequeue() } label: {
+                Label("Shaky", systemImage: "arrow.uturn.left")
+                    .fontWeight(.semibold).frame(maxWidth: .infinity).padding()
+                    .background(.orange.opacity(0.15)).foregroundStyle(.orange).cornerRadius(12)
+            }
+            Button { advanceReview() } label: {
+                Label("Got it", systemImage: "checkmark")
+                    .fontWeight(.semibold).frame(maxWidth: .infinity).padding()
+                    .background(.blue).foregroundStyle(.white).cornerRadius(12)
+            }
+        }
+        .padding()
+    }
+
+    /// Move past the current card; remember it as the resume point for next time.
+    private func advanceReview() {
+        guard let s = current else { return }
+        cards.setReviewCursor(s.name)
+        if !queue.isEmpty { queue.removeFirst() }
+        uniqueCompleted += 1
+        revealed = false
+    }
+
+    /// Mark the current card "shaky": see it again a few cards later this sweep (no scheduling change).
+    private func reviewRequeue() {
+        guard let s = current else { return }
+        cards.setReviewCursor(s.name)
+        if !queue.isEmpty { queue.removeFirst() }
+        queue.insert(s, at: min(queue.count, 5))
+        revealed = false
+    }
+
     // MARK: Summary
 
     private var summary: some View {
         VStack(spacing: 20) {
             Image(systemName: "checkmark.seal.fill").font(.system(size: 56)).foregroundStyle(.green)
-            Text("Session Complete").font(.title2).fontWeight(.semibold)
-            Text("\(uniqueCompleted) card\(uniqueCompleted == 1 ? "" : "s") studied · \(ratedCount) rating\(ratedCount == 1 ? "" : "s")")
-                .foregroundStyle(.secondary)
+            Text(session.reviewAll ? "Review Complete" : "Session Complete").font(.title2).fontWeight(.semibold)
+            if session.reviewAll {
+                Text("\(uniqueCompleted) card\(uniqueCompleted == 1 ? "" : "s") reviewed")
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("\(uniqueCompleted) card\(uniqueCompleted == 1 ? "" : "s") studied · \(ratedCount) rating\(ratedCount == 1 ? "" : "s")")
+                    .foregroundStyle(.secondary)
 
-            HStack(spacing: 12) {
-                tally("Again", ratingTally["again"] ?? 0, .red)
-                tally("Hard", ratingTally["hard"] ?? 0, .orange)
-                tally("Good", ratingTally["good"] ?? 0, .blue)
-                tally("Easy", ratingTally["easy"] ?? 0, .green)
+                HStack(spacing: 12) {
+                    tally("Again", ratingTally["again"] ?? 0, .red)
+                    tally("Hard", ratingTally["hard"] ?? 0, .orange)
+                    tally("Good", ratingTally["good"] ?? 0, .blue)
+                    tally("Easy", ratingTally["easy"] ?? 0, .green)
+                }
+                .padding(.top, 4)
             }
-            .padding(.top, 4)
 
             Button {
                 dismiss()

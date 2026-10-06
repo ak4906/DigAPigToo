@@ -6543,7 +6543,8 @@ class AnatomyDataManager: ObservableObject {
                 prompt: "Final carbohydrate digestion occurs at the intestinal ___ border, where enzymes such as ___, sucrase, and lactase split disaccharides into monosaccharides like glucose.",
                 answers: ["brush", "maltase"],
                 explanation: "Brush-border enzymes (maltase, sucrase, lactase) complete carb digestion into absorbable monosaccharides (glucose, galactose, fructose).",
-                category: "Digestive Enzymes"
+                category: "Digestive Enzymes",
+                mcatRelevant: true
             ),
 
             // ───────── Small Intestine ─────────

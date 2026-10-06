@@ -54,6 +54,16 @@ class FlashcardManager: ObservableObject {
     static let easePenaltyHard: Double = 0.15          // −15% on Hard
     static let easeBonusEasy: Double = 0.15            // +15% on Easy
 
+    /// Anki's "mature" threshold (interval ≥ 21 days): the span research ties to durable long-term
+    /// retention. Kept as an optional BONUS badge in the stats screen — NOT required for the mastery
+    /// score, because a 21-day interval is unreachable inside a 1–2 week exam cram.
+    static let matureIntervalDays: Double = 21
+    /// Exam-horizon mastery bar for the SCORE: a graduated card with this many consecutive
+    /// successful reviews. Review intervals are due-gated (≥1 day apart and growing), so reps ≥ 3
+    /// means recalled correctly on ~3 different, increasingly-spaced days — durable within the
+    /// study window, and reachable in about a week.
+    static let masteryReps: Int = 3
+
     private static let secondsPerDay: Double = 86_400
 
     // MARK: - Per-card scheduling record
@@ -69,6 +79,11 @@ class FlashcardManager: ObservableObject {
         var totalReviews: Int = 0
 
         var isNew: Bool { phase == .new }
+        /// Bonus badge only: a graduated card whose interval has matured past 21 days.
+        var isMature: Bool { phase == .review && intervalDays >= FlashcardManager.matureIntervalDays }
+        /// Mastered for the SCORE: graduated + enough consecutive spaced successful reviews
+        /// (exam-horizon). A lapse (Again) drops the card out of review and resets reps, revoking it.
+        var isMasteredForScore: Bool { phase == .review && reps >= FlashcardManager.masteryReps }
 
         init() {}
 
@@ -122,6 +137,14 @@ class FlashcardManager: ObservableObject {
     func schedule(for name: String) -> CardSchedule {
         schedules[name] ?? CardSchedule()
     }
+
+    // MARK: - Review-All sweep cursor
+    // Device-local resume point for the "Review All" flip-through (kept separate from the SRS
+    // schedule so a fast review never changes scheduling). Rotating after this name cycles through
+    // every card instead of restarting at the top.
+    private let reviewCursorKey = "DigAPigToo_FlashcardReviewCursor"
+    func reviewCursor() -> String? { UserDefaults.standard.string(forKey: reviewCursorKey) }
+    func setReviewCursor(_ name: String) { UserDefaults.standard.set(name, forKey: reviewCursorKey) }
 
     /// Whether a card should be studied now (new, or its due time has passed).
     func isDue(_ name: String, asOf now: Date = Date()) -> Bool {
@@ -296,9 +319,9 @@ class FlashcardManager: ObservableObject {
         return schedules.values.filter { $0.phase != .new && $0.due <= now }.count
     }
 
-    /// Cards considered "mature" (interval ≥ 21 days, Anki's convention).
+    /// Cards considered "mature"/mastered (interval ≥ 21 days, Anki's convention).
     var matureCount: Int {
-        schedules.values.filter { $0.phase == .review && $0.intervalDays >= 21 }.count
+        schedules.values.filter { $0.isMature }.count
     }
 
     /// Phase counts over a given pool of card names (image-backed structures). Names with
@@ -329,7 +352,7 @@ class FlashcardManager: ObservableObject {
             switch s.phase {
             case .new: b.new += 1
             case .learning, .relearning: b.learning += 1
-            case .review: (s.intervalDays >= 21 ? (b.mature += 1) : (b.young += 1))
+            case .review: (s.isMature ? (b.mature += 1) : (b.young += 1))
             }
         }
         return b

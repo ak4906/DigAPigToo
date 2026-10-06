@@ -20,6 +20,11 @@ final class TraceProgressManager: ObservableObject {
         var bestCorrect: Int = 0         // most steps recalled in a single run
         var reps: Int = 0                // consecutive PERFECT runs (all steps correct)
         var lastPracticed: Date = .distantPast
+        /// Mastery evidence 0…1: a PERFECT write-in run earns 1.0 (writing a whole trace cold =
+        /// mastered); a perfect multiple-choice run earns 0.5 (needs 2). Any imperfect run resets it.
+        var masteryEvidence: Double = 0
+
+        var isMastered: Bool { masteryEvidence >= 1.0 - 1e-9 }
 
         init() {}
         init(from decoder: Decoder) throws {
@@ -28,12 +33,12 @@ final class TraceProgressManager: ObservableObject {
             bestCorrect = try c.decodeIfPresent(Int.self, forKey: .bestCorrect) ?? 0
             reps = try c.decodeIfPresent(Int.self, forKey: .reps) ?? 0
             lastPracticed = try c.decodeIfPresent(Date.self, forKey: .lastPracticed) ?? .distantPast
+            masteryEvidence = try c.decodeIfPresent(Double.self, forKey: .masteryEvidence) ?? 0
         }
     }
 
     @Published private(set) var progress: [String: TProgress] = [:]
 
-    private let masterReps = 2          // two perfect runs → mastered
     private let udKey = "DigAPigToo_TraceProgress"
 
     private init() {
@@ -43,15 +48,22 @@ final class TraceProgressManager: ObservableObject {
     }
 
     func entry(for title: String) -> TProgress { progress[title] ?? TProgress() }
-    func isMastered(_ title: String) -> Bool { (progress[title]?.reps ?? 0) >= masterReps }
+    func isMastered(_ title: String) -> Bool { progress[title]?.isMastered ?? false }
 
-    /// Record a completed practice run. A "perfect" run (every step recalled) builds the mastery
-    /// streak; any miss resets it.
-    func record(title: String, correct: Int, total: Int) {
+    /// Record a completed practice run. A PERFECT run (every step recalled) adds mastery evidence —
+    /// 1.0 for write-in (one clean write-out = mastered), 0.5 for multiple-choice (needs two) — while
+    /// any imperfect run resets the streak.
+    func record(title: String, correct: Int, total: Int, mode: RecallKind) {
         var p = progress[title] ?? TProgress()
         p.attempts += 1
         p.bestCorrect = max(p.bestCorrect, correct)
-        p.reps = (total > 0 && correct >= total) ? p.reps + 1 : 0
+        if total > 0 && correct >= total {
+            p.reps += 1
+            p.masteryEvidence = min(1.0, p.masteryEvidence + (mode == .writeIn ? 1.0 : 0.5))
+        } else {
+            p.reps = 0
+            p.masteryEvidence = 0
+        }
         p.lastPracticed = Date()
         progress[title] = p
         save()

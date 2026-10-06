@@ -309,7 +309,8 @@ struct TracePracticeView: View {
             buildOptions()
         } else {
             // Run finished — log it for trace mastery (feeds the overall mastery score).
-            TraceProgressManager.shared.record(title: trace.title, correct: gotCount, total: steps.count)
+            TraceProgressManager.shared.record(title: trace.title, correct: gotCount, total: steps.count,
+                                               mode: style == .writeIn ? .writeIn : .multipleChoice)
         }
     }
 

@@ -104,6 +104,11 @@ final class GameCenterManager: ObservableObject {
         await submitCurrentScore()
         await reportAchievements()
         await loadLeaderboard()
+        // Foreground view: re-baseline the rank so "someone passed you" alerts are measured from
+        // what the user just saw (no alert fires here).
+        if let me = localEntry {
+            NotificationManager.shared.recordRank(me.rank, total: totalPlayers, fromBackground: false)
+        }
     }
 
     /// Report milestone achievements based on current mastery. Game Center keeps the highest
