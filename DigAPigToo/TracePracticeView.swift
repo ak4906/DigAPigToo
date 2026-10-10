@@ -33,6 +33,7 @@ struct TracePracticeView: View {
     @State private var options: [String] = []    // MC options for the current step
     @State private var showAllPrev = false       // expand the "previous steps" context
     @State private var fullscreenImage: AnatomyImage?   // tapped previous-step thumbnail
+    @State private var recorded = false          // guards against double-logging this run
     @FocusState private var fieldFocused: Bool
 
     private var steps: [TraceStep] { trace.steps }
@@ -71,6 +72,7 @@ struct TracePracticeView: View {
         }
         .padding()
         .onAppear { if options.isEmpty { buildOptions() } }
+        .onDisappear { logRun() }   // leaving mid-trace still banks credit for the steps recalled
         .fullScreenCover(item: $fullscreenImage) { img in
             ExamImageFullscreen(image: img)
         }
@@ -308,10 +310,18 @@ struct TracePracticeView: View {
         if !isComplete {
             buildOptions()
         } else {
-            // Run finished — log it for trace mastery (feeds the overall mastery score).
-            TraceProgressManager.shared.record(title: trace.title, correct: gotCount, total: steps.count,
-                                               mode: style == .writeIn ? .writeIn : .multipleChoice)
+            logRun()   // finished the whole trace
         }
+    }
+
+    /// Log this run's correct-step count (drives partial credit — each step recalled earns its share).
+    /// Called on completion AND when the user leaves mid-trace, so stopping partway still banks credit
+    /// for what they got. Idempotent via `recorded`.
+    private func logRun() {
+        guard !recorded, stepIndex > 0 else { return }
+        recorded = true
+        TraceProgressManager.shared.record(title: trace.title, correct: gotCount, total: steps.count,
+                                           mode: style == .writeIn ? .writeIn : .multipleChoice)
     }
 
     private func resetStepInput() {

@@ -19,8 +19,12 @@ class StatsManager: ObservableObject {
         var incorrectCount: Int = 0
         var lastSeen: Date = Date()
         /// Mastery evidence 0…1 (exam-horizon): each correct answer adds guess-resistance-scaled
-        /// credit (see `masteryCredit`); any wrong answer resets it to 0. ≥1 ⇒ this ID is mastered.
+        /// credit (see `masteryCredit`), SCALED by reaction-time confidence; any wrong answer resets
+        /// it to 0. ≥1 ⇒ this ID is mastered.
         var masteryEvidence: Double = 0
+        /// Was the last answer a confident one (correct AND not slow)? Drives Smart mode's adaptive
+        /// rest: confident IDs rest longer, struggled ones (wrong or slow) come back sooner.
+        var lastConfident: Bool = true
 
         var totalAttempts: Int { correctCount + incorrectCount }
         var accuracy: Double {
@@ -31,15 +35,16 @@ class StatsManager: ObservableObject {
         var isMastered: Bool { masteryEvidence >= 1.0 - 1e-9 }
 
         init() {}
-        // Custom decode so stats saved before `masteryEvidence` existed still load (default 0)
-        // instead of failing the whole blob.
-        enum CodingKeys: String, CodingKey { case correctCount, incorrectCount, lastSeen, masteryEvidence }
+        // Custom decode so stats saved before newer fields existed still load (defaults) instead of
+        // failing the whole blob.
+        enum CodingKeys: String, CodingKey { case correctCount, incorrectCount, lastSeen, masteryEvidence, lastConfident }
         init(from decoder: Decoder) throws {
             let c = try decoder.container(keyedBy: CodingKeys.self)
             correctCount = try c.decodeIfPresent(Int.self, forKey: .correctCount) ?? 0
             incorrectCount = try c.decodeIfPresent(Int.self, forKey: .incorrectCount) ?? 0
             lastSeen = try c.decodeIfPresent(Date.self, forKey: .lastSeen) ?? Date()
             masteryEvidence = try c.decodeIfPresent(Double.self, forKey: .masteryEvidence) ?? 0
+            lastConfident = try c.decodeIfPresent(Bool.self, forKey: .lastConfident) ?? true
         }
     }
 
@@ -63,26 +68,64 @@ class StatsManager: ObservableObject {
     }
 
     // MARK: - Record an answer
-    /// `kind`/`difficulty` drive mastery credit: a correct answer adds guess-resistance-scaled
-    /// evidence; a cold first-ever write-in correct = instant mastery (prior knowledge); a wrong
-    /// answer resets the evidence streak. (Defaults keep older/neutral callers working.)
+    /// `kind`/`difficulty` drive base mastery credit; `responseTime` (seconds from the image appearing
+    /// to the answer) scales it by CONFIDENCE — a correct answer that's fast relative to the user's own
+    /// typical time earns more credit (masters in fewer reps); a slow/hesitant one earns less and will
+    /// come back sooner. A cold first-ever write-in correct = instant mastery (prior knowledge); any
+    /// wrong answer resets the evidence streak. (Defaults keep older/neutral callers working.)
     func record(structureName: String, correct: Bool,
-                kind: RecallKind = .multipleChoice, difficulty: QuizDifficulty = .easy) {
+                kind: RecallKind = .multipleChoice, difficulty: QuizDifficulty = .easy,
+                responseTime: TimeInterval? = nil) {
         var s = stats[structureName] ?? StructureStat()
         let firstExposure = s.totalAttempts == 0
         if correct { s.correctCount += 1 } else { s.incorrectCount += 1 }
         s.lastSeen = Date()
         if correct {
+            let mult = confidenceMultiplier(responseTime: responseTime, kind: kind)   // uses the OLD baseline
             if firstExposure && kind == .writeIn {
                 s.masteryEvidence = 1.0   // wrote it cold on first exposure ⇒ already knew it
             } else {
-                s.masteryEvidence = min(1.0, s.masteryEvidence + masteryCredit(kind: kind, difficulty: difficulty))
+                s.masteryEvidence = min(1.0, s.masteryEvidence + masteryCredit(kind: kind, difficulty: difficulty) * mult)
             }
+            s.lastConfident = mult >= 1.0   // fast/normal correct = confident; slow = struggled
         } else {
-            s.masteryEvidence = 0         // a miss breaks the streak — rebuild from scratch
+            s.masteryEvidence = 0           // a miss breaks the streak — rebuild from scratch
+            s.lastConfident = false
         }
+        if let rt = responseTime, rt >= Self.rtFloor, rt <= Self.rtCeiling { updateReactionBaseline(rt, kind) }
         stats[structureName] = s
         save()
+    }
+
+    // MARK: - Reaction-time confidence (device-local)
+    // A per-mode exponential moving average of answer time is the user's personal "typical speed".
+    // Fast-vs-their-own-norm ⇒ they know it; slow ⇒ effortful. Per-user, so nothing is blanket-"easy".
+    private let rtMcKey = "DigAPigToo_RT_EMA_MC"
+    private let rtWriteKey = "DigAPigToo_RT_EMA_Write"
+    private static let rtAlpha = 0.15
+    private static let rtFloor: TimeInterval = 0.3    // faster than this = a mis-tap, not a real answer
+    private static let rtCeiling: TimeInterval = 30   // slower than this = walked away / distracted
+
+    private func reactionBaseline(_ kind: RecallKind) -> Double {
+        UserDefaults.standard.double(forKey: kind == .writeIn ? rtWriteKey : rtMcKey)
+    }
+    private func updateReactionBaseline(_ rt: TimeInterval, _ kind: RecallKind) {
+        let key = kind == .writeIn ? rtWriteKey : rtMcKey
+        let cur = UserDefaults.standard.double(forKey: key)
+        let next = cur <= 0 ? rt : cur * (1 - Self.rtAlpha) + rt * Self.rtAlpha
+        UserDefaults.standard.set(next, forKey: key)
+    }
+    /// Credit multiplier for a correct answer based on how fast it was vs the user's own norm.
+    private func confidenceMultiplier(responseTime rt: TimeInterval?, kind: RecallKind) -> Double {
+        guard let rt, rt >= Self.rtFloor, rt <= Self.rtCeiling else { return 1.0 }   // missing/implausible → neutral
+        let baseline = reactionBaseline(kind)
+        guard baseline > 0 else { return 1.0 }                                        // no norm yet → neutral
+        switch rt / baseline {
+        case ..<0.6: return 3.0     // much faster than your norm — you know it cold
+        case ..<1.0: return 2.0     // faster than your norm
+        case ..<1.5: return 1.0     // about normal
+        default:     return 0.6     // slow / hesitant — earns less, returns sooner
+        }
     }
 
     /// True once a structure's quiz/exam evidence has reached mastery (≥1).

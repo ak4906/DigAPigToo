@@ -95,7 +95,12 @@ final class NotificationManager: ObservableObject {
         guard base > 0 else { baselineRank = rank; return }   // first baseline — nothing to compare yet
         if rank > base {                                      // higher number = slipped down
             if let last = lastNotified, Date().timeIntervalSince(last) < cooldown { return }
-            postDropNotification(passedBy: rank - base, newRank: rank, total: total)
+            // Whoever now occupies the positions you fell through = the player(s) who passed you.
+            let passers = GameCenterManager.shared.entries
+                .filter { $0.rank >= base && $0.rank < rank }
+                .sorted { $0.rank < $1.rank }
+                .map { $0.displayName }
+            postDropNotification(passedBy: rank - base, newRank: rank, total: total, passers: passers)
             baselineRank = rank
             lastNotified = Date()
         } else if rank < base {
@@ -103,12 +108,18 @@ final class NotificationManager: ObservableObject {
         }
     }
 
-    private func postDropNotification(passedBy: Int, newRank: Int, total: Int) {
+    private func postDropNotification(passedBy: Int, newRank: Int, total: Int, passers: [String]) {
         let content = UNMutableNotificationContent()
-        content.title = "Leaderboard update"
-        let who = passedBy == 1 ? "A classmate" : "\(passedBy) classmates"
-        let place = total > 0 ? ", now #\(newRank) of \(total)" : ""
-        content.body = "\(who) passed you\(place). Jump back in and reclaim your spot!"
+        // Name the rival(s) when we know them; fall back to a count if the names weren't loaded.
+        switch passers.count {
+        case 1:  content.title = "\(passers[0]) just passed you"
+        case 2:  content.title = "\(passers[0]) and \(passers[1]) passed you"
+        case let n where n >= 3:
+            content.title = "\(passers[0]), \(passers[1]), and \(n - 2) more passed you"
+        default: content.title = passedBy == 1 ? "A classmate passed you" : "\(passedBy) classmates passed you"
+        }
+        let place = total > 0 ? "You're now #\(newRank) of \(total). " : ""
+        content.body = "\(place)Jump back in and reclaim your spot!"
         content.sound = .default
         let req = UNNotificationRequest(identifier: "rankdrop-\(Int(Date().timeIntervalSince1970))",
                                         content: content, trigger: nil)   // deliver immediately
@@ -136,7 +147,7 @@ final class NotificationManager: ObservableObject {
             try? await Task.sleep(nanoseconds: 3_000_000_000)   // give a cached GC session a moment
         }
         guard gc.isAuthenticated else { return }
-        await gc.loadLeaderboard()
+        await gc.loadLeaderboard()   // daily delta baseline only resets at midnight, so this is safe to call
         if let me = gc.localEntry { recordRank(me.rank, total: gc.totalPlayers, fromBackground: true) }
     }
 }

@@ -69,9 +69,19 @@ final class TraceProgressManager: ObservableObject {
         save()
     }
 
-    /// Mastered-trace count over a set of traces, for the mastery score / stats.
+    /// Mastered-trace count over a set of traces (fully-recalled), for display.
     func masteredCount(in traces: [TraceQuestion]) -> Int {
         traces.reduce(0) { $0 + (isMastered($1.title) ? 1 : 0) }
+    }
+
+    /// Partial-credit sum for the mastery score: each trace contributes the fraction of its steps you
+    /// best recalled in a single run (0…1), so you earn credit for a 15/20 attempt instead of nothing.
+    func creditSum(in traces: [TraceQuestion]) -> Double {
+        traces.reduce(0.0) { sum, t in
+            let total = t.steps.count
+            guard total > 0 else { return sum }
+            return sum + min(1.0, Double(progress[t.title]?.bestCorrect ?? 0) / Double(total))
+        }
     }
 
     func reset() {

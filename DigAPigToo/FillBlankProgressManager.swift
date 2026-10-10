@@ -30,10 +30,11 @@ final class FillBlankProgressManager: ObservableObject {
         var due: Date = Date()       // next recommended time (new = now)
         var intervalDays: Double = 0
         var stage: Stage = .mc       // current difficulty stage
+        var bestCorrect: Int = 0     // most blanks solved in a single pass — drives partial credit
 
         init() {}
 
-        // Defensive decode so progress saved before `stage` existed still loads (defaults to .mc).
+        // Defensive decode so progress saved before newer fields existed still loads (defaults).
         init(from decoder: Decoder) throws {
             let c = try decoder.container(keyedBy: CodingKeys.self)
             seen = try c.decodeIfPresent(Int.self, forKey: .seen) ?? 0
@@ -43,6 +44,7 @@ final class FillBlankProgressManager: ObservableObject {
             due = try c.decodeIfPresent(Date.self, forKey: .due) ?? Date()
             intervalDays = try c.decodeIfPresent(Double.self, forKey: .intervalDays) ?? 0
             stage = try c.decodeIfPresent(Stage.self, forKey: .stage) ?? .mc
+            bestCorrect = try c.decodeIfPresent(Int.self, forKey: .bestCorrect) ?? 0
         }
     }
 
@@ -66,13 +68,14 @@ final class FillBlankProgressManager: ObservableObject {
     /// The stage a fill-in should currently be studied in (drives multiple-choice vs write-in).
     func stage(for prompt: String) -> Stage { progress[prompt]?.stage ?? .mc }
 
-    /// Record a completed sentence (all its gaps answered). `allCorrect` = every gap was right.
-    /// Advances the one-way difficulty ladder: master MC → write-in; master write-in → mastered;
-    /// miss a write-in → demote to MC.
-    func record(prompt: String, allCorrect: Bool) {
+    /// Record a completed sentence. `correctBlanks`/`totalBlanks` give partial credit per blank; the
+    /// ladder (MC → write-in → mastered, demote on a miss) still turns on whether EVERY gap was right.
+    func record(prompt: String, correctBlanks: Int, totalBlanks: Int) {
         var p = progress[prompt] ?? QProgress()
         p.seen += 1
         p.lastSeen = Date()
+        p.bestCorrect = max(p.bestCorrect, correctBlanks)
+        let allCorrect = totalBlanks > 0 && correctBlanks >= totalBlanks
         if allCorrect {
             p.correct += 1
             p.reps += 1
@@ -143,6 +146,16 @@ final class FillBlankProgressManager: ObservableObject {
             }
         }
         return (studied, mastered, questions.count)
+    }
+
+    /// Partial-credit sum for the mastery score: each fill-in contributes the fraction of its blanks
+    /// you best solved in a single pass (0…1), so a 2-of-3 attempt earns credit instead of nothing.
+    func creditSum(for questions: [FillBlankQuestion]) -> Double {
+        questions.reduce(0.0) { sum, q in
+            let total = q.answers.count
+            guard total > 0 else { return sum }
+            return sum + min(1.0, Double(progress[q.prompt]?.bestCorrect ?? 0) / Double(total))
+        }
     }
 
     /// How many studied questions sit in each stage (unseen questions are excluded).

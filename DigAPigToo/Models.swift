@@ -328,11 +328,26 @@ extension AnatomyStructure {
 /// differences ("arch of the aorta" vs "arch of aorta") still match.
 func normalizedForMatching(_ s: String) -> String {
     let fillers: Set<String> = ["the", "of", "a", "an", "and"]
-    return s.lowercased()
+    return spelledOutGreek(s.lowercased())
         .split(whereSeparator: { $0 == " " || $0 == "-" })
         .map(String.init)
         .filter { !fillers.contains($0) }
         .joined(separator: " ")
+}
+
+/// Spell out Greek letters so "α-amylase" matches a typed "alpha-amylase" (many users have no Greek
+/// keyboard). Each letter is padded with spaces so it becomes its own token after splitting.
+func spelledOutGreek(_ s: String) -> String {
+    let map: [Character: String] = [
+        "α": "alpha", "β": "beta", "γ": "gamma", "δ": "delta", "ε": "epsilon", "ζ": "zeta",
+        "η": "eta", "θ": "theta", "ι": "iota", "κ": "kappa", "λ": "lambda", "μ": "mu", "ν": "nu",
+        "ξ": "xi", "ο": "omicron", "π": "pi", "ρ": "rho", "σ": "sigma", "ς": "sigma", "τ": "tau",
+        "υ": "upsilon", "φ": "phi", "χ": "chi", "ψ": "psi", "ω": "omega"
+    ]
+    guard s.contains(where: { map[$0] != nil }) else { return s }
+    var out = ""
+    for ch in s { out += map[ch].map { " \($0) " } ?? String(ch) }
+    return out
 }
 
 private func levenshteinDistance(_ s: String, _ t: String) -> Int {

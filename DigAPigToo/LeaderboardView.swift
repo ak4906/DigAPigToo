@@ -21,6 +21,7 @@ struct LeaderboardContent: View {
     @StateObject private var traces = TraceProgressManager.shared
     @StateObject private var cards = FlashcardManager.shared
     @StateObject private var quiz = StatsManager.shared
+    @State private var showAllRanks = false   // collapse the 0-point tail by default
 
     var body: some View {
         let m = MasteryScore.current()
@@ -123,7 +124,7 @@ struct LeaderboardContent: View {
                     entryRow(me)
                     if !gc.entries.isEmpty { Divider() }
                 }
-                ForEach(gc.entries) { entryRow($0) }
+                rankRows()
                 if gc.totalPlayers > 0 {
                     Text("\(gc.totalPlayers) player\(gc.totalPlayers == 1 ? "" : "s") competing")
                         .font(.caption2).foregroundStyle(.secondary)
@@ -149,9 +150,39 @@ struct LeaderboardContent: View {
                     .background(.indigo.opacity(0.15)).foregroundStyle(.indigo).clipShape(Capsule())
             }
             Spacer()
+            DeltaBadge(delta: e.delta)
             Text("\(e.score)").font(.subheadline.monospacedDigit().weight(.semibold))
         }
         .listRowBackground(e.isLocalPlayer ? Color.indigo.opacity(0.08) : nil)
+    }
+
+    /// Entries are sorted high→low, so everyone with ≥1 point is a leading prefix and the 0-point
+    /// players are the tail. Collapse that tail by default (but always keep your own row visible).
+    @ViewBuilder private func rankRows() -> some View {
+        let ranked = gc.entries
+        let scorers = ranked.prefix(while: { $0.score >= 1 }).count
+        let localInTail = ranked.dropFirst(scorers).contains { $0.isLocalPlayer }
+        let hidden = max(0, ranked.count - scorers - (localInTail ? 1 : 0))
+        if showAllRanks || hidden == 0 {
+            ForEach(ranked) { entryRow($0) }
+            if hidden > 0 { rankToggle(expanded: true, hidden: hidden) }
+        } else {
+            ForEach(Array(ranked.prefix(scorers))) { entryRow($0) }
+            if let me = ranked.dropFirst(scorers).first(where: { $0.isLocalPlayer }) {
+                Divider()
+                entryRow(me)
+            }
+            rankToggle(expanded: false, hidden: hidden)
+        }
+    }
+
+    private func rankToggle(expanded: Bool, hidden: Int) -> some View {
+        Button { withAnimation { showAllRanks.toggle() } } label: {
+            Label(expanded ? "Hide \(hidden) with no points yet" : "Show \(hidden) more (no points yet)",
+                  systemImage: expanded ? "chevron.up" : "chevron.down")
+                .font(.caption)
+        }
+        .foregroundStyle(.secondary)
     }
 
     private func medal(_ rank: Int) -> String {
@@ -160,6 +191,19 @@ struct LeaderboardContent: View {
         case 2: return "🥈"
         case 3: return "🥉"
         default: return "\(rank)"
+        }
+    }
+}
+
+/// Today's point change for a player: green +N / red −N since this morning's baseline. Shows nothing
+/// when unchanged (0) or not yet established — newcomers start at 0 and their gains show from there.
+private struct DeltaBadge: View {
+    let delta: Int?
+    var body: some View {
+        if let d = delta, d != 0 {
+            Text(d > 0 ? "+\(d)" : "\(d)")
+                .font(.caption2.monospacedDigit().weight(.semibold))
+                .foregroundStyle(d > 0 ? .green : .red)
         }
     }
 }
@@ -199,6 +243,7 @@ struct MiniLeaderboardView: View {
                             Text(medal(e.rank))
                             Text(e.displayName).font(.caption).lineLimit(1)
                             Text("\(e.score)").font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
+                            DeltaBadge(delta: e.delta)
                         }
                         .padding(.horizontal, 10).padding(.vertical, 6)
                         .background(Color(.secondarySystemBackground)).clipShape(Capsule())

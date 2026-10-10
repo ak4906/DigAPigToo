@@ -305,8 +305,9 @@ struct FillBlankStudyView: View {
         if isLastBlank {
             // Log the whole-sentence attempt (drives mastery + smart order): all gaps right?
             if qIndex < deck.count {
-                let allCorrect = !results.isEmpty && results.allSatisfy { $0 }
-                FillBlankProgressManager.shared.record(prompt: deck[qIndex].prompt, allCorrect: allCorrect)
+                FillBlankProgressManager.shared.record(prompt: deck[qIndex].prompt,
+                                                       correctBlanks: results.filter { $0 }.count,
+                                                       totalBlanks: deck[qIndex].answers.count)
             }
             qIndex += 1
             if qIndex < deck.count { startQuestion() }

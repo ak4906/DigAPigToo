@@ -1927,7 +1927,7 @@ struct QuizCustomizationView: View {
         }
         .pickerStyle(.segmented)
         Text(selection == .smart
-             ? "Learn fast: focuses your weakest and almost-mastered IDs, skips ones you've already mastered, and brings mastered ones back on a later day to confirm they stuck."
+             ? "Learn fast: mixes in new IDs with ones you've seen but not nailed, rests each one between tries (no drilling the same card), and brings mastered IDs back later to confirm they stuck."
              : "Overview: sweeps through everything without repeating, resuming where you left off — great for a quick review or spotting gaps.")
             .font(.caption).foregroundStyle(.secondary)
     }
@@ -2171,42 +2171,52 @@ struct QuizView: View {
         quizSession = QuizSession(questions: questions, timePerQuestion: TimeInterval(timePerQuestion), quizMode: quizMode, difficulty: difficulty)
     }
 
-    /// Smart selection: surface the IDs that most need work, newest-learning first, so a session
-    /// drives real mastery instead of scattering across all 398. Priority:
-    ///   1. In-progress, not yet mastered — closest to mastery first (quick wins).
-    ///   2. Never-seen — introduce new material.
-    ///   3. Mastered but not seen today — a later-day recheck to confirm it stuck (or revoke it).
-    /// Already-mastered items seen today are skipped (only used to backfill if nothing else is left).
+    /// Smart selection: deliver breadth + SPACED reinforcement, not drilling. Each session interleaves
+    /// NEW (never-seen) IDs with REVIEW IDs (seen before but not yet mastered) that you haven't answered
+    /// in the last few minutes, and it SKIPS anything you just answered — so you keep covering the ~398
+    /// and each ID gets a rest between tries instead of being repeated 5× for cheap mastery. Mastered
+    /// IDs come back only for a later-day confirmation.
     private func smartPick(from pool: [AnatomyStructure], count: Int) -> [AnatomyStructure] {
         let stats = StatsManager.shared
         let cards = FlashcardManager.shared
-        let cal = Calendar.current
-        func evidence(_ s: AnatomyStructure) -> Double { stats.stats[s.name]?.masteryEvidence ?? 0 }
+        let now = Date()
         func isMastered(_ s: AnatomyStructure) -> Bool {
             (stats.stats[s.name]?.isMastered ?? false) || cards.schedule(for: s.name).isMasteredForScore
         }
-        func seenToday(_ s: AnatomyStructure) -> Bool {
-            guard let d = stats.stats[s.name]?.lastSeen else { return false }
-            return cal.isDateInToday(d)
+        func lastSeen(_ s: AnatomyStructure) -> Date? { stats.stats[s.name]?.lastSeen }
+        // Adaptive rest: an ID you nailed confidently rests a while; one you got wrong or answered
+        // slowly comes back soon so you can drill the hard/new ones a few times to solidify them.
+        func restWindow(_ s: AnatomyStructure) -> TimeInterval {
+            (stats.stats[s.name]?.lastConfident ?? true) ? 10 * 60 : 90
         }
 
-        var started: [AnatomyStructure] = [], fresh: [AnatomyStructure] = [], recheck: [AnatomyStructure] = []
+        var fresh: [AnatomyStructure] = []      // never attempted — new material
+        var review: [AnatomyStructure] = []     // attempted, not mastered, rested — due for a spaced rep
+        var recheck: [AnatomyStructure] = []    // mastered, not confirmed in a while
+        var resting: [AnatomyStructure] = []    // answered too recently — last-resort fallback only
         for s in pool {
+            if let d = lastSeen(s), now.timeIntervalSince(d) < restWindow(s) { resting.append(s); continue }
             if isMastered(s) {
-                if !seenToday(s) { recheck.append(s) }
+                if lastSeen(s).map({ now.timeIntervalSince($0) > 12 * 3600 }) ?? true { recheck.append(s) }
             } else if stats.stats[s.name] != nil {
-                started.append(s)          // attempted before, not yet mastered
+                review.append(s)
             } else {
-                fresh.append(s)            // never attempted
+                fresh.append(s)
             }
         }
-        started.sort { evidence($0) > evidence($1) }   // closest to mastery first
-        fresh.shuffle(); recheck.shuffle()
+        fresh.shuffle()
+        review.sort { (lastSeen($0) ?? .distantPast) < (lastSeen($1) ?? .distantPast) }   // most overdue first
+        recheck.shuffle()
 
-        var ordered = started + fresh + recheck
-        if ordered.count < count {                      // everything mastered & already seen today → light review
-            ordered += pool.filter { isMastered($0) && seenToday($0) }.shuffled()
+        // Interleave new + review so every session mixes fresh material with spaced reinforcement.
+        var mixed: [AnatomyStructure] = []
+        var i = 0, j = 0
+        while i < fresh.count || j < review.count {
+            if i < fresh.count { mixed.append(fresh[i]); i += 1 }
+            if j < review.count { mixed.append(review[j]); j += 1 }
         }
+        var ordered = mixed + recheck
+        if ordered.count < count { ordered += resting.shuffled() }   // tiny pools: allow a rested ID back
         return Array(ordered.prefix(count))
     }
 }
@@ -2474,13 +2484,19 @@ struct QuizQuestionView: View {
         }
     }
 
+    /// Seconds from the image appearing to the user's answer — the reaction time that drives
+    /// mastery confidence (fast vs their own norm). nil if the image never got shown.
+    private var answerReactionTime: TimeInterval? {
+        timerBegun ? Date().timeIntervalSince(questionStartDate) : nil
+    }
+
     /// Starts the countdown once — triggered by the image loading, the safety fallback,
     /// or a no-image question. Guarded so it only ever fires once per question.
     private func beginTimer() {
         guard !timerBegun, !isAnswered, let session = quizSession else { return }
         timerBegun = true
-        guard session.timePerQuestion > 0 else { return }   // untimed mode: no countdown
-        questionStartDate = Date()
+        questionStartDate = Date()                          // also the reaction-time anchor (set in all modes)
+        guard session.timePerQuestion > 0 else { return }   // untimed mode: no countdown, but RT still measured
         startTimer()
     }
 
@@ -2549,7 +2565,8 @@ struct QuizQuestionView: View {
         ))
         quizSession = session
         statsManager.record(structureName: q.structure.name, correct: correct,
-                            kind: .multipleChoice, difficulty: session.difficulty)
+                            kind: .multipleChoice, difficulty: session.difficulty,
+                            responseTime: answerReactionTime)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { advance() }
     }
 
@@ -2579,7 +2596,8 @@ struct QuizQuestionView: View {
             wasCorrect: correct
         ))
         quizSession = s
-        statsManager.record(structureName: q.structure.name, correct: correct, kind: .writeIn)
+        statsManager.record(structureName: q.structure.name, correct: correct, kind: .writeIn,
+                            responseTime: answerReactionTime)
         if correct {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advance() }
         } else {

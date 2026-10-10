@@ -33,6 +33,7 @@ final class GameCenterManager: ObservableObject {
         let displayName: String
         let score: Int
         let isLocalPlayer: Bool
+        var delta: Int? = nil   // points changed since this device last loaded the board (nil = new/unknown)
     }
 
     /// Achievement IDs — create matching achievements in App Store Connect (see setup notes below).
@@ -149,15 +150,55 @@ final class GameCenterManager: ObservableObject {
                 statusMessage = "Leaderboard not found — check the leaderboard ID in App Store Connect."
                 return
             }
+            // 100 = Game Center's max per load. Covers the whole class so "N competing" matches the
+            // list; if it ever grows past 100, this would need paging.
             let (local, loaded, count) = try await board.loadEntries(
-                for: .global, timeScope: .allTime, range: NSRange(location: 1, length: 50))
+                for: .global, timeScope: .allTime, range: NSRange(location: 1, length: 100))
             totalPlayers = count
-            entries = loaded.map { Self.makeEntry(from: $0) }
-            localEntry = local.map { Self.makeEntry(from: $0, forcedLocal: true) }
+
+            // DAILY point deltas vs a start-of-day baseline (holds all day, resets at local midnight).
+            // The baseline is EXTENDED LAZILY: any player seen for the first time today is added at
+            // their current score, so a newcomer — or anyone a partial earlier load missed — just
+            // starts at 0 rather than being mislabeled. Everything is guarded on a NON-EMPTY load, so a
+            // partial/empty fetch can never capture a bogus baseline (which once tagged all-but-me new).
+            var baseline = loadBaseline()
+            let lastDate = UserDefaults.standard.object(forKey: baselineDateKey) as? Date
+            let newDay = lastDate == nil || !Calendar.current.isDate(lastDate!, inSameDayAs: Date())
+            if newDay && !loaded.isEmpty { baseline = [:] }        // fresh start line for the new day
+            var baselineChanged = newDay
+            for raw in loaded where baseline[raw.player.gamePlayerID] == nil {
+                baseline[raw.player.gamePlayerID] = raw.score; baselineChanged = true
+            }
+            if let l = local, baseline[l.player.gamePlayerID] == nil {
+                baseline[l.player.gamePlayerID] = l.score; baselineChanged = true
+            }
+            if baselineChanged && !loaded.isEmpty {
+                saveBaseline(baseline)
+                UserDefaults.standard.set(Date(), forKey: baselineDateKey)
+            }
+            func withDelta(_ e: Entry) -> Entry {
+                var e = e
+                e.delta = baseline[e.id].map { e.score - $0 }
+                return e
+            }
+            entries = loaded.map { withDelta(Self.makeEntry(from: $0)) }
+            localEntry = local.map { withDelta(Self.makeEntry(from: $0, forcedLocal: true)) }
             statusMessage = entries.isEmpty ? "No scores yet — be the first!" : nil
         } catch {
             statusMessage = "Couldn't load leaderboard: \(error.localizedDescription)"
         }
+    }
+
+    // Start-of-day baseline for the leaderboard's daily point deltas (device-local; resets each day).
+    // _v2 keys discard any baseline captured by the earlier buggy build (which could poison it to
+    // "only me") so devices start clean.
+    private let baselineKey = "DigAPigToo_LBDailyBaseline_v2"
+    private let baselineDateKey = "DigAPigToo_LBDailyBaselineDate_v2"
+    private func loadBaseline() -> [String: Int] {
+        (UserDefaults.standard.dictionary(forKey: baselineKey) ?? [:]).compactMapValues { $0 as? Int }
+    }
+    private func saveBaseline(_ snap: [String: Int]) {
+        UserDefaults.standard.set(snap, forKey: baselineKey)
     }
 
     private static func makeEntry(from e: GKLeaderboard.Entry, forcedLocal: Bool = false) -> Entry {

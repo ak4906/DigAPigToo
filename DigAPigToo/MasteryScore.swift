@@ -3,25 +3,29 @@
 //  DigAPigToo
 //
 //  A single 0–1000 "how much do you truly know" score, weighted to mirror the BIOL 2501 practical:
-//  physical IDs dominate (~65%), traces next (~23%), fill-in / epithelial knowledge least (~12%).
-//  It rewards retained understanding, not cramming volume: an ID only counts once it's a solid
-//  spaced-repetition flashcard OR has high quiz accuracy over several attempts. Fill-ins (which
-//  allow "I got it right" self-grading) carry the smallest weight, so the ranking can't be gamed.
-//  This is what gets submitted to the Game Center leaderboard.
+//  physical IDs dominate (~68%), traces next (~22%), fill-ins least (~10%) — matched to the real
+//  exam's points (219 total: 150 from 30 ID stations, 48 from 2 traces, 21 from fill-ins).
+//  It rewards retained understanding, not cramming volume. This is what gets submitted to the
+//  Game Center leaderboard.
 //
 
 import Foundation
 
 @MainActor
 struct MasteryScore {
-    // Weights reflect each domain's share of the practical grade. They sum to 1.0.
-    static let idWeight = 0.65
-    static let traceWeight = 0.23
-    static let fillWeight = 0.12
+    // Each domain's share of the real practical grade (219 pts: 150 IDs / 48 traces / 21 fill-ins).
+    // They sum to 1.0.
+    static let idWeight = 150.0 / 219.0      // ≈ 0.685
+    static let traceWeight = 48.0 / 219.0    // ≈ 0.219
+    static let fillWeight = 21.0 / 219.0     // ≈ 0.096
 
     var idMastered = 0, idTotal = 0
-    var traceMastered = 0, traceTotal = 0
+    var traceMastered = 0, traceTotal = 0      // fully-mastered counts (shown as "X / Y")
     var fillMastered = 0, fillTotal = 0
+    // Partial-credit sums (per sub-unit): traces earn credit for the steps recalled, fill-ins for the
+    // blanks solved — so a long multi-part item isn't all-or-nothing. IDs stay binary (no sub-units).
+    var traceCredit = 0.0
+    var fillCredit = 0.0
 
     // Practice/performance inputs (quizzes + Real Exam, which both record into StatsManager).
     var questionsAnswered = 0
@@ -29,8 +33,8 @@ struct MasteryScore {
     var bestExamScore = 0          // best correct-item count in one Real-Exam session
 
     var idFrac: Double { idTotal > 0 ? Double(idMastered) / Double(idTotal) : 0 }
-    var traceFrac: Double { traceTotal > 0 ? Double(traceMastered) / Double(traceTotal) : 0 }
-    var fillFrac: Double { fillTotal > 0 ? Double(fillMastered) / Double(fillTotal) : 0 }
+    var traceFrac: Double { traceTotal > 0 ? traceCredit / Double(traceTotal) : 0 }
+    var fillFrac: Double { fillTotal > 0 ? fillCredit / Double(fillTotal) : 0 }
 
     // MARK: Mastery (understanding) — the primary 0…1000 component
     var masteryPoints: Int {
@@ -85,9 +89,11 @@ struct MasteryScore {
 
         m.traceTotal = data.traces.count
         m.traceMastered = traces.masteredCount(in: data.traces)
+        m.traceCredit = traces.creditSum(in: data.traces)              // partial: credit per step recalled
 
         m.fillTotal = data.fillBlanks.count
         m.fillMastered = fills.summary(for: data.fillBlanks).mastered
+        m.fillCredit = fills.creditSum(for: data.fillBlanks)           // partial: credit per blank solved
 
         m.questionsAnswered = quiz.totalAnswered
         m.answerAccuracy = quiz.overallAccuracy
