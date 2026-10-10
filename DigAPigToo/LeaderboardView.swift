@@ -150,7 +150,7 @@ struct LeaderboardContent: View {
                     .background(.indigo.opacity(0.15)).foregroundStyle(.indigo).clipShape(Capsule())
             }
             Spacer()
-            DeltaBadge(delta: e.delta)
+            DeltaBadge(isNew: e.isNew, delta: e.delta)
             Text("\(e.score)").font(.subheadline.monospacedDigit().weight(.semibold))
         }
         .listRowBackground(e.isLocalPlayer ? Color.indigo.opacity(0.08) : nil)
@@ -161,16 +161,17 @@ struct LeaderboardContent: View {
     @ViewBuilder private func rankRows() -> some View {
         let ranked = gc.entries
         let scorers = ranked.prefix(while: { $0.score >= 1 }).count
-        let localInTail = ranked.dropFirst(scorers).contains { $0.isLocalPlayer }
-        let hidden = max(0, ranked.count - scorers - (localInTail ? 1 : 0))
+        // Always surface newcomers and your own row even when they sit in the 0-point tail.
+        let kept = Array(ranked.dropFirst(scorers).filter { $0.isNew || $0.isLocalPlayer })
+        let hidden = ranked.count - scorers - kept.count
         if showAllRanks || hidden == 0 {
             ForEach(ranked) { entryRow($0) }
             if hidden > 0 { rankToggle(expanded: true, hidden: hidden) }
         } else {
             ForEach(Array(ranked.prefix(scorers))) { entryRow($0) }
-            if let me = ranked.dropFirst(scorers).first(where: { $0.isLocalPlayer }) {
+            if !kept.isEmpty {
                 Divider()
-                entryRow(me)
+                ForEach(kept) { entryRow($0) }
             }
             rankToggle(expanded: false, hidden: hidden)
         }
@@ -195,12 +196,18 @@ struct LeaderboardContent: View {
     }
 }
 
-/// Today's point change for a player: green +N / red −N since this morning's baseline. Shows nothing
-/// when unchanged (0) or not yet established — newcomers start at 0 and their gains show from there.
+/// A player's status chip: a blue "NEW" pill if they joined the class today, otherwise today's point
+/// change (green +N / red −N). Shows nothing for an unchanged, already-known player.
 private struct DeltaBadge: View {
+    var isNew: Bool = false
     let delta: Int?
     var body: some View {
-        if let d = delta, d != 0 {
+        if isNew {
+            Text("NEW")
+                .font(.system(size: 9, weight: .bold))
+                .padding(.horizontal, 5).padding(.vertical, 1)
+                .background(.blue.opacity(0.15)).foregroundStyle(.blue).clipShape(Capsule())
+        } else if let d = delta, d != 0 {
             Text(d > 0 ? "+\(d)" : "\(d)")
                 .font(.caption2.monospacedDigit().weight(.semibold))
                 .foregroundStyle(d > 0 ? .green : .red)
@@ -243,7 +250,7 @@ struct MiniLeaderboardView: View {
                             Text(medal(e.rank))
                             Text(e.displayName).font(.caption).lineLimit(1)
                             Text("\(e.score)").font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
-                            DeltaBadge(delta: e.delta)
+                            DeltaBadge(isNew: e.isNew, delta: e.delta)
                         }
                         .padding(.horizontal, 10).padding(.vertical, 6)
                         .background(Color(.secondarySystemBackground)).clipShape(Capsule())

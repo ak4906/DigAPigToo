@@ -34,6 +34,7 @@ final class GameCenterManager: ObservableObject {
         let score: Int
         let isLocalPlayer: Bool
         var delta: Int? = nil   // points changed since this device last loaded the board (nil = new/unknown)
+        var isNew: Bool = false // joined the class leaderboard since today's start-of-day snapshot
     }
 
     /// Achievement IDs — create matching achievements in App Store Connect (see setup notes below).
@@ -156,33 +157,41 @@ final class GameCenterManager: ObservableObject {
                 for: .global, timeScope: .allTime, range: NSRange(location: 1, length: 100))
             totalPlayers = count
 
-            // DAILY point deltas vs a start-of-day baseline (holds all day, resets at local midnight).
-            // The baseline is EXTENDED LAZILY: any player seen for the first time today is added at
-            // their current score, so a newcomer — or anyone a partial earlier load missed — just
-            // starts at 0 rather than being mislabeled. Everything is guarded on a NON-EMPTY load, so a
-            // partial/empty fetch can never capture a bogus baseline (which once tagged all-but-me new).
+            // DAILY point deltas (vs a start-of-day baseline) + NEW-player detection. Both only update
+            // from a COMPLETE load — one where we actually fetched the whole class — so a partial Game
+            // Center fetch can never poison them (which once tagged all-but-me "new"). On the first
+            // complete load of the day we snapshot everyone (no one is new yet, deltas start at 0); on
+            // later complete loads, any player NOT in that snapshot joined today → NEW, and anyone's
+            // delta = current − their snapshot score. Resets at local midnight.
             var baseline = loadBaseline()
+            var newToday = loadNewToday()
+            let complete = !loaded.isEmpty && loaded.count >= min(count, 100)
             let lastDate = UserDefaults.standard.object(forKey: baselineDateKey) as? Date
             let newDay = lastDate == nil || !Calendar.current.isDate(lastDate!, inSameDayAs: Date())
-            if newDay && !loaded.isEmpty { baseline = [:] }        // fresh start line for the new day
-            var baselineChanged = newDay
-            for raw in loaded where baseline[raw.player.gamePlayerID] == nil {
-                baseline[raw.player.gamePlayerID] = raw.score; baselineChanged = true
-            }
-            if let l = local, baseline[l.player.gamePlayerID] == nil {
-                baseline[l.player.gamePlayerID] = l.score; baselineChanged = true
-            }
-            if baselineChanged && !loaded.isEmpty {
+            if complete {
+                if newDay {
+                    baseline = [:]; newToday = []                   // fresh start line for the new day
+                    for raw in loaded { baseline[raw.player.gamePlayerID] = raw.score }
+                    if let l = local { baseline[l.player.gamePlayerID] = l.score }
+                } else {
+                    for raw in loaded where baseline[raw.player.gamePlayerID] == nil {
+                        newToday.insert(raw.player.gamePlayerID)    // appeared since the morning snapshot → NEW
+                        baseline[raw.player.gamePlayerID] = raw.score
+                    }
+                    if let l = local, baseline[l.player.gamePlayerID] == nil { baseline[l.player.gamePlayerID] = l.score }
+                }
                 saveBaseline(baseline)
+                saveNewToday(newToday)
                 UserDefaults.standard.set(Date(), forKey: baselineDateKey)
             }
-            func withDelta(_ e: Entry) -> Entry {
+            func decorate(_ e: Entry) -> Entry {
                 var e = e
                 e.delta = baseline[e.id].map { e.score - $0 }
+                e.isNew = newToday.contains(e.id)
                 return e
             }
-            entries = loaded.map { withDelta(Self.makeEntry(from: $0)) }
-            localEntry = local.map { withDelta(Self.makeEntry(from: $0, forcedLocal: true)) }
+            entries = loaded.map { decorate(Self.makeEntry(from: $0)) }
+            localEntry = local.map { decorate(Self.makeEntry(from: $0, forcedLocal: true)) }
             statusMessage = entries.isEmpty ? "No scores yet — be the first!" : nil
         } catch {
             statusMessage = "Couldn't load leaderboard: \(error.localizedDescription)"
@@ -199,6 +208,14 @@ final class GameCenterManager: ObservableObject {
     }
     private func saveBaseline(_ snap: [String: Int]) {
         UserDefaults.standard.set(snap, forKey: baselineKey)
+    }
+    // Players flagged "new" today (joined since the day's start-of-day snapshot); cleared each new day.
+    private let newTodayKey = "DigAPigToo_LBNewToday_v2"
+    private func loadNewToday() -> Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: newTodayKey) ?? [])
+    }
+    private func saveNewToday(_ s: Set<String>) {
+        UserDefaults.standard.set(Array(s), forKey: newTodayKey)
     }
 
     private static func makeEntry(from e: GKLeaderboard.Entry, forcedLocal: Bool = false) -> Entry {
