@@ -166,11 +166,16 @@ final class GameCenterManager: ObservableObject {
             var baseline = loadBaseline()
             var newToday = loadNewToday()
             let complete = !loaded.isEmpty && loaded.count >= min(count, 100)
-            let lastDate = UserDefaults.standard.object(forKey: baselineDateKey) as? Date
+            let lastDate = loadBaselineDate()
             let newDay = lastDate == nil || !Calendar.current.isDate(lastDate!, inSameDayAs: Date())
             if complete {
-                if newDay {
-                    baseline = [:]; newToday = []                   // fresh start line for the new day
+                let wouldBeNew = loaded.reduce(0) { $0 + (baseline[$1.player.gamePlayerID] == nil ? 1 : 0) }
+                // Snapshot everyone and flag NO ONE when there's nothing trustworthy to diff against:
+                // a new day, an empty baseline (first launch / after a reinstall), or a suspicious mass
+                // of "new" players (a baseline glitch) — never tag the whole class new.
+                let freshStart = newDay || baseline.isEmpty || wouldBeNew > max(5, loaded.count / 3)
+                if freshStart {
+                    baseline = [:]; newToday = []
                     for raw in loaded { baseline[raw.player.gamePlayerID] = raw.score }
                     if let l = local { baseline[l.player.gamePlayerID] = l.score }
                 } else {
@@ -182,7 +187,7 @@ final class GameCenterManager: ObservableObject {
                 }
                 saveBaseline(baseline)
                 saveNewToday(newToday)
-                UserDefaults.standard.set(Date(), forKey: baselineDateKey)
+                saveBaselineDate(Date())
             }
             func decorate(_ e: Entry) -> Entry {
                 var e = e
@@ -198,24 +203,35 @@ final class GameCenterManager: ObservableObject {
         }
     }
 
-    // Start-of-day baseline for the leaderboard's daily point deltas (device-local; resets each day).
-    // _v2 keys discard any baseline captured by the earlier buggy build (which could poison it to
-    // "only me") so devices start clean.
+    // Start-of-day baseline (daily point deltas) + today's new-player set + the baseline date. Stored
+    // in the iCloud key-value store so they survive Xcode rebuilds / reinstalls during development (and
+    // stay consistent across the user's devices); resets each day. _v2 keys discard the earlier buggy
+    // build's data. (CloudSync degrades to a no-op without iCloud, which is fine.)
     private let baselineKey = "DigAPigToo_LBDailyBaseline_v2"
     private let baselineDateKey = "DigAPigToo_LBDailyBaselineDate_v2"
+    private let newTodayKey = "DigAPigToo_LBNewToday_v2"
     private func loadBaseline() -> [String: Int] {
-        (UserDefaults.standard.dictionary(forKey: baselineKey) ?? [:]).compactMapValues { $0 as? Int }
+        guard let d = CloudSync.data(forKey: baselineKey),
+              let m = try? JSONDecoder().decode([String: Int].self, from: d) else { return [:] }
+        return m
     }
     private func saveBaseline(_ snap: [String: Int]) {
-        UserDefaults.standard.set(snap, forKey: baselineKey)
+        CloudSync.set(try? JSONEncoder().encode(snap), forKey: baselineKey); _ = CloudSync.flush()
     }
-    // Players flagged "new" today (joined since the day's start-of-day snapshot); cleared each new day.
-    private let newTodayKey = "DigAPigToo_LBNewToday_v2"
     private func loadNewToday() -> Set<String> {
-        Set(UserDefaults.standard.stringArray(forKey: newTodayKey) ?? [])
+        guard let d = CloudSync.data(forKey: newTodayKey),
+              let a = try? JSONDecoder().decode([String].self, from: d) else { return [] }
+        return Set(a)
     }
     private func saveNewToday(_ s: Set<String>) {
-        UserDefaults.standard.set(Array(s), forKey: newTodayKey)
+        CloudSync.set(try? JSONEncoder().encode(Array(s)), forKey: newTodayKey); _ = CloudSync.flush()
+    }
+    private func loadBaselineDate() -> Date? {
+        let t = CloudSync.double(forKey: baselineDateKey)
+        return t > 0 ? Date(timeIntervalSinceReferenceDate: t) : nil
+    }
+    private func saveBaselineDate(_ date: Date) {
+        CloudSync.set(date.timeIntervalSinceReferenceDate, forKey: baselineDateKey); _ = CloudSync.flush()
     }
 
     private static func makeEntry(from e: GKLeaderboard.Entry, forcedLocal: Bool = false) -> Entry {
