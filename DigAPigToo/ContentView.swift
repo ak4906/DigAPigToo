@@ -2567,6 +2567,7 @@ struct QuizQuestionView: View {
         statsManager.record(structureName: q.structure.name, correct: correct,
                             kind: .multipleChoice, difficulty: session.difficulty,
                             responseTime: answerReactionTime)
+        CrowdStatsManager.shared.recordAnswer(questionID: q.structure.name, correct: correct)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { advance() }
     }
 
@@ -2598,6 +2599,7 @@ struct QuizQuestionView: View {
         quizSession = s
         statsManager.record(structureName: q.structure.name, correct: correct, kind: .writeIn,
                             responseTime: answerReactionTime)
+        CrowdStatsManager.shared.recordAnswer(questionID: q.structure.name, correct: correct)
         if correct {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { advance() }
         } else {
@@ -3784,6 +3786,7 @@ struct ExamStationView: View {
             // leaderboard practice score and per-structure accuracy, like the quiz does.
             if let name = updatedStation.items[idx].structure?.name {
                 StatsManager.shared.record(structureName: name, correct: correct, kind: .writeIn)
+                CrowdStatsManager.shared.recordAnswer(questionID: name, correct: correct)
             }
         }
         updatedStation.isSubmitted = true
