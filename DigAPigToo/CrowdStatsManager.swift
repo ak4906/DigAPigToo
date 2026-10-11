@@ -41,9 +41,14 @@ final class CrowdStatsManager: ObservableObject {
     private let db = CKContainer(identifier: "iCloud.cometzfly.DigAPigToo").publicCloudDatabase
     private let recordType = "QuestionStat"
     private let cacheKey = "DigAPigToo_CrowdStatsCache"
+    private let contributedKey = "DigAPigToo_CrowdContributed"
     private var inFlight: Set<String> = []   // de-dupe concurrent refreshes per question
+    /// Questions this user has already counted toward, so each person is counted ONCE per question —
+    /// the aggregate reflects unique students (and first-try accuracy), not how many times anyone drilled
+    /// it. Persisted local-first (works offline) and mirrored to iCloud so a reinstall doesn't double-vote.
+    private var contributed: Set<String> = []
 
-    private init() { loadCache() }
+    private init() { loadCache(); loadContributed() }
 
     /// The cached class stat for a question, once the sample is big enough to be meaningful. Also kicks
     /// off a background refresh so the cache stays current when online. Returns nil until there's data.
@@ -53,9 +58,20 @@ final class CrowdStatsManager: ObservableObject {
         return s
     }
 
+    /// Warm the cache for a batch of questions (e.g. a results screen) so their class percentages are
+    /// ready to show. Each refresh is best-effort + de-duped; no-ops cleanly offline.
+    func prefetch(_ questionIDs: [String]) {
+        for id in Set(questionIDs) { refresh(id) }
+    }
+
     /// Record one answer into the public aggregate (anonymous). Best-effort + offline-safe — with no
     /// network it silently no-ops and never blocks studying.
     func recordAnswer(questionID: String, correct: Bool) {
+        // One vote per user per question: only your FIRST answer counts, so `total` is the number of
+        // DIFFERENT students who've attempted it (and `correct` their first-try success), not raw volume.
+        guard !contributed.contains(questionID) else { return }
+        contributed.insert(questionID)          // optimistic — blocks a rapid repeat before the save lands
+        saveContributed()
         Task { await bump(questionID, correct: correct) }
     }
 
@@ -84,7 +100,9 @@ final class CrowdStatsManager: ObservableObject {
             cache[questionID] = QStat(correct: corr, total: total)
             saveCache()
         } catch {
-            // Offline, schema not deployed, or a save conflict — ignore (approximate by design).
+            // Offline, schema not deployed, or a save conflict: undo the optimistic mark so a later
+            // (online) answer can still count this user once. Approximate by design.
+            contributed.remove(questionID); saveContributed()
         }
     }
 
@@ -110,5 +128,16 @@ final class CrowdStatsManager: ObservableObject {
     }
     private func saveCache() {
         if let d = try? JSONEncoder().encode(cache) { UserDefaults.standard.set(d, forKey: cacheKey) }
+    }
+
+    private func loadContributed() {
+        guard let d = CloudSync.localData(forKey: contributedKey),
+              let a = try? JSONDecoder().decode([String].self, from: d) else { return }
+        contributed = Set(a)
+    }
+    private func saveContributed() {
+        if let d = try? JSONEncoder().encode(Array(contributed)) {
+            CloudSync.setLocal(d, forKey: contributedKey); _ = CloudSync.flush()
+        }
     }
 }

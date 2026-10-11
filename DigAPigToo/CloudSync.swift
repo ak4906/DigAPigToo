@@ -37,6 +37,28 @@ enum CloudSync {
 
     static func remove(forKey key: String) { store.removeObject(forKey: key) }
 
+    // MARK: - Local-first persistence (works offline AND with no iCloud account)
+    // UserDefaults is the guaranteed on-device store: it reads/writes with no network and no iCloud
+    // sign-in, and survives relaunch. We ALSO mirror to the iCloud KVS so the value can sync across the
+    // user's devices and come back after a reinstall when they do have iCloud. Reads prefer the local
+    // copy and fall back to iCloud — which is how a fresh install recovers a previously-synced value.
+    static func localData(forKey key: String) -> Data? {
+        UserDefaults.standard.data(forKey: key) ?? store.data(forKey: key)
+    }
+    static func setLocal(_ data: Data?, forKey key: String) {
+        if let data { UserDefaults.standard.set(data, forKey: key) }
+        else { UserDefaults.standard.removeObject(forKey: key) }
+        set(data, forKey: key)            // mirror to iCloud KVS (best-effort; no-op offline/without iCloud)
+    }
+    static func localDouble(forKey key: String) -> Double {
+        if UserDefaults.standard.object(forKey: key) != nil { return UserDefaults.standard.double(forKey: key) }
+        return store.double(forKey: key)
+    }
+    static func setLocal(_ value: Double, forKey key: String) {
+        UserDefaults.standard.set(value, forKey: key)
+        set(value, forKey: key)
+    }
+
     /// Best-effort push of pending local writes toward iCloud. Returns false when
     /// the store is unavailable (e.g. capability off / not signed in). Records the
     /// time on success so the iCloud Sync page can show "last synced".

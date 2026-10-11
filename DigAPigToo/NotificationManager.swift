@@ -147,7 +147,7 @@ final class NotificationManager: ObservableObject {
             try? await Task.sleep(nanoseconds: 3_000_000_000)   // give a cached GC session a moment
         }
         guard gc.isAuthenticated else { return }
-        await gc.loadLeaderboard()   // daily delta baseline only resets at midnight, so this is safe to call
+        await gc.loadLeaderboard(foreground: false)   // background: must NOT move the user's point-delta baseline
         if let me = gc.localEntry { recordRank(me.rank, total: gc.totalPlayers, fromBackground: true) }
     }
 }

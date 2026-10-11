@@ -2656,6 +2656,7 @@ struct QuizResultsView: View {
     let quizSession: QuizSession
     let dismiss: DismissAction
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @StateObject private var crowd = CrowdStatsManager.shared
 
     var attempted: Int { quizSession.answerHistory.count }
     var total: Int { quizSession.questions.count }
@@ -2738,10 +2739,31 @@ struct QuizResultsView: View {
                     }
                 }
             }
+            crowdStatLine(record)
         }
         .padding(8)
         .background(record.wasCorrect ? Color.green.opacity(0.05) : Color.red.opacity(0.06))
         .cornerRadius(10)
+    }
+
+    // UWorld-style class comparison: how much of the class got this question right. Read from the
+    // local crowd-stats cache (last-seen numbers offline, refreshed when online) and only shown once
+    // enough classmates have answered to be meaningful. Beating a question most of the class missed
+    // is highlighted as a small win.
+    @ViewBuilder private func crowdStatLine(_ record: AnswerRecord) -> some View {
+        if let s = crowd.cache[record.structureName], s.total >= CrowdStatsManager.minSample {
+            let pct = s.correctPct
+            let flex = record.wasCorrect && pct <= 50   // you got one most of the class missed
+            HStack(spacing: 5) {
+                Image(systemName: "person.3.fill").font(.caption2)
+                Text(flex ? "Nice — only \(pct)% of the class got this right"
+                          : "\(pct)% of the class got this right")
+                    .font(.caption2)
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(flex ? Color.green : Color.secondary)
+            .padding(.top, 1)
+        }
     }
 
     /// Which structure a wrong answer points to: an exact name match (multiple choice), or
@@ -2860,6 +2882,7 @@ struct QuizResultsView: View {
         }
         .navigationTitle("Results")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { crowd.prefetch(quizSession.answerHistory.map { $0.structureName }) }
     }
 }
 
@@ -4217,6 +4240,7 @@ struct ExamResultsView: View {
     /// (stationIndex, itemIndex) → bump the score and mark that item correct.
     var onOverride: ((Int, Int) -> Void)? = nil
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @StateObject private var crowd = CrowdStatsManager.shared
 
     var total: Int { session.totalItems }
     var pct: Int { total > 0 ? Int(Double(session.score) / Double(total) * 100) : 0 }
@@ -4277,6 +4301,7 @@ struct ExamResultsView: View {
                                                 Text(item.correctAnswerDisplay).font(.caption).fontWeight(.semibold)
                                             }
                                             WrongAnswerFeedback(item: item, structures: dataManager.structures)
+                                            examCrowdLine(item)
                                             // Self-override for the conceptual B/C/D slots marked wrong.
                                             if !item.wasCorrect && item.allowsSelfOverride {
                                                 Button { onOverride?(idx, itemIdx) } label: {
@@ -4315,6 +4340,27 @@ struct ExamResultsView: View {
         }
         .navigationTitle("Exam Results")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            crowd.prefetch(session.stations.flatMap { $0.items.compactMap { $0.structure?.name } })
+        }
+    }
+
+    // How much of the class got this item right (structure-backed items only), from the crowd-stats
+    // cache. Shown only once the sample is meaningful; beating a widely-missed item is highlighted.
+    @ViewBuilder private func examCrowdLine(_ item: ExamItem) -> some View {
+        if let name = item.structure?.name,
+           let s = crowd.cache[name], s.total >= CrowdStatsManager.minSample {
+            let pct = s.correctPct
+            let flex = item.wasCorrect && pct <= 50
+            HStack(spacing: 4) {
+                Image(systemName: "person.3.fill").font(.system(size: 9))
+                Text(flex ? "Only \(pct)% of the class got this"
+                          : "\(pct)% of the class got this")
+                    .font(.caption2)
+            }
+            .foregroundStyle(flex ? Color.green : Color.secondary)
+            .padding(.top, 1)
+        }
     }
 }
 
