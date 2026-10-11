@@ -22,6 +22,7 @@ struct LeaderboardContent: View {
     @StateObject private var cards = FlashcardManager.shared
     @StateObject private var quiz = StatsManager.shared
     @State private var showAllRanks = false   // collapse the 0-point tail by default
+    @State private var selectedPlayer: GameCenterManager.Entry?   // tapped row → score-breakdown sheet
 
     var body: some View {
         let m = MasteryScore.current()
@@ -36,6 +37,7 @@ struct LeaderboardContent: View {
             // care about ranking), so the default-on rank alerts can actually be delivered.
             Task { await NotificationManager.shared.requestAuthorizationIfEnabled() }
         }
+        .sheet(item: $selectedPlayer) { PlayerProfileView(entry: $0) }
     }
 
     @ViewBuilder
@@ -137,22 +139,27 @@ struct LeaderboardContent: View {
     }
 
     private func entryRow(_ e: GameCenterManager.Entry) -> some View {
-        HStack(spacing: 12) {
-            Text(medal(e.rank))
-                .font(.subheadline.monospacedDigit().weight(.semibold))
-                .frame(minWidth: 30, alignment: .trailing)
-            Text(e.displayName)
-                .font(.subheadline.weight(e.isLocalPlayer ? .bold : .regular))
-                .lineLimit(1)
-            if e.isLocalPlayer {
-                Text("You").font(.caption2.bold())
-                    .padding(.horizontal, 6).padding(.vertical, 1)
-                    .background(.indigo.opacity(0.15)).foregroundStyle(.indigo).clipShape(Capsule())
+        Button { selectedPlayer = e } label: {
+            HStack(spacing: 12) {
+                Text(medal(e.rank))
+                    .font(.subheadline.monospacedDigit().weight(.semibold))
+                    .frame(minWidth: 30, alignment: .trailing)
+                Text(e.displayName)
+                    .font(.subheadline.weight(e.isLocalPlayer ? .bold : .regular))
+                    .lineLimit(1)
+                if e.isLocalPlayer {
+                    Text("You").font(.caption2.bold())
+                        .padding(.horizontal, 6).padding(.vertical, 1)
+                        .background(.indigo.opacity(0.15)).foregroundStyle(.indigo).clipShape(Capsule())
+                }
+                Spacer()
+                DeltaBadge(isNew: e.isNew, delta: e.delta)
+                Text("\(e.score)").font(.subheadline.monospacedDigit().weight(.semibold))
+                Image(systemName: "chevron.right").font(.caption2).foregroundStyle(.tertiary)
             }
-            Spacer()
-            DeltaBadge(isNew: e.isNew, delta: e.delta)
-            Text("\(e.score)").font(.subheadline.monospacedDigit().weight(.semibold))
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
         .listRowBackground(e.isLocalPlayer ? Color.indigo.opacity(0.08) : nil)
     }
 
@@ -223,19 +230,24 @@ struct MiniLeaderboardView: View {
     @StateObject private var traces = TraceProgressManager.shared
     @StateObject private var cards = FlashcardManager.shared
     @StateObject private var quiz = StatsManager.shared
+    @State private var selectedPlayer: GameCenterManager.Entry?   // tapped chip → score-breakdown sheet
 
     var body: some View {
         let m = MasteryScore.current()
         let topN = Array(gc.entries.prefix(10))
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                // Your own score.
-                HStack(spacing: 5) {
-                    Image(systemName: "trophy.fill").font(.caption2).foregroundStyle(.indigo)
-                    Text("You: \(m.score)").font(.caption.bold()).monospacedDigit()
+                // Your own score — tap to see your own breakdown (when the board has loaded you).
+                Button { if let me = gc.localEntry { selectedPlayer = me } } label: {
+                    HStack(spacing: 5) {
+                        Image(systemName: "trophy.fill").font(.caption2).foregroundStyle(.indigo)
+                        Text("You: \(m.score)").font(.caption.bold()).monospacedDigit()
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .background(.indigo.opacity(0.12)).clipShape(Capsule())
+                    .contentShape(Capsule())
                 }
-                .padding(.horizontal, 10).padding(.vertical, 6)
-                .background(.indigo.opacity(0.12)).clipShape(Capsule())
+                .buttonStyle(.plain)
 
                 if !gc.isAuthenticated {
                     Button { gc.authenticate() } label: {
@@ -246,14 +258,18 @@ struct MiniLeaderboardView: View {
                     Text("No rankings yet").font(.caption).foregroundStyle(.secondary)
                 } else {
                     ForEach(topN) { e in
-                        HStack(spacing: 4) {
-                            Text(medal(e.rank))
-                            Text(e.displayName).font(.caption).lineLimit(1)
-                            Text("\(e.score)").font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
-                            DeltaBadge(isNew: e.isNew, delta: e.delta)
+                        Button { selectedPlayer = e } label: {
+                            HStack(spacing: 4) {
+                                Text(medal(e.rank))
+                                Text(e.displayName).font(.caption).lineLimit(1)
+                                Text("\(e.score)").font(.caption2.monospacedDigit()).foregroundStyle(.secondary)
+                                DeltaBadge(isNew: e.isNew, delta: e.delta)
+                            }
+                            .padding(.horizontal, 10).padding(.vertical, 6)
+                            .background(Color(.secondarySystemBackground)).clipShape(Capsule())
+                            .contentShape(Capsule())
                         }
-                        .padding(.horizontal, 10).padding(.vertical, 6)
-                        .background(Color(.secondarySystemBackground)).clipShape(Capsule())
+                        .buttonStyle(.plain)
                     }
                 }
                 if gc.totalPlayers > 0 {
@@ -275,6 +291,7 @@ struct MiniLeaderboardView: View {
             gc.authenticate()
             Task { await gc.refresh() }
         }
+        .sheet(item: $selectedPlayer) { PlayerProfileView(entry: $0) }
     }
 
     private func medal(_ rank: Int) -> String {
@@ -283,6 +300,118 @@ struct MiniLeaderboardView: View {
         case 2: return "🥈"
         case 3: return "🥉"
         default: return "\(rank)."
+        }
+    }
+}
+
+// MARK: - Player profile (tap a name on the leaderboard)
+
+/// A tapped classmate's score breakdown — Physical IDs / Traces / Fill-ins / Practice — plus how long
+/// they've been studying. Your own row shows instantly from local data; others load from CloudKit.
+struct PlayerProfileView: View {
+    let entry: GameCenterManager.Entry
+    @StateObject private var profiles = PlayerProfileManager.shared
+    @StateObject private var data = AnatomyDataManager.shared
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if let p = profiles.profile(for: entry) {
+                    headerSection(p)
+                    breakdownSection(p)
+                    tenureSection(p)
+                } else if profiles.fetching.contains(entry.id) {
+                    HStack { Spacer(); ProgressView(); Spacer() }
+                        .listRowBackground(Color.clear)
+                } else {
+                    Text("No breakdown yet — \(entry.displayName) hasn't opened a version that shares one.")
+                        .font(.callout).foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle(entry.displayName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+        }
+        .presentationDetents([.medium, .large])
+        .onAppear { profiles.fetch(entry) }
+    }
+
+    @ViewBuilder private func headerSection(_ p: PlayerProfileManager.Profile) -> some View {
+        Section {
+            VStack(spacing: 4) {
+                Text(rankLabel(entry.rank)).font(.title3.weight(.semibold))
+                Text("\(p.score)")
+                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .foregroundStyle(.indigo)
+                Text("total mastery score").font(.caption).foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity).padding(.vertical, 4)
+        }
+    }
+
+    @ViewBuilder private func breakdownSection(_ p: PlayerProfileManager.Profile) -> some View {
+        Section("Score breakdown") {
+            row("Physical IDs", p.idMastered, data.structures.count, p.idPts, .blue)
+            row("Traces", p.traceMastered, data.traces.count, p.tracePts, .teal)
+            row("Fill-ins", p.fillMastered, data.fillBlanks.count, p.fillPts, .purple)
+            practiceRow(p.practicePts)
+        }
+    }
+
+    private func row(_ title: String, _ mastered: Int, _ total: Int, _ points: Int, _ color: Color) -> some View {
+        let frac = total > 0 ? Double(mastered) / Double(total) : 0
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(title).font(.subheadline)
+                Spacer()
+                Text("\(mastered)/\(total) mastered · \(points) pts")
+                    .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+            }
+            bar(frac, color)
+        }.padding(.vertical, 2)
+    }
+
+    private func practiceRow(_ points: Int) -> some View {
+        let maxP = Int(MasteryScore.volumeCap + MasteryScore.accuracyCap + MasteryScore.examCap)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("Practice").font(.subheadline)
+                Spacer()
+                Text("\(points)/\(maxP) pts").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+            }
+            bar(maxP > 0 ? min(1, Double(points) / Double(maxP)) : 0, .orange)
+        }.padding(.vertical, 2)
+    }
+
+    private func bar(_ frac: Double, _ color: Color) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 3).fill(.gray.opacity(0.15)).frame(height: 6)
+                RoundedRectangle(cornerRadius: 3).fill(color).frame(width: geo.size.width * frac, height: 6)
+            }
+        }.frame(height: 6)
+    }
+
+    @ViewBuilder private func tenureSection(_ p: PlayerProfileManager.Profile) -> some View {
+        Section {
+            Label("Member since \(p.firstSeen.formatted(.dateTime.month(.wide).year()))", systemImage: "calendar")
+                .font(.subheadline)
+            Label("Joined \(p.firstSeen.formatted(.relative(presentation: .named)))", systemImage: "clock")
+                .font(.caption).foregroundStyle(.secondary)
+            if !entry.isLocalPlayer {
+                Label("Last active \(p.lastActive.formatted(.relative(presentation: .named)))", systemImage: "bolt.fill")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func rankLabel(_ rank: Int) -> String {
+        switch rank {
+        case 1: return "🥇 1st place"
+        case 2: return "🥈 2nd place"
+        case 3: return "🥉 3rd place"
+        default: return "Rank #\(rank)"
         }
     }
 }

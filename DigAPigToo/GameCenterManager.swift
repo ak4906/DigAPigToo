@@ -99,6 +99,9 @@ final class GameCenterManager: ObservableObject {
         } catch {
             statusMessage = "Couldn't submit score: \(error.localizedDescription)"
         }
+        // Publish our score breakdown so classmates can view it when they tap our name (independent of
+        // the leaderboard submit; best-effort + offline-safe).
+        PlayerProfileManager.shared.publishLocalProfile()
     }
 
     /// Refresh: resubmit the latest score, report milestone achievements, reload the ranked entries.
