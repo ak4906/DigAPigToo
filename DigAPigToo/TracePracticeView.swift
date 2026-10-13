@@ -28,6 +28,7 @@ struct TracePracticeView: View {
     @State private var scored = false            // this step has been counted (right/wrong)
     @State private var selected: String? = nil   // MC choice
     @State private var typed = ""                // write-in text
+    @State private var writeInCorrect: Bool? = nil   // write-in auto-grade result (nil = not graded yet)
     @State private var gotCount = 0
     @State private var missedSteps: [Int] = []   // step indices answered wrong / missed
     @State private var options: [String] = []    // MC options for the current step
@@ -120,15 +121,15 @@ struct TracePracticeView: View {
                         .numberKeyShortcut(i)
                     }
                 } else {
-                    TextField("Type the next step…", text: $typed, axis: .vertical)
+                    TextField("Type the next step…", text: $typed)
                         .textFieldStyle(.roundedBorder)
                         .autocorrectionDisabled()
                         .focused($fieldFocused)
-                    Button("Reveal Answer") { answered = true; fieldFocused = false }
+                        .submitLabel(.done)
+                        .onSubmit { submitWriteIn(step) }   // Return instantly checks, like the quiz / fill-in
+                    Button("Check Answer") { submitWriteIn(step) }
                         .buttonStyle(.borderedProminent).tint(.indigo)
                         .frame(maxWidth: .infinity)
-                        // Hardware keyboard: space reveals (when the text field isn't focused).
-                        .keyboardShortcut(.space, modifiers: [])
                 }
             }
         }
@@ -219,29 +220,27 @@ struct TracePracticeView: View {
                 .font(.subheadline)
                 .foregroundStyle(selected == step.text ? .green : .red)
         }
-        if style == .writeIn && !typed.trimmingCharacters(in: .whitespaces).isEmpty {
-            Text("You wrote: \(typed)").font(.caption).foregroundStyle(.secondary)
+        if style == .writeIn, let ok = writeInCorrect {
+            Label(ok ? "Correct!" : "Not quite", systemImage: ok ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .font(.subheadline).foregroundStyle(ok ? .green : .red)
+            if !typed.trimmingCharacters(in: .whitespaces).isEmpty {
+                Text("You wrote: \(typed)").font(.caption).foregroundStyle(.secondary)
+            }
+            // Safety valve for the fuzzy auto-check on a free-form step.
+            if !ok {
+                Button { markWriteInCorrect() } label: {
+                    Label("I actually got it right", systemImage: "checkmark").font(.caption)
+                }
+                .buttonStyle(.bordered).tint(.green).controlSize(.small)
+            }
         }
 
-        // Advance controls.
-        if style == .writeIn && !scored {
-            HStack(spacing: 10) {
-                Button { gotCount += 1; scored = true; advance() } label: {
-                    Label("I got it right", systemImage: "checkmark").frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent).tint(.green)
-                Button { missedSteps.append(stepIndex); scored = true; advance() } label: {
-                    Label("Missed it", systemImage: "xmark").frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered).tint(.red)
-            }
-        } else {
-            Button(stepIndex + 1 < steps.count ? "Next Step →" : "See Results") { advance() }
-                .buttonStyle(.borderedProminent).tint(.indigo)
-                .frame(maxWidth: .infinity)
-                // Hardware keyboard: Return advances to the next step / results.
-                .keyboardShortcut(.return, modifiers: [])
-        }
+        // Advance (both styles are graded before the reveal, so this just moves on).
+        Button(stepIndex + 1 < steps.count ? "Next Step →" : "See Results") { advance() }
+            .buttonStyle(.borderedProminent).tint(.indigo)
+            .frame(maxWidth: .infinity)
+            // Hardware keyboard: Return advances to the next step / results.
+            .keyboardShortcut(.return, modifiers: [])
     }
 
     // MARK: Completion
@@ -329,7 +328,49 @@ struct TracePracticeView: View {
         scored = false
         selected = nil
         typed = ""
+        writeInCorrect = nil
         showAllPrev = false
+    }
+
+    /// Write-in: fuzzy auto-check the typed answer (Return or the button), reveal, and score — no
+    /// manual self-grading. An empty entry just reveals the answer (counts as missed).
+    private func submitWriteIn(_ step: TraceStep) {
+        guard !answered else { return }
+        let ok = traceStepAccepts(typed, step: step, structures: stepStructures[step.id] ?? [])
+        writeInCorrect = ok
+        if ok { gotCount += 1 } else { missedSteps.append(stepIndex) }
+        scored = true
+        fieldFocused = false
+        withAnimation(.easeInOut(duration: 0.2)) { answered = true }
+    }
+
+    /// Safety valve for the fuzzy check on a free-form step: flip a wrong auto-grade to correct.
+    private func markWriteInCorrect() {
+        guard writeInCorrect == false else { return }
+        if missedSteps.last == stepIndex { missedSteps.removeLast() }
+        gotCount += 1
+        writeInCorrect = true
+    }
+
+    /// Lenient auto-check for a write-in step: match the typed answer against the step's linked
+    /// structures (same fuzzy logic as the quiz) and the step's lead term — so no self-grading.
+    private func traceStepAccepts(_ raw: String, step: TraceStep, structures: [AnatomyStructure]) -> Bool {
+        let t = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard t.count >= 2 else { return false }
+        for s in structures where s.accepts(answer: t) { return true }
+        for key in traceStepKeyTerms(step.text) where ExamItem.matchesLeniently(t, against: key) { return true }
+        return false
+    }
+
+    /// Candidate answer phrases from a step's text: the whole line and the lead term before a
+    /// bracket / dash / colon / semicolon (so "Cecum (blind pouch…)" accepts "cecum").
+    private func traceStepKeyTerms(_ text: String) -> [String] {
+        var out = [text]
+        if let idx = text.firstIndex(where: { "(—–:;".contains($0) }) {
+            let lead = String(text[..<idx]).trimmingCharacters(in: .whitespaces)
+            if !lead.isEmpty { out.append(lead) }
+        }
+        return out
     }
 
     private func restart() {

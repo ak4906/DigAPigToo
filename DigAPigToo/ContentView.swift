@@ -4829,6 +4829,7 @@ enum StatsMode: String, CaseIterable {
     case quiz = "Quiz"
     case flashcards = "Cards"
     case fillins = "Fill-Ins"
+    case traces = "Traces"
     case ranking = "Ranking"
 }
 
@@ -4836,8 +4837,10 @@ struct StatsView: View {
     @StateObject private var stats = StatsManager.shared
     @StateObject private var dataManager = AnatomyDataManager.shared
     @StateObject private var fillProgress = FillBlankProgressManager.shared
+    @StateObject private var traceProgress = TraceProgressManager.shared
     @State private var showResetConfirm = false
     @State private var showFillResetConfirm = false
+    @State private var showTraceResetConfirm = false
     @State private var mode: StatsMode = .quiz
 
     var body: some View {
@@ -4848,6 +4851,7 @@ struct StatsView: View {
                 quizStats.tag(StatsMode.quiz)
                 FlashcardStatsContent().tag(StatsMode.flashcards)
                 fillinStats.tag(StatsMode.fillins)
+                tracesStats.tag(StatsMode.traces)
                 LeaderboardContent().tag(StatsMode.ranking)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -4859,7 +4863,7 @@ struct StatsView: View {
                         ForEach(StatsMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 320)
+                    .frame(maxWidth: 380)
                 }
             }
         }
@@ -5097,6 +5101,118 @@ struct StatsView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This clears mastery and scheduling for every fill-in. This cannot be undone.")
+        }
+    }
+
+    @ViewBuilder
+    private var tracesStats: some View {
+        let all = dataManager.traces
+        let practiced = all.filter { (traceProgress.progress[$0.title]?.attempts ?? 0) > 0 }
+        Group {
+            if practiced.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "arrow.right.circle").font(.system(size: 52)).foregroundStyle(.secondary)
+                    Text("No trace data yet").font(.headline)
+                    Text("Practice a trace on the Traces tab to start tracking mastery.")
+                        .font(.subheadline).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                }
+                .padding()
+            } else {
+                List {
+                    // Overall
+                    let mastered = traceProgress.masteredCount(in: all)
+                    let credit = traceProgress.creditSum(in: all)
+                    let coverage = all.isEmpty ? 0 : credit / Double(all.count)
+                    Section("Overall") {
+                        HStack {
+                            Label("Practiced", systemImage: "arrow.right.circle.fill")
+                            Spacer()
+                            Text("\(practiced.count) / \(all.count)").fontWeight(.semibold)
+                        }
+                        HStack {
+                            Label("Mastered (perfect run)", systemImage: "checkmark.seal.fill")
+                            Spacer()
+                            Text("\(mastered) / \(all.count)").fontWeight(.semibold).foregroundStyle(.green)
+                        }
+                        HStack {
+                            Label("Step coverage", systemImage: "percent")
+                            Spacer()
+                            Text("\(Int(coverage * 100))%")
+                                .fontWeight(.semibold)
+                                .foregroundStyle(coverage >= 0.75 ? .green : coverage >= 0.5 ? .orange : .red)
+                        }
+                    }
+
+                    // By category (least mastered first)
+                    let catRows: [(cat: String, mastered: Int, total: Int)] = dataManager.traceCategories.map { c in
+                        let ts = dataManager.traces(in: c)
+                        return (c, traceProgress.masteredCount(in: ts), ts.count)
+                    }.filter { $0.total > 0 }.sorted { $0.mastered * $1.total < $1.mastered * $0.total }
+                    if !catRows.isEmpty {
+                        Section("By Category (least mastered first)") {
+                            ForEach(catRows, id: \.cat) { row in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Text(row.cat).font(.subheadline)
+                                        Spacer()
+                                        Text("\(row.mastered)/\(row.total) mastered")
+                                            .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+                                    }
+                                    GeometryReader { geo in
+                                        let frac = row.total > 0 ? Double(row.mastered) / Double(row.total) : 0
+                                        ZStack(alignment: .leading) {
+                                            RoundedRectangle(cornerRadius: 3).fill(.gray.opacity(0.15)).frame(height: 5)
+                                            RoundedRectangle(cornerRadius: 3).fill(Color.teal)
+                                                .frame(width: geo.size.width * frac, height: 5)
+                                        }
+                                    }
+                                    .frame(height: 5)
+                                }
+                                .padding(.vertical, 2)
+                            }
+                        }
+                    }
+
+                    // Keep working: practiced but not yet perfected, lowest best-run fraction first
+                    let weak = practiced
+                        .filter { !traceProgress.isPerfected($0) }
+                        .map { t -> (trace: TraceQuestion, best: Int, frac: Double) in
+                            let steps = max(t.steps.count, 1)
+                            let best = traceProgress.progress[t.title]?.bestCorrect ?? 0
+                            return (t, best, Double(best) / Double(steps))
+                        }
+                        .sorted { $0.frac < $1.frac }
+                        .prefix(15)
+                    if !weak.isEmpty {
+                        Section("Keep Working — Not Yet Perfected") {
+                            ForEach(Array(weak), id: \.trace.id) { item in
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(item.trace.title).font(.subheadline)
+                                        Text("best run: \(item.best)/\(item.trace.steps.count) steps · \(item.trace.category)")
+                                            .font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                                    }
+                                    Spacer()
+                                    Text("\(Int(item.frac * 100))%")
+                                        .font(.subheadline.monospacedDigit())
+                                        .foregroundStyle(item.frac >= 0.75 ? .orange : .red)
+                                }
+                                .padding(.vertical, 1)
+                            }
+                        }
+                    }
+
+                    Section {
+                        Button("Reset Trace Progress", role: .destructive) { showTraceResetConfirm = true }
+                    }
+                }
+            }
+        }
+        .confirmationDialog("Reset all trace progress?", isPresented: $showTraceResetConfirm, titleVisibility: .visible) {
+            Button("Reset", role: .destructive) { traceProgress.reset() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This clears practice history and mastery for every trace. This cannot be undone.")
         }
     }
 }
