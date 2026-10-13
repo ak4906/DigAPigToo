@@ -131,12 +131,14 @@ final class GameCenterManager: ObservableObject {
         }
         let totalMastered = m.idMastered + m.traceMastered + m.fillMastered
         add(Achievement.firstMastery.rawValue, percent: totalMastered > 0 ? 100 : 0)
-        add(Achievement.idsHalf.rawValue,    percent: m.idFrac / 0.5 * 100)
-        add(Achievement.idsAll.rawValue,     percent: m.idFrac * 100)
-        add(Achievement.tracesHalf.rawValue, percent: m.traceFrac / 0.5 * 100)
-        add(Achievement.tracesAll.rawValue,  percent: m.traceFrac * 100)
-        add(Achievement.fillsHalf.rawValue,  percent: m.fillFrac / 0.5 * 100)
-        add(Achievement.fillsAll.rawValue,   percent: m.fillFrac * 100)
+        // "Half / all mastered" keys off the fully-MASTERED counts (not partial credit), so the badge
+        // matches the "X / Y mastered" shown on the Ranking screen.
+        add(Achievement.idsHalf.rawValue,    percent: m.idMasteredFrac / 0.5 * 100)
+        add(Achievement.idsAll.rawValue,     percent: m.idMasteredFrac * 100)
+        add(Achievement.tracesHalf.rawValue, percent: m.traceMasteredFrac / 0.5 * 100)
+        add(Achievement.tracesAll.rawValue,  percent: m.traceMasteredFrac * 100)
+        add(Achievement.fillsHalf.rawValue,  percent: m.fillMasteredFrac / 0.5 * 100)
+        add(Achievement.fillsAll.rawValue,   percent: m.fillMasteredFrac * 100)
         if ContributionManager.hasContributed { add(Achievement.contributor.rawValue, percent: 100) }
         guard !list.isEmpty else { return }
         do { try await GKAchievement.report(list) }
@@ -163,59 +165,72 @@ final class GameCenterManager: ObservableObject {
                 for: .global, timeScope: .allTime, range: NSRange(location: 1, length: 100))
             totalPlayers = count
 
-            // SINCE-LAST-VISIT point deltas + NEW-player flags, built for people who don't open the app
-            // every day. The comparison point ("baseline") for everything you see on a given day is the
-            // snapshot of scores from your PREVIOUS visit — so when you come back after a gap you get the
-            // whole pile of changes since you were last here (e.g. a big "+40", several "NEW"), not just
-            // today's trickle. That baseline is frozen for the day; your next visit on a LATER day promotes
-            // what you're seeing now into the new baseline, and the pile starts accumulating again. A
-            // player absent from your last-visit snapshot joined since → NEW. Only COMPLETE foreground
-            // loads move these — a partial fetch can't poison them (which once tagged all-but-me "new"),
-            // and a background load you never saw never moves your reference point.
-            var baseline = loadBaseline()
-            let lastSeen = loadLastSeen()
-            let complete = !loaded.isEmpty && loaded.count >= min(count, 100)
-            let lastDate = loadBaselineDate()
-            let newDay = lastDate == nil || !Calendar.current.isDate(lastDate!, inSameDayAs: Date())
+            // DAILY point deltas (+N/−N) and NEW flags — see the persistence helpers below for storage.
+            // NEW works EXACTLY like the deltas, as requested:
+            //  • On the FIRST launch (before it knows anyone) it just LEARNS the current roster + scores and
+            //    flags nobody / shows no deltas — like a 300-point player reading "300", not "+300".
+            //  • After that, any score change shows as +N and any NAME not in the learned roster shows as
+            //    NEW. Both ACCUMULATE and persist across refreshes and relaunches within the day.
+            //  • At the next day's first open it resets: the delta window re-bases to ≈ the day's start and
+            //    the roster folds in your previous login's players, so yesterday's deltas/NEW clear and it
+            //    watches for fresh changes. Skip days → you see everything since you were last in.
+            //  • Self-heal (your "if EVERYONE would be new, disregard"): if the stored roster is empty or so
+            //    stale it would flag EVERY other player (e.g. it ever collapsed to just you), we re-learn the
+            //    current roster and flag nobody, instead of tagging the whole class new.
+            // The window + roster advance only on a COMPLETE, FOREGROUND load (a partial fetch or a
+            // background refresh you never saw can't move the reference point). All of it lives in one
+            // atomic-file-backed blob (see loadLBState/saveLBState) so it survives a force-quit.
+            // NOTE: the delta/NEW maps are keyed by the player's Game Center NICKNAME (displayName), not
+            // gamePlayerID. Game Center can re-provision a player's gamePlayerID on a fresh launch — it's
+            // only guaranteed stable WITHIN a session — which made the saved window stop matching after a
+            // force-quit, zeroing every delta. A nickname is stable across launches (it's what you see).
+            var state = loadLBState()
+            var windowStart = state.windowStart         // scores when the current day's window began
+            var known = Set(state.known)                // the roster you've already "met" (→ not new)
+            let lastSeen = state.lastSeen               // scores at your previous login (≈ that day's end)
+            let localName = GKLocalPlayer.local.displayName
+            let hasOthers = loaded.contains { $0.player.displayName != localName }
+            let complete = !loaded.isEmpty && loaded.count >= min(count, 100) && (count <= 1 || hasOthers)
+            let lastDay = state.cycleDay > 0 ? Date(timeIntervalSinceReferenceDate: state.cycleDay) : nil
+            let newDay = lastDay == nil || !Calendar.current.isDate(lastDay!, inSameDayAs: Date())
             if complete && foreground {
-                // The whole class (plus you) exactly as it looks right now.
                 var seen: [String: Int] = [:]
-                for raw in loaded { seen[raw.player.gamePlayerID] = raw.score }
-                if let l = local { seen[l.player.gamePlayerID] = l.score }
-                // On a new day — or any time we don't yet have a reference — promote your LAST-VISIT scores
-                // to be today's baseline, so the ENTIRE pile that built up since you were last here (what's
-                // been going on while you were away, e.g. "+40", several "NEW") is already there the moment
-                // you open, instead of the app only counting from this open. On a genuine first run there's
-                // nothing earlier to diff against, so seed from the current scores and accrue from here.
-                if newDay || baseline.isEmpty {
-                    baseline = lastSeen.isEmpty ? seen : lastSeen
-                    saveBaseline(baseline)
-                    saveBaselineDate(Date())
+                for raw in loaded { seen[raw.player.displayName] = raw.score }
+                if let l = local { seen[l.player.displayName] = l.score }
+                let seenNames = Set(seen.keys)
+                let otherNames = seenNames.subtracting([localName])
+                // Learn fresh when there's no window yet (first launch) OR the roster is bogus — empty, or
+                // it would flag every single other player (collapsed / left over from an old build). Learn
+                // the current roster + scores, flag nobody, and start every delta at 0.
+                let rosterBogus = known.isEmpty || (!otherNames.isEmpty && otherNames.subtracting(known).count == otherNames.count)
+                if windowStart.isEmpty || rosterBogus {
+                    known = seenNames
+                    windowStart = seen
+                } else if newDay {
+                    // Next-day reset: fold your previous login's players into the roster (they stop being
+                    // new) and re-base the delta window to those last-seen scores (≈ the new day's start).
+                    known.formUnion(Set(lastSeen.keys))
+                    windowStart = lastSeen.isEmpty ? seen : lastSeen
                 }
-                // Remember what you're seeing now; it becomes the reference on your next new-day visit.
-                saveLastSeen(seen)
+                // Otherwise (same day) the window + roster are left alone so deltas and NEW accumulate.
+                // Persist everything in one durable write.
+                state.windowStart = windowStart
+                state.known = Array(known)
+                state.lastSeen = seen
+                state.cycleDay = Date().timeIntervalSinceReferenceDate
+                saveLBState(state)
             }
-            // NEW = present now but absent from your last-visit snapshot (→ joined since). Nothing to
-            // compare against on a genuine first run (empty baseline) → no deltas, no NEW.
-            let hasBaseline = !baseline.isEmpty
-            // First-launch / untrustworthy-baseline guard: ONLY if literally EVERY other player on the
-            // board would be tagged "NEW" at once (baseline empty, stale, or poisoned to just your own ID)
-            // is it bogus — then flag no one. You're always excluded (never "new" to yourself), so the
-            // check is over everyone else; a real burst of sign-ups (many, but not all, are new) still
-            // shows NEW. Gates ONLY the NEW label; point deltas are unaffected.
-            let localID = GKLocalPlayer.local.gamePlayerID
-            let others = loaded.filter { $0.player.gamePlayerID != localID }
-            let newcomers = others.reduce(0) { $0 + (baseline[$1.player.gamePlayerID] == nil ? 1 : 0) }
-            let canFlagNew = hasBaseline && newcomers < others.count
+            // NEW = players on the board not in the learned roster yet, derived live so a mid-day arrival is
+            // caught at once and persists until tomorrow. Flag nobody when the roster isn't established yet,
+            // or when it would flag EVERYONE (the "disregard if everyone is new" rule).
+            let currentNames = Set(loaded.map { $0.player.displayName })
+            let othersNow = currentNames.subtracting([localName])
+            let unknownNow = othersNow.subtracting(known)
+            let newToday: Set<String> = (known.isEmpty || (!othersNow.isEmpty && unknownNow.count == othersNow.count)) ? [] : unknownNow
             func decorate(_ e: Entry) -> Entry {
                 var e = e
-                if let base = baseline[e.id] {
-                    e.delta = e.score - base
-                    e.isNew = false
-                } else {
-                    e.delta = nil
-                    e.isNew = canFlagNew && !e.isLocalPlayer   // you're never "new" to yourself
-                }
+                e.delta = windowStart[e.displayName].map { e.score - $0 }   // keyed by nickname (launch-stable)
+                e.isNew = newToday.contains(e.displayName) && !e.isLocalPlayer
                 return e
             }
             entries = loaded.map { decorate(Self.makeEntry(from: $0)) }
@@ -226,42 +241,41 @@ final class GameCenterManager: ObservableObject {
         }
     }
 
-    // Persisted locally first (UserDefaults — works offline and with no iCloud account, survives
-    // relaunch) and mirrored to the iCloud KVS for cross-device sync + reinstall recovery:
-    //  • baseline     — the frozen comparison point for today's deltas/NEW (your last visit's scores)
-    //  • baselineDate — the day that baseline belongs to (a new day promotes lastSeen → baseline)
-    //  • lastSeen     — the most recent scores you actually saw; becomes the baseline on your next visit
-    // _v3 keys discard the earlier daily-reset model's blobs.
-    private let baselineKey = "DigAPigToo_LBBaseline_v3"
-    private let baselineDateKey = "DigAPigToo_LBBaselineDate_v3"
-    private let lastSeenKey = "DigAPigToo_LBLastSeen_v3"
-    private let legacyBaselineKey = "DigAPigToo_LBDailyBaseline_v2"   // previous model's score snapshot
-    private func decodeSnap(_ d: Data?) -> [String: Int]? {
-        guard let d, let m = try? JSONDecoder().decode([String: Int].self, from: d) else { return nil }
-        return m
+    // All leaderboard delta/NEW state in ONE blob, persisted with an ATOMIC FILE WRITE (write-to-temp +
+    // rename) so it is durable the instant it's saved and a force-quit can't drop it — the earlier
+    // UserDefaults approach could lose an un-flushed write on a hard force-quit, which zeroed the deltas
+    // on relaunch. Also mirrored to the iCloud KVS for cross-device sync + reinstall recovery.
+    //  • windowStart — scores when the current day's delta window began (deltas = current − windowStart)
+    //  • lastSeen    — scores at your most recent login; becomes the next day's windowStart
+    //  • cycleDay    — the day windowStart belongs to (detects the first login of a new day)
+    //  • known       — the roster you've already met; anyone not in it is flagged NEW
+    private struct LBState: Codable {
+        var windowStart: [String: Int] = [:]
+        var lastSeen: [String: Int] = [:]
+        var known: [String] = []
+        var cycleDay: Double = 0
     }
-    private func loadBaseline() -> [String: Int] {
-        decodeSnap(CloudSync.localData(forKey: baselineKey)) ?? [:]
+    private let lbStateFile = "lb_state_v6.json"           // v6: nickname-keyed, discards old ID-keyed blobs
+    private let lbStateKVSKey = "DigAPigToo_LBState_v6"
+
+    private func lbStateURL() -> URL? {
+        let fm = FileManager.default
+        guard let dir = try? fm.url(for: .applicationSupportDirectory, in: .userDomainMask,
+                                    appropriateFor: nil, create: true) else { return nil }
+        return dir.appendingPathComponent(lbStateFile)
     }
-    private func saveBaseline(_ snap: [String: Int]) {
-        CloudSync.setLocal(try? JSONEncoder().encode(snap), forKey: baselineKey); _ = CloudSync.flush()
+    private func loadLBState() -> LBState {
+        // Durable local file first; fall back to the iCloud KVS mirror (fresh install / another device).
+        if let url = lbStateURL(), let d = try? Data(contentsOf: url),
+           let s = try? JSONDecoder().decode(LBState.self, from: d) { return s }
+        if let d = CloudSync.data(forKey: lbStateKVSKey),
+           let s = try? JSONDecoder().decode(LBState.self, from: d) { return s }
+        return LBState()
     }
-    private func loadLastSeen() -> [String: Int] {
-        // Fall back to the previous build's start-of-day snapshot the first time, so existing testers get
-        // a reference (and see deltas) immediately instead of waiting a day for a fresh one to accrue.
-        decodeSnap(CloudSync.localData(forKey: lastSeenKey))
-            ?? decodeSnap(CloudSync.data(forKey: legacyBaselineKey))
-            ?? [:]
-    }
-    private func saveLastSeen(_ snap: [String: Int]) {
-        CloudSync.setLocal(try? JSONEncoder().encode(snap), forKey: lastSeenKey); _ = CloudSync.flush()
-    }
-    private func loadBaselineDate() -> Date? {
-        let t = CloudSync.localDouble(forKey: baselineDateKey)
-        return t > 0 ? Date(timeIntervalSinceReferenceDate: t) : nil
-    }
-    private func saveBaselineDate(_ date: Date) {
-        CloudSync.setLocal(date.timeIntervalSinceReferenceDate, forKey: baselineDateKey); _ = CloudSync.flush()
+    private func saveLBState(_ s: LBState) {
+        guard let d = try? JSONEncoder().encode(s) else { return }
+        if let url = lbStateURL() { try? d.write(to: url, options: .atomic) }   // durable immediately
+        CloudSync.set(d, forKey: lbStateKVSKey); _ = CloudSync.flush()          // mirror to iCloud (best-effort)
     }
 
     private static func makeEntry(from e: GKLeaderboard.Entry, forcedLocal: Bool = false) -> Entry {

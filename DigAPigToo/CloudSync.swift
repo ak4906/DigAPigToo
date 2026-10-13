@@ -48,7 +48,8 @@ enum CloudSync {
     static func setLocal(_ data: Data?, forKey key: String) {
         if let data { UserDefaults.standard.set(data, forKey: key) }
         else { UserDefaults.standard.removeObject(forKey: key) }
-        set(data, forKey: key)            // mirror to iCloud KVS (best-effort; no-op offline/without iCloud)
+        UserDefaults.standard.synchronize()   // flush to disk NOW so a force-quit can't drop the write
+        set(data, forKey: key)                // mirror to iCloud KVS (best-effort; no-op offline/without iCloud)
     }
     static func localDouble(forKey key: String) -> Double {
         if UserDefaults.standard.object(forKey: key) != nil { return UserDefaults.standard.double(forKey: key) }
@@ -56,6 +57,7 @@ enum CloudSync {
     }
     static func setLocal(_ value: Double, forKey key: String) {
         UserDefaults.standard.set(value, forKey: key)
+        UserDefaults.standard.synchronize()
         set(value, forKey: key)
     }
 

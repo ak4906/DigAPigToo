@@ -1402,6 +1402,7 @@ struct DetailSection<Content: View>: View {
 
 struct TracesView: View {
     @StateObject private var dataManager = AnatomyDataManager.shared
+    @StateObject private var traceProgress = TraceProgressManager.shared
 
     var grouped: [(String, [TraceQuestion])] {
         let cats = dataManager.traceCategories
@@ -1426,9 +1427,16 @@ struct TracesView: View {
                                             .lineLimit(2)
                                     }
                                     Spacer()
-                                    if trace.highYield {
-                                        Image(systemName: "star.fill").foregroundStyle(.yellow).font(.caption)
+                                    // Mastered (a perfect, every-step run) → green check, so it's clear
+                                    // what you've already nailed vs. still have to work on.
+                                    if traceProgress.isPerfected(trace) {
+                                        Image(systemName: "checkmark.seal.fill")
+                                            .foregroundStyle(.green).font(.subheadline)
                                     }
+                                    // Step count up front = a gauge of how big the trace is before you start.
+                                    Text("\(trace.steps.count) step\(trace.steps.count == 1 ? "" : "s")")
+                                        .font(.caption2.monospacedDigit())
+                                        .foregroundStyle(.secondary)
                                 }
                                 .padding(.vertical, 2)
                             }

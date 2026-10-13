@@ -69,9 +69,20 @@ final class TraceProgressManager: ObservableObject {
         save()
     }
 
-    /// Mastered-trace count over a set of traces (fully-recalled), for display.
+    /// Mastered-trace count: traces you've recalled PERFECTLY (every step) in a single run. Uses the best
+    /// run ever (stored), so a clean run counts the moment you do it — in either practice style — and
+    /// retroactively credits clean runs already done. (A whole multi-step trace done perfectly in one
+    /// pass isn't luck, so one perfect run is enough; it no longer needs two MC passes.)
     func masteredCount(in traces: [TraceQuestion]) -> Int {
-        traces.reduce(0) { $0 + (isMastered($1.title) ? 1 : 0) }
+        traces.reduce(0) { count, t in
+            let steps = t.steps.count
+            return count + (steps > 0 && (progress[t.title]?.bestCorrect ?? 0) >= steps ? 1 : 0)
+        }
+    }
+
+    /// Whether a specific trace has been perfectly recalled in one run (every step), for per-trace UI.
+    func isPerfected(_ trace: TraceQuestion) -> Bool {
+        trace.steps.count > 0 && (progress[trace.title]?.bestCorrect ?? 0) >= trace.steps.count
     }
 
     /// Partial-credit sum for the mastery score: each trace contributes the fraction of its steps you

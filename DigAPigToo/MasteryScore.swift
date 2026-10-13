@@ -36,6 +36,12 @@ struct MasteryScore {
     var traceFrac: Double { traceTotal > 0 ? traceCredit / Double(traceTotal) : 0 }
     var fillFrac: Double { fillTotal > 0 ? fillCredit / Double(fillTotal) : 0 }
 
+    // Fully-MASTERED fractions (vs the partial-credit `*Frac` above, which the points use). Achievements
+    // key off these so "half mastered" means half of them actually mastered, not half the credit earned.
+    var idMasteredFrac: Double { idTotal > 0 ? Double(idMastered) / Double(idTotal) : 0 }
+    var traceMasteredFrac: Double { traceTotal > 0 ? Double(traceMastered) / Double(traceTotal) : 0 }
+    var fillMasteredFrac: Double { fillTotal > 0 ? Double(fillMastered) / Double(fillTotal) : 0 }
+
     // MARK: Mastery (understanding) — the primary 0…1000 component
     var masteryPoints: Int {
         Int((Self.idWeight * idFrac + Self.traceWeight * traceFrac + Self.fillWeight * fillFrac) * 1000)
